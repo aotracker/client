@@ -1,0 +1,97 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1783369310347,
+      "tag": "0000_init",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783369310348,
+      "tag": "0003_kill_detail_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783369310349,
+      "tag": "0004_remove_unknown_content_type",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783369310350,
+      "tag": "0005_postgres_job_queue",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783369310351,
+      "tag": "0006_cron_job_state",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783369310352,
+      "tag": "0007_item_market_prices",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784650000000,
+      "tag": "0008_guild_top_battles_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784835000000,
+      "tag": "0009_kill_participants_guild_name_idx",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784900000000,
+      "tag": "0010_guild_recent_battles_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785200000000,
+      "tag": "0011_alliance_battles_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1785400000000,
+      "tag": "0012_kill_events_fame_positive_idx",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785450000000,
+      "tag": "0013_battle_detail_sync_unavailable",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1785500000000,
+      "tag": "0014_api_sync_health_columns",
+      "breakpoints": true
+    }
+  ]
+}

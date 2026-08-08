@@ -1,0 +1,50 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+.vercel
+
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+debug-*.log
+.cursor/debug-*.log
+
+# env files (droplet/local secrets — never commit)
+.env
+.env*.local
+
+# Local migration dry-run dumps (never commit)
+/.migration-dryrun/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Cached Albion item icons (see data/item-icon-manifest.json; sync to CDN separately)
+/public/item-icons/*.png
+
+# Raw ao-bin-dumps download (regenerate via npm run items:catalog)
+/data/ao-items-raw.json

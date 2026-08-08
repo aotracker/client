@@ -1,0 +1,84 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@/lib/db/queries": [
+        "./src/lib/db/queries.ts"
+      ],
+      "@/lib/db": [
+        "../packages/core/src/db/index.ts"
+      ],
+      "@/lib/db/*": [
+        "../packages/core/src/db/*"
+      ],
+      "@/lib/albion/*": [
+        "../packages/core/src/albion/*"
+      ],
+      "@/lib/jobs/queue": [
+        "./src/lib/jobs/queue.ts"
+      ],
+      "@/lib/jobs/cron-state": [
+        "./src/lib/jobs/cron-state.ts"
+      ],
+      "@/lib/jobs/types": [
+        "./src/lib/jobs/types.ts"
+      ],
+      "@/lib/jobs/cron-auth": [
+        "./src/lib/jobs/cron-auth.ts"
+      ],
+      "@/lib/jobs/triggers": [
+        "./src/lib/jobs/triggers.ts"
+      ],
+      "@/lib/battles-constants": [
+        "../packages/core/src/battles-constants.ts"
+      ],
+      "@aotracker/core/*": [
+        "../packages/core/src/*"
+      ],
+      "drizzle-orm": [
+        "../node_modules/drizzle-orm"
+      ],
+      "postgres": [
+        "../node_modules/postgres"
+      ],
+      "uuid": [
+        "../node_modules/uuid"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "scripts"
+  ]
+}

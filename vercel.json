@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [],
+  "installCommand": "cd .. && npm install -w albion-kill-tracker -w @aotracker/core",
+  "buildCommand": "npm run build",
+  "framework": "nextjs"
+}

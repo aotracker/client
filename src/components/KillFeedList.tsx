@@ -1,0 +1,268 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { KillCard } from "@/components/KillCard";
+import { Button } from "@/components/ui/button";
+import type { AlbionRegion } from "@/lib/albion/types";
+import type { ContentTypeFilter } from "@/lib/db/queries";
+import { formatRelativeTime } from "@/lib/utils";
+
+export type KillFeedEvent = {
+  eventId: number;
+  region: string;
+  occurredAt: Date | string;
+  contentType: string;
+  totalVictimKillFame: number | null;
+  killer?: {
+    albionId: string;
+    name: string;
+    guild?: { name: string; albionId?: string } | null;
+  } | null;
+  victim?: {
+    albionId: string;
+    name: string;
+    guild?: { name: string; albionId?: string } | null;
+  } | null;
+  items?: {
+    ownerRole: string;
+    slot: string | null;
+    itemType: string;
+    quality: number | null;
+    category: string;
+  }[];
+  participants?: {
+    role: string;
+    averageItemPower: string | null;
+  }[];
+};
+
+interface KillFeedListProps {
+  initialEvents: KillFeedEvent[];
+  region: AlbionRegion | "all";
+  contentType: ContentTypeFilter;
+  pageSize: number;
+}
+
+const POLL_MS = 20_000;
+const MAX_EVENTS = 150;
+
+function eventKey(event: KillFeedEvent): string {
+  return `${event.region}-${event.eventId}`;
+}
+
+function toDate(value: Date | string): Date {
+  return value instanceof Date ? value : new Date(value);
+}
+
+export function KillFeedList({
+  initialEvents,
+  region,
+  contentType,
+  pageSize,
+}: KillFeedListProps) {
+  const [events, setEvents] = useState(initialEvents);
+  const [offset, setOffset] = useState(initialEvents.length);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(initialEvents.length >= pageSize);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingNew, setPendingNew] = useState<KillFeedEvent[]>([]);
+  const [lastPollAt, setLastPollAt] = useState<Date | null>(null);
+  const [nearTop, setNearTop] = useState(true);
+  const [freshIds, setFreshIds] = useState<Set<string>>(() => new Set());
+  const loadingRef = useRef(false);
+  const listTopRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onScroll() {
+      const top = listTopRef.current?.getBoundingClientRect().top ?? 0;
+      setNearTop(top > -80);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const pollNew = useCallback(async () => {
+    if (loadingRef.current) return;
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+      return;
+    }
+
+    const newest = events[0];
+    if (!newest) return;
+
+    try {
+      const occurredAt = toDate(newest.occurredAt);
+      const params = new URLSearchParams({
+        limit: "20",
+        after: occurredAt.toISOString(),
+        afterEventId: String(newest.eventId),
+      });
+      if (region !== "all") params.set("region", region);
+      if (contentType !== "all") params.set("type", contentType);
+
+      const res = await fetch(`/api/kills?${params.toString()}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+
+      const data = (await res.json()) as { events?: KillFeedEvent[] };
+      const incoming = data.events ?? [];
+      setLastPollAt(new Date());
+      if (incoming.length === 0) return;
+
+      const existing = new Set(events.map(eventKey));
+      const fresh = incoming.filter((e) => !existing.has(eventKey(e)));
+      if (fresh.length === 0) return;
+
+      if (nearTop) {
+        const freshKeys = fresh.map(eventKey);
+        setFreshIds(new Set(freshKeys));
+        window.setTimeout(() => setFreshIds(new Set()), 400);
+        setEvents((prev) => {
+          const keys = new Set(prev.map(eventKey));
+          const merged = [...fresh.filter((e) => !keys.has(eventKey(e))), ...prev];
+          return merged.slice(0, MAX_EVENTS);
+        });
+        setPendingNew([]);
+      } else {
+        setPendingNew((prev) => {
+          const keys = new Set([
+            ...prev.map(eventKey),
+            ...events.map(eventKey),
+          ]);
+          const next = [
+            ...fresh.filter((e) => !keys.has(eventKey(e))),
+            ...prev,
+          ];
+          return next.slice(0, 50);
+        });
+      }
+    } catch {
+      // soft-fail polls
+    }
+  }, [contentType, events, nearTop, region]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      void pollNew();
+    }, POLL_MS);
+    return () => window.clearInterval(id);
+  }, [pollNew]);
+
+  function revealPending() {
+    if (pendingNew.length === 0) return;
+    const freshKeys = pendingNew.map(eventKey);
+    setFreshIds(new Set(freshKeys));
+    window.setTimeout(() => setFreshIds(new Set()), 400);
+    setEvents((prev) => {
+      const keys = new Set(prev.map(eventKey));
+      const merged = [
+        ...pendingNew.filter((e) => !keys.has(eventKey(e))),
+        ...prev,
+      ];
+      return merged.slice(0, MAX_EVENTS);
+    });
+    setPendingNew([]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function loadMore() {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    loadingRef.current = true;
+    setError(null);
+
+    try {
+      const params = new URLSearchParams({
+        limit: String(pageSize),
+        offset: String(offset),
+      });
+      if (region !== "all") params.set("region", region);
+      if (contentType !== "all") params.set("type", contentType);
+
+      const res = await fetch(`/api/kills?${params.toString()}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        throw new Error("Failed to load more kills");
+      }
+
+      const data = (await res.json()) as { events?: KillFeedEvent[] };
+      const next = data.events ?? [];
+      setEvents((prev) => [...prev, ...next].slice(0, MAX_EVENTS));
+      setOffset((prev) => prev + next.length);
+      setHasMore(next.length >= pageSize);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load more kills");
+    } finally {
+      setLoading(false);
+      loadingRef.current = false;
+    }
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="rounded-md border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+        No kills match these filters
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div ref={listTopRef} />
+
+      {pendingNew.length > 0 && (
+        <div className="flex justify-center">
+          <Button type="button" size="sm" variant="outline" onClick={revealPending}>
+            {pendingNew.length} new kill{pendingNew.length === 1 ? "" : "s"} — show
+          </Button>
+        </div>
+      )}
+
+      <div className="space-y-2 stagger-children">
+        {events.map((event) => {
+          const key = eventKey(event);
+          return (
+            <div
+              key={key}
+              className={freshIds.has(key) ? "animate-feed-enter" : undefined}
+            >
+              <KillCard
+                event={{
+                  ...event,
+                  occurredAt: toDate(event.occurredAt),
+                }}
+                compact
+                compactSize="large"
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {error && (
+        <p className="text-center text-sm text-danger-foreground">{error}</p>
+      )}
+
+      {hasMore && (
+        <div className="flex justify-center pt-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadMore}
+            disabled={loading}
+          >
+            {loading ? "Loading…" : "Load more"}
+          </Button>
+        </div>
+      )}
+
+      <p className="text-center text-[11px] text-muted-foreground">
+        Auto-updates every 20s
+        {lastPollAt ? ` · checked ${formatRelativeTime(lastPollAt)}` : ""}
+      </p>
+    </div>
+  );
+}
