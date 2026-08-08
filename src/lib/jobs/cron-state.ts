@@ -1,1 +1,1 @@
-export * from "../../../../packages/core/src/jobs/worker-state";
+export * from "./worker-state";

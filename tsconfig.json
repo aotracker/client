@@ -30,13 +30,13 @@
         "./src/lib/db/queries.ts"
       ],
       "@/lib/db": [
-        "../packages/core/src/db/index.ts"
+        "./src/lib/db/index.ts"
       ],
       "@/lib/db/*": [
-        "../packages/core/src/db/*"
+        "./src/lib/db/*"
       ],
       "@/lib/albion/*": [
-        "../packages/core/src/albion/*"
+        "./src/lib/albion/*"
       ],
       "@/lib/jobs/queue": [
         "./src/lib/jobs/queue.ts"
@@ -54,19 +54,7 @@
         "./src/lib/jobs/triggers.ts"
       ],
       "@/lib/battles-constants": [
-        "../packages/core/src/battles-constants.ts"
-      ],
-      "@aotracker/core/*": [
-        "../packages/core/src/*"
-      ],
-      "drizzle-orm": [
-        "../node_modules/drizzle-orm"
-      ],
-      "postgres": [
-        "../node_modules/postgres"
-      ],
-      "uuid": [
-        "../node_modules/uuid"
+        "./src/lib/battles-constants.ts"
       ]
     }
   },

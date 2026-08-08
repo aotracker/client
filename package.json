@@ -11,10 +11,18 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "vm:icons:cache": "tsx --env-file=.env ../deploy/vm/scripts/cache-item-icons.ts",
+    "vm:icons:push": "bash ../deploy/vm/scripts/commit-push-icon-cache.sh",
+    "vm:items:catalog": "tsx ../deploy/vm/scripts/build-item-catalog.ts",
+    "vm:db:apply-api-sync-health": "tsx --env-file=.env ../deploy/vm/scripts/apply-api-sync-health-schema.ts",
+    "vm:db:apply-alliance-battles": "tsx --env-file=.env ../deploy/vm/scripts/apply-alliance-battles-schema.ts",
+    "vm:db:apply-kill-fame-idx": "tsx --env-file=.env ../deploy/vm/scripts/apply-kill-fame-idx.ts",
+    "vm:db:apply-battle-detail-unavailable": "tsx --env-file=.env ../deploy/vm/scripts/apply-battle-detail-unavailable-schema.ts",
+    "vm:db:apply-battle-detail-eviction": "tsx --env-file=.env ../deploy/vm/scripts/apply-battle-detail-eviction-schema.ts",
+    "vm:db:reclassify": "tsx --env-file=.env ../deploy/vm/scripts/reclassify-kills.ts"
   },
   "dependencies": {
-    "@aotracker/core": "file:../packages/core",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.38.3",
@@ -37,6 +45,7 @@
     "eslint-config-next": "^16.3.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }

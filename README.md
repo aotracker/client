@@ -17,7 +17,7 @@ Workers and the ingest API live in [`../ingest/`](../ingest/) and are **never** 
 | Setting | Value |
 |---------|-------|
 | Root Directory | `client` |
-| Install Command | `cd .. && npm install -w albion-kill-tracker -w @aotracker/core` ([vercel.json](vercel.json)) |
+| Install Command | `npm install` (default) |
 | Build Command | `npm run build` |
 
 ## Environment variables
@@ -39,13 +39,13 @@ Copy [.env.example](.env.example) for local development.
 
 ## Local development
 
-From repo root:
+From `client/`:
 
 ```bash
 npm install
-docker compose -f deploy/docker-compose.yml up -d
-cp client/.env.example client/.env
-cd client && npm run db:push && npm run dev
+docker compose -f ../deploy/docker-compose.yml up -d
+cp .env.example .env
+npm run db:push && npm run dev
 ```
 
 Start workers and API:
@@ -69,7 +69,7 @@ Or separately: `npm run worker` and `npm run api`.
 | `npm run db:generate` | Generate migrations from schema |
 | `npm run db:studio` | Drizzle Studio |
 
-VM maintenance scripts (icon cache, one-off schema helpers) are in [`../deploy/vm/scripts/`](../deploy/vm/scripts/) and run via root `npm run vm:*` — not on Vercel.
+VM maintenance scripts (icon cache, one-off schema helpers) are in [`../deploy/vm/scripts/`](../deploy/vm/scripts/) and run via `npm run vm:*` from this folder — not on Vercel.
 
 ## Project structure
 

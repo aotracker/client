@@ -10,7 +10,7 @@ import {
   type AlbionRegion,
 } from "@/lib/albion/types";
 
-const EMPTY_LOCAL = {
+const EMPTY_LOCAL: Awaited<ReturnType<typeof searchLocal>> = {
   players: [],
   guilds: [],
   alliances: [],
