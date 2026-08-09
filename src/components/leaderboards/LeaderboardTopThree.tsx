@@ -9,22 +9,32 @@ import { cn } from "@/lib/utils";
 
 interface LeaderboardTopThreeProps {
   entries: LeaderboardPodiumEntry[];
+  variant?: "podium" | "stack";
 }
 
-export function LeaderboardTopThree({ entries }: LeaderboardTopThreeProps) {
-  const topThree = entries.slice(0, 3);
-  if (topThree.length === 0) return null;
+export function LeaderboardTopThree({
+  entries,
+  variant = "podium",
+}: LeaderboardTopThreeProps) {
+  const displayed =
+    variant === "podium" ? entries.slice(0, 3) : entries;
+  if (displayed.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-      {topThree.map((entry) => (
+    <div
+      className={cn(
+        "grid gap-2.5",
+        variant === "podium" ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1"
+      )}
+    >
+      {displayed.map((entry) => (
         <Link
           key={entry.rank}
           href={entry.href}
           className={cn(
             "flex min-w-0 items-center gap-3 rounded-lg border px-3.5 py-3 transition-colors hover:bg-primary/[0.12]",
             leaderboardPodiumCardClassName(entry.rank),
-            entry.rank === 1 && "sm:py-3.5"
+            variant === "podium" && entry.rank === 1 && "sm:py-3.5"
           )}
         >
           <LeaderboardRankBadge rank={entry.rank} variant="podium" />

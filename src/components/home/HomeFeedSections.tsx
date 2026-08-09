@@ -14,8 +14,8 @@ import { appendFeedRegionToHref } from "@/lib/region-params";
 import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
 
 const FEED_PAGE_SIZE = 30;
-const HOME_JUICY_LIMIT = 3;
-const HOME_KILLERS_LIMIT = 3;
+const HOME_JUICY_LIMIT = 10;
+const HOME_KILLERS_LIMIT = 10;
 
 const FEED_TITLE_CLASS = "text-2xl font-semibold tracking-tight";
 
@@ -76,7 +76,7 @@ export async function JuicyKillsSection({
   if (error) {
     return (
       <PageSection
-        title="Juicy Kills"
+        title="Top 10 Juicy Kills"
         description="Highest fame kills · Last 7 days"
       >
         <div className="alert-danger rounded-md p-4 text-sm">
@@ -88,7 +88,7 @@ export async function JuicyKillsSection({
 
   return (
     <PageSection
-      title="Juicy Kills"
+      title="Top 10 Juicy Kills"
       description="Highest fame kills · Last 7 days"
       actions={
         <Link
@@ -120,7 +120,7 @@ export async function JuicyKillsSection({
 
 export function JuicyKillsFallback() {
   return (
-    <PageSection title="Juicy Kills" description="Highest fame kills · Last 7 days">
+    <PageSection title="Top 10 Juicy Kills" description="Highest fame kills · Last 7 days">
       <div
         className="space-y-2"
         aria-busy="true"
@@ -155,7 +155,7 @@ export async function TopKillersSection({
   if (error) {
     return (
       <PageSection
-        title="Top Killers"
+        title="Top 10 Killers"
         description="Most PvP kills · Last 7 days"
       >
         <div className="alert-danger rounded-md p-4 text-sm">
@@ -167,7 +167,7 @@ export async function TopKillersSection({
 
   return (
     <PageSection
-      title="Top Killers"
+      title="Top 10 Killers"
       description="Most PvP kills · Last 7 days"
       actions={
         <Link
@@ -180,16 +180,16 @@ export async function TopKillersSection({
         </Link>
       }
     >
-      <TopKillersList killers={topKillers} layout="podium" />
+      <TopKillersList killers={topKillers} layout="stack" />
     </PageSection>
   );
 }
 
 export function TopKillersFallback() {
   return (
-    <PageSection title="Top Killers" description="Most PvP kills · Last 7 days">
+    <PageSection title="Top 10 Killers" description="Most PvP kills · Last 7 days">
       <div
-        className="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+        className="grid grid-cols-1 gap-2.5"
         aria-busy="true"
         aria-label="Loading top killers"
       >

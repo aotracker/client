@@ -24,7 +24,7 @@ const KILLER_HEADER_COLUMNS = [
 ];
 
 function killersToPodium(killers: TopKillerEntry[]): LeaderboardPodiumEntry[] {
-  return killers.slice(0, 3).map((entry) => ({
+  return killers.map((entry) => ({
     rank: entry.rank,
     name: entry.player.name,
     href: playerPath(entry.player.region, entry.player.name),
@@ -42,7 +42,7 @@ function killersToPodium(killers: TopKillerEntry[]): LeaderboardPodiumEntry[] {
 
 interface TopKillersListProps {
   killers: TopKillerEntry[];
-  layout?: "default" | "wide" | "podium";
+  layout?: "default" | "wide" | "podium" | "stack";
 }
 
 function KillerRow({
@@ -170,7 +170,11 @@ export function TopKillersList({
   }
 
   if (layout === "podium") {
-    return <LeaderboardTopThree entries={killersToPodium(killers)} />;
+    return <LeaderboardTopThree entries={killersToPodium(killers)} variant="podium" />;
+  }
+
+  if (layout === "stack") {
+    return <LeaderboardTopThree entries={killersToPodium(killers)} variant="stack" />;
   }
 
   const wide = layout === "wide";

@@ -2,15 +2,24 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { searchLocal } from "@/lib/db/queries";
 import {
+  ensureLiveSearchQueued,
+  getLiveSearchJobInfo,
+} from "@/lib/ingest-api";
+import {
   ENABLED_REGIONS,
   getDefaultRegion,
   isRegionEnabled,
   type AlbionRegion,
 } from "@/lib/albion/types";
+import {
+  isLiveSearchInProgress,
+  resolveLiveSearchRegions,
+} from "@/lib/search/live-search";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/PageSection";
 import { SearchForm } from "@/components/SearchForm";
+import { SearchLivePoller } from "@/components/SearchLivePoller";
 import { formatFame, regionLabel } from "@/lib/utils";
 import { buildPageMetadata, guildPath, NOINDEX_FOLLOW, playerPath } from "@/lib/seo";
 
@@ -32,6 +41,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const preferredRegion: AlbionRegion = isRegionEnabled(requestedRegion)
     ? requestedRegion
     : getDefaultRegion();
+  const liveRegions = resolveLiveSearchRegions(null);
 
   if (!query) {
     return (
@@ -54,6 +64,25 @@ export default async function SearchPage({ searchParams }: PageProps) {
     alliances: [] as Awaited<ReturnType<typeof searchLocal>>["alliances"],
   };
   let searchError: string | null = null;
+  let liveSearch = {
+    state: null as string | null,
+    playersFound: null as number | null,
+    guildsFound: null as number | null,
+    regionsSearched: liveRegions,
+    lastError: null as string | null,
+    searching: false,
+  };
+
+  try {
+    await ensureLiveSearchQueued(query, liveRegions, { immediate: true });
+    const jobInfo = await getLiveSearchJobInfo(query, liveRegions);
+    liveSearch = {
+      ...jobInfo,
+      searching: isLiveSearchInProgress(jobInfo.state),
+    };
+  } catch {
+    // Ingest unavailable — local search still works.
+  }
 
   try {
     localResults = await searchLocal(query);
@@ -61,6 +90,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
     searchError =
       error instanceof Error ? error.message : "Search temporarily unavailable";
   }
+
+  const hasResults =
+    localResults.players.length > 0 ||
+    localResults.guilds.length > 0 ||
+    localResults.alliances.length > 0;
 
   return (
     <div className="space-y-6">
@@ -73,6 +107,14 @@ export default async function SearchPage({ searchParams }: PageProps) {
         initialQuery={query}
         initialRegion={preferredRegion}
         regions={ENABLED_REGIONS}
+      />
+
+      <SearchLivePoller
+        query={query}
+        regions={liveRegions}
+        searching={liveSearch.searching}
+        playersFound={liveSearch.playersFound}
+        guildsFound={liveSearch.guildsFound}
       />
 
       {searchError && (
@@ -129,8 +171,13 @@ export default async function SearchPage({ searchParams }: PageProps) {
             </Card>
           ))}
 
-          {localResults.players.length === 0 && (
-            <p className="text-muted-foreground">No cached players found.</p>
+          {localResults.players.length === 0 && !liveSearch.searching && (
+            <p className="text-muted-foreground">No players found.</p>
+          )}
+          {localResults.players.length === 0 && liveSearch.searching && (
+            <p className="text-muted-foreground">
+              No cached players yet — checking Albion Online…
+            </p>
           )}
         </div>
       </PageSection>
@@ -157,8 +204,13 @@ export default async function SearchPage({ searchParams }: PageProps) {
             </Link>
           ))}
 
-          {localResults.guilds.length === 0 && (
-            <p className="text-muted-foreground">No cached guilds found.</p>
+          {localResults.guilds.length === 0 && !liveSearch.searching && (
+            <p className="text-muted-foreground">No guilds found.</p>
+          )}
+          {localResults.guilds.length === 0 && liveSearch.searching && (
+            <p className="text-muted-foreground">
+              No cached guilds yet — checking Albion Online…
+            </p>
           )}
         </div>
       </PageSection>
@@ -193,11 +245,17 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
           {localResults.alliances.length === 0 && (
             <p className="text-muted-foreground">
-              No cached alliances found. Alliance search is local-only.
+              No alliances found. Alliance search is local-only.
             </p>
           )}
         </div>
       </PageSection>
+
+      {!hasResults && !liveSearch.searching && liveSearch.lastError && (
+        <p className="text-sm text-muted-foreground">
+          Live search failed: {liveSearch.lastError}
+        </p>
+      )}
     </div>
   );
 }

@@ -146,8 +146,10 @@ export function SearchAutocomplete({
     }
 
     let cancelled = false;
+    let pollTimer: number | undefined;
     setLoading(true);
-    const timer = window.setTimeout(async () => {
+
+    async function runSearch() {
       try {
         const params = new URLSearchParams({
           q: trimmed,
@@ -172,16 +174,17 @@ export function SearchAutocomplete({
               region: string;
             }[];
           };
+          liveSearch?: {
+            searching?: boolean;
+          };
         };
 
         if (cancelled) return;
 
         const items: SuggestItem[] = [];
-        const seen = new Set<string>();
 
         for (const p of data.local?.players ?? []) {
           const key = `player-${p.region}-${p.albionId}`;
-          seen.add(key);
           items.push({
             key,
             label: p.name,
@@ -193,7 +196,6 @@ export function SearchAutocomplete({
         }
         for (const g of data.local?.guilds ?? []) {
           const key = `guild-${g.region}-${g.albionId}`;
-          seen.add(key);
           items.push({
             key,
             label: g.name,
@@ -205,7 +207,6 @@ export function SearchAutocomplete({
         }
         for (const a of data.local?.alliances ?? []) {
           const key = `alliance-${a.region}-${a.albionId}`;
-          seen.add(key);
           items.push({
             key,
             label: a.tag ? `[${a.tag}] ${a.name}` : a.name,
@@ -218,16 +219,25 @@ export function SearchAutocomplete({
 
         setSuggestions(items.slice(0, 10));
         setActiveIndex(-1);
+
+        if (data.liveSearch?.searching && !cancelled) {
+          setLoading(true);
+          pollTimer = window.setTimeout(runSearch, 3000);
+          return;
+        }
       } catch {
         if (!cancelled) setSuggestions([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
-    }, DEBOUNCE_MS);
+    }
+
+    const timer = window.setTimeout(runSearch, DEBOUNCE_MS);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      if (pollTimer !== undefined) window.clearTimeout(pollTimer);
     };
   }, [query, region, deepLink]);
 

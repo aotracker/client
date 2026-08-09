@@ -3,6 +3,7 @@ import type {
   BattleSyncJobInfo,
   QueueStatusSnapshot,
 } from "@/lib/jobs/types";
+import type { LiveSearchJobInfo } from "@/lib/search/live-search";
 
 function getIngestApiUrl(): string | null {
   const url = process.env.INGEST_API_URL?.trim();
@@ -320,6 +321,46 @@ export async function getEntityResolveJobInfo(
 
   const data = await getJson<EntityResolveJobInfo>(
     `/jobs/entity-resolve/${encodeURIComponent(region)}/${encodeURIComponent(entityType)}/${encodeURIComponent(name.trim())}/state`
+  );
+  return data ?? empty;
+}
+
+export async function ensureLiveSearchQueued(
+  query: string,
+  regions: AlbionRegion[],
+  options?: { immediate?: boolean }
+): Promise<void> {
+  if (!isIngestApiConfigured()) return;
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return;
+  await postJson("/jobs/live-search", {
+    query: trimmed,
+    regions,
+    immediate: options?.immediate === true,
+  });
+}
+
+export async function getLiveSearchJobInfo(
+  query: string,
+  regions: AlbionRegion[]
+): Promise<LiveSearchJobInfo> {
+  const empty = {
+    state: null,
+    playersFound: null,
+    guildsFound: null,
+    regionsSearched: regions,
+    lastError: null,
+  };
+
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return empty;
+
+  const params = new URLSearchParams({
+    q: trimmed,
+    regions: regions.join(","),
+  });
+  const data = await getJson<LiveSearchJobInfo>(
+    `/jobs/live-search/state?${params}`
   );
   return data ?? empty;
 }
