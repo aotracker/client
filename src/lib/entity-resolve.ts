@@ -1,5 +1,8 @@
 import type { AlbionRegion } from "@/lib/albion/types";
-import { getAlbionClient } from "@/lib/albion/client";
+import {
+  ensureEntityResolveQueued,
+  getEntityResolveJobInfo,
+} from "@/lib/ingest-api";
 import {
   getGuildByAlbionId,
   getGuildByName,
@@ -12,6 +15,12 @@ import { feudPath, guildPath, playerPath } from "@/lib/seo";
 
 /** Albion entity IDs are long alphanumeric strings without spaces. */
 const ALBION_ID_RE = /^[A-Za-z0-9_-]{16,}$/;
+
+export type EntityResolveType = "player" | "guild";
+
+export type EntityAlbionIdResolve =
+  | { albionId: string; redirectTo?: string }
+  | { pending: true; entityName: string; entityType: EntityResolveType };
 
 export function decodeEntitySegment(segment: string): string {
   try {
@@ -180,50 +189,21 @@ export async function resolveFeudFromSegments(
   };
 }
 
-export async function searchAlbionPlayerIdByExactName(
+async function queueEntityResolveByName(
   region: AlbionRegion,
+  entityType: EntityResolveType,
   name: string
-): Promise<string | null> {
-  const client = getAlbionClient();
-  const result = await client.search(region, name, { timeout: 8_000, maxRetries: 1 });
-  const match = result.players.find((player) => player.Name === name);
-  return match?.Id?.trim() || null;
-}
-
-export async function searchAlbionGuildIdByExactName(
-  region: AlbionRegion,
-  name: string
-): Promise<string | null> {
-  const client = getAlbionClient();
-  const result = await client.search(region, name, { timeout: 8_000, maxRetries: 1 });
-  const match = result.guilds.find((guild) => guild.Name === name);
-  return match?.Id?.trim() || null;
-}
-
-export function resolveUncachedPlayerId(
-  rawSegment: string,
-  albionIdFromSearch: string | null
-): string | null {
-  const decoded = decodeEntitySegment(rawSegment);
-  if (albionIdFromSearch) return albionIdFromSearch;
-  if (looksLikeAlbionId(decoded)) return decoded;
-  return null;
-}
-
-export function resolveUncachedGuildId(
-  rawSegment: string,
-  albionIdFromSearch: string | null
-): string | null {
-  const decoded = decodeEntitySegment(rawSegment);
-  if (albionIdFromSearch) return albionIdFromSearch;
-  if (looksLikeAlbionId(decoded)) return decoded;
-  return null;
+): Promise<EntityAlbionIdResolve> {
+  await ensureEntityResolveQueued(region, entityType, name, {
+    immediate: true,
+  });
+  return { pending: true, entityName: name, entityType };
 }
 
 export async function resolvePlayerAlbionId(
   region: AlbionRegion,
   rawSegment: string
-): Promise<{ albionId: string; redirectTo?: string } | null> {
+): Promise<EntityAlbionIdResolve | null> {
   const segment = rawSegment?.trim();
   if (!segment) return null;
 
@@ -236,35 +216,41 @@ export async function resolvePlayerAlbionId(
       };
     }
   } catch {
-    // DB unavailable — fall through to ID/search resolution.
+    // DB unavailable — fall through to ID resolution.
   }
 
   const decoded = decodeEntitySegment(segment);
 
-  // Legacy ID URLs must work even when Albion search is unavailable.
   if (looksLikeAlbionId(decoded)) {
     return { albionId: decoded };
   }
 
   try {
-    const albionIdFromSearch = await searchAlbionPlayerIdByExactName(
-      region,
-      decoded
-    );
-    if (albionIdFromSearch) {
-      return { albionId: albionIdFromSearch };
+    const jobInfo = await getEntityResolveJobInfo(region, "player", decoded);
+    if (jobInfo.albionId) {
+      return { albionId: jobInfo.albionId };
+    }
+    if (jobInfo.state === "failed") {
+      return null;
+    }
+    if (jobInfo.state) {
+      return {
+        pending: true,
+        entityName: decoded,
+        entityType: "player",
+      };
     }
   } catch {
-    // Search unavailable — only ID-like segments can proceed without it.
+    // Ingest unavailable — queue below.
   }
 
-  return null;
+  return queueEntityResolveByName(region, "player", decoded);
 }
 
 export async function resolveGuildAlbionId(
   region: AlbionRegion,
   rawSegment: string
-): Promise<{ albionId: string; redirectTo?: string } | null> {
+): Promise<EntityAlbionIdResolve | null> {
   const segment = rawSegment?.trim();
   if (!segment) return null;
 
@@ -277,7 +263,7 @@ export async function resolveGuildAlbionId(
       };
     }
   } catch {
-    // DB unavailable — fall through to ID/search resolution.
+    // DB unavailable — fall through to ID resolution.
   }
 
   const decoded = decodeEntitySegment(segment);
@@ -287,16 +273,32 @@ export async function resolveGuildAlbionId(
   }
 
   try {
-    const albionIdFromSearch = await searchAlbionGuildIdByExactName(
-      region,
-      decoded
-    );
-    if (albionIdFromSearch) {
-      return { albionId: albionIdFromSearch };
+    const jobInfo = await getEntityResolveJobInfo(region, "guild", decoded);
+    if (jobInfo.albionId) {
+      return { albionId: jobInfo.albionId };
+    }
+    if (jobInfo.state === "failed") {
+      return null;
+    }
+    if (jobInfo.state) {
+      return {
+        pending: true,
+        entityName: decoded,
+        entityType: "guild",
+      };
     }
   } catch {
-    // Search unavailable — only ID-like segments can proceed without it.
+    // Ingest unavailable — queue below.
   }
 
-  return null;
+  return queueEntityResolveByName(region, "guild", decoded);
+}
+
+export async function getEntityResolveJobStateForPending(
+  region: AlbionRegion,
+  entityType: EntityResolveType,
+  entityName: string
+): Promise<string | null> {
+  const info = await getEntityResolveJobInfo(region, entityType, entityName);
+  return info.state;
 }

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { searchLocal } from "@/lib/db/queries";
 import {
@@ -12,10 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/PageSection";
 import { SearchForm } from "@/components/SearchForm";
-import {
-  SearchLiveFallback,
-  SearchLiveResults,
-} from "@/components/search/SearchLiveResults";
 import { formatFame, regionLabel } from "@/lib/utils";
 import { buildPageMetadata, guildPath, NOINDEX_FOLLOW, playerPath } from "@/lib/seo";
 
@@ -58,19 +53,14 @@ export default async function SearchPage({ searchParams }: PageProps) {
     guilds: [] as Awaited<ReturnType<typeof searchLocal>>["guilds"],
     alliances: [] as Awaited<ReturnType<typeof searchLocal>>["alliances"],
   };
+  let searchError: string | null = null;
 
   try {
     localResults = await searchLocal(query);
-  } catch {
-    // keep empty defaults
+  } catch (error) {
+    searchError =
+      error instanceof Error ? error.message : "Search temporarily unavailable";
   }
-
-  const seenPlayerIds = new Set(
-    localResults.players.map((p) => `${p.region}-${p.albionId}`)
-  );
-  const seenGuildIds = new Set(
-    localResults.guilds.map((g) => `${g.region}-${g.albionId}`)
-  );
 
   return (
     <div className="space-y-6">
@@ -84,6 +74,12 @@ export default async function SearchPage({ searchParams }: PageProps) {
         initialRegion={preferredRegion}
         regions={ENABLED_REGIONS}
       />
+
+      {searchError && (
+        <div className="alert-warning rounded-md p-3 text-sm">
+          {searchError}
+        </div>
+      )}
 
       {ENABLED_REGIONS.length === 0 && (
         <p className="text-sm text-muted-foreground">No regions enabled.</p>
@@ -202,17 +198,6 @@ export default async function SearchPage({ searchParams }: PageProps) {
           )}
         </div>
       </PageSection>
-
-      {isRegionEnabled(preferredRegion) && (
-        <Suspense fallback={<SearchLiveFallback />}>
-          <SearchLiveResults
-            query={query}
-            region={preferredRegion}
-            seenPlayerIds={seenPlayerIds}
-            seenGuildIds={seenGuildIds}
-          />
-        </Suspense>
-      )}
     </div>
   );
 }

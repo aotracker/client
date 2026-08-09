@@ -224,12 +224,6 @@ export interface ApiHealthMetrics {
   eventsIngestedLastHour: number;
 }
 
-export const REGION_BASE_URLS: Record<AlbionRegion, string> = {
-  americas: "https://gameinfo.albiononline.com/api/gameinfo",
-  europe: "https://gameinfo-ams.albiononline.com/api/gameinfo",
-  asia: "https://gameinfo-sgp.albiononline.com/api/gameinfo",
-};
-
 export const ALL_REGIONS: AlbionRegion[] = ["americas", "europe", "asia"];
 
 function parseDisabledRegions(): Set<AlbionRegion> {

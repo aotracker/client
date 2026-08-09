@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getApiSyncState, getGlobalSyncStatus, getRegionEntityCounts } from "@/lib/db/queries";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
-import { pingEnabledRegions } from "@/lib/albion/live-pings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/PageSection";
@@ -21,8 +19,6 @@ export const metadata: Metadata = buildPageMetadata({
 
 type SyncStateRow = Awaited<ReturnType<typeof getApiSyncState>>[number];
 type EntityCountRow = Awaited<ReturnType<typeof getRegionEntityCounts>>[number];
-
-type RegionStatusByKey = Partial<Record<string, RegionSyncStatus>>;
 
 export default async function HealthPage() {
   let syncStates: SyncStateRow[] = [];
@@ -92,96 +88,44 @@ export default async function HealthPage() {
         </Card>
       )}
 
-      <Suspense fallback={<HealthRegionGridFallback syncStates={syncStates} countsByRegion={countsByRegion} />}>
-        <HealthRegionGridLive
-          syncStates={syncStates}
-          countsByRegion={countsByRegion}
-          regionStatuses={Object.fromEntries(
-            (globalStatus?.regions ?? []).map((row) => [row.region, row])
-          )}
-        />
-      </Suspense>
-    </div>
-  );
-}
+      <div className="grid gap-4 md:grid-cols-3">
+        {ENABLED_REGIONS.map((region) => {
+          const dbState = syncStates.find((s) => s.region === region);
+          const circuitOpen = dbState?.circuitOpen === 1;
+          const healthCheckOk = (dbState?.lastHealthCheckOk ?? 0) === 1;
+          const isOnline = healthCheckOk && !circuitOpen;
+          const counts = countsByRegion.get(region);
+          const liveLabel = dbState?.lastHealthCheckAt
+            ? healthCheckOk
+              ? `Online (${dbState.avgLatencyMs ?? 0}ms)`
+              : `Offline (${dbState.avgLatencyMs ?? 0}ms)`
+            : "Awaiting health check";
 
-async function HealthRegionGridLive({
-  syncStates,
-  countsByRegion,
-  regionStatuses,
-}: {
-  syncStates: SyncStateRow[];
-  countsByRegion: Map<string, EntityCountRow>;
-  regionStatuses: RegionStatusByKey;
-}) {
-  const livePings = await pingEnabledRegions();
-
-  return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {ENABLED_REGIONS.map((region) => {
-        const dbState = syncStates.find((s) => s.region === region);
-        const live = livePings[region];
-        const circuitOpen = dbState?.circuitOpen === 1;
-        const isOnline = live.ok && !circuitOpen;
-        const counts = countsByRegion.get(region);
-
-        return (
-          <HealthRegionCard
-            key={region}
-            regionLabel={regionLabel(region)}
-            statusDot={
-              isOnline ? "online" : circuitOpen ? "circuit" : "offline"
-            }
-            liveLabel={
-              live.ok
-                ? `Online (${live.latencyMs}ms)`
-                : `Offline (${live.latencyMs}ms)`
-            }
-            circuitOpen={circuitOpen}
-            lastIngest={dbState?.lastIngestAt ?? dbState?.lastSuccessAt ?? null}
-            lastHealthCheck={dbState?.lastHealthCheckAt ?? null}
-            healthCheckOk={(dbState?.lastHealthCheckOk ?? 0) === 1}
-            regionStatus={regionStatuses[region]}
-            players={(counts?.players ?? 0).toLocaleString()}
-            guilds={(counts?.guilds ?? 0).toLocaleString()}
-            kills={(counts?.kills ?? 0).toLocaleString()}
-            battles={(counts?.battles ?? 0).toLocaleString()}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-function HealthRegionGridFallback({
-  syncStates,
-  countsByRegion,
-}: {
-  syncStates: SyncStateRow[];
-  countsByRegion: Map<string, EntityCountRow>;
-}) {
-  return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {ENABLED_REGIONS.map((region) => {
-        const dbState = syncStates.find((s) => s.region === region);
-        const circuitOpen = dbState?.circuitOpen === 1;
-        const counts = countsByRegion.get(region);
-
-        return (
-          <HealthRegionCard
-            key={region}
-            regionLabel={regionLabel(region)}
-            statusDot={circuitOpen ? "circuit" : "pending"}
-            liveLabel="Checking…"
-            circuitOpen={circuitOpen}
-            lastIngest={dbState?.lastIngestAt ?? dbState?.lastSuccessAt ?? null}
-            players={(counts?.players ?? 0).toLocaleString()}
-            guilds={(counts?.guilds ?? 0).toLocaleString()}
-            kills={(counts?.kills ?? 0).toLocaleString()}
-            battles={(counts?.battles ?? 0).toLocaleString()}
-          />
-        );
-      })}
+          return (
+            <HealthRegionCard
+              key={region}
+              regionLabel={regionLabel(region)}
+              statusDot={
+                isOnline ? "online" : circuitOpen ? "circuit" : "offline"
+              }
+              liveLabel={liveLabel}
+              circuitOpen={circuitOpen}
+              lastIngest={dbState?.lastIngestAt ?? dbState?.lastSuccessAt ?? null}
+              lastHealthCheck={dbState?.lastHealthCheckAt ?? null}
+              healthCheckOk={healthCheckOk}
+              regionStatus={
+                Object.fromEntries(
+                  (globalStatus?.regions ?? []).map((row) => [row.region, row])
+                )[region]
+              }
+              players={(counts?.players ?? 0).toLocaleString()}
+              guilds={(counts?.guilds ?? 0).toLocaleString()}
+              kills={(counts?.kills ?? 0).toLocaleString()}
+              battles={(counts?.battles ?? 0).toLocaleString()}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -232,7 +176,7 @@ function HealthRegionCard({
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Live API</span>
+          <span className="text-muted-foreground">API health</span>
           <span>{liveLabel}</span>
         </div>
         <div className="flex justify-between">

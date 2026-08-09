@@ -1,4 +1,3 @@
-import { cache } from "../cache";
 import type {
   AlbionBattle,
   AlbionBattleAllianceStats,
@@ -6,36 +5,10 @@ import type {
   AlbionBattlePlayer,
   AlbionEvent,
   AlbionPlayerRef,
-  AlbionRegion,
   GuildBattleSummary,
 } from "./types";
-import { isRegionEnabled } from "./types";
 import { isSyncStale } from "../db/sync";
 import { BATTLES_FEED_PREVIEW_LIMIT } from "../battles-constants";
-
-const GUILD_BATTLES_REQUEST_OPTIONS = {
-  maxRetries: 1,
-  timeout: 20_000,
-} as const;
-
-const GUILD_RECENT_BATTLES_PAGE_SIZE = 25;
-const GUILD_RECENT_BATTLES_MAX_PAGES = 4;
-
-const BATTLE_EVENTS_PAGE_SIZE = 51;
-const BATTLE_EVENTS_MAX = 2000;
-
-type PlayerGearLookup = {
-  killersAndAssists: Record<string, AlbionPlayerRef>;
-  deaths: Record<string, AlbionPlayerRef>;
-  groupGear: Record<
-    string,
-    {
-      weaponType: string | null;
-      weaponQuality: number | null;
-      averageIp: number | null;
-    }
-  >;
-};
 
 function sortByFameThenKills<T extends { killFame: number; kills: number }>(
   items: T[]
@@ -213,47 +186,6 @@ export function isGuildBattleCacheComplete(
   );
 }
 
-async function fetchRecentGuildBattles(
-  region: AlbionRegion,
-  guildId: string,
-  targetCount: number
-): Promise<GuildBattleSummary[]> {
-  const { getAlbionClient } = await import("./client");
-  const client = getAlbionClient();
-  const requestOptions = GUILD_BATTLES_REQUEST_OPTIONS;
-
-  const collected: GuildBattleSummary[] = [];
-  const seenIds = new Set<number>();
-
-  for (let page = 0; page < GUILD_RECENT_BATTLES_MAX_PAGES; page++) {
-    const raw = await client.getBattlesRaw(region, {
-      guildId,
-      limit: GUILD_RECENT_BATTLES_PAGE_SIZE,
-      offset: page * GUILD_RECENT_BATTLES_PAGE_SIZE,
-      sort: "recent",
-      range: "week",
-      requestOptions,
-    });
-
-    if (raw.length === 0) break;
-
-    for (const battle of filterRecentGuildBattles(
-      summarizeGuildBattles(raw, guildId)
-    )) {
-      if (seenIds.has(battle.id)) continue;
-      seenIds.add(battle.id);
-      collected.push(battle);
-      if (collected.length >= targetCount) {
-        return collected.slice(0, targetCount);
-      }
-    }
-
-    if (raw.length < GUILD_RECENT_BATTLES_PAGE_SIZE) break;
-  }
-
-  return collected;
-}
-
 export function summarizeGuildBattles(
   battles: AlbionBattle[],
   guildId: string
@@ -263,183 +195,18 @@ export function summarizeGuildBattles(
     .map((battle) => toGuildBattleSummary(battle, guildId));
 }
 
-export async function getGuildTopBattles(
-  region: AlbionRegion,
-  guildId: string,
-  limit = 10
-): Promise<{ battles: GuildBattleSummary[]; battlesError: string | null }> {
-  return getGuildBattlesBySort(region, guildId, "topfame", limit);
-}
-
-/** Worker helper: guild battles by sort (week window). */
-export async function getGuildBattlesBySort(
-  region: AlbionRegion,
-  guildId: string,
-  sort: "topfame" | "recent",
-  limit = 10
-): Promise<{ battles: GuildBattleSummary[]; battlesError: string | null }> {
-  if (!isRegionEnabled(region)) {
-    return { battles: [], battlesError: null };
-  }
-  const { getAlbionClient } = await import("./client");
-  const client = getAlbionClient();
-  const requestOptions = GUILD_BATTLES_REQUEST_OPTIONS;
-
-  try {
-    if (sort === "recent") {
-      return {
-        battles: await fetchRecentGuildBattles(region, guildId, limit),
-        battlesError: null,
-      };
+type PlayerGearLookup = {
+  killersAndAssists: Record<string, AlbionPlayerRef>;
+  deaths: Record<string, AlbionPlayerRef>;
+  groupGear: Record<
+    string,
+    {
+      weaponType: string | null;
+      weaponQuality: number | null;
+      averageIp: number | null;
     }
-
-    const raw = await client.getBattlesRaw(region, {
-      guildId,
-      limit,
-      sort,
-      range: "week",
-      requestOptions,
-    });
-
-    return {
-      battles: summarizeGuildBattles(raw, guildId),
-      battlesError: null,
-    };
-  } catch (err) {
-    return {
-      battles: [],
-      battlesError:
-        err instanceof Error
-          ? err.message
-          : `Failed to load ${sort === "recent" ? "recent" : "top"} battles`,
-    };
-  }
-}
-
-/** Alliance battles by sort (week window) — Albion summaries, no guild-member filter. */
-export async function getAllianceBattlesBySort(
-  region: AlbionRegion,
-  allianceId: string,
-  sort: "topfame" | "recent",
-  limit = 10
-): Promise<{ battles: GuildBattleSummary[]; battlesError: string | null }> {
-  if (!isRegionEnabled(region)) {
-    return { battles: [], battlesError: null };
-  }
-  const { getAlbionClient } = await import("./client");
-  const client = getAlbionClient();
-
-  try {
-    const raw = await client.getBattlesRaw(region, {
-      allianceId,
-      limit,
-      sort,
-      range: "week",
-      requestOptions: GUILD_BATTLES_REQUEST_OPTIONS,
-    });
-
-    const battles: GuildBattleSummary[] = raw
-      .filter(hasBattleKillFame)
-      .filter((battle): battle is AlbionBattle & { id: number } => battle.id != null)
-      .map((battle) => {
-        const guilds = battle.guilds
-          ? Object.values(battle.guilds)
-              .sort((a, b) => b.killFame - a.killFame || b.kills - a.kills)
-              .slice(0, BATTLES_FEED_PREVIEW_LIMIT)
-              .map((g) => ({ id: g.id, name: g.name }))
-          : [];
-        return {
-          id: battle.id,
-          startTime: battle.startTime ?? null,
-          totalFame: battle.totalFame ?? 0,
-          totalKills: battle.totalKills ?? 0,
-          totalPlayers: battle.totalPlayers ?? 0,
-          guildKillFame: 0,
-          guildKills: 0,
-          guildDeaths: 0,
-          guildMembers: 0,
-          guilds,
-          guildCount: battle.guilds ? Object.keys(battle.guilds).length : 0,
-        };
-      });
-
-    return { battles, battlesError: null };
-  } catch (err) {
-    return {
-      battles: [],
-      battlesError:
-        err instanceof Error
-          ? err.message
-          : `Failed to load ${sort === "recent" ? "recent" : "top"} alliance battles`,
-    };
-  }
-}
-
-async function fetchBattleFromApi(
-  region: AlbionRegion,
-  battleId: number
-): Promise<AlbionBattle | null> {
-  if (!isRegionEnabled(region)) return null;
-  const { getAlbionClient } = await import("./client");
-  const { isCircuitOpenError } = await import("../db/api-state");
-  const client = getAlbionClient();
-
-  try {
-    return await client.getBattle(region, battleId);
-  } catch (err) {
-    // Let the job queue soft-defer instead of treating an open circuit as "not found".
-    if (isCircuitOpenError(err)) throw err;
-    // Pages treat missing battles as null; sync-battle converts null → BattleNotReadyError.
-    return null;
-  }
-}
-
-async function resolveBattle(
-  region: AlbionRegion,
-  battleId: number
-): Promise<AlbionBattle | null> {
-  const { getCachedBattle } = await import("../db/battle-cache");
-  const cached = await getCachedBattle(region, battleId);
-  if (cached) return cached;
-  return fetchBattleFromApi(region, battleId);
-}
-
-export const loadBattle = cache(resolveBattle);
-
-export async function getAllBattleEvents(
-  region: AlbionRegion,
-  battleId: number
-): Promise<AlbionEvent[]> {
-  if (!isRegionEnabled(region)) return [];
-  const { getAlbionClient } = await import("./client");
-  const client = getAlbionClient();
-  const events: AlbionEvent[] = [];
-
-  for (
-    let offset = 0;
-    offset < BATTLE_EVENTS_MAX;
-    offset += BATTLE_EVENTS_PAGE_SIZE
-  ) {
-    let batch: AlbionEvent[];
-    try {
-      batch = await client.getBattleEvents(region, battleId, {
-        offset,
-        limit: BATTLE_EVENTS_PAGE_SIZE,
-        requestOptions: { maxRetries: 1 },
-      });
-    } catch (err) {
-      const { isCircuitOpenError } = await import("../db/api-state");
-      if (isCircuitOpenError(err)) throw err;
-      break;
-    }
-
-    if (batch.length === 0) break;
-    events.push(...batch);
-    if (batch.length < BATTLE_EVENTS_PAGE_SIZE) break;
-  }
-
-  return events;
-}
+  >;
+};
 
 function collectParticipantGear(events: AlbionEvent[]): PlayerGearLookup {
   const killersAndAssists: Record<string, AlbionPlayerRef> = {};
@@ -551,50 +318,6 @@ export function enrichBattleAlliances(
 
     return { ...alliance, players: alliancePlayers.length, averageIp };
   });
-}
-
-export const loadBattleDetailData = cache(async function loadBattleDetailData(
-  region: AlbionRegion,
-  battleId: number
-): Promise<BattleDetailData | null> {
-  return syncBattleDetailData(region, battleId);
-});
-
-/** Fetch and cache full battle detail (worker-safe; no React request cache). */
-export async function syncBattleDetailData(
-  region: AlbionRegion,
-  battleId: number
-): Promise<BattleDetailData | null> {
-  const { getCachedBattleDetail, cacheBattleDetail } = await import(
-    "../db/battle-cache"
-  );
-
-  const cached = await getCachedBattleDetail(region, battleId);
-  if (cached) return cached;
-
-  const battle = await resolveBattle(region, battleId);
-  if (!battle) return null;
-
-  let events: AlbionEvent[] = [];
-  try {
-    events = await getAllBattleEvents(region, battleId);
-  } catch {
-    // Degrade gracefully: battle stats still render without gear enrichment.
-  }
-
-  const players = enrichBattlePlayers(battle, events);
-  const alliances = enrichBattleAlliances(getBattleAlliances(battle), players);
-  const guilds = enrichBattleGuilds(getBattleGuilds(battle), players);
-
-  const result = { battle, alliances, players, guilds };
-
-  try {
-    await cacheBattleDetail(region, battleId, { ...result, events });
-  } catch {
-    // Cache failure should not block the caller.
-  }
-
-  return result;
 }
 
 export function getBattleAlliances(battle: AlbionBattle) {

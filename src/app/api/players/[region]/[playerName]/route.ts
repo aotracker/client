@@ -18,7 +18,20 @@ export async function GET(
 
   try {
     const resolved = await resolvePlayerAlbionId(albionRegion, playerName);
-    if (resolved?.redirectTo) {
+    if (!resolved) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    if ("pending" in resolved) {
+      return NextResponse.json(
+        {
+          pending: true,
+          entityName: resolved.entityName,
+          entityType: resolved.entityType,
+        },
+        { status: 202 }
+      );
+    }
+    if (resolved.redirectTo) {
       return NextResponse.redirect(
         new URL(
           resolved.redirectTo,
@@ -28,7 +41,7 @@ export async function GET(
       );
     }
 
-    const albionId = resolved?.albionId;
+    const albionId = resolved.albionId;
     if (!albionId) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }

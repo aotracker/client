@@ -30,6 +30,7 @@ import {
 } from "@/components/guild/GuildTopKillsSection";
 import {
   decodeEntitySegment,
+  getEntityResolveJobStateForPending,
   resolveGuildAlbionId,
 } from "@/lib/entity-resolve";
 import { formatFame, regionLabel } from "@/lib/utils";
@@ -144,7 +145,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const albionRegion = region as AlbionRegion;
   const resolved = await resolveGuildAlbionId(albionRegion, guildName);
-  if (!resolved) {
+  if (!resolved || !("albionId" in resolved)) {
     return pendingEntityMetadata(
       "Guild",
       entityPath("guild", region, decodeEntitySegment(guildName))
@@ -186,6 +187,21 @@ export default async function GuildProfilePage({ params }: PageProps) {
   const albionRegion = region as AlbionRegion;
   const resolved = await resolveGuildAlbionId(albionRegion, guildName);
   if (!resolved) notFound();
+  if ("pending" in resolved) {
+    const jobState = await getEntityResolveJobStateForPending(
+      albionRegion,
+      resolved.entityType,
+      resolved.entityName
+    );
+    return (
+      <ProfileFetchPending
+        entityType="guild"
+        region={albionRegion}
+        entityName={resolved.entityName}
+        jobState={jobState}
+      />
+    );
+  }
   if (resolved.redirectTo) permanentRedirect(resolved.redirectTo);
 
   const { albionId } = resolved;

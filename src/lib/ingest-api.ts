@@ -284,6 +284,46 @@ export async function getQueueStatuses(): Promise<{
   return data;
 }
 
+export type EntityResolveType = "player" | "guild";
+
+export type EntityResolveJobInfo = {
+  state: string | null;
+  albionId: string | null;
+  lastError: string | null;
+};
+
+export async function ensureEntityResolveQueued(
+  region: AlbionRegion,
+  entityType: EntityResolveType,
+  name: string,
+  options?: { immediate?: boolean }
+): Promise<void> {
+  if (!isIngestApiConfigured()) return;
+  await postJson("/jobs/entity-resolve", {
+    region,
+    type: entityType,
+    name,
+    immediate: options?.immediate === true,
+  });
+}
+
+export async function getEntityResolveJobInfo(
+  region: AlbionRegion,
+  entityType: EntityResolveType,
+  name: string
+): Promise<EntityResolveJobInfo> {
+  const empty: EntityResolveJobInfo = {
+    state: null,
+    albionId: null,
+    lastError: null,
+  };
+
+  const data = await getJson<EntityResolveJobInfo>(
+    `/jobs/entity-resolve/${encodeURIComponent(region)}/${encodeURIComponent(entityType)}/${encodeURIComponent(name.trim())}/state`
+  );
+  return data ?? empty;
+}
+
 export async function triggerSchedulerJob(
   name: "ingest-poll" | "health-check"
 ): Promise<string | null> {

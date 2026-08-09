@@ -172,14 +172,6 @@ export function SearchAutocomplete({
               region: string;
             }[];
           };
-          live?: {
-            players?: {
-              Id?: string;
-              Name?: string;
-              GuildName?: string;
-            }[];
-            guilds?: { Id: string; Name: string }[];
-          };
         };
 
         if (cancelled) return;
@@ -221,33 +213,6 @@ export function SearchAutocomplete({
             meta: regionLabel(a.region),
             badge: "Cached",
             kind: "alliance",
-          });
-        }
-        for (const p of data.live?.players ?? []) {
-          if (!p.Id || !p.Name) continue;
-          const key = `player-${region}-${p.Id}`;
-          if (seen.has(key)) continue;
-          seen.add(key);
-          items.push({
-            key,
-            label: p.Name ?? p.Id,
-            href: playerPath(region, p.Name),
-            meta: [regionLabel(region), p.GuildName].filter(Boolean).join(" · "),
-            badge: "Live",
-            kind: "player",
-          });
-        }
-        for (const g of data.live?.guilds ?? []) {
-          const key = `guild-${region}-${g.Id}`;
-          if (seen.has(key)) continue;
-          seen.add(key);
-          items.push({
-            key,
-            label: g.Name,
-            href: guildPath(region, g.Name),
-            meta: regionLabel(region),
-            badge: "Live",
-            kind: "guild",
           });
         }
 

@@ -12,6 +12,7 @@ import type { AlbionRegion } from "@/lib/albion/types";
 import { isRegionEnabled } from "@/lib/albion/types";
 import {
   decodeEntitySegment,
+  getEntityResolveJobStateForPending,
   resolvePlayerAlbionId,
 } from "@/lib/entity-resolve";
 import { regionLabel } from "@/lib/utils";
@@ -88,7 +89,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const albionRegion = region as AlbionRegion;
   const resolved = await resolvePlayerAlbionId(albionRegion, playerName);
-  if (!resolved) {
+  if (!resolved || !("albionId" in resolved)) {
     return pendingEntityMetadata(
       "Player",
       entityPath("player", region, decodeEntitySegment(playerName))
@@ -133,6 +134,21 @@ export default async function PlayerProfilePage({ params }: PageProps) {
   const albionRegion = region as AlbionRegion;
   const resolved = await resolvePlayerAlbionId(albionRegion, playerName);
   if (!resolved) notFound();
+  if ("pending" in resolved) {
+    const jobState = await getEntityResolveJobStateForPending(
+      albionRegion,
+      resolved.entityType,
+      resolved.entityName
+    );
+    return (
+      <ProfileFetchPending
+        entityType="player"
+        region={albionRegion}
+        entityName={resolved.entityName}
+        jobState={jobState}
+      />
+    );
+  }
   if (resolved.redirectTo) permanentRedirect(resolved.redirectTo);
 
   const { albionId } = resolved;

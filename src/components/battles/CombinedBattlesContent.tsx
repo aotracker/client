@@ -1,11 +1,11 @@
 import Link from "next/link";
 import {
-  loadBattleDetailData,
   mergeBattleDetails,
   type BattleDetailData,
 } from "@/lib/albion/battles";
 import type { AlbionBattle, AlbionRegion } from "@/lib/albion/types";
-import { BackLink } from "@/components/BackLink";
+import { getCachedBattleDetail } from "@/lib/db/battle-cache";
+import { ensureBattleDetailQueued } from "@/lib/jobs/queue";
 import { BattleAlliancesList } from "@/components/BattleAlliancesList";
 import { BattleGuildsList } from "@/components/BattleGuildsList";
 import { BattlePlayersList } from "@/components/BattlePlayersList";
@@ -29,7 +29,15 @@ export async function CombinedBattlesContent({
   const region = refs[0]!.region;
 
   const loaded = await Promise.all(
-    refs.map((ref) => loadBattleDetailData(ref.region, ref.battleId))
+    refs.map(async (ref) => {
+      const cached = await getCachedBattleDetail(ref.region, ref.battleId);
+      if (!cached) {
+        await ensureBattleDetailQueued(ref.region, ref.battleId, {
+          immediate: true,
+        });
+      }
+      return cached;
+    })
   );
 
   const details: BattleDetailData[] = [];

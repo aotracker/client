@@ -12,7 +12,8 @@ type EntityType = "player" | "guild" | "alliance";
 interface ProfileFetchPendingProps {
   entityType: EntityType;
   region: string;
-  entityId: string;
+  entityId?: string;
+  entityName?: string;
   jobState?: string | null;
 }
 
@@ -43,6 +44,7 @@ export function ProfileFetchPending({
   entityType,
   region,
   entityId,
+  entityName,
   jobState,
 }: ProfileFetchPendingProps) {
   const router = useRouter();
@@ -74,7 +76,9 @@ export function ProfileFetchPending({
             <span className="font-medium text-foreground">{formatJobState(jobState)}</span>
           </p>
           <p className="mt-4 text-xs text-muted-foreground">
-            {regionLabel(region)} · {entityType} ID {entityId}
+            {regionLabel(region)}
+            {entityName ? ` · ${entityName}` : null}
+            {entityId ? ` · ${entityType} ID ${entityId}` : null}
           </p>
         </CardContent>
       </Card>

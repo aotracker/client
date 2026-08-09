@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getApiSyncState, getGlobalSyncStatus } from "@/lib/db/queries";
-import { getAlbionClient } from "@/lib/albion/client";
+import { getRegionHealthMetrics } from "@/lib/db/api-state";
+import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { getEnrichedQueueStatuses } from "@/lib/jobs/queue";
 import { getCronJobStatuses } from "@/lib/jobs/cron-state";
 import { verifyCronRequest } from "@/lib/jobs/cron-auth";
@@ -13,13 +14,21 @@ export async function GET(request: Request) {
   }
 
   try {
-    const [syncStates, globalStatus, healthMetrics, queues, crons] =
+    const [syncStates, globalStatus, queues, crons, healthMetrics] =
       await Promise.all([
         getApiSyncState(),
         getGlobalSyncStatus(),
-        getAlbionClient().getHealthMetrics().catch(() => null),
         getEnrichedQueueStatuses(),
         getCronJobStatuses(),
+        Promise.all(
+          ENABLED_REGIONS.map(async (region) => [
+            region,
+            await getRegionHealthMetrics(region),
+          ] as const)
+        ).then((entries) => Object.fromEntries(entries) as Record<
+          AlbionRegion,
+          Awaited<ReturnType<typeof getRegionHealthMetrics>>
+        >),
       ]);
 
     return NextResponse.json({

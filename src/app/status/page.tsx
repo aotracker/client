@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import {
   getApiSyncState,
   getGlobalSyncStatus,
   getRegionEntityCounts,
 } from "@/lib/db/queries";
-import { getAlbionClient } from "@/lib/albion/client";
-import { ENABLED_REGIONS } from "@/lib/albion/types";
-import { pingEnabledRegions } from "@/lib/albion/live-pings";
+import { getRegionHealthMetrics } from "@/lib/db/api-state";
+import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { WorkerQueuesPanel } from "@/components/WorkerQueuesPanel";
@@ -96,6 +94,15 @@ export default async function StatusPage() {
     entityCounts.map((row) => [row.region, row])
   );
 
+  const healthMetrics = Object.fromEntries(
+    await Promise.all(
+      ENABLED_REGIONS.map(async (region) => [
+        region,
+        await getRegionHealthMetrics(region).catch(() => null),
+      ] as const)
+    )
+  ) as Record<AlbionRegion, Awaited<ReturnType<typeof getRegionHealthMetrics>> | null>;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -143,130 +150,59 @@ export default async function StatusPage() {
         </Card>
       )}
 
-      <Suspense
-        fallback={
-          <StatusRegionGridFallback
-            syncStates={syncStates}
-            countsByRegion={countsByRegion}
-          />
-        }
-      >
-        <StatusRegionGridLive
-          syncStates={syncStates}
-          countsByRegion={countsByRegion}
-        />
-      </Suspense>
+      <div className="grid gap-4 md:grid-cols-3">
+        {ENABLED_REGIONS.map((region) => {
+          const dbState = syncStates.find((s) => s.region === region);
+          const metrics = healthMetrics[region];
+          const circuitOpen =
+            metrics?.circuitOpen || dbState?.circuitOpen === 1;
+          const healthCheckOk = (dbState?.lastHealthCheckOk ?? 0) === 1;
+          const activeError = getActiveErrorMessage(dbState);
+          const isOnline = healthCheckOk && !circuitOpen;
+          const counts = countsByRegion.get(region);
+          const liveLabel = dbState?.lastHealthCheckAt
+            ? healthCheckOk
+              ? `Online (${dbState.avgLatencyMs ?? metrics?.avgLatencyMs ?? 0}ms)`
+              : `Offline (${dbState.avgLatencyMs ?? metrics?.avgLatencyMs ?? 0}ms)`
+            : "Awaiting health check";
+
+          return (
+            <StatusRegionCard
+              key={region}
+              regionLabel={regionLabel(region)}
+              statusDot={
+                isOnline ? "online" : circuitOpen ? "circuit" : "offline"
+              }
+              liveLabel={liveLabel}
+              liveNote={
+                circuitOpen ? "Circuit open — cooling down" : undefined
+              }
+              circuitOpen={!!circuitOpen}
+              lastIngest={dbState?.lastIngestAt ?? dbState?.lastSuccessAt ?? null}
+              lastHealthCheck={dbState?.lastHealthCheckAt ?? null}
+              healthCheckOk={healthCheckOk}
+              failures={String(
+                dbState?.consecutiveFailures ??
+                  metrics?.consecutiveFailures ??
+                  0
+              )}
+              avgLatency={`${metrics?.avgLatencyMs ?? dbState?.avgLatencyMs ?? 0}ms`}
+              players={(counts?.players ?? 0).toLocaleString()}
+              guilds={(counts?.guilds ?? 0).toLocaleString()}
+              kills={(counts?.kills ?? 0).toLocaleString()}
+              battles={(counts?.battles ?? 0).toLocaleString()}
+              activeError={activeError}
+              previousError={
+                dbState?.lastErrorMessage && !activeError
+                  ? dbState.lastErrorMessage
+                  : null
+              }
+            />
+          );
+        })}
+      </div>
 
       <WorkerQueuesPanel initial={queueStatus} initialCrons={cronStatus} />
-    </div>
-  );
-}
-
-async function StatusRegionGridLive({
-  syncStates,
-  countsByRegion,
-}: {
-  syncStates: SyncStateRow[];
-  countsByRegion: Map<string, EntityCountRow>;
-}) {
-  const client = getAlbionClient();
-  const [healthMetrics, livePings] = await Promise.all([
-    client.getHealthMetrics().catch(() => null),
-    pingEnabledRegions(),
-  ]);
-
-  return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {ENABLED_REGIONS.map((region) => {
-        const dbState = syncStates.find((s) => s.region === region);
-        const metrics = healthMetrics?.[region];
-        const live = livePings[region];
-        const circuitOpen =
-          metrics?.circuitOpen || dbState?.circuitOpen === 1;
-        const activeError = getActiveErrorMessage(dbState);
-        const isOnline = live.ok && !circuitOpen;
-        const counts = countsByRegion.get(region);
-
-        return (
-          <StatusRegionCard
-            key={region}
-            regionLabel={regionLabel(region)}
-            statusDot={
-              isOnline ? "online" : circuitOpen ? "circuit" : "offline"
-            }
-            liveLabel={
-              live.ok
-                ? `Online (${live.latencyMs}ms)`
-                : `Offline (${live.latencyMs}ms)`
-            }
-            liveNote={live.note}
-            circuitOpen={!!circuitOpen}
-            lastIngest={dbState?.lastIngestAt ?? dbState?.lastSuccessAt ?? null}
-            lastHealthCheck={dbState?.lastHealthCheckAt ?? null}
-            healthCheckOk={(dbState?.lastHealthCheckOk ?? 0) === 1}
-            failures={String(
-              dbState?.consecutiveFailures ??
-                metrics?.consecutiveFailures ??
-                0
-            )}
-            avgLatency={`${metrics?.avgLatencyMs ?? dbState?.avgLatencyMs ?? 0}ms`}
-            players={(counts?.players ?? 0).toLocaleString()}
-            guilds={(counts?.guilds ?? 0).toLocaleString()}
-            kills={(counts?.kills ?? 0).toLocaleString()}
-            battles={(counts?.battles ?? 0).toLocaleString()}
-            activeError={activeError}
-            previousError={
-              dbState?.lastErrorMessage && !activeError
-                ? dbState.lastErrorMessage
-                : null
-            }
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-function StatusRegionGridFallback({
-  syncStates,
-  countsByRegion,
-}: {
-  syncStates: SyncStateRow[];
-  countsByRegion: Map<string, EntityCountRow>;
-}) {
-  return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {ENABLED_REGIONS.map((region) => {
-        const dbState = syncStates.find((s) => s.region === region);
-        const circuitOpen = dbState?.circuitOpen === 1;
-        const activeError = getActiveErrorMessage(dbState);
-        const counts = countsByRegion.get(region);
-
-        return (
-          <StatusRegionCard
-            key={region}
-            regionLabel={regionLabel(region)}
-            statusDot={circuitOpen ? "circuit" : "pending"}
-            liveLabel="Checking…"
-            circuitOpen={!!circuitOpen}
-            lastIngest={dbState?.lastIngestAt ?? dbState?.lastSuccessAt ?? null}
-            lastHealthCheck={dbState?.lastHealthCheckAt ?? null}
-            healthCheckOk={(dbState?.lastHealthCheckOk ?? 0) === 1}
-            failures={String(dbState?.consecutiveFailures ?? 0)}
-            avgLatency={`${dbState?.avgLatencyMs ?? 0}ms`}
-            players={(counts?.players ?? 0).toLocaleString()}
-            guilds={(counts?.guilds ?? 0).toLocaleString()}
-            kills={(counts?.kills ?? 0).toLocaleString()}
-            battles={(counts?.battles ?? 0).toLocaleString()}
-            activeError={activeError}
-            previousError={
-              dbState?.lastErrorMessage && !activeError
-                ? dbState.lastErrorMessage
-                : null
-            }
-          />
-        );
-      })}
     </div>
   );
 }
@@ -324,7 +260,7 @@ function StatusRegionCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
-        <Row label="Live API" value={liveLabel} />
+        <Row label="API health" value={liveLabel} />
         {liveNote && <p className="text-xs text-amber-300">{liveNote}</p>}
         <Row label="Circuit" value={circuitOpen ? "OPEN" : "Closed"} />
         <Row

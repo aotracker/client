@@ -80,34 +80,6 @@ export function parseAllianceGuilds(info: NormalizedAllianceInfo): AllianceGuild
   );
 }
 
-/** Worker-only: fetch alliance from Albion API. */
-export async function fetchAllianceInfoFromApi(
-  region: AlbionRegion,
-  allianceId: string
-): Promise<AllianceLiveInfo> {
-  const { getAlbionClient } = await import("./client");
-
-  const client = getAlbionClient();
-  let error: string | null = null;
-
-  const raw = await client.getAllianceInfo(region, allianceId).catch((err) => {
-    error = err instanceof Error ? err.message : "Failed to load alliance info";
-    return null as AlbionAllianceInfo | null;
-  });
-
-  const info = normalizeAllianceInfo(raw);
-  if (!info) {
-    return { info: null, error, guilds: [], memberCount: null };
-  }
-
-  return {
-    info,
-    error: null,
-    guilds: parseAllianceGuilds(info),
-    memberCount: info.memberCount,
-  };
-}
-
 export interface AllianceDisplayInfo {
   id: string;
   name: string;

@@ -1,13 +1,6 @@
-import {
-  enrichBattleAlliances,
-  enrichBattleGuilds,
-  getBattleAlliances,
-  getBattleGuilds,
-  getBattlePlayers,
-  loadBattle,
-} from "@/lib/albion/battles";
 import { isRegionEnabled, type AlbionRegion } from "@/lib/albion/types";
 import { getCachedBattleDetail } from "@/lib/db/battle-cache";
+import { ensureBattleDetailQueued } from "@/lib/jobs/queue";
 import {
   createBattleOgImage,
   createOgImage,
@@ -41,23 +34,21 @@ export default async function Image({ params }: Props) {
 
   const albionRegion = region as AlbionRegion;
   const cached = await getCachedBattleDetail(albionRegion, parsedBattleId);
-  const battle =
-    cached?.battle ?? (await loadBattle(albionRegion, parsedBattleId));
 
-  if (!battle) {
+  if (!cached) {
+    await ensureBattleDetailQueued(albionRegion, parsedBattleId, {
+      immediate: true,
+    });
     return createOgImage({
-      title: "Battle not found",
-      subtitle: "This battle is unavailable.",
+      title: `Albion Battle #${parsedBattleId}`,
+      subtitle: "Battle data is loading…",
       badge: regionLabel(region),
     });
   }
 
-  const players = cached?.players ?? getBattlePlayers(battle);
-  const alliances =
-    cached?.alliances ??
-    enrichBattleAlliances(getBattleAlliances(battle), players);
-  const guilds =
-    cached?.guilds ?? enrichBattleGuilds(getBattleGuilds(battle), players);
+  const battle = cached.battle;
+  const alliances = cached.alliances;
+  const guilds = cached.guilds;
 
   const useAlliances = alliances.length > 0;
   const source = useAlliances ? alliances : guilds;

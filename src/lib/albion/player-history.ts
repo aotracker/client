@@ -1,4 +1,3 @@
-import { cache } from "../cache";
 import { classifyContentType } from "./classify";
 import type { AlbionEvent, AlbionPlayerRef, AlbionRegion } from "./types";
 
@@ -153,36 +152,3 @@ export function albionEventToKillCard(
     ],
   };
 }
-
-export const getPlayerLiveHistory = cache(async function getPlayerLiveHistory(
-  region: AlbionRegion,
-  playerId: string,
-  limit = 10
-) {
-  const { getAlbionClient } = await import("./client");
-
-  const client = getAlbionClient();
-  let killsError: string | null = null;
-  let deathsError: string | null = null;
-
-  const [killsResult, deathsResult] = await Promise.all([
-    client.getPlayerKills(region, playerId).catch((err) => {
-      killsError = err instanceof Error ? err.message : "Failed to load kills";
-      return [] as AlbionEvent[];
-    }),
-    client.getPlayerDeaths(region, playerId).catch((err) => {
-      deathsError = err instanceof Error ? err.message : "Failed to load deaths";
-      return [] as AlbionEvent[];
-    }),
-  ]);
-
-  const kills = killsResult.slice(0, limit);
-  const deaths = deathsResult.slice(0, limit);
-
-  return {
-    kills: kills.map((event) => albionEventToKillCard(region, event)),
-    deaths: deaths.map((event) => albionEventToKillCard(region, event)),
-    killsError,
-    deathsError,
-  };
-});

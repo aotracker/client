@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { searchLocal } from "@/lib/db/queries";
 import {
-  getAlbionClient,
-  PAGE_LOAD_REQUEST_OPTIONS,
-} from "@/lib/albion/client";
-import {
   getDefaultRegion,
   isRegionEnabled,
   type AlbionRegion,
@@ -47,45 +43,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Region disabled" }, { status: 404 });
   }
 
-  let local = EMPTY_LOCAL;
-  let localError: string | null = null;
-
   try {
-    local = await searchLocal(q, limit);
+    const local = await searchLocal(q, limit);
+    return NextResponse.json({ local, region });
   } catch (error) {
-    localError = formatRouteError(error);
-    console.warn("[api/search] local search failed:", localError);
-  }
-
-  let live = { players: [] as unknown[], guilds: [] as unknown[] };
-  let liveError: string | null = null;
-
-  if (isRegionEnabled(region)) {
-    try {
-      const client = getAlbionClient();
-      live = await client.search(region, q, PAGE_LOAD_REQUEST_OPTIONS);
-      if (Array.isArray(live.players)) {
-        live.players = live.players.slice(0, limit);
-      }
-      if (Array.isArray(live.guilds)) {
-        live.guilds = live.guilds.slice(0, limit);
-      }
-    } catch (e) {
-      liveError = formatRouteError(e);
-    }
-  }
-
-  // Degrade gracefully when Postgres is down but gameinfo is reachable.
-  if (localError && !liveError && live.players.length + live.guilds.length > 0) {
-    return NextResponse.json({ local, live, liveError, localError });
-  }
-
-  if (localError && liveError) {
+    const localError = formatRouteError(error);
     return NextResponse.json(
-      { error: localError, localError, liveError },
+      { error: localError, local: EMPTY_LOCAL, region },
       { status: 503 }
     );
   }
-
-  return NextResponse.json({ local, live, liveError, localError });
 }
