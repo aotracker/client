@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { formatFame, formatItemPower } from "@/lib/utils";
+import { guildPath, playerPath } from "@/lib/seo";
 
 import {
   BATTLE_LIST_PAGE_SIZE,
@@ -160,16 +161,16 @@ function BattlePlayerCard({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <Link
-                href={`/player/${region}/${player.id}`}
+                href={playerPath(region, player.name)}
                 className="truncate font-medium hover:text-primary hover:underline"
               >
                 {player.name}
               </Link>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {player.guildName && player.guildId ? (
+              {player.guildName ? (
                 <Link
-                  href={`/guild/${region}/${player.guildId}`}
+                  href={guildPath(region, player.guildName)}
                   className="hover:text-primary hover:underline"
                 >
                   {player.guildName}

@@ -1,4 +1,5 @@
 import type { AlbionRegion } from "@/lib/albion/types";
+import { playerPath, guildPath } from "@/lib/seo";
 
 export const WATCHLIST_STORAGE_KEY = "aotrackr-watchlist-v1";
 
@@ -44,6 +45,6 @@ export function watchlistKey(entry: Pick<WatchlistEntry, "type" | "region" | "al
 
 export function entityHref(entry: WatchlistEntry): string {
   return entry.type === "player"
-    ? `/player/${entry.region}/${entry.albionId}`
-    : `/guild/${entry.region}/${entry.albionId}`;
+    ? playerPath(entry.region, entry.name)
+    : guildPath(entry.region, entry.name);
 }

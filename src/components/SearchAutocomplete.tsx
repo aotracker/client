@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { getDefaultRegion } from "@/lib/albion/types";
 import { cn, regionLabel } from "@/lib/utils";
+import { guildPath, playerPath } from "@/lib/seo";
 import { parseDeepLink } from "@/lib/search/parse-deep-link";
 import {
   getPreferredRegion,
@@ -192,7 +193,7 @@ export function SearchAutocomplete({
           items.push({
             key,
             label: p.name,
-            href: `/player/${p.region}/${p.albionId}`,
+            href: playerPath(p.region, p.name),
             meta: [regionLabel(p.region), p.guild?.name].filter(Boolean).join(" · "),
             badge: "Cached",
             kind: "player",
@@ -204,7 +205,7 @@ export function SearchAutocomplete({
           items.push({
             key,
             label: g.name,
-            href: `/guild/${g.region}/${g.albionId}`,
+            href: guildPath(g.region, g.name),
             meta: regionLabel(g.region),
             badge: "Cached",
             kind: "guild",
@@ -223,14 +224,14 @@ export function SearchAutocomplete({
           });
         }
         for (const p of data.live?.players ?? []) {
-          if (!p.Id) continue;
+          if (!p.Id || !p.Name) continue;
           const key = `player-${region}-${p.Id}`;
           if (seen.has(key)) continue;
           seen.add(key);
           items.push({
             key,
             label: p.Name ?? p.Id,
-            href: `/player/${region}/${p.Id}`,
+            href: playerPath(region, p.Name),
             meta: [regionLabel(region), p.GuildName].filter(Boolean).join(" · "),
             badge: "Live",
             kind: "player",
@@ -243,7 +244,7 @@ export function SearchAutocomplete({
           items.push({
             key,
             label: g.Name,
-            href: `/guild/${region}/${g.Id}`,
+            href: guildPath(region, g.Name),
             meta: regionLabel(region),
             badge: "Live",
             kind: "guild",

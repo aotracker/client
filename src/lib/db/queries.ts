@@ -654,6 +654,29 @@ export async function getPlayerByAlbionId(
   });
 }
 
+export async function getPlayerByName(region: AlbionRegion, name: string) {
+  return db.query.players.findFirst({
+    where: and(
+      eq(schema.players.region, region),
+      eq(schema.players.name, name)
+    ),
+    with: { guild: true },
+  });
+}
+
+export async function getPlayerByNameCaseInsensitive(
+  region: AlbionRegion,
+  name: string
+) {
+  return db.query.players.findFirst({
+    where: and(
+      eq(schema.players.region, region),
+      ilike(schema.players.name, name)
+    ),
+    with: { guild: true },
+  });
+}
+
 export async function getPlayerProfile(
   region: AlbionRegion,
   albionId: string
@@ -672,6 +695,27 @@ export async function getGuildByAlbionId(
     where: and(
       eq(schema.guilds.region, region),
       eq(schema.guilds.albionId, albionId)
+    ),
+  });
+}
+
+export async function getGuildByName(region: AlbionRegion, name: string) {
+  return db.query.guilds.findFirst({
+    where: and(
+      eq(schema.guilds.region, region),
+      eq(schema.guilds.name, name)
+    ),
+  });
+}
+
+export async function getGuildByNameCaseInsensitive(
+  region: AlbionRegion,
+  name: string
+) {
+  return db.query.guilds.findFirst({
+    where: and(
+      eq(schema.guilds.region, region),
+      ilike(schema.guilds.name, name)
     ),
   });
 }
@@ -1318,6 +1362,7 @@ export async function incrementEventsIngested(region: AlbionRegion, count: numbe
 
 export interface SitemapEntityRow {
   albionId: string;
+  name: string;
   region: AlbionRegion;
   updatedAt: Date | null;
 }
@@ -1375,6 +1420,7 @@ export async function listSitemapPlayers(
   return db
     .select({
       albionId: schema.players.albionId,
+      name: schema.players.name,
       region: schema.players.region,
       updatedAt: schema.players.updatedAt,
     })
@@ -1392,6 +1438,7 @@ export async function listSitemapGuilds(
   return db
     .select({
       albionId: schema.guilds.albionId,
+      name: schema.guilds.name,
       region: schema.guilds.region,
       updatedAt: schema.guilds.updatedAt,
     })
@@ -1409,6 +1456,7 @@ export async function listSitemapAlliances(
   return db
     .select({
       albionId: schema.alliances.albionId,
+      name: schema.alliances.name,
       region: schema.alliances.region,
       updatedAt: schema.alliances.updatedAt,
     })

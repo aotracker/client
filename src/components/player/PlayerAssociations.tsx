@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PlayerAssociationEntry } from "@/lib/db/queries";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn, regionLabel } from "@/lib/utils";
+import { guildPath, playerPath } from "@/lib/seo";
 
 interface PlayerAssociationsProps {
   allies: PlayerAssociationEntry[];
@@ -34,7 +35,7 @@ export function PlayerAssociations({ allies }: PlayerAssociationsProps) {
                   )}
                 >
                   <Link
-                    href={`/player/${entry.region}/${entry.albionId}`}
+                    href={playerPath(entry.region, entry.name)}
                     className="block truncate text-sm font-medium text-stat-kill hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     {entry.name}
@@ -48,7 +49,7 @@ export function PlayerAssociations({ allies }: PlayerAssociationsProps) {
                         </span>
                         {entry.guild.albionId ? (
                           <Link
-                            href={`/guild/${entry.region}/${entry.guild.albionId}`}
+                            href={guildPath(entry.region, entry.guild.name)}
                             className="truncate hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           >
                             {entry.guild.name}

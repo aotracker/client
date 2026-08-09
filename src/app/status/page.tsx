@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { WorkerQueuesPanel } from "@/components/WorkerQueuesPanel";
 import { PageHeader } from "@/components/PageSection";
 import { formatRelativeTime, regionLabel } from "@/lib/utils";
-import { getQueueStatuses } from "@/lib/jobs/queue";
+import { getEnrichedQueueStatuses } from "@/lib/jobs/queue";
 import { getCronJobStatuses } from "@/lib/jobs/cron-state";
 import { buildPageMetadata, NOINDEX_NOFOLLOW } from "@/lib/seo";
 import {
@@ -78,7 +78,7 @@ export default async function StatusPage() {
   let entityCounts: EntityCountRow[] = [];
   let dbError: string | null = null;
   const [queueStatus, cronStatus] = await Promise.all([
-    getQueueStatuses(),
+    getEnrichedQueueStatuses(),
     getCronJobStatuses(),
   ]);
 

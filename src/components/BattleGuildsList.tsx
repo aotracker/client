@@ -12,6 +12,7 @@ import {
 } from "@/components/BattleStatsTableShell";
 import { statHeaderClass, statVariantClass } from "@/components/StatValue";
 import { cn, formatFame, formatItemPower } from "@/lib/utils";
+import { guildPath } from "@/lib/seo";
 
 interface BattleGuildsListProps {
   region: AlbionRegion;
@@ -58,7 +59,7 @@ export function BattleGuildsList({ region, guilds }: BattleGuildsListProps) {
               <tr key={guild.id} className={battleTableRowClass}>
                 <td className={battleTableCellClass}>
                   <Link
-                    href={`/guild/${region}/${guild.id}`}
+                    href={guildPath(region, guild.name)}
                     className="font-medium hover:text-primary hover:underline"
                   >
                     {guild.name}

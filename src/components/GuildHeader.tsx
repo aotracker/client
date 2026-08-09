@@ -8,6 +8,7 @@ import {
 import { EntityHeader } from "@/components/EntityHeader";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { WatchlistButton } from "@/components/watchlist/WatchlistButton";
+import { playerPath } from "@/lib/seo";
 
 interface GuildHeaderProps {
   guild: {
@@ -55,16 +56,12 @@ export function GuildHeader({ guild, sharePath }: GuildHeaderProps) {
     footerParts.push(
       <span key="founder" className="min-w-0 break-words">
         Founder:{" "}
-        {guild.founderId ? (
-          <Link
-            href={`/player/${guild.region}/${guild.founderId}`}
-            className="font-medium text-foreground hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            {guild.founderName}
-          </Link>
-        ) : (
-          <span className="font-medium text-foreground">{guild.founderName}</span>
-        )}
+        <Link
+          href={playerPath(guild.region, guild.founderName)}
+          className="font-medium text-foreground hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          {guild.founderName}
+        </Link>
       </span>
     );
   }

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatUtcTimeOfDay, regionLabel } from "@/lib/utils";
+import { playerPath, guildPath } from "@/lib/seo";
 import { RelativeTimeLabel } from "@/components/RelativeTime";
 import type { QueueJobSummary, QueueStatusSnapshot } from "@/lib/jobs/queue";
 import type { CronJobStatus } from "@/lib/jobs/cron-state";
@@ -55,6 +56,7 @@ type JobDetail = {
   label: string;
   value: string;
   href?: string;
+  mono?: boolean;
 };
 
 function describeJob(job: QueueJobSummary): {
@@ -64,26 +66,33 @@ function describeJob(job: QueueJobSummary): {
 } {
   const regionRaw = asString(job.data.region);
   const region = regionRaw ? regionLabel(regionRaw) : null;
-  const albionId = asString(job.data.albionId);
-  const guildId = asString(job.data.guildId);
+  const playerAlbionId =
+    asString(job.data.albionId) ?? asString(job.data.playerId);
+  const playerName = asString(job.data.playerName);
+  const guildAlbionId = asString(job.data.guildId);
+  const guildName = asString(job.data.guildName);
   const allianceId = asString(job.data.allianceId);
   const eventId = asString(job.data.eventId);
   const battleId = asString(job.data.battleId);
 
   const details: JobDetail[] = [];
   if (region) details.push({ label: "Region", value: region });
-  if (albionId) {
+  if (playerAlbionId) {
+    const displayName = playerName ?? playerAlbionId;
     details.push({
       label: "Player",
-      value: albionId,
-      href: regionRaw ? `/player/${regionRaw}/${albionId}` : undefined,
+      value: displayName,
+      href: regionRaw ? playerPath(regionRaw, displayName) : undefined,
+      mono: !playerName,
     });
   }
-  if (guildId) {
+  if (guildAlbionId) {
+    const displayName = guildName ?? guildAlbionId;
     details.push({
       label: "Guild",
-      value: guildId,
-      href: regionRaw ? `/guild/${regionRaw}/${guildId}` : undefined,
+      value: displayName,
+      href: regionRaw ? guildPath(regionRaw, displayName) : undefined,
+      mono: !guildName,
     });
   }
   if (allianceId) {
@@ -119,20 +128,28 @@ function describeJob(job: QueueJobSummary): {
       };
     case "sync-player":
     case "refresh-player":
-    case "backfill-player-history":
+    case "backfill-player-history": {
+      const playerLabel = playerName ?? playerAlbionId;
       return {
         title: "Sync player",
-        summary: "Profile + kill/death history",
+        summary: playerLabel
+          ? `${playerLabel} — profile + kill/death history`
+          : "Profile + kill/death history",
         details,
       };
+    }
     case "sync-guild":
     case "refresh-guild":
-    case "backfill-guild-top-kills":
+    case "backfill-guild-top-kills": {
+      const guildLabel = guildName ?? guildAlbionId;
       return {
         title: "Sync guild",
-        summary: "Profile + top kills",
+        summary: guildLabel
+          ? `${guildLabel} — profile + top kills`
+          : "Profile + top kills",
         details,
       };
+    }
     case "refresh-alliance":
       return {
         title: "Sync alliance",
@@ -291,12 +308,18 @@ function JobCard({ job }: { job: QueueJobSummary }) {
               {detail.href ? (
                 <Link
                   href={detail.href}
-                  className="font-mono text-foreground/90 underline-offset-2 hover:text-primary hover:underline"
+                  className={`text-foreground/90 underline-offset-2 hover:text-primary hover:underline ${
+                    detail.mono ? "font-mono" : ""
+                  }`}
                 >
                   {detail.value}
                 </Link>
               ) : (
-                <span className="font-mono text-foreground/90">
+                <span
+                  className={`text-foreground/90 ${
+                    detail.mono ? "font-mono" : ""
+                  }`}
+                >
                   {detail.value}
                 </span>
               )}

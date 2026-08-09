@@ -17,7 +17,7 @@ import {
   SearchLiveResults,
 } from "@/components/search/SearchLiveResults";
 import { formatFame, regionLabel } from "@/lib/utils";
-import { buildPageMetadata, NOINDEX_FOLLOW } from "@/lib/seo";
+import { buildPageMetadata, guildPath, NOINDEX_FOLLOW, playerPath } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Search",
@@ -100,7 +100,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
-                      href={`/player/${player.region}/${player.albionId}`}
+                      href={playerPath(player.region, player.name)}
                       className="font-medium hover:text-primary hover:underline"
                     >
                       {player.name}
@@ -114,7 +114,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                         {" · "}
                         {player.guild.albionId ? (
                           <Link
-                            href={`/guild/${player.region}/${player.guild.albionId}`}
+                            href={guildPath(player.region, player.guild.name)}
                             className="hover:text-primary hover:underline"
                           >
                             {player.guild.name}
@@ -144,7 +144,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           {localResults.guilds.map((guild) => (
             <Link
               key={guild.id}
-              href={`/guild/${guild.region}/${guild.albionId}`}
+              href={guildPath(guild.region, guild.name)}
             >
               <Card className="transition-colors hover:border-primary/40">
                 <CardContent className="py-3">

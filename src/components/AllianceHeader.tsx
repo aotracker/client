@@ -8,6 +8,7 @@ import {
 import { EntityHeader } from "@/components/EntityHeader";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { CardContent } from "@/components/ui/card";
+import { guildPath, playerPath } from "@/lib/seo";
 
 interface AllianceHeaderProps {
   alliance: {
@@ -48,9 +49,9 @@ export function AllianceHeader({
     footerParts.push(
       <span key="founder" className="min-w-0 break-words">
         Founder:{" "}
-        {alliance.founderId ? (
+        {alliance.founderName ? (
           <Link
-            href={`/player/${alliance.region}/${alliance.founderId}`}
+            href={playerPath(alliance.region, alliance.founderName)}
             className="font-medium text-foreground hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             {alliance.founderName}
@@ -122,7 +123,7 @@ export function AllianceHeader({
             {guilds.map((guild) => (
               <Link
                 key={guild.id}
-                href={`/guild/${alliance.region}/${guild.id}`}
+                href={guildPath(alliance.region, guild.name)}
                 className="max-w-full truncate rounded-md border border-border/50 bg-muted/25 px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-muted/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 {guild.name}

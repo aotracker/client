@@ -23,12 +23,30 @@ export function absoluteUrl(path = "/"): string {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+export function playerPath(region: string, name: string): string {
+  return `/player/${region}/${encodeURIComponent(name)}`;
+}
+
+export function guildPath(region: string, name: string): string {
+  return `/guild/${region}/${encodeURIComponent(name)}`;
+}
+
+export function feudPath(
+  region: string,
+  guildA: string,
+  guildB: string
+): string {
+  return `/feud/${region}/${encodeURIComponent(guildA)}/${encodeURIComponent(guildB)}`;
+}
+
 export function entityPath(
   type: EntityType,
   region: string,
-  id: string | number
+  idOrName: string | number
 ): string {
-  return `/${type}/${region}/${id}`;
+  if (type === "player") return playerPath(region, String(idOrName));
+  if (type === "guild") return guildPath(region, String(idOrName));
+  return `/${type}/${region}/${idOrName}`;
 }
 
 export function entityCanonical(

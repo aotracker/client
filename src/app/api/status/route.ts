@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getApiSyncState, getGlobalSyncStatus } from "@/lib/db/queries";
 import { getAlbionClient } from "@/lib/albion/client";
-import { getQueueStatuses } from "@/lib/jobs/queue";
+import { getEnrichedQueueStatuses } from "@/lib/jobs/queue";
 import { getCronJobStatuses } from "@/lib/jobs/cron-state";
 import { verifyCronRequest } from "@/lib/jobs/cron-auth";
 
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
         getApiSyncState(),
         getGlobalSyncStatus(),
         getAlbionClient().getHealthMetrics().catch(() => null),
-        getQueueStatuses(),
+        getEnrichedQueueStatuses(),
         getCronJobStatuses(),
       ]);
 

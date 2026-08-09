@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { regionLabel } from "@/lib/utils";
+import { guildPath, playerPath } from "@/lib/seo";
 import type { TopKillerEntry } from "@/lib/db/queries";
 import {
   KILLER_LEADERBOARD_GRID,
@@ -26,7 +27,7 @@ function killersToPodium(killers: TopKillerEntry[]): LeaderboardPodiumEntry[] {
   return killers.slice(0, 3).map((entry) => ({
     rank: entry.rank,
     name: entry.player.name,
-    href: `/player/${entry.player.region}/${entry.player.albionId}`,
+    href: playerPath(entry.player.region, entry.player.name),
     subtitle: [
       regionLabel(entry.player.region),
       entry.player.guild?.name,
@@ -58,7 +59,7 @@ function KillerRow({
       <LeaderboardRankBadge rank={entry.rank} />
       <div className="min-w-0 flex-1 xl:contents">
         <Link
-          href={`/player/${entry.player.region}/${entry.player.albionId}`}
+          href={playerPath(entry.player.region, entry.player.name)}
           className="min-w-0 truncate text-sm font-medium hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           {entry.player.name}
@@ -73,7 +74,7 @@ function KillerRow({
                 </span>
                 {entry.player.guild.albionId ? (
                   <Link
-                    href={`/guild/${entry.player.region}/${entry.player.guild.albionId}`}
+                    href={guildPath(entry.player.region, entry.player.guild.name)}
                     className="truncate hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     {entry.player.guild.name}
@@ -94,7 +95,7 @@ function KillerRow({
                 </span>
                 {entry.player.guild.albionId ? (
                   <Link
-                    href={`/guild/${entry.player.region}/${entry.player.guild.albionId}`}
+                    href={guildPath(entry.player.region, entry.player.guild.name)}
                     className="truncate hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     {entry.player.guild.name}
@@ -115,7 +116,7 @@ function KillerRow({
           <span className="hidden min-w-0 truncate text-xs text-muted-foreground xl:block">
             {entry.player.guild?.albionId ? (
               <Link
-                href={`/guild/${entry.player.region}/${entry.player.guild.albionId}`}
+                href={guildPath(entry.player.region, entry.player.guild.name)}
                 className="truncate hover:text-primary hover:underline"
               >
                 {entry.player.guild.name}

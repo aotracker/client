@@ -1,9 +1,7 @@
 import { Suspense, cache } from "react";
 import { after } from "next/server";
 import type { Metadata } from "next";
-import {
-  getGuildByAlbionId,
-} from "@/lib/db/queries";
+import { getGuildByAlbionId } from "@/lib/db/queries";
 import { isSyncStale } from "@/lib/db/sync";
 import {
   ensureGuildSyncQueued,
@@ -30,21 +28,25 @@ import {
   GuildTopKillsFallback,
   GuildTopKillsSection,
 } from "@/components/guild/GuildTopKillsSection";
+import {
+  decodeEntitySegment,
+  resolveGuildAlbionId,
+} from "@/lib/entity-resolve";
 import { formatFame, regionLabel } from "@/lib/utils";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { JsonLd, organizationJsonLd } from "@/components/JsonLd";
 import {
   albionEntityTitle,
   buildPageMetadata,
   entityCanonical,
   entityPath,
-  guildSeoDescription,
   notFoundMetadata,
   pendingEntityMetadata,
+  guildSeoDescription,
 } from "@/lib/seo";
 
 interface PageProps {
-  params: Promise<{ region: string; guildId: string }>;
+  params: Promise<{ region: string; guildName: string }>;
 }
 
 function guildHeaderFromDb(
@@ -113,9 +115,9 @@ function needsGuildSync(guild: {
 
 const loadGuildProfile = cache(async function loadGuildProfile(
   region: AlbionRegion,
-  guildId: string
+  albionId: string
 ) {
-  const dbGuild = await getGuildByAlbionId(region, guildId);
+  const dbGuild = await getGuildByAlbionId(region, albionId);
 
   if (!dbGuild) {
     return null;
@@ -123,7 +125,7 @@ const loadGuildProfile = cache(async function loadGuildProfile(
 
   const shouldSync = needsGuildSync(dbGuild);
   if (shouldSync) {
-    after(() => ensureGuildSyncQueued(region, guildId));
+    after(() => ensureGuildSyncQueued(region, albionId));
   }
 
   const header = await enrichAllianceInfo(region, guildHeaderFromDb(dbGuild));
@@ -137,13 +139,28 @@ const loadGuildProfile = cache(async function loadGuildProfile(
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { region, guildId } = await params;
+  const { region, guildName } = await params;
   if (!isRegionEnabled(region)) return notFoundMetadata();
-  const path = entityPath("guild", region, guildId);
-  const profile = await loadGuildProfile(region as AlbionRegion, guildId);
-  if (!profile) return pendingEntityMetadata("Guild", path);
+
+  const albionRegion = region as AlbionRegion;
+  const resolved = await resolveGuildAlbionId(albionRegion, guildName);
+  if (!resolved) {
+    return pendingEntityMetadata(
+      "Guild",
+      entityPath("guild", region, decodeEntitySegment(guildName))
+    );
+  }
+
+  const profile = await loadGuildProfile(albionRegion, resolved.albionId);
+  if (!profile) {
+    return pendingEntityMetadata(
+      "Guild",
+      entityPath("guild", region, decodeEntitySegment(guildName))
+    );
+  }
 
   const { header } = profile;
+  const path = entityPath("guild", region, header.name);
 
   return buildPageMetadata({
     title: albionEntityTitle(header.name, "guild", region),
@@ -163,19 +180,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function GuildProfilePage({ params }: PageProps) {
-  const { region, guildId } = await params;
+  const { region, guildName } = await params;
   if (!isRegionEnabled(region)) notFound();
+
   const albionRegion = region as AlbionRegion;
-  const profile = await loadGuildProfile(albionRegion, guildId);
+  const resolved = await resolveGuildAlbionId(albionRegion, guildName);
+  if (!resolved) notFound();
+  if (resolved.redirectTo) permanentRedirect(resolved.redirectTo);
+
+  const { albionId } = resolved;
+  const profile = await loadGuildProfile(albionRegion, albionId);
 
   if (!profile) {
-    await ensureGuildSyncQueued(albionRegion, guildId, { immediate: true });
-    const syncJobState = await getGuildSyncJobState(albionRegion, guildId);
+    await ensureGuildSyncQueued(albionRegion, albionId, { immediate: true });
+    const syncJobState = await getGuildSyncJobState(albionRegion, albionId);
     return (
       <ProfileFetchPending
         entityType="guild"
         region={albionRegion}
-        entityId={guildId}
+        entityId={albionId}
         jobState={syncJobState}
       />
     );
@@ -187,20 +210,21 @@ export default async function GuildProfilePage({ params }: PageProps) {
     historyLastSyncedAt,
     battlesLastSyncedAt,
   } = profile;
-  const syncJobState = await getGuildSyncJobState(albionRegion, guildId);
+  const syncJobState = await getGuildSyncJobState(albionRegion, albionId);
   const isIngesting = isGuildDataIngesting({
     lastSyncedAt,
     historyLastSyncedAt,
     battlesLastSyncedAt,
     syncJobState,
   });
+  const canonicalPath = entityPath("guild", albionRegion, header.name);
 
   return (
     <div className="space-y-6">
       <JsonLd
         data={organizationJsonLd({
           name: header.name,
-          url: entityCanonical("guild", albionRegion, guildId),
+          url: entityCanonical("guild", albionRegion, header.name),
           regionLabel: regionLabel(albionRegion),
           memberCount: header.memberCount,
           description: `${header.name} guild on ${regionLabel(albionRegion)} · ${formatFame(header.killFame)} kill fame`,
@@ -209,15 +233,12 @@ export default async function GuildProfilePage({ params }: PageProps) {
       <BackLink />
       {isIngesting && <IngestingBanner entityType="guild" />}
 
-      <GuildHeader
-        guild={header}
-        sharePath={entityPath("guild", albionRegion, guildId)}
-      />
+      <GuildHeader guild={header} sharePath={canonicalPath} />
 
       <Suspense fallback={<GuildTopKillsFallback />}>
         <GuildTopKillsSection
           region={albionRegion}
-          guildId={guildId}
+          guildId={albionId}
           historyLastSyncedAt={historyLastSyncedAt}
         />
       </Suspense>
@@ -225,13 +246,13 @@ export default async function GuildProfilePage({ params }: PageProps) {
       <Suspense fallback={<GuildRivalsFallback />}>
         <GuildRivalsPanel
           region={albionRegion}
-          guildId={guildId}
+          guildId={albionId}
           guildName={header.name}
         />
       </Suspense>
 
       <Suspense fallback={<GuildBattlesSectionsFallback />}>
-        <GuildBattlesSections region={albionRegion} guildId={guildId} />
+        <GuildBattlesSections region={albionRegion} guildId={albionId} />
       </Suspense>
     </div>
   );

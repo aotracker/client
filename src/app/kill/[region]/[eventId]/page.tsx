@@ -22,10 +22,12 @@ import {
   buildPageMetadata,
   entityCanonical,
   entityPath,
+  guildPath,
   killSeoDescription,
   killSeoTitle,
   notFoundMetadata,
   pendingEntityMetadata,
+  playerPath,
 } from "@/lib/seo";
 
 interface PageProps {
@@ -210,8 +212,6 @@ export default async function KillDetailPage({ params }: PageProps) {
                 region={albionRegion}
                 guildA={feudGuildA}
                 guildB={feudGuildB}
-                guildAId={killerGuild?.albionId}
-                guildBId={victimGuild?.albionId}
                 excludeEventId={event.eventId}
               />
             </Suspense>
@@ -268,7 +268,8 @@ function getAssistants(
     if (p.playerId && excludePlayerIds.has(p.playerId)) continue;
 
     const albionId = p.player?.albionId;
-    const dedupeKey = albionId ?? p.playerId ?? p.name ?? p.id;
+    const playerName = p.player?.name ?? p.name;
+    const dedupeKey = albionId ?? p.playerId ?? playerName ?? p.id;
     if (seen.has(dedupeKey)) continue;
     seen.add(dedupeKey);
 
@@ -280,12 +281,12 @@ function getAssistants(
 
     assistants.push({
       key: dedupeKey,
-      name: p.player?.name ?? p.name ?? "Unknown",
+      name: playerName ?? "Unknown",
       guildName: guildAtKill?.name,
-      guildHref: guildAtKill?.albionId
-        ? `/guild/${region}/${guildAtKill.albionId}`
+      guildHref: guildAtKill?.name
+        ? guildPath(region, guildAtKill.name)
         : undefined,
-      profileHref: albionId ? `/player/${region}/${albionId}` : undefined,
+      profileHref: playerName ? playerPath(region, playerName) : undefined,
     });
   }
 

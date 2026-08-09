@@ -1,6 +1,7 @@
 import type { AlbionGuildInfo, AlbionRegion } from "@/lib/albion/types";
 import { isRegionEnabled } from "@/lib/albion/types";
 import { getGuildByAlbionId } from "@/lib/db/queries";
+import { resolveGuildFromSegment } from "@/lib/entity-resolve";
 import { createOgImage, createProfileOgImage, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og";
 import {
   formatAllianceLabel,
@@ -13,11 +14,11 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 interface Props {
-  params: Promise<{ region: string; guildId: string }>;
+  params: Promise<{ region: string; guildName: string }>;
 }
 
 export default async function Image({ params }: Props) {
-  const { region, guildId } = await params;
+  const { region, guildName } = await params;
 
   if (!isRegionEnabled(region)) {
     return createOgImage({
@@ -27,7 +28,12 @@ export default async function Image({ params }: Props) {
     });
   }
 
-  const guild = await getGuildByAlbionId(region as AlbionRegion, guildId);
+  const albionRegion = region as AlbionRegion;
+  const resolved = await resolveGuildFromSegment(albionRegion, guildName);
+  const guild = resolved
+    ? await getGuildByAlbionId(albionRegion, resolved.albionId)
+    : null;
+
   if (!guild) {
     return createOgImage({
       title: "Loading guild…",

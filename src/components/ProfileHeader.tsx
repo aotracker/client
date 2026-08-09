@@ -4,6 +4,7 @@ import {
   formatFame,
   regionLabel,
 } from "@/lib/utils";
+import { guildPath } from "@/lib/seo";
 import { EntityHeader } from "@/components/EntityHeader";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { WatchlistButton } from "@/components/watchlist/WatchlistButton";
@@ -49,9 +50,7 @@ export function ProfileHeader({ player, sharePath }: ProfileHeaderProps) {
           {
             key: "guild",
             label: player.guild.name,
-            href: player.guild.albionId
-              ? `/guild/${player.region}/${player.guild.albionId}`
-              : undefined,
+            href: guildPath(player.region, player.guild.name),
           },
         ]
       : []),

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageSection } from "@/components/PageSection";
 import { formatFame, regionLabel } from "@/lib/utils";
+import { guildPath, playerPath } from "@/lib/seo";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type LocalPlayer = {
@@ -106,7 +107,7 @@ export async function SearchLiveResults({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
-                        href={`/player/${region}/${player.Id}`}
+                        href={playerPath(region, player.Name ?? "")}
                         className="font-medium hover:text-primary hover:underline"
                       >
                         {player.Name}
@@ -118,9 +119,9 @@ export async function SearchLiveResults({
                       {player.GuildName && (
                         <>
                           {" · "}
-                          {player.GuildId ? (
+                          {player.GuildName ? (
                             <Link
-                              href={`/guild/${region}/${player.GuildId}`}
+                              href={guildPath(region, player.GuildName)}
                               className="hover:text-primary hover:underline"
                             >
                               {player.GuildName}
@@ -146,7 +147,7 @@ export async function SearchLiveResults({
         <PageSection title="Guilds (live)">
           <div className="space-y-2">
             {extraGuilds.map((guild) => (
-              <Link key={guild.Id} href={`/guild/${region}/${guild.Id}`}>
+              <Link key={guild.Id} href={guildPath(region, guild.Name)}>
                 <Card className="transition-colors hover:border-primary/40">
                   <CardContent className="py-3">
                     <div className="flex flex-wrap items-center gap-2">

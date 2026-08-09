@@ -4,6 +4,7 @@ import { ContentBadge } from "@/components/ContentBadge";
 import { Card } from "@/components/ui/card";
 import { ItemPowerValue } from "@/components/StatValue";
 import { cn, formatFame, formatItemPower, regionLabel } from "@/lib/utils";
+import { guildPath, playerPath } from "@/lib/seo";
 import { leaderboardKillCardHighlightClassName } from "@/components/leaderboards/leaderboard-rank-styles";
 import { ItemIcon } from "@/components/ItemIcon";
 import { RelativeTime } from "@/components/RelativeTime";
@@ -240,7 +241,7 @@ function PlayerBlock({
         <div className="min-w-0 flex-1">
           {albionId ? (
             <Link
-              href={`/player/${region}/${albionId}`}
+              href={playerPath(region, name)}
               className={cn(
                 nameClassName,
                 large ? "text-sm leading-snug" : "text-xs leading-tight sm:text-sm"
@@ -263,7 +264,7 @@ function PlayerBlock({
               {guild?.name &&
                 (guild.albionId ? (
                   <Link
-                    href={`/guild/${region}/${guild.albionId}`}
+                    href={guildPath(region, guild.name)}
                     className="hover:text-primary hover:underline"
                   >
                     {guild.name}
@@ -294,7 +295,7 @@ function PlayerBlock({
       )}
       <div className="min-w-0 flex-1 overflow-hidden">
         {albionId ? (
-          <Link href={`/player/${region}/${albionId}`} className={nameClassName}>
+          <Link href={playerPath(region, name)} className={nameClassName}>
             {name}
           </Link>
         ) : (
@@ -303,7 +304,7 @@ function PlayerBlock({
         {guild?.name &&
           (guild.albionId ? (
             <Link
-              href={`/guild/${region}/${guild.albionId}`}
+              href={guildPath(region, guild.name)}
               className="block truncate text-xs text-muted-foreground hover:text-primary hover:underline"
             >
               {guild.name}

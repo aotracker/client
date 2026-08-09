@@ -12,6 +12,7 @@ import {
   formatSilver,
   regionLabel,
 } from "@/lib/utils";
+import { guildPath, playerPath } from "@/lib/seo";
 import { RelativeTime } from "@/components/RelativeTime";
 import type { AlbionRegion } from "@/lib/albion/types";
 
@@ -101,13 +102,13 @@ function KillSummaryCard(props: KillDetailViewProps) {
             name={props.killer.name}
             guild={props.killer.guildName}
             guildHref={
-              props.killer.guildAlbionId
-                ? `/guild/${props.region}/${props.killer.guildAlbionId}`
+              props.killer.guildName
+                ? guildPath(props.region, props.killer.guildName)
                 : undefined
             }
             profileHref={
-              props.killer.albionId
-                ? `/player/${props.region}/${props.killer.albionId}`
+              props.killer.name
+                ? playerPath(props.region, props.killer.name)
                 : undefined
             }
             itemPower={props.killerIp}
@@ -134,13 +135,13 @@ function KillSummaryCard(props: KillDetailViewProps) {
             name={props.victim.name}
             guild={props.victim.guildName}
             guildHref={
-              props.victim.guildAlbionId
-                ? `/guild/${props.region}/${props.victim.guildAlbionId}`
+              props.victim.guildName
+                ? guildPath(props.region, props.victim.guildName)
                 : undefined
             }
             profileHref={
-              props.victim.albionId
-                ? `/player/${props.region}/${props.victim.albionId}`
+              props.victim.name
+                ? playerPath(props.region, props.victim.name)
                 : undefined
             }
             itemPower={props.victimIp}

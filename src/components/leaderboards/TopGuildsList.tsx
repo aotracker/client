@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatFame, regionLabel } from "@/lib/utils";
+import { guildPath } from "@/lib/seo";
 import type { TopGuildEntry } from "@/lib/db/queries";
 import {
   GUILD_LEADERBOARD_GRID,
@@ -26,7 +27,7 @@ function guildsToPodium(guilds: TopGuildEntry[]): LeaderboardPodiumEntry[] {
   return guilds.slice(0, 3).map((entry) => ({
     rank: entry.rank,
     name: entry.guild.name,
-    href: `/guild/${entry.guild.region}/${entry.guild.albionId}`,
+    href: guildPath(entry.guild.region, entry.guild.name),
     subtitle: regionLabel(entry.guild.region),
     stat: formatFame(entry.killFame),
     statLabel: `${entry.killCount} kills`,
@@ -53,7 +54,7 @@ function GuildRow({
       <LeaderboardRankBadge rank={entry.rank} />
       <div className="min-w-0 flex-1 xl:contents">
         <Link
-          href={`/guild/${entry.guild.region}/${entry.guild.albionId}`}
+          href={guildPath(entry.guild.region, entry.guild.name)}
           className="min-w-0 truncate text-sm font-medium hover:text-primary hover:underline"
         >
           {entry.guild.name}

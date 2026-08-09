@@ -36,10 +36,16 @@ function pageCount(total: number): number {
 
 function mapEntityRows(
   type: EntityType,
-  rows: { albionId: string; region: string; updatedAt: Date | null }[]
+  rows: { name: string; albionId: string; region: string; updatedAt: Date | null }[]
 ): MetadataRoute.Sitemap {
   return rows.map((row) => ({
-    url: absoluteUrl(entityPath(type, row.region, row.albionId)),
+    url: absoluteUrl(
+      entityPath(
+        type,
+        row.region,
+        type === "player" || type === "guild" ? row.name : row.albionId
+      )
+    ),
     lastModified: row.updatedAt ?? undefined,
     changeFrequency: "daily" as const,
     priority: type === "player" || type === "guild" ? 0.8 : 0.7,

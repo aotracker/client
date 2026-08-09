@@ -3,13 +3,12 @@ import { KillCard } from "@/components/KillCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getGuildFeudKillsFromDb } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
+import { feudPath } from "@/lib/seo";
 
 interface KillGuildFeudProps {
   region: AlbionRegion;
   guildA: string;
   guildB: string;
-  guildAId?: string;
-  guildBId?: string;
   excludeEventId: number;
 }
 
@@ -39,8 +38,6 @@ export async function KillGuildFeud({
   region,
   guildA,
   guildB,
-  guildAId,
-  guildBId,
   excludeEventId,
 }: KillGuildFeudProps) {
   const feudKills = await getGuildFeudKillsFromDb(region, guildA, guildB, {
@@ -48,10 +45,7 @@ export async function KillGuildFeud({
     excludeEventId,
   });
 
-  const feudHref =
-    guildAId && guildBId
-      ? `/feud/${region}/${guildAId}/${guildBId}`
-      : null;
+  const feudHref = feudPath(region, guildA, guildB);
 
   return (
     <Card>
@@ -62,14 +56,12 @@ export async function KillGuildFeud({
             {guildA} vs {guildB}
           </p>
         </div>
-        {feudHref && (
-          <Link
-            href={feudHref}
-            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium hover:bg-accent"
-          >
-            Full feud
-          </Link>
-        )}
+        <Link
+          href={feudHref}
+          className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium hover:bg-accent"
+        >
+          Full feud
+        </Link>
       </CardHeader>
       <CardContent>
         {feudKills.length === 0 ? (
