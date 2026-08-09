@@ -9,6 +9,7 @@ import {
   LEADERBOARD_TAB_META,
   type LeaderboardTab,
 } from "@/lib/leaderboards/params";
+import { readFeedRegionParam } from "@/lib/region-params";
 import { useLeaderboardNavigation } from "@/components/leaderboards/LeaderboardNavigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -49,7 +50,7 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
   const { isPending, pendingTab, push } = useLeaderboardNavigation();
 
   const tab = (searchParams.get("tab") as LeaderboardTab) || "killers";
-  const region = searchParams.get("region") ?? "all";
+  const region = readFeedRegionParam(searchParams);
   const days = Number(searchParams.get("days") ?? "7");
   const type = (searchParams.get("type") as ContentTypeFilter) || "all";
 

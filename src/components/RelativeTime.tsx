@@ -3,6 +3,7 @@
 import {
   cn,
   formatExactDateTime,
+  formatRelativeTime,
   formatRelativeTimeLong,
   isWithinRelativeTimeWindow,
 } from "@/lib/utils";
@@ -45,4 +46,19 @@ export function RelativeTime({ date, className }: RelativeTimeProps) {
 function toIsoString(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return Number.isNaN(d.getTime()) ? "" : d.toISOString();
+}
+
+/** Inline relative/exact timestamp for client components (avoids hydration mismatch). */
+export function RelativeTimeLabel({
+  date,
+  className,
+}: {
+  date: Date | string;
+  className?: string;
+}) {
+  return (
+    <span className={className} suppressHydrationWarning>
+      {formatRelativeTime(date)}
+    </span>
+  );
 }

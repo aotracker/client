@@ -32,7 +32,7 @@ yarn-error.log*
 debug-*.log
 .cursor/debug-*.log
 
-# env files (droplet/local secrets — never commit)
+# env files (VM/local secrets — never commit)
 .env
 .env*.local
 

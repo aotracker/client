@@ -1,7 +1,6 @@
 import type { AlbionRegion } from "@/lib/albion/types";
 
 const RECENT_KEY = "aotrackr:recent-searches";
-const REGION_KEY = "aotrackr:search-region";
 const MAX_RECENT = 8;
 
 export type RecentSearch = {
@@ -51,29 +50,5 @@ export function pushRecentSearch(
     );
   } catch {
     // ignore quota / private mode
-  }
-}
-
-export function getStoredSearchRegion(
-  fallback: AlbionRegion
-): AlbionRegion {
-  if (!canUseStorage()) return fallback;
-  try {
-    const raw = localStorage.getItem(REGION_KEY);
-    if (raw === "americas" || raw === "europe" || raw === "asia") {
-      return raw;
-    }
-  } catch {
-    // ignore
-  }
-  return fallback;
-}
-
-export function setStoredSearchRegion(region: AlbionRegion): void {
-  if (!canUseStorage()) return;
-  try {
-    localStorage.setItem(REGION_KEY, region);
-  } catch {
-    // ignore
   }
 }

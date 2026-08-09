@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatRelativeTime, regionLabel } from "@/lib/utils";
+import { formatUtcTimeOfDay, regionLabel } from "@/lib/utils";
+import { RelativeTimeLabel } from "@/components/RelativeTime";
 import type { QueueJobSummary, QueueStatusSnapshot } from "@/lib/jobs/queue";
 import type { CronJobStatus } from "@/lib/jobs/cron-state";
 
@@ -207,21 +208,41 @@ function CountPill({
   );
 }
 
-function jobTiming(job: QueueJobSummary): string | null {
+function jobTiming(job: QueueJobSummary): ReactNode {
   if (job.state === "active" && job.processedOn) {
-    return `Started ${formatRelativeTime(new Date(job.processedOn))}`;
+    return (
+      <>
+        Started <RelativeTimeLabel date={new Date(job.processedOn)} />
+      </>
+    );
   }
   if (job.state === "completed" && job.completedOn) {
-    return `Completed ${formatRelativeTime(new Date(job.completedOn))}`;
+    return (
+      <>
+        Completed <RelativeTimeLabel date={new Date(job.completedOn)} />
+      </>
+    );
   }
   if (job.state === "delayed" && job.delay != null) {
-    return `Starts in ${Math.max(0, Math.round(job.delay / 1000))}s`;
+    return (
+      <span suppressHydrationWarning>
+        Starts in {Math.max(0, Math.round(job.delay / 1000))}s
+      </span>
+    );
   }
   if (job.state === "waiting" && job.timestamp) {
-    return `Queued ${formatRelativeTime(new Date(job.timestamp))}`;
+    return (
+      <>
+        Queued <RelativeTimeLabel date={new Date(job.timestamp)} />
+      </>
+    );
   }
   if (job.state === "failed" && job.timestamp) {
-    return `Failed ${formatRelativeTime(new Date(job.timestamp))}`;
+    return (
+      <>
+        Failed <RelativeTimeLabel date={new Date(job.timestamp)} />
+      </>
+    );
   }
   return null;
 }
@@ -254,11 +275,11 @@ function JobCard({ job }: { job: QueueJobSummary }) {
       <p className="mt-1 font-mono text-[10px] text-muted-foreground/80">
         {job.queue}:{job.id}
         {job.state === "delayed" && job.runAt
-          ? ` · runAt ${new Date(job.runAt).toLocaleTimeString()}`
+          ? ` · runAt ${formatUtcTimeOfDay(job.runAt)}`
           : job.state === "waiting"
             ? " · ready"
             : job.state === "completed" && job.completedOn
-              ? ` · done ${new Date(job.completedOn).toLocaleTimeString()}`
+              ? ` · done ${formatUtcTimeOfDay(job.completedOn)}`
               : ""}
       </p>
 
@@ -318,8 +339,14 @@ function WorkerStatusRow({ job }: { job: CronJobStatus }) {
       ? job.lastResult.processed
       : null;
 
-  const meta: string[] = [job.schedule];
-  if (job.lastRunAt) meta.push(`Last run ${formatRelativeTime(job.lastRunAt)}`);
+  const meta: ReactNode[] = [job.schedule];
+  if (job.lastRunAt) {
+    meta.push(
+      <>
+        Last run <RelativeTimeLabel date={job.lastRunAt} />
+      </>
+    );
+  }
   if (processedJobs != null && job.lastStatus === "success") {
     let batch = `${processedJobs} processed`;
     if (failedJobs > 0) batch += `, ${failedJobs} failed`;
@@ -338,18 +365,31 @@ function WorkerStatusRow({ job }: { job: CronJobStatus }) {
       </div>
       {meta.length > 0 && (
         <p className="text-[11px] text-muted-foreground sm:text-right">
-          {meta.join(" · ")}
+          {meta.map((item, index) => (
+            <span key={index}>
+              {index > 0 ? " · " : null}
+              {item}
+            </span>
+          ))}
         </p>
       )}
     </div>
   );
 }
 
-function workerStoppedMessage(job: CronJobStatus): string {
-  const lastRun = job.lastRunAt
-    ? formatRelativeTime(job.lastRunAt)
-    : "never";
-  return `Last run ${lastRun}. Start workers from ingest/ with npm run worker (scheduler + processors on the VM).`;
+function workerStoppedMessage(job: CronJobStatus): ReactNode {
+  return (
+    <>
+      Last run{" "}
+      {job.lastRunAt ? (
+        <RelativeTimeLabel date={job.lastRunAt} />
+      ) : (
+        "never"
+      )}
+      . Start workers from ingest/ with npm run worker (scheduler + processors on
+      the VM).
+    </>
+  );
 }
 
 export function WorkerQueuesPanel({
@@ -406,7 +446,7 @@ export function WorkerQueuesPanel({
     key: string;
     tone: "error" | "warn";
     title: string;
-    body: string;
+    body: ReactNode;
   };
 
   const alerts: WorkerAlert[] = workerJobs.flatMap((job): WorkerAlert[] => {
@@ -445,7 +485,7 @@ export function WorkerQueuesPanel({
               {isRefreshing ? "Refreshing…" : "Live"}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              Updated {formatRelativeTime(status.fetchedAt)}
+              Updated <RelativeTimeLabel date={status.fetchedAt} />
             </span>
           </div>
         </div>

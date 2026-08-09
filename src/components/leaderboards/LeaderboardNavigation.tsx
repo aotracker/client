@@ -14,6 +14,10 @@ import {
   parseLeaderboardTab,
   type LeaderboardTab,
 } from "@/lib/leaderboards/params";
+import {
+  applyFeedRegionParam,
+  rememberFeedRegionSelection,
+} from "@/lib/region-params";
 
 type PushUpdates = Record<string, string | undefined>;
 
@@ -42,11 +46,18 @@ function buildLeaderboardHref(
 ): string {
   const params = new URLSearchParams(searchParams.toString());
   for (const [key, value] of Object.entries(updates)) {
+    if (value === undefined) continue;
+
+    if (key === "region") {
+      applyFeedRegionParam(params, value);
+      continue;
+    }
+
     if (
       !value ||
-      value === "all" ||
       (key === "days" && value === "7") ||
-      (key === "tab" && value === "killers")
+      (key === "tab" && value === "killers") ||
+      (key === "type" && value === "all")
     ) {
       params.delete(key);
     } else {
@@ -74,6 +85,9 @@ export function LeaderboardNavigationProvider({
   }, [isPending]);
 
   function push(updates: PushUpdates) {
+    if (updates.region) {
+      rememberFeedRegionSelection(updates.region);
+    }
     if (updates.tab) {
       setPendingTab(parseLeaderboardTab(updates.tab));
     }

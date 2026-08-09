@@ -9,6 +9,8 @@ import {
   useSearchRegion,
 } from "@/components/SearchAutocomplete";
 import { isRegionEnabled, getDefaultRegion } from "@/lib/albion/types";
+import { feedNavHref } from "@/lib/region-params";
+import { getStoredPreferredRegion } from "@/lib/region-preference";
 
 const ENTITY_RE =
   /^\/(kill|battle|player|guild|alliance)\/([a-z]+)\/([^/?#]+)\/?$/i;
@@ -17,6 +19,7 @@ export function NotFoundRecovery() {
   const pathname = usePathname() ?? "";
   const router = useRouter();
   const [region, setRegion] = useSearchRegion(getDefaultRegion());
+  const feedRegion = getStoredPreferredRegion();
 
   const recovery = useMemo(() => {
     const match = pathname.match(ENTITY_RE);
@@ -75,13 +78,13 @@ export function NotFoundRecovery() {
 
       <div className="flex flex-wrap justify-center gap-2">
         <Link
-          href="/"
+          href={feedNavHref("/", feedRegion)}
           className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
           Home
         </Link>
         <Link
-          href="/battles"
+          href={feedNavHref("/battles", feedRegion)}
           className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
           Battles

@@ -6,22 +6,29 @@ import { PageHeader } from "@/components/PageSection";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import { getMetaBuilds } from "@/lib/db/queries";
 import {
-  ENABLED_REGIONS,
-  isRegionEnabled,
-  type AlbionRegion,
-} from "@/lib/albion/types";
+  feedRegionFilterOptions,
+  parseFeedRegion,
+} from "@/lib/region-params";
 import { regionLabel } from "@/lib/utils";
-import { buildPageMetadata } from "@/lib/seo";
-
-export const metadata: Metadata = buildPageMetadata({
-  title: "Albion Online Meta Builds for 1v1, Group, and ZVZ content",
-  description:
-    "Explore top Albion Online builds by content type — 1v1, group, and ZvZ — with kill/death stats, fame, item power, and popular weapons from live kill data.",
-  canonicalPath: "/builds",
-});
+import { buildFeedPageMetadata } from "@/lib/seo";
 
 interface BuildsPageProps {
   searchParams: Promise<{ region?: string; days?: string }>;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: BuildsPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const region = parseFeedRegion(params.region);
+
+  return buildFeedPageMetadata({
+    title: "Albion Online Meta Builds for 1v1, Group, and ZVZ content",
+    description:
+      "Explore top Albion Online builds by content type — 1v1, group, and ZvZ — with kill/death stats, fame, item power, and popular weapons from live kill data.",
+    canonicalPath: "/builds",
+    region,
+  });
 }
 
 function parseDays(value: string | undefined): number {
@@ -32,15 +39,9 @@ function parseDays(value: string | undefined): number {
 
 export default async function BuildsPage({ searchParams }: BuildsPageProps) {
   const params = await searchParams;
-  const requested = params.region ?? "all";
-  const region: AlbionRegion | "all" =
-    requested === "all" || !isRegionEnabled(requested) ? "all" : requested;
+  const region = parseFeedRegion(params.region);
   const days = parseDays(params.days);
-
-  const filterRegions: { value: AlbionRegion | "all"; label: string }[] = [
-    { value: "all", label: "All Regions" },
-    ...ENABLED_REGIONS.map((r) => ({ value: r, label: regionLabel(r) })),
-  ];
+  const filterRegions = feedRegionFilterOptions();
 
   let data: Awaited<ReturnType<typeof getMetaBuilds>> | null = null;
   let error: string | null = null;

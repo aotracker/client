@@ -11,6 +11,7 @@ import {
   type ContentTypeFilter,
 } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
+import { appendFeedRegionToHref } from "@/lib/region-params";
 import {
   FilterChipSkeleton,
   KillCardSkeleton,
@@ -57,7 +58,7 @@ export async function JuicyKillsSection({
       titleClassName="text-2xl font-semibold tracking-tight"
       actions={
         <Link
-          href="/leaderboards?tab=kills"
+          href={appendFeedRegionToHref("/leaderboards", region, { tab: "kills" })}
           className="text-sm text-primary hover:underline"
         >
           View all
@@ -135,7 +136,9 @@ export async function TopKillersSection({
       titleClassName="text-2xl font-semibold tracking-tight"
       actions={
         <Link
-          href="/leaderboards?tab=killers"
+          href={appendFeedRegionToHref("/leaderboards", region, {
+            tab: "killers",
+          })}
           className="text-sm text-primary hover:underline"
         >
           View all

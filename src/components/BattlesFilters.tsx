@@ -4,6 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
+import {
+  buildFeedHref,
+  readFeedRegionParam,
+  rememberFeedRegionSelection,
+} from "@/lib/region-params";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -14,7 +19,7 @@ interface BattlesFiltersProps {
 export function BattlesFilters({ regions }: BattlesFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const region = searchParams.get("region") ?? "all";
+  const region = readFeedRegionParam(searchParams);
   const qParam = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(qParam);
 
@@ -23,27 +28,10 @@ export function BattlesFilters({ regions }: BattlesFiltersProps) {
   }, [qParam]);
 
   function pushParams(updates: { region?: string; q?: string | null }) {
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (updates.region !== undefined) {
-      if (updates.region === "all") {
-        params.delete("region");
-      } else {
-        params.set("region", updates.region);
-      }
+    if (updates.region) {
+      rememberFeedRegionSelection(updates.region);
     }
-
-    if (updates.q !== undefined) {
-      const next = updates.q?.trim() ?? "";
-      if (!next) {
-        params.delete("q");
-      } else {
-        params.set("q", next);
-      }
-    }
-
-    const queryString = params.toString();
-    router.push(queryString ? `/battles?${queryString}` : "/battles");
+    router.push(buildFeedHref("/battles", searchParams, updates));
   }
 
   function handleSearch(e: React.FormEvent) {

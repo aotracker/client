@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_NAME } from "@/lib/site";
+import type { FeedRegion } from "@/lib/region-params";
 import { formatFame, regionLabel } from "@/lib/utils";
 
 export const DEFAULT_DESCRIPTION =
@@ -269,6 +270,34 @@ export function battleSeoDescription(input: {
 const NOINDEX_NOFOLLOW: Metadata["robots"] = { index: false, follow: false };
 const NOINDEX_FOLLOW: Metadata["robots"] = { index: false, follow: true };
 const INDEX_FOLLOW: Metadata["robots"] = { index: true, follow: true };
+
+/** Append region to a feed page title when filtered. */
+export function feedPageTitle(baseTitle: string, region: FeedRegion): string {
+  if (region === "all") return baseTitle;
+  return `${baseTitle} — ${regionLabel(region)}`;
+}
+
+/** Mention the active region in feed page descriptions. */
+export function feedPageDescription(
+  baseDescription: string,
+  region: FeedRegion
+): string {
+  if (region === "all") return baseDescription;
+  return `${baseDescription} Showing ${regionLabel(region)} region data.`;
+}
+
+export function buildFeedPageMetadata(options: {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  region: FeedRegion;
+}): Metadata {
+  return buildPageMetadata({
+    title: feedPageTitle(options.title, options.region),
+    description: feedPageDescription(options.description, options.region),
+    canonicalPath: options.canonicalPath,
+  });
+}
 
 export function buildPageMetadata(options: {
   title: string;

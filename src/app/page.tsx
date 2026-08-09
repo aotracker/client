@@ -9,34 +9,41 @@ import {
   TopKillersFallback,
   TopKillersSection,
 } from "@/components/home/HomeFeedSections";
+import type { ContentTypeFilter } from "@/lib/db/queries";
 import {
-  ENABLED_REGIONS,
-  isRegionEnabled,
-  type AlbionRegion,
-} from "@/lib/albion/types";
-import { regionLabel } from "@/lib/utils";
+  feedRegionFilterOptions,
+  parseFeedRegion,
+} from "@/lib/region-params";
 import { JsonLd, websiteJsonLd } from "@/components/JsonLd";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
-import { buildPageMetadata, DEFAULT_DESCRIPTION, HOME_PAGE_TITLE } from "@/lib/seo";
+import { buildFeedPageMetadata, buildPageMetadata, DEFAULT_DESCRIPTION, feedPageDescription, feedPageTitle, HOME_PAGE_TITLE } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
-import type { ContentTypeFilter } from "@/lib/db/queries";
-
-export const metadata: Metadata = {
-  ...buildPageMetadata({
-    title: HOME_PAGE_TITLE,
-    description: DEFAULT_DESCRIPTION,
-    canonicalPath: "/",
-  }),
-  title: {
-    absolute: `${SITE_NAME} — ${HOME_PAGE_TITLE}`,
-  },
-};
-
-const CONTENT_TYPES = new Set<ContentTypeFilter>(["all", "SOLO", "GROUP", "ZVZ"]);
 
 interface HomeProps {
   searchParams: Promise<{ region?: string; type?: string }>;
 }
+
+export async function generateMetadata({
+  searchParams,
+}: HomeProps): Promise<Metadata> {
+  const params = await searchParams;
+  const region = parseFeedRegion(params.region);
+  const title = feedPageTitle(HOME_PAGE_TITLE, region);
+  const description = feedPageDescription(DEFAULT_DESCRIPTION, region);
+
+  return {
+    ...buildPageMetadata({
+      title,
+      description,
+      canonicalPath: "/",
+    }),
+    title: {
+      absolute: `${SITE_NAME} — ${title}`,
+    },
+  };
+}
+
+const CONTENT_TYPES = new Set<ContentTypeFilter>(["all", "SOLO", "GROUP", "ZVZ"]);
 
 function parseContentType(value: string | undefined): ContentTypeFilter {
   if (value && CONTENT_TYPES.has(value as ContentTypeFilter)) {
@@ -47,15 +54,9 @@ function parseContentType(value: string | undefined): ContentTypeFilter {
 
 export default async function HomePage({ searchParams }: HomeProps) {
   const params = await searchParams;
-  const requested = params.region ?? "all";
-  const region: AlbionRegion | "all" =
-    requested === "all" || !isRegionEnabled(requested) ? "all" : requested;
+  const region = parseFeedRegion(params.region);
   const contentType = parseContentType(params.type);
-
-  const filterRegions: { value: AlbionRegion | "all"; label: string }[] = [
-    { value: "all", label: "All Regions" },
-    ...ENABLED_REGIONS.map((r) => ({ value: r, label: regionLabel(r) })),
-  ];
+  const filterRegions = feedRegionFilterOptions();
 
   return (
     <div className="space-y-6">

@@ -8,36 +8,36 @@ import { countBattlesFeed, getBattlesFeed } from "@/lib/db/queries";
 import { BATTLES_FEED_PAGE_SIZE } from "@/lib/battles-constants";
 import { getCronJobStatuses } from "@/lib/jobs/cron-state";
 import {
-  ENABLED_REGIONS,
-  isRegionEnabled,
-  type AlbionRegion,
-} from "@/lib/albion/types";
-import { regionLabel } from "@/lib/utils";
-import { buildPageMetadata } from "@/lib/seo";
+  feedRegionFilterOptions,
+  parseFeedRegion,
+} from "@/lib/region-params";
+import { buildFeedPageMetadata } from "@/lib/seo";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
-
-export const metadata: Metadata = buildPageMetadata({
-  title: "Latest Albion Online Battles",
-  description:
-    "Latest Albion Online battles. Search by guild, alliance, or player. Select multiple battles to combine stats",
-  canonicalPath: "/battles",
-});
 
 interface BattlesPageProps {
   searchParams: Promise<{ region?: string; q?: string }>;
 }
 
+export async function generateMetadata({
+  searchParams,
+}: BattlesPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const region = parseFeedRegion(params.region);
+
+  return buildFeedPageMetadata({
+    title: "Latest Albion Online Battles",
+    description:
+      "Latest Albion Online battles. Search by guild, alliance, or player. Select multiple battles to combine stats",
+    canonicalPath: "/battles",
+    region,
+  });
+}
+
 export default async function BattlesPage({ searchParams }: BattlesPageProps) {
   const params = await searchParams;
-  const requested = params.region ?? "all";
-  const region: AlbionRegion | "all" =
-    requested === "all" || !isRegionEnabled(requested) ? "all" : requested;
+  const region = parseFeedRegion(params.region);
   const q = params.q?.trim() || undefined;
-
-  const filterRegions: { value: AlbionRegion | "all"; label: string }[] = [
-    { value: "all", label: "All Regions" },
-    ...ENABLED_REGIONS.map((r) => ({ value: r, label: regionLabel(r) })),
-  ];
+  const filterRegions = feedRegionFilterOptions();
 
   let battles: Awaited<ReturnType<typeof getBattlesFeed>> = [];
   let total = 0;

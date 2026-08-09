@@ -24,19 +24,11 @@ import {
   getTopPlayersByKillFame,
 } from "@/lib/db/queries";
 import {
-  ENABLED_REGIONS,
-  isRegionEnabled,
-  type AlbionRegion,
-} from "@/lib/albion/types";
+  feedRegionFilterOptions,
+  parseFeedRegion,
+} from "@/lib/region-params";
 import { regionLabel } from "@/lib/utils";
-import { buildPageMetadata } from "@/lib/seo";
-
-export const metadata: Metadata = buildPageMetadata({
-  title: "Albion Online PvP Leaderboards",
-  description:
-    "Top killers, guilds, and highest fame kills from tracked Albion Online PvP data. Filter by region, content type, and time period.",
-  canonicalPath: "/leaderboards",
-});
+import { buildFeedPageMetadata } from "@/lib/seo";
 
 interface LeaderboardsPageProps {
   searchParams: Promise<{
@@ -47,21 +39,30 @@ interface LeaderboardsPageProps {
   }>;
 }
 
+export async function generateMetadata({
+  searchParams,
+}: LeaderboardsPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const region = parseFeedRegion(params.region);
+
+  return buildFeedPageMetadata({
+    title: "Albion Online PvP Leaderboards",
+    description:
+      "Top killers, guilds, and highest fame kills from tracked Albion Online PvP data. Filter by region, content type, and time period.",
+    canonicalPath: "/leaderboards",
+    region,
+  });
+}
+
 export default async function LeaderboardsPage({
   searchParams,
 }: LeaderboardsPageProps) {
   const params = await searchParams;
   const tab = parseLeaderboardTab(params.tab);
-  const requested = params.region ?? "all";
-  const region: AlbionRegion | "all" =
-    requested === "all" || !isRegionEnabled(requested) ? "all" : requested;
+  const region = parseFeedRegion(params.region);
   const days = parseLeaderboardDays(params.days);
   const contentType = parseLeaderboardContentType(params.type);
-
-  const filterRegions: { value: AlbionRegion | "all"; label: string }[] = [
-    { value: "all", label: "All Regions" },
-    ...ENABLED_REGIONS.map((r) => ({ value: r, label: regionLabel(r) })),
-  ];
+  const filterRegions = feedRegionFilterOptions();
 
   const filters = {
     region,

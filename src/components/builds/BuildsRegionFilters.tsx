@@ -2,6 +2,11 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { AlbionRegion } from "@/lib/albion/types";
+import {
+  buildFeedHref,
+  readFeedRegionParam,
+  rememberFeedRegionSelection,
+} from "@/lib/region-params";
 import { Button } from "@/components/ui/button";
 
 interface BuildsRegionFiltersProps {
@@ -11,17 +16,11 @@ interface BuildsRegionFiltersProps {
 export function BuildsRegionFilters({ regions }: BuildsRegionFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const region = searchParams.get("region") ?? "all";
+  const region = readFeedRegionParam(searchParams);
 
   function updateRegion(next: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next === "all") {
-      params.delete("region");
-    } else {
-      params.set("region", next);
-    }
-    const query = params.toString();
-    router.push(query ? `/builds?${query}` : "/builds");
+    rememberFeedRegionSelection(next);
+    router.push(buildFeedHref("/builds", searchParams, { region: next }));
   }
 
   return (

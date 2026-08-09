@@ -11,10 +11,12 @@ import { getDefaultRegion } from "@/lib/albion/types";
 import { cn, regionLabel } from "@/lib/utils";
 import { parseDeepLink } from "@/lib/search/parse-deep-link";
 import {
+  getPreferredRegion,
+  setPreferredRegion,
+} from "@/lib/region-preference";
+import {
   getRecentSearches,
-  getStoredSearchRegion,
   pushRecentSearch,
-  setStoredSearchRegion,
   type RecentSearch,
 } from "@/lib/search/recent-searches";
 
@@ -279,7 +281,7 @@ export function SearchAutocomplete({
         pushRecentSearch(recentEntry);
         setRecent(getRecentSearches());
       }
-      setStoredSearchRegion(region);
+      setPreferredRegion(region);
       onRegionResolved?.(region);
       setOpen(false);
       onNavigate?.();
@@ -463,7 +465,7 @@ export function SearchAutocomplete({
 }
 
 /** Hook helper for navbar region preference. */
-export function useSearchRegion(
+export function usePreferredRegion(
   fallback?: AlbionRegion,
   options?: { preferStored?: boolean }
 ): [AlbionRegion, (region: AlbionRegion) => void] {
@@ -473,13 +475,16 @@ export function useSearchRegion(
 
   useEffect(() => {
     if (!preferStored) return;
-    setRegionState(getStoredSearchRegion(defaultRegion));
+    setRegionState(getPreferredRegion(defaultRegion));
   }, [defaultRegion, preferStored]);
 
   const setRegion = useCallback((next: AlbionRegion) => {
     setRegionState(next);
-    setStoredSearchRegion(next);
+    setPreferredRegion(next);
   }, []);
 
   return [region, setRegion];
 }
+
+/** @deprecated Use usePreferredRegion */
+export const useSearchRegion = usePreferredRegion;

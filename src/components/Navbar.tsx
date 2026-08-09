@@ -2,21 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { Suspense, useEffect, useState, useSyncExternalStore } from "react";
 import { Menu, Moon, Star, Sun, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   SearchAutocomplete,
   useSearchRegion,
 } from "@/components/SearchAutocomplete";
+import { NavbarRegionSelector } from "@/components/NavbarRegionIndicator";
 import { useTheme } from "@/components/ThemeProvider";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WatchlistNavButton } from "@/components/watchlist/WatchlistNavButton";
 import type { AlbionRegion } from "@/lib/albion/types";
+import { feedNavHref } from "@/lib/region-params";
+import { getStoredPreferredRegion } from "@/lib/region-preference";
 import { cn } from "@/lib/utils";
 
 interface NavbarProps {
   regions: AlbionRegion[];
+  preferredRegion: AlbionRegion | null;
 }
 
 function formatUtcClock(date: Date): string {
@@ -91,23 +95,33 @@ function ThemeToggleButton({ className }: { className?: string }) {
   );
 }
 
-export function Navbar({ regions }: NavbarProps) {
+export function Navbar({ regions, preferredRegion }: NavbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [region, setRegion] = useSearchRegion(regions[0]);
+  const [navRegion, setNavRegion] = useState(preferredRegion);
 
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    setNavRegion(getStoredPreferredRegion() ?? preferredRegion);
+  }, [pathname, preferredRegion]);
+
+  const homeHref = feedNavHref("/", navRegion);
+  const battlesHref = feedNavHref("/battles", navRegion);
+  const leaderboardsHref = feedNavHref("/leaderboards", navRegion);
+  const buildsHref = feedNavHref("/builds", navRegion);
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:gap-3">
-        <BrandLogo />
+        <BrandLogo href={homeHref} />
 
         <nav className="hidden shrink-0 items-center gap-3 sm:flex">
           <Link
-            href="/battles"
+            href={battlesHref}
             className={cn(
               "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
               pathname.startsWith("/battles")
@@ -118,7 +132,7 @@ export function Navbar({ regions }: NavbarProps) {
             Battles
           </Link>
           <Link
-            href="/leaderboards"
+            href={leaderboardsHref}
             className={cn(
               "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
               pathname.startsWith("/leaderboards")
@@ -129,7 +143,7 @@ export function Navbar({ regions }: NavbarProps) {
             Leaderboards
           </Link>
           <Link
-            href="/builds"
+            href={buildsHref}
             className={cn(
               "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
               pathname.startsWith("/builds")
@@ -150,6 +164,17 @@ export function Navbar({ regions }: NavbarProps) {
             onNavigate={() => setMenuOpen(false)}
           />
         </div>
+
+        <Suspense fallback={null}>
+          <NavbarRegionSelector
+            regions={regions}
+            preferredRegion={navRegion}
+            onRegionChange={(next) => {
+              setRegion(next);
+              setNavRegion(next);
+            }}
+          />
+        </Suspense>
 
         <ServerTime />
 
@@ -173,29 +198,41 @@ export function Navbar({ regions }: NavbarProps) {
       {menuOpen && (
         <div className="border-t border-border px-4 py-3 sm:hidden">
           <nav className="flex flex-col gap-3">
+            <Suspense fallback={null}>
+              <NavbarRegionSelector
+                regions={regions}
+                preferredRegion={navRegion}
+                variant="chips"
+                onSelect={() => setMenuOpen(false)}
+                onRegionChange={(next) => {
+                  setRegion(next);
+                  setNavRegion(next);
+                }}
+              />
+            </Suspense>
             <Link
-              href="/"
+              href={homeHref}
               className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               onClick={() => setMenuOpen(false)}
             >
               Home
             </Link>
             <Link
-              href="/battles"
+              href={battlesHref}
               className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               onClick={() => setMenuOpen(false)}
             >
               Battles
             </Link>
             <Link
-              href="/leaderboards"
+              href={leaderboardsHref}
               className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               onClick={() => setMenuOpen(false)}
             >
               Leaderboards
             </Link>
             <Link
-              href="/builds"
+              href={buildsHref}
               className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               onClick={() => setMenuOpen(false)}
             >

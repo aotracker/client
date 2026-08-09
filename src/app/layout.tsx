@@ -5,6 +5,7 @@ import "./globals.css";
 import { Footer } from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Navbar } from "@/components/Navbar";
+import { RegionPreferenceSync } from "@/components/RegionPreferenceSync";
 import { StatusBanner } from "@/components/StatusBanner";
 import {
   ThemeProvider,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ThemeProvider";
 import { ToastProvider } from "@/components/Toast";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
+import { getServerPreferredRegion } from "@/lib/region-preference-server";
 import { SITE_NAME } from "@/lib/site";
 import { DEFAULT_DESCRIPTION, getSiteUrl } from "@/lib/seo";
 
@@ -51,11 +53,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const preferredRegion = await getServerPreferredRegion();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -66,7 +70,8 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <ToastProvider>
-            <Navbar regions={ENABLED_REGIONS} />
+            <RegionPreferenceSync />
+            <Navbar regions={ENABLED_REGIONS} preferredRegion={preferredRegion} />
             <StatusBanner />
             <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
               {children}

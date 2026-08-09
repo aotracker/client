@@ -92,6 +92,19 @@ export function formatUtcDateTime24h(date: Date | string): string {
   return formatExactDateTime(date);
 }
 
+/** UTC clock fragment for job timestamps (stable across server/client). */
+export function formatUtcTimeOfDay(value: Date | string | number): string {
+  const d = typeof value === "number" ? new Date(value) : toDate(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "UTC",
+  });
+}
+
 function formatItemDisplayName(baseName: string): string {
   return baseName
     .replace(/^T\d+_/, "")

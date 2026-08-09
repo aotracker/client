@@ -2,7 +2,7 @@
 
 **Production host:** Vercel only. Set Root Directory to `client`.
 
-Background workers, Postgres, Redis, and the ingest HTTP API run on the OVH VM — see [DEPLOY.md](../DEPLOY.md) and [deploy/vm/README.md](../deploy/vm/README.md).
+Background workers, Postgres, Redis, and the ingest HTTP API run on the **OVH VM** (`/home/ubuntu/ingest` + Docker Postgres) — see [DEPLOY.md](../DEPLOY.md) and [deploy/vm/README.md](../deploy/vm/README.md).
 
 ## What runs here
 
@@ -20,20 +20,35 @@ Workers and the ingest API live in [`../ingest/`](../ingest/) and are **never** 
 | Install Command | `npm install` (default) |
 | Build Command | `npm run build` |
 
-## Environment variables
+## Environment variables (Vercel production)
+
+### Required
 
 | Variable | Purpose |
 |---|---|
-| `DATABASE_URL` | PostgreSQL on the OVH VM |
-| `INGEST_API_URL` | Ingest HTTP API on the OVH VM (e.g. `http://VM_IP:3001`) |
-| `INGEST_API_SECRET` | Bearer token for ingest API (must match ingest `.env`) |
-| `DATABASE_USE_POOLER` | `false` for co-located Postgres |
-| `DATABASE_POOL_MAX` | `1` on Vercel |
-| `CRON_SECRET` | Secures ops `/api/cron/*` routes |
-| `DISABLED_REGIONS` | Comma-separated region slugs to skip |
+| `DATABASE_URL` | PostgreSQL on OVH VM (`postgresql://albion:…@VM_HOST:5432/albion_kills?sslmode=no-verify`) |
+| `INGEST_API_URL` | Ingest HTTP API on OVH VM (e.g. `http://VM_HOST:3001`) |
+| `INGEST_API_SECRET` | Bearer token for ingest API (must match `/home/ubuntu/ingest/.env`) |
+| `CRON_SECRET` | Secures ops `/api/cron/*` and `/status` |
+| `DISABLED_REGIONS` | Comma-separated region slugs to skip (e.g. `asia`) |
 | `NEXT_PUBLIC_APP_URL` | Canonical public URL (e.g. `https://www.aotracker.net`) |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional GA4 ID |
-| `NEXT_PUBLIC_ITEM_ICON_CDN` | Optional CDN base for item icons |
+
+### Optional
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 |
+| `NEXT_PUBLIC_ITEM_ICON_CDN` | CDN base URL for item icons |
+
+### Not needed on Vercel
+
+| Variable | Why |
+|---|---|
+| `REDIS_URL` | BullMQ runs on OVH VM only |
+| `INGEST_API_PORT` | Ingest API port — VM-side only |
+| `JOBS_SOURCE` | Worker label — set by systemd on VM |
+| `DATABASE_USE_POOLER` | Defaults to `false`; only set if using PgBouncer |
+| `DATABASE_POOL_MAX` | Defaults to `1` on Vercel (`VERCEL=1` auto-detected) |
 
 Copy [.env.example](.env.example) for local development.
 

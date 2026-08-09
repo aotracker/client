@@ -3,6 +3,11 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
+import {
+  buildFeedHref,
+  readFeedRegionParam,
+  rememberFeedRegionSelection,
+} from "@/lib/region-params";
 import { Button } from "@/components/ui/button";
 
 const CONTENT_FILTERS: { value: ContentTypeFilter; label: string }[] = [
@@ -27,32 +32,21 @@ export function KillFeedFilters({
 }: KillFeedFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const region = searchParams.get("region") ?? "all";
+  const region = readFeedRegionParam(searchParams);
   const typeParam = searchParams.get("type") ?? "all";
   const contentType = isContentTypeFilter(typeParam) ? typeParam : "all";
 
   function update(updates: { region?: string; type?: string }) {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("offset");
-
-    if (updates.region !== undefined) {
-      if (updates.region === "all") {
-        params.delete("region");
-      } else {
-        params.set("region", updates.region);
-      }
+    if (updates.region) {
+      rememberFeedRegionSelection(updates.region);
     }
-
-    if (updates.type !== undefined) {
-      if (updates.type === "all") {
-        params.delete("type");
-      } else {
-        params.set("type", updates.type);
-      }
-    }
-
-    const query = params.toString();
-    router.push(query ? `/?${query}` : "/");
+    router.push(
+      buildFeedHref("/", searchParams, {
+        ...updates,
+        type: updates.type === "all" ? null : updates.type,
+        offset: null,
+      })
+    );
   }
 
   const showRegions = show === "all" || show === "regions";
