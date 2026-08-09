@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { KillFeedFilters } from "@/components/KillFeedFilters";
 import { KillFeedList } from "@/components/KillFeedList";
 import { KillCard } from "@/components/KillCard";
 import { TopKillersList } from "@/components/TopKillersList";
@@ -12,16 +11,50 @@ import {
 } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { appendFeedRegionToHref } from "@/lib/region-params";
-import {
-  FilterChipSkeleton,
-  KillCardSkeleton,
-  Skeleton,
-} from "@/components/ui/skeleton";
-import { Suspense } from "react";
+import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
 
 const FEED_PAGE_SIZE = 30;
+const HOME_JUICY_LIMIT = 3;
+const HOME_KILLERS_LIMIT = 3;
 
-type FilterRegion = { value: AlbionRegion | "all"; label: string };
+const FEED_TITLE_CLASS = "text-2xl font-semibold tracking-tight";
+
+export function HomeHighlightsShell({
+  region,
+  children,
+}: {
+  region: AlbionRegion | "all";
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      className="space-y-6 border-t border-border pt-8"
+      aria-labelledby="home-highlights-heading"
+    >
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h2
+            id="home-highlights-heading"
+            className="font-display text-lg font-semibold"
+          >
+            This week&apos;s highlights
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Top performers from the last 7 days
+          </p>
+        </div>
+        <Link
+          href={appendFeedRegionToHref("/leaderboards", region)}
+          className="shrink-0 text-sm text-primary hover:underline"
+        >
+          View leaderboards
+        </Link>
+      </div>
+      <div className="grid items-start gap-6 lg:grid-cols-2">{children}</div>
+    </section>
+  );
+}
+
 
 export async function JuicyKillsSection({
   region,
@@ -32,7 +65,10 @@ export async function JuicyKillsSection({
   let error: string | null = null;
 
   try {
-    juicyKills = await getRecentJuicyKills({ region, limit: 5 });
+    juicyKills = await getRecentJuicyKills({
+      region,
+      limit: HOME_JUICY_LIMIT,
+    });
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load juicy kills";
   }
@@ -40,9 +76,8 @@ export async function JuicyKillsSection({
   if (error) {
     return (
       <PageSection
-        title="Recent Juicy Kills"
-        description="Top 5 highest fame kills in the last 7 days"
-        titleClassName="text-2xl font-semibold tracking-tight"
+        title="Juicy Kills"
+        description="Highest fame kills · Last 7 days"
       >
         <div className="alert-danger rounded-md p-4 text-sm">
           Juicy kills temporarily unavailable.
@@ -53,9 +88,8 @@ export async function JuicyKillsSection({
 
   return (
     <PageSection
-      title="Recent Juicy Kills"
-      description="Top 5 highest fame kills in the last 7 days"
-      titleClassName="text-2xl font-semibold tracking-tight"
+      title="Juicy Kills"
+      description="Highest fame kills · Last 7 days"
       actions={
         <Link
           href={appendFeedRegionToHref("/leaderboards", region, { tab: "kills" })}
@@ -76,7 +110,6 @@ export async function JuicyKillsSection({
               key={`${event.region}-${event.eventId}`}
               event={event}
               compact
-              compactSize="large"
             />
           ))}
         </div>
@@ -87,13 +120,13 @@ export async function JuicyKillsSection({
 
 export function JuicyKillsFallback() {
   return (
-    <PageSection
-      title="Recent Juicy Kills"
-      description="Top 5 highest fame kills in the last 7 days"
-      titleClassName="text-2xl font-semibold tracking-tight"
-    >
-      <div className="space-y-2" aria-busy="true" aria-label="Loading juicy kills">
-        {Array.from({ length: 3 }).map((_, i) => (
+    <PageSection title="Juicy Kills" description="Highest fame kills · Last 7 days">
+      <div
+        className="space-y-2"
+        aria-busy="true"
+        aria-label="Loading juicy kills"
+      >
+        {Array.from({ length: HOME_JUICY_LIMIT }).map((_, i) => (
           <KillCardSkeleton key={i} />
         ))}
       </div>
@@ -110,7 +143,11 @@ export async function TopKillersSection({
   let error: string | null = null;
 
   try {
-    topKillers = await getTopKillers({ region, limit: 10, days: 7 });
+    topKillers = await getTopKillers({
+      region,
+      limit: HOME_KILLERS_LIMIT,
+      days: 7,
+    });
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load top killers";
   }
@@ -118,9 +155,8 @@ export async function TopKillersSection({
   if (error) {
     return (
       <PageSection
-        title="Top Killers by Kill Count"
-        description="Top 10 most PvP kills in the last 7 days"
-        titleClassName="text-2xl font-semibold tracking-tight"
+        title="Top Killers"
+        description="Most PvP kills · Last 7 days"
       >
         <div className="alert-danger rounded-md p-4 text-sm">
           Top killers temporarily unavailable.
@@ -131,9 +167,8 @@ export async function TopKillersSection({
 
   return (
     <PageSection
-      title="Top Killers by Kill Count"
-      description="Top 10 most PvP kills in the last 7 days"
-      titleClassName="text-2xl font-semibold tracking-tight"
+      title="Top Killers"
+      description="Most PvP kills · Last 7 days"
       actions={
         <Link
           href={appendFeedRegionToHref("/leaderboards", region, {
@@ -145,24 +180,30 @@ export async function TopKillersSection({
         </Link>
       }
     >
-      <TopKillersList killers={topKillers} />
+      <TopKillersList killers={topKillers} layout="podium" />
     </PageSection>
   );
 }
 
 export function TopKillersFallback() {
   return (
-    <PageSection
-      title="Top Killers by Kill Count"
-      description="Top 10 most PvP kills in the last 7 days"
-      titleClassName="text-2xl font-semibold tracking-tight"
-    >
-      <div className="space-y-2" aria-busy="true" aria-label="Loading top killers">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-            <Skeleton className="h-4 w-6" />
-            <Skeleton className="h-4 flex-1" />
-            <Skeleton className="h-4 w-10" />
+    <PageSection title="Top Killers" description="Most PvP kills · Last 7 days">
+      <div
+        className="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+        aria-busy="true"
+        aria-label="Loading top killers"
+      >
+        {Array.from({ length: HOME_KILLERS_LIMIT }).map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 rounded-lg border border-border bg-card px-3.5 py-3"
+          >
+            <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+            <Skeleton className="h-4 w-8" />
           </div>
         ))}
       </div>
@@ -173,11 +214,9 @@ export function TopKillersFallback() {
 export async function RecentKillsSection({
   region,
   contentType,
-  filterRegions,
 }: {
   region: AlbionRegion | "all";
   contentType: ContentTypeFilter;
-  filterRegions: FilterRegion[];
 }) {
   let feedKills: Awaited<ReturnType<typeof getKillFeed>> = [];
   let error: string | null = null;
@@ -198,7 +237,7 @@ export async function RecentKillsSection({
       <PageSection
         title="Recent Kills"
         description="Latest kills from the local database"
-        titleClassName="text-2xl font-semibold tracking-tight"
+        titleClassName={FEED_TITLE_CLASS}
       >
         <div className="alert-danger rounded-md p-4 text-sm">
           Kill feed temporarily unavailable.
@@ -212,7 +251,7 @@ export async function RecentKillsSection({
       <PageSection
         title="Recent Kills"
         description="Latest kills from the local database"
-        titleClassName="text-2xl font-semibold tracking-tight"
+        titleClassName={FEED_TITLE_CLASS}
       >
         <div className="rounded-md border border-border bg-card p-8 text-center text-muted-foreground">
           <p className="font-medium text-foreground">No kills to show yet</p>
@@ -236,11 +275,8 @@ export async function RecentKillsSection({
     <PageSection
       title="Recent Kills"
       description="Latest kills from the local database"
-      titleClassName="text-2xl font-semibold tracking-tight"
+      titleClassName={FEED_TITLE_CLASS}
     >
-      <Suspense fallback={<FilterChipSkeleton count={4} />}>
-        <KillFeedFilters regions={filterRegions} show="contentTypes" />
-      </Suspense>
       <KillFeedList
         key={`${region}-${contentType}`}
         initialEvents={feedKills}
@@ -252,19 +288,18 @@ export async function RecentKillsSection({
   );
 }
 
-export function RecentKillsFallback({
-  filterRegions,
-}: {
-  filterRegions: FilterRegion[];
-}) {
+export function RecentKillsFallback() {
   return (
     <PageSection
       title="Recent Kills"
       description="Latest kills from the local database"
-      titleClassName="text-2xl font-semibold tracking-tight"
+      titleClassName={FEED_TITLE_CLASS}
     >
-      <div className="space-y-3" aria-busy="true" aria-label="Loading recent kills">
-        <FilterChipSkeleton count={4} />
+      <div
+        className="space-y-2"
+        aria-busy="true"
+        aria-label="Loading recent kills"
+      >
         {Array.from({ length: 5 }).map((_, i) => (
           <KillCardSkeleton key={i} />
         ))}

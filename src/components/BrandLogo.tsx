@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 /** Compact AOT monogram. */
@@ -43,7 +43,6 @@ export function BrandLogo({
         className={cn(
           size === "sm" ? "size-7 text-[10px]" : "size-8 text-[11px]"
         )}
-        title={markOnly ? SITE_NAME : undefined}
       />
       {!markOnly && (
         <span
@@ -61,7 +60,10 @@ export function BrandLogo({
 
   if (!href) {
     return (
-      <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <span
+        className={cn("inline-flex items-center gap-2.5", className)}
+        title={SITE_TAGLINE}
+      >
         {content}
       </span>
     );
@@ -75,6 +77,7 @@ export function BrandLogo({
         className
       )}
       aria-label={SITE_NAME}
+      title={SITE_TAGLINE}
     >
       {content}
     </Link>

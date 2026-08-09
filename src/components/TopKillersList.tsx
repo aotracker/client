@@ -41,7 +41,7 @@ function killersToPodium(killers: TopKillerEntry[]): LeaderboardPodiumEntry[] {
 
 interface TopKillersListProps {
   killers: TopKillerEntry[];
-  layout?: "default" | "wide";
+  layout?: "default" | "wide" | "podium";
 }
 
 function KillerRow({
@@ -166,6 +166,10 @@ export function TopKillersList({
         No PvP kills in the last 7 days
       </div>
     );
+  }
+
+  if (layout === "podium") {
+    return <LeaderboardTopThree entries={killersToPodium(killers)} />;
   }
 
   const wide = layout === "wide";

@@ -1242,13 +1242,14 @@ export interface RegionEntityCounts {
   region: AlbionRegion;
   players: number;
   guilds: number;
+  kills: number;
   battles: number;
 }
 
 export async function getRegionEntityCounts(): Promise<RegionEntityCounts[]> {
   if (ENABLED_REGIONS.length === 0) return [];
 
-  const [playerRows, guildRows, battleRows] = await Promise.all([
+  const [playerRows, guildRows, killRows, battleRows] = await Promise.all([
     db
       .select({
         region: schema.players.region,
@@ -1267,6 +1268,14 @@ export async function getRegionEntityCounts(): Promise<RegionEntityCounts[]> {
       .groupBy(schema.guilds.region),
     db
       .select({
+        region: schema.killEvents.region,
+        count: count(),
+      })
+      .from(schema.killEvents)
+      .where(inArray(schema.killEvents.region, ENABLED_REGIONS))
+      .groupBy(schema.killEvents.region),
+    db
+      .select({
         region: schema.battles.region,
         count: count(),
       })
@@ -1279,6 +1288,7 @@ export async function getRegionEntityCounts(): Promise<RegionEntityCounts[]> {
     playerRows.map((row) => [row.region, row.count])
   );
   const guildsByRegion = new Map(guildRows.map((row) => [row.region, row.count]));
+  const killsByRegion = new Map(killRows.map((row) => [row.region, row.count]));
   const battlesByRegion = new Map(
     battleRows.map((row) => [row.region, row.count])
   );
@@ -1287,6 +1297,7 @@ export async function getRegionEntityCounts(): Promise<RegionEntityCounts[]> {
     region,
     players: playersByRegion.get(region) ?? 0,
     guilds: guildsByRegion.get(region) ?? 0,
+    kills: killsByRegion.get(region) ?? 0,
     battles: battlesByRegion.get(region) ?? 0,
   }));
 }

@@ -9,12 +9,12 @@ import {
   SearchAutocomplete,
   useSearchRegion,
 } from "@/components/SearchAutocomplete";
-import { NavbarRegionSelector } from "@/components/NavbarRegionIndicator";
+import { NavbarRegionSelector, useActiveFeedRegion } from "@/components/NavbarRegionIndicator";
 import { useTheme } from "@/components/ThemeProvider";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WatchlistNavButton } from "@/components/watchlist/WatchlistNavButton";
 import type { AlbionRegion } from "@/lib/albion/types";
-import { feedNavHref } from "@/lib/region-params";
+import { appendFeedRegionToHref, feedNavHref, type FeedRegion } from "@/lib/region-params";
 import { getStoredPreferredRegion } from "@/lib/region-preference";
 import { cn } from "@/lib/utils";
 
@@ -95,6 +95,117 @@ function ThemeToggleButton({ className }: { className?: string }) {
   );
 }
 
+interface FeedNavHrefs {
+  home: string;
+  battles: string;
+  leaderboards: string;
+  builds: string;
+}
+
+function buildFeedNavHrefs(activeRegion: FeedRegion): FeedNavHrefs {
+  return {
+    home: appendFeedRegionToHref("/", activeRegion),
+    battles: appendFeedRegionToHref("/battles", activeRegion),
+    leaderboards: appendFeedRegionToHref("/leaderboards", activeRegion),
+    builds: appendFeedRegionToHref("/builds", activeRegion),
+  };
+}
+
+function NavbarBrandAndDesktopNav({
+  preferredRegion,
+  pathname,
+}: {
+  preferredRegion: AlbionRegion | null;
+  pathname: string;
+}) {
+  const hrefs = buildFeedNavHrefs(useActiveFeedRegion(preferredRegion));
+
+  return (
+    <>
+      <BrandLogo href={hrefs.home} />
+
+      <nav className="hidden shrink-0 items-center gap-3 sm:flex">
+        <Link
+          href={hrefs.leaderboards}
+          className={cn(
+            "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            pathname.startsWith("/leaderboards")
+              ? "text-foreground"
+              : "text-muted-foreground"
+          )}
+        >
+          Leaderboards
+        </Link>
+        <Link
+          href={hrefs.battles}
+          className={cn(
+            "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            pathname.startsWith("/battles")
+              ? "text-foreground"
+              : "text-muted-foreground"
+          )}
+        >
+          Battles
+        </Link>
+        <Link
+          href={hrefs.builds}
+          className={cn(
+            "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            pathname.startsWith("/builds")
+              ? "text-foreground"
+              : "text-muted-foreground"
+          )}
+        >
+          Builds
+        </Link>
+      </nav>
+    </>
+  );
+}
+
+function NavbarMobileFeedLinks({
+  preferredRegion,
+  onNavigate,
+}: {
+  preferredRegion: AlbionRegion | null;
+  onNavigate: () => void;
+}) {
+  const hrefs = buildFeedNavHrefs(useActiveFeedRegion(preferredRegion));
+
+  return (
+    <>
+      <Link
+        href={hrefs.home}
+        className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        onClick={onNavigate}
+      >
+        Home
+      </Link>
+      <Link
+        href={hrefs.leaderboards}
+        className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        onClick={onNavigate}
+      >
+        Leaderboards
+      </Link>
+      <Link
+        href={hrefs.battles}
+        className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        onClick={onNavigate}
+      >
+        Battles
+      </Link>
+      <Link
+        href={hrefs.builds}
+        className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        onClick={onNavigate}
+      >
+        Builds
+      </Link>
+    </>
+  );
+}
+
 export function Navbar({ regions, preferredRegion }: NavbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -109,51 +220,17 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
     setNavRegion(getStoredPreferredRegion() ?? preferredRegion);
   }, [pathname, preferredRegion]);
 
-  const homeHref = feedNavHref("/", navRegion);
-  const battlesHref = feedNavHref("/battles", navRegion);
-  const leaderboardsHref = feedNavHref("/leaderboards", navRegion);
-  const buildsHref = feedNavHref("/builds", navRegion);
+  const fallbackHomeHref = feedNavHref("/", navRegion);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:gap-3">
-        <BrandLogo href={homeHref} />
-
-        <nav className="hidden shrink-0 items-center gap-3 sm:flex">
-          <Link
-            href={battlesHref}
-            className={cn(
-              "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-              pathname.startsWith("/battles")
-                ? "text-foreground"
-                : "text-muted-foreground"
-            )}
-          >
-            Battles
-          </Link>
-          <Link
-            href={leaderboardsHref}
-            className={cn(
-              "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-              pathname.startsWith("/leaderboards")
-                ? "text-foreground"
-                : "text-muted-foreground"
-            )}
-          >
-            Leaderboards
-          </Link>
-          <Link
-            href={buildsHref}
-            className={cn(
-              "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-              pathname.startsWith("/builds")
-                ? "text-foreground"
-                : "text-muted-foreground"
-            )}
-          >
-            Builds
-          </Link>
-        </nav>
+        <Suspense fallback={<BrandLogo href={fallbackHomeHref} />}>
+          <NavbarBrandAndDesktopNav
+            preferredRegion={navRegion}
+            pathname={pathname}
+          />
+        </Suspense>
 
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <SearchAutocomplete
@@ -210,34 +287,12 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
                 }}
               />
             </Suspense>
-            <Link
-              href={homeHref}
-              className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              onClick={() => setMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              href={battlesHref}
-              className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              onClick={() => setMenuOpen(false)}
-            >
-              Battles
-            </Link>
-            <Link
-              href={leaderboardsHref}
-              className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              onClick={() => setMenuOpen(false)}
-            >
-              Leaderboards
-            </Link>
-            <Link
-              href={buildsHref}
-              className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              onClick={() => setMenuOpen(false)}
-            >
-              Builds
-            </Link>
+            <Suspense fallback={null}>
+              <NavbarMobileFeedLinks
+                preferredRegion={navRegion}
+                onNavigate={() => setMenuOpen(false)}
+              />
+            </Suspense>
             <Link
               href="/watchlist"
               className="flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"

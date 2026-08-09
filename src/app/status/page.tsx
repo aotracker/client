@@ -212,6 +212,7 @@ async function StatusRegionGridLive({
             avgLatency={`${metrics?.avgLatencyMs ?? dbState?.avgLatencyMs ?? 0}ms`}
             players={(counts?.players ?? 0).toLocaleString()}
             guilds={(counts?.guilds ?? 0).toLocaleString()}
+            kills={(counts?.kills ?? 0).toLocaleString()}
             battles={(counts?.battles ?? 0).toLocaleString()}
             activeError={activeError}
             previousError={
@@ -255,6 +256,7 @@ function StatusRegionGridFallback({
             avgLatency={`${dbState?.avgLatencyMs ?? 0}ms`}
             players={(counts?.players ?? 0).toLocaleString()}
             guilds={(counts?.guilds ?? 0).toLocaleString()}
+            kills={(counts?.kills ?? 0).toLocaleString()}
             battles={(counts?.battles ?? 0).toLocaleString()}
             activeError={activeError}
             previousError={
@@ -282,6 +284,7 @@ function StatusRegionCard({
   avgLatency,
   players,
   guilds,
+  kills,
   battles,
   activeError,
   previousError,
@@ -298,6 +301,7 @@ function StatusRegionCard({
   avgLatency: string;
   players: string;
   guilds: string;
+  kills: string;
   battles: string;
   activeError: string | null;
   previousError: string | null;
@@ -336,9 +340,10 @@ function StatusRegionCard({
         <Row label="Failures" value={failures} />
         <Row label="Avg latency" value={avgLatency} />
         <div className="my-2 border-t border-border/50" />
-        <Row label="Players" value={players} />
-        <Row label="Guilds" value={guilds} />
-        <Row label="Battles" value={battles} />
+        <Row label="Players tracked" value={players} />
+        <Row label="Guilds tracked" value={guilds} />
+        <Row label="Kills tracked" value={kills} />
+        <Row label="Battles tracked" value={battles} />
         {activeError && (
           <p className="mt-2 rounded bg-muted/50 p-2 text-xs text-red-300">
             {activeError}

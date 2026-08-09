@@ -5,12 +5,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
 import {
-  FEED_PATHS,
   buildFeedHref,
   feedRegionFilterOptions,
+  isFeedPath,
   readFeedRegionParam,
   rememberFeedRegionSelection,
-  type FeedPath,
   type FeedRegion,
 } from "@/lib/region-params";
 import { Button } from "@/components/ui/button";
@@ -25,11 +24,7 @@ interface NavbarRegionSelectorProps {
   className?: string;
 }
 
-function isFeedPath(pathname: string): pathname is FeedPath {
-  return (FEED_PATHS as readonly string[]).includes(pathname);
-}
-
-function useActiveFeedRegion(
+export function useActiveFeedRegion(
   preferredRegion: AlbionRegion | null
 ): FeedRegion {
   const pathname = usePathname() ?? "";

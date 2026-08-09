@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { KillFeedFilters } from "@/components/KillFeedFilters";
 import {
+  HomeHighlightsShell,
   JuicyKillsFallback,
   JuicyKillsSection,
   RecentKillsFallback,
@@ -63,28 +64,22 @@ export default async function HomePage({ searchParams }: HomeProps) {
       <JsonLd data={websiteJsonLd()} />
       <h1 className="sr-only">{SITE_NAME} — {HOME_PAGE_TITLE}</h1>
 
-      <Suspense fallback={<FilterChipSkeleton count={4} />}>
-        <KillFeedFilters regions={filterRegions} show="regions" />
+      <Suspense fallback={<FilterChipSkeleton count={8} />}>
+        <KillFeedFilters regions={filterRegions} show="all" />
       </Suspense>
 
-      <div className="grid items-start gap-x-8 gap-y-6 lg:grid-cols-2">
+      <Suspense fallback={<RecentKillsFallback />}>
+        <RecentKillsSection region={region} contentType={contentType} />
+      </Suspense>
+
+      <HomeHighlightsShell region={region}>
         <Suspense fallback={<JuicyKillsFallback />}>
           <JuicyKillsSection region={region} />
         </Suspense>
         <Suspense fallback={<TopKillersFallback />}>
           <TopKillersSection region={region} />
         </Suspense>
-      </div>
-
-      <Suspense
-        fallback={<RecentKillsFallback filterRegions={filterRegions} />}
-      >
-        <RecentKillsSection
-          region={region}
-          contentType={contentType}
-          filterRegions={filterRegions}
-        />
-      </Suspense>
+      </HomeHighlightsShell>
     </div>
   );
 }

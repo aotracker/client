@@ -4,7 +4,7 @@ import {
   type AlbionRegion,
 } from "@/lib/albion/types";
 
-/** Cookie read by server components and middleware. */
+/** Cookie read by server components and proxy. */
 export const PREFERRED_REGION_COOKIE = "aotracker_preferred_region";
 
 /** Current localStorage key for the site-wide region preference. */
@@ -129,7 +129,7 @@ export function syncPreferredRegionStores(): void {
   }
 }
 
-/** Parse `Cookie` header value (server/middleware). */
+/** Parse `Cookie` header value (server/proxy). */
 export function parsePreferredRegionCookieHeader(
   cookieHeader: string | null | undefined
 ): AlbionRegion | null {

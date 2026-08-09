@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { getApiSyncState, getGlobalSyncStatus } from "@/lib/db/queries";
+import { getApiSyncState, getGlobalSyncStatus, getRegionEntityCounts } from "@/lib/db/queries";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 import { pingEnabledRegions } from "@/lib/albion/live-pings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,7 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 type SyncStateRow = Awaited<ReturnType<typeof getApiSyncState>>[number];
+type EntityCountRow = Awaited<ReturnType<typeof getRegionEntityCounts>>[number];
 
 type RegionStatusByKey = Partial<Record<string, RegionSyncStatus>>;
 
@@ -27,16 +28,22 @@ export default async function HealthPage() {
   let syncStates: SyncStateRow[] = [];
   let globalStatus: Awaited<ReturnType<typeof getGlobalSyncStatus>> | null =
     null;
+  let entityCounts: EntityCountRow[] = [];
   let dbError: string | null = null;
 
   try {
-    [syncStates, globalStatus] = await Promise.all([
+    [syncStates, globalStatus, entityCounts] = await Promise.all([
       getApiSyncState(),
       getGlobalSyncStatus(),
+      getRegionEntityCounts(),
     ]);
   } catch (e) {
     dbError = e instanceof Error ? e.message : "Database unavailable";
   }
+
+  const countsByRegion = new Map(
+    entityCounts.map((row) => [row.region, row])
+  );
 
   return (
     <div className="space-y-6">
@@ -85,9 +92,10 @@ export default async function HealthPage() {
         </Card>
       )}
 
-      <Suspense fallback={<HealthRegionGridFallback syncStates={syncStates} />}>
+      <Suspense fallback={<HealthRegionGridFallback syncStates={syncStates} countsByRegion={countsByRegion} />}>
         <HealthRegionGridLive
           syncStates={syncStates}
+          countsByRegion={countsByRegion}
           regionStatuses={Object.fromEntries(
             (globalStatus?.regions ?? []).map((row) => [row.region, row])
           )}
@@ -99,9 +107,11 @@ export default async function HealthPage() {
 
 async function HealthRegionGridLive({
   syncStates,
+  countsByRegion,
   regionStatuses,
 }: {
   syncStates: SyncStateRow[];
+  countsByRegion: Map<string, EntityCountRow>;
   regionStatuses: RegionStatusByKey;
 }) {
   const livePings = await pingEnabledRegions();
@@ -113,6 +123,7 @@ async function HealthRegionGridLive({
         const live = livePings[region];
         const circuitOpen = dbState?.circuitOpen === 1;
         const isOnline = live.ok && !circuitOpen;
+        const counts = countsByRegion.get(region);
 
         return (
           <HealthRegionCard
@@ -131,6 +142,10 @@ async function HealthRegionGridLive({
             lastHealthCheck={dbState?.lastHealthCheckAt ?? null}
             healthCheckOk={(dbState?.lastHealthCheckOk ?? 0) === 1}
             regionStatus={regionStatuses[region]}
+            players={(counts?.players ?? 0).toLocaleString()}
+            guilds={(counts?.guilds ?? 0).toLocaleString()}
+            kills={(counts?.kills ?? 0).toLocaleString()}
+            battles={(counts?.battles ?? 0).toLocaleString()}
           />
         );
       })}
@@ -140,14 +155,17 @@ async function HealthRegionGridLive({
 
 function HealthRegionGridFallback({
   syncStates,
+  countsByRegion,
 }: {
   syncStates: SyncStateRow[];
+  countsByRegion: Map<string, EntityCountRow>;
 }) {
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {ENABLED_REGIONS.map((region) => {
         const dbState = syncStates.find((s) => s.region === region);
         const circuitOpen = dbState?.circuitOpen === 1;
+        const counts = countsByRegion.get(region);
 
         return (
           <HealthRegionCard
@@ -157,6 +175,10 @@ function HealthRegionGridFallback({
             liveLabel="Checking…"
             circuitOpen={circuitOpen}
             lastIngest={dbState?.lastIngestAt ?? dbState?.lastSuccessAt ?? null}
+            players={(counts?.players ?? 0).toLocaleString()}
+            guilds={(counts?.guilds ?? 0).toLocaleString()}
+            kills={(counts?.kills ?? 0).toLocaleString()}
+            battles={(counts?.battles ?? 0).toLocaleString()}
           />
         );
       })}
@@ -173,6 +195,10 @@ function HealthRegionCard({
   lastHealthCheck,
   healthCheckOk,
   regionStatus,
+  players,
+  guilds,
+  kills,
+  battles,
 }: {
   regionLabel: string;
   statusDot: "online" | "offline" | "circuit" | "pending";
@@ -182,6 +208,10 @@ function HealthRegionCard({
   lastHealthCheck?: Date | null;
   healthCheckOk?: boolean;
   regionStatus?: RegionSyncStatus;
+  players: string;
+  guilds: string;
+  kills: string;
+  battles: string;
 }) {
   const dotClass =
     statusDot === "online"
@@ -233,6 +263,23 @@ function HealthRegionCard({
             Issues: {regionStatus.issues.join(", ").replaceAll("_", " ")}
           </p>
         )}
+        <div className="my-2 border-t border-border/50" />
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Players tracked</span>
+          <span>{players}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Guilds tracked</span>
+          <span>{guilds}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Kills tracked</span>
+          <span>{kills}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Battles tracked</span>
+          <span>{battles}</span>
+        </div>
       </CardContent>
     </Card>
   );

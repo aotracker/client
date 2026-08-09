@@ -12,6 +12,10 @@ export const FEED_PATHS = ["/", "/battles", "/leaderboards", "/builds"] as const
 
 export type FeedPath = (typeof FEED_PATHS)[number];
 
+export function isFeedPath(pathname: string): pathname is FeedPath {
+  return (FEED_PATHS as readonly string[]).includes(pathname);
+}
+
 /** Region filter chips shared by feed pages. */
 export function feedRegionFilterOptions(): {
   value: FeedRegion;
@@ -97,9 +101,7 @@ export function appendFeedRegionToHref(
   extraParams?: Record<string, string>
 ): string {
   const params = new URLSearchParams(extraParams);
-  if (region !== "all") {
-    params.set("region", region);
-  }
+  applyFeedRegionParam(params, region);
   const query = params.toString();
   return query ? `${path}?${query}` : path;
 }
