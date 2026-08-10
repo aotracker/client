@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const secret = getExpectedOpsSecret();
 
   if (isOpsAuthDisabled()) {
-    return NextResponse.redirect(new URL("/status", request.url));
+    return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   if (!secret || key !== secret) {
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   }
 
   const opts = opsCookieOptions(secret);
-  const res = NextResponse.redirect(new URL("/status", request.url));
+  const res = NextResponse.redirect(new URL("/admin", request.url));
   res.cookies.set(opts.name, opts.value, {
     httpOnly: opts.httpOnly,
     secure: opts.secure,

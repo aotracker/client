@@ -4,7 +4,6 @@ import { buildAdminSnapshot } from "@/lib/ops/admin-snapshot";
 
 export const dynamic = "force-dynamic";
 
-/** @deprecated Use GET /api/admin/snapshot */
 export async function GET(request: Request) {
   if (!verifyCronRequest(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,7 +14,9 @@ export async function GET(request: Request) {
     return NextResponse.json(snapshot);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Status unavailable" },
+      {
+        error: error instanceof Error ? error.message : "Snapshot unavailable",
+      },
       { status: 500 }
     );
   }

@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS "ops_events" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "source" text NOT NULL,
+  "severity" text NOT NULL,
+  "category" text,
+  "region" "region",
+  "message" text NOT NULL,
+  "details" jsonb DEFAULT '{}'::jsonb NOT NULL,
+  "created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS "ops_events_created_idx" ON "ops_events" ("created_at");
+CREATE INDEX IF NOT EXISTS "ops_events_source_severity_idx" ON "ops_events" ("source", "severity", "created_at");

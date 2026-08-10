@@ -29,3 +29,8 @@ export function isHttpNotFoundError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
   return /\bHTTP 404\b/.test(message);
 }
+
+export function describeAlbionError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}

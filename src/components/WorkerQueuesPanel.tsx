@@ -430,7 +430,7 @@ export function WorkerQueuesPanel({
     async function poll() {
       try {
         setIsRefreshing(true);
-        const res = await fetch("/api/status", { cache: "no-store" });
+        const res = await fetch("/api/admin/queues", { cache: "no-store" });
         if (!res.ok) return;
         const json = (await res.json()) as {
           queues?: QueueStatusResponse;
