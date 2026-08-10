@@ -79,12 +79,12 @@ Or separately: `npm run worker` and `npm run api`.
 | `npm run build` | Production build |
 | `npm run start` | Serve production build |
 | `npm run lint` | ESLint |
-| `npm run db:push` | Push Drizzle schema to Postgres |
-| `npm run db:migrate` | Apply tracked migrations |
+| `npm run db:push` | Push Drizzle schema to Postgres (local dev only) |
+| `npm run db:migrate` | Apply tracked migrations (local dev only) |
 | `npm run db:generate` | Generate migrations from schema |
 | `npm run db:studio` | Drizzle Studio |
 
-VM maintenance scripts (icon cache, one-off schema helpers) are in [`../deploy/vm/scripts/`](../deploy/vm/scripts/) and run via `npm run vm:*` from this folder — not on Vercel.
+**Production schema changes** are applied from **ingest on the OVH VM** (`npm run db:apply-pending` in `/home/ubuntu/ingest`). Vercel does not run migrations. See [ingest/deploy/vm/README.md](../ingest/deploy/vm/README.md).
 
 ## Project structure
 
