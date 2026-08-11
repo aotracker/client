@@ -35,6 +35,7 @@ export function PageHeader({
 interface PageSectionProps {
   title?: string;
   description?: string;
+  descriptionActions?: React.ReactNode;
   actions?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
@@ -45,6 +46,7 @@ interface PageSectionProps {
 export function PageSection({
   title,
   description,
+  descriptionActions,
   actions,
   children,
   className,
@@ -52,16 +54,30 @@ export function PageSection({
 }: PageSectionProps) {
   return (
     <section className={cn("space-y-3", className)}>
-      {(title || description || actions) && (
+      {(title || description || descriptionActions || actions) && (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             {title && (
               <h2 className={cn("font-display text-lg font-semibold", titleClassName)}>
                 {title}
               </h2>
             )}
-            {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
+            {(description || descriptionActions) && (
+              <div
+                className={cn(
+                  "flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3",
+                  title && "mt-0"
+                )}
+              >
+                {description && (
+                  <p className="text-sm text-muted-foreground">{description}</p>
+                )}
+                {descriptionActions && (
+                  <div className="shrink-0 text-[11px] text-muted-foreground sm:text-right">
+                    {descriptionActions}
+                  </div>
+                )}
+              </div>
             )}
           </div>
           {actions && <div className="shrink-0">{actions}</div>}

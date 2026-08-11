@@ -2,13 +2,15 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { KillFeedFilters } from "@/components/KillFeedFilters";
 import {
-  HomeHighlightsShell,
+  HomeFeedGrid,
   JuicyKillsFallback,
   JuicyKillsSection,
   RecentKillsFallback,
   RecentKillsSection,
   TopKillersFallback,
   TopKillersSection,
+  TopFameEarnersFallback,
+  TopFameEarnersSection,
 } from "@/components/home/HomeFeedSections";
 import type { ContentTypeFilter } from "@/lib/db/queries";
 import {
@@ -68,18 +70,20 @@ export default async function HomePage({ searchParams }: HomeProps) {
         <KillFeedFilters regions={filterRegions} show="all" />
       </Suspense>
 
-      <Suspense fallback={<RecentKillsFallback />}>
-        <RecentKillsSection region={region} contentType={contentType} />
-      </Suspense>
-
-      <HomeHighlightsShell region={region}>
+      <HomeFeedGrid>
+        <Suspense fallback={<RecentKillsFallback />}>
+          <RecentKillsSection region={region} contentType={contentType} />
+        </Suspense>
         <Suspense fallback={<JuicyKillsFallback />}>
           <JuicyKillsSection region={region} />
         </Suspense>
         <Suspense fallback={<TopKillersFallback />}>
           <TopKillersSection region={region} />
         </Suspense>
-      </HomeHighlightsShell>
+        <Suspense fallback={<TopFameEarnersFallback />}>
+          <TopFameEarnersSection region={region} />
+        </Suspense>
+      </HomeFeedGrid>
     </div>
   );
 }

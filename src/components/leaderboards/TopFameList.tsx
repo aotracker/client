@@ -24,8 +24,8 @@ const FAME_HEADER_COLUMNS = [
   { label: "Kills", align: "right" as const },
 ];
 
-function fameToPodium(entries: TopFameEntry[]): LeaderboardPodiumEntry[] {
-  return entries.slice(0, 3).map((entry) => ({
+function fameToPodiumEntries(entries: TopFameEntry[]): LeaderboardPodiumEntry[] {
+  return entries.map((entry) => ({
     rank: entry.rank,
     name: entry.player.name,
     href: playerPath(entry.player.region, entry.player.name),
@@ -43,7 +43,7 @@ function fameToPodium(entries: TopFameEntry[]): LeaderboardPodiumEntry[] {
 
 interface TopFameListProps {
   entries: TopFameEntry[];
-  layout?: "default" | "wide";
+  layout?: "default" | "wide" | "stack";
 }
 
 function FameRow({
@@ -187,6 +187,15 @@ export function TopFameList({
     );
   }
 
+  if (layout === "stack") {
+    return (
+      <LeaderboardTopThree
+        entries={fameToPodiumEntries(entries)}
+        variant="stack"
+      />
+    );
+  }
+
   const wide = layout === "wide";
 
   if (!wide) {
@@ -201,7 +210,7 @@ export function TopFameList({
 
   return (
     <div className="space-y-4">
-      <LeaderboardTopThree entries={fameToPodium(entries)} />
+      <LeaderboardTopThree entries={fameToPodiumEntries(entries).slice(0, 3)} />
       <LeaderboardTableShell>
       <LeaderboardWideColumn
         gridClassName={FAME_LEADERBOARD_GRID}

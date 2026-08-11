@@ -5,7 +5,6 @@ import { KillCard } from "@/components/KillCard";
 import { Button } from "@/components/ui/button";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
-import { formatRelativeTime } from "@/lib/utils";
 
 export type KillFeedEvent = {
   eventId: number;
@@ -41,6 +40,9 @@ interface KillFeedListProps {
   region: AlbionRegion | "all";
   contentType: ContentTypeFilter;
   pageSize: number;
+  /** Home preview: no load-more, capped to initial page size */
+  preview?: boolean;
+  onPollAtChange?: (at: Date) => void;
 }
 
 const POLL_MS = 20_000;
@@ -59,14 +61,18 @@ export function KillFeedList({
   region,
   contentType,
   pageSize,
+  preview = false,
+  onPollAtChange,
 }: KillFeedListProps) {
+  const maxEvents = preview ? pageSize : MAX_EVENTS;
   const [events, setEvents] = useState(initialEvents);
   const [offset, setOffset] = useState(initialEvents.length);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(initialEvents.length >= pageSize);
+  const [hasMore, setHasMore] = useState(
+    !preview && initialEvents.length >= pageSize
+  );
   const [error, setError] = useState<string | null>(null);
   const [pendingNew, setPendingNew] = useState<KillFeedEvent[]>([]);
-  const [lastPollAt, setLastPollAt] = useState<Date | null>(null);
   const [nearTop, setNearTop] = useState(true);
   const [freshIds, setFreshIds] = useState<Set<string>>(() => new Set());
   const loadingRef = useRef(false);
@@ -108,7 +114,8 @@ export function KillFeedList({
 
       const data = (await res.json()) as { events?: KillFeedEvent[] };
       const incoming = data.events ?? [];
-      setLastPollAt(new Date());
+      const polledAt = new Date();
+      onPollAtChange?.(polledAt);
       if (incoming.length === 0) return;
 
       const existing = new Set(events.map(eventKey));
@@ -122,7 +129,7 @@ export function KillFeedList({
         setEvents((prev) => {
           const keys = new Set(prev.map(eventKey));
           const merged = [...fresh.filter((e) => !keys.has(eventKey(e))), ...prev];
-          return merged.slice(0, MAX_EVENTS);
+          return merged.slice(0, maxEvents);
         });
         setPendingNew([]);
       } else {
@@ -141,7 +148,7 @@ export function KillFeedList({
     } catch {
       // soft-fail polls
     }
-  }, [contentType, events, nearTop, region]);
+  }, [contentType, events, maxEvents, nearTop, onPollAtChange, region]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -161,7 +168,7 @@ export function KillFeedList({
         ...pendingNew.filter((e) => !keys.has(eventKey(e))),
         ...prev,
       ];
-      return merged.slice(0, MAX_EVENTS);
+      return merged.slice(0, maxEvents);
     });
     setPendingNew([]);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -190,7 +197,7 @@ export function KillFeedList({
 
       const data = (await res.json()) as { events?: KillFeedEvent[] };
       const next = data.events ?? [];
-      setEvents((prev) => [...prev, ...next].slice(0, MAX_EVENTS));
+      setEvents((prev) => [...prev, ...next].slice(0, maxEvents));
       setOffset((prev) => prev + next.length);
       setHasMore(next.length >= pageSize);
     } catch (err) {
@@ -235,7 +242,6 @@ export function KillFeedList({
                   occurredAt: toDate(event.occurredAt),
                 }}
                 compact
-                compactSize="large"
               />
             </div>
           );
@@ -246,7 +252,7 @@ export function KillFeedList({
         <p className="text-center text-sm text-danger-foreground">{error}</p>
       )}
 
-      {hasMore && (
+      {!preview && hasMore && (
         <div className="flex justify-center pt-1">
           <Button
             variant="outline"
@@ -258,11 +264,6 @@ export function KillFeedList({
           </Button>
         </div>
       )}
-
-      <p className="text-center text-[11px] text-muted-foreground">
-        Auto-updates every 20s
-        {lastPollAt ? ` · checked ${formatRelativeTime(lastPollAt)}` : ""}
-      </p>
     </div>
   );
 }
