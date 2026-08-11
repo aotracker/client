@@ -12,6 +12,7 @@ const NAV_ITEMS: Array<{
   { href: "/admin", label: "Dashboard", exact: true },
   { href: "/admin/errors", label: "Errors" },
   { href: "/admin/api-logs", label: "API Logs" },
+  { href: "/admin/system", label: "System" },
   { href: "/admin/settings", label: "Settings" },
   { href: "/admin/actions", label: "Actions" },
 ];

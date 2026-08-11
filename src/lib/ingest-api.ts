@@ -4,6 +4,10 @@ import type {
   QueueStatusSnapshot,
 } from "@/lib/jobs/types";
 import type { LiveSearchJobInfo } from "@/lib/search/live-search";
+import type {
+  RuntimeSystemInfo,
+  ServiceStatus,
+} from "@/lib/ops/system-info-shared";
 
 function getIngestApiUrl(): string | null {
   const url = process.env.INGEST_API_URL?.trim();
@@ -363,6 +367,16 @@ export async function getLiveSearchJobInfo(
     `/jobs/live-search/state?${params}`
   );
   return data ?? empty;
+}
+
+export type IngestSystemInfo = {
+  fetchedAt: string;
+  runtime: RuntimeSystemInfo;
+  redis: ServiceStatus;
+};
+
+export async function getIngestSystemInfo(): Promise<IngestSystemInfo | null> {
+  return getJson<IngestSystemInfo>("/system");
 }
 
 export async function triggerSchedulerJob(
