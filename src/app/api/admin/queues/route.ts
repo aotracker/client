@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyCronRequest } from "@/lib/jobs/cron-auth";
 import { getEnrichedQueueStatuses } from "@/lib/jobs/queue";
-import { getCronJobStatuses } from "@/lib/jobs/cron-state";
+import { getEnrichedWorkerJobStatuses } from "@/lib/jobs/worker-status";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +14,17 @@ export async function GET(request: Request) {
   try {
     const [queues, crons] = await Promise.all([
       getEnrichedQueueStatuses(),
-      getCronJobStatuses(),
+      getEnrichedWorkerJobStatuses(),
     ]);
-    return NextResponse.json({ queues, crons });
+    return NextResponse.json({
+      queues,
+      crons: {
+        jobs: crons.jobs,
+        connectivity: crons.connectivity,
+        health: crons.health,
+        fetchedAt: crons.fetchedAt,
+      },
+    });
   } catch (error) {
     return NextResponse.json(
       {

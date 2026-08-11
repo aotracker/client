@@ -6,15 +6,15 @@ import {
 import { getRegionHealthMetrics } from "@/lib/db/api-state";
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { getEnrichedQueueStatuses } from "@/lib/jobs/queue";
-import { getCronJobStatuses } from "@/lib/jobs/cron-state";
+import { getEnrichedWorkerJobStatuses } from "@/lib/jobs/worker-status";
 
 export async function buildAdminSnapshot() {
-  const [syncStates, globalStatus, queues, crons, healthMetrics] =
+  const [syncStates, globalStatus, queues, workerStatus, healthMetrics] =
     await Promise.all([
       getApiSyncState(),
       getGlobalSyncStatus(),
       getEnrichedQueueStatuses(),
-      getCronJobStatuses(),
+      getEnrichedWorkerJobStatuses(),
       Promise.all(
         ENABLED_REGIONS.map(async (region) => [
           region,
@@ -34,7 +34,12 @@ export async function buildAdminSnapshot() {
     globalStatus,
     healthMetrics,
     queues,
-    crons,
+    crons: {
+      jobs: workerStatus.jobs,
+      connectivity: workerStatus.connectivity,
+      health: workerStatus.health,
+      fetchedAt: workerStatus.fetchedAt,
+    },
   };
 }
 

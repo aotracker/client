@@ -8,7 +8,17 @@ import { formatUtcTimeOfDay, regionLabel } from "@/lib/utils";
 import { playerPath, guildPath } from "@/lib/seo";
 import { RelativeTimeLabel } from "@/components/RelativeTime";
 import type { QueueJobSummary, QueueStatusSnapshot } from "@/lib/jobs/queue";
-import type { CronJobStatus } from "@/lib/jobs/cron-state";
+import type {
+  EnrichedWorkerJobStatus,
+  WorkerConnectivitySnapshot,
+  WorkerHealthSummary,
+} from "@/lib/jobs/worker-display";
+import {
+  WORKER_DISPLAY_LABEL,
+  isWorkerDisplayDegraded,
+  workerAlertMessage,
+  workerDisplayBadgeVariant,
+} from "@/lib/jobs/worker-display";
 
 interface QueueStatusResponse {
   queue: QueueStatusSnapshot | null;
@@ -17,7 +27,9 @@ interface QueueStatusResponse {
 }
 
 interface CronStatusResponse {
-  jobs: CronJobStatus[];
+  jobs: EnrichedWorkerJobStatus[];
+  connectivity: WorkerConnectivitySnapshot | null;
+  health: WorkerHealthSummary;
   fetchedAt: string;
 }
 
@@ -341,18 +353,7 @@ function JobCard({ job }: { job: QueueJobSummary }) {
   );
 }
 
-function processJobBadge(job: CronJobStatus): {
-  label: string;
-  variant: "solo" | "group" | "outline" | "zvz";
-} {
-  if (job.hasActiveError) return { label: "Error", variant: "zvz" };
-  if (job.isAlive) return { label: "Alive", variant: "solo" };
-  if (job.lastRunAt) return { label: "Stopped", variant: "group" };
-  return { label: "No runs yet", variant: "outline" };
-}
-
-function WorkerStatusRow({ job }: { job: CronJobStatus }) {
-  const badge = processJobBadge(job);
+function WorkerStatusRow({ job }: { job: EnrichedWorkerJobStatus }) {
   const failedJobs =
     typeof job.lastResult?.failed === "number" ? job.lastResult.failed : 0;
   const deferredJobs =
@@ -363,6 +364,11 @@ function WorkerStatusRow({ job }: { job: CronJobStatus }) {
       : null;
 
   const meta: ReactNode[] = [job.schedule];
+  if (job.workersConnected > 0) {
+    meta.push(
+      `${job.workersConnected} worker${job.workersConnected === 1 ? "" : "s"} connected`
+    );
+  }
   if (job.lastRunAt) {
     meta.push(
       <>
@@ -380,7 +386,9 @@ function WorkerStatusRow({ job }: { job: CronJobStatus }) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <Badge variant={badge.variant}>{badge.label}</Badge>
+        <Badge variant={workerDisplayBadgeVariant(job.displayStatus)}>
+          {WORKER_DISPLAY_LABEL[job.displayStatus]}
+        </Badge>
         <span className="text-sm font-medium">{job.label}</span>
         <span className="font-mono text-[11px] text-muted-foreground">
           {job.path}
@@ -397,21 +405,6 @@ function WorkerStatusRow({ job }: { job: CronJobStatus }) {
         </p>
       )}
     </div>
-  );
-}
-
-function workerStoppedMessage(job: CronJobStatus): ReactNode {
-  return (
-    <>
-      Last run{" "}
-      {job.lastRunAt ? (
-        <RelativeTimeLabel date={job.lastRunAt} />
-      ) : (
-        "never"
-      )}
-      . Start workers from ingest/ with npm run worker (scheduler + processors on
-      the VM).
-    </>
   );
 }
 
@@ -473,29 +466,17 @@ export function WorkerQueuesPanel({
   };
 
   const alerts: WorkerAlert[] = workerJobs.flatMap((job): WorkerAlert[] => {
-    if (job.hasActiveError) {
-      return [
-        {
-          key: `${job.jobKey}-error`,
-          tone: "error" as const,
-          title: `${job.label} failing`,
-          body:
-            job.lastErrorMessage ??
-            "The worker reported an error on its last run.",
-        },
-      ];
-    }
-    if (job.isAlive === false) {
-      return [
-        {
-          key: `${job.jobKey}-stale`,
-          tone: "warn" as const,
-          title: `${job.label} is stale`,
-          body: workerStoppedMessage(job),
-        },
-      ];
-    }
-    return [];
+    if (!isWorkerDisplayDegraded(job.displayStatus)) return [];
+
+    const tone = job.displayStatus === "error" ? "error" : "warn";
+    return [
+      {
+        key: `${job.jobKey}-${job.displayStatus}`,
+        tone,
+        title: `${job.label} — ${WORKER_DISPLAY_LABEL[job.displayStatus]}`,
+        body: workerAlertMessage(job),
+      },
+    ];
   });
 
   return (

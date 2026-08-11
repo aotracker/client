@@ -43,7 +43,10 @@ export default async function AdminDashboardPage() {
       )}
 
       {snapshot?.globalStatus && (
-        <AdminStatusOverview globalStatus={snapshot.globalStatus} />
+        <AdminStatusOverview
+          globalStatus={snapshot.globalStatus}
+          workerHealth={snapshot.crons.health}
+        />
       )}
 
       <ApiStatsMiniPanel stats={apiStats} />

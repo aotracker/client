@@ -289,6 +289,23 @@ export async function getQueueStatuses(): Promise<{
   return data;
 }
 
+export type WorkerConnectivitySnapshot = {
+  schedulerWorkers: number;
+  ingestWorkers: number;
+  refreshWorkers: number;
+  processorWorkers: number;
+  schedulerJobActive: {
+    ingestPoll: boolean;
+    healthCheck: boolean;
+  };
+  processorJobsActive: boolean;
+  fetchedAt: string;
+};
+
+export async function fetchWorkerConnectivity(): Promise<WorkerConnectivitySnapshot | null> {
+  return getJson<WorkerConnectivitySnapshot>("/jobs/workers");
+}
+
 export type EntityResolveType = "player" | "guild";
 
 export type EntityResolveJobInfo = {

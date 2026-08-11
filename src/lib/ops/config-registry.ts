@@ -6,7 +6,7 @@ import {
   INGEST_ALIVE_MS,
   HEALTH_ALIVE_MS,
   PROCESS_JOBS_ALIVE_MS,
-} from "@/lib/jobs/worker-state";
+} from "@/lib/jobs/worker-types";
 import {
   CIRCUIT_RESET_MS,
   CIRCUIT_JOB_DEFER_MS,

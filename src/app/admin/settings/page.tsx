@@ -1,9 +1,7 @@
-import { eq } from "drizzle-orm";
 import { PageHeader } from "@/components/PageSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettingsRegistryPanel } from "@/components/admin/SettingsRegistryPanel";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
-import { db, schema } from "@/lib/db";
 import { getConfigRegistry } from "@/lib/ops/config-registry";
 
 export const dynamic = "force-dynamic";
@@ -13,19 +11,6 @@ async function getRuntimeConfigSnapshot() {
   const disabledRegions = disabledRaw
     ? disabledRaw.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
-
-  let jobsSource: string | null = null;
-  try {
-    const row = await db.query.cronJobState.findFirst({
-      where: eq(schema.cronJobState.jobKey, "process-jobs"),
-    });
-    const result = row?.lastResult;
-    if (result && typeof result === "object" && "source" in result) {
-      jobsSource = String((result as { source?: unknown }).source ?? "");
-    }
-  } catch {
-    // cron_job_state may be unavailable
-  }
 
   let ingestApiReachable = false;
   const ingestUrl = process.env.INGEST_API_URL?.trim();
@@ -47,7 +32,6 @@ async function getRuntimeConfigSnapshot() {
     ingestApiConfigured: Boolean(process.env.INGEST_API_URL?.trim()),
     ingestApiReachable,
     cronSecretConfigured: Boolean(process.env.CRON_SECRET?.trim()),
-    jobsSource,
   };
 }
 
@@ -93,10 +77,6 @@ export default async function AdminSettingsPage() {
           <ConfigRow
             label="CRON_SECRET configured"
             value={runtime.cronSecretConfigured ? "yes" : "no"}
-          />
-          <ConfigRow
-            label="Worker source (last heartbeat)"
-            value={runtime.jobsSource ?? "—"}
           />
         </CardContent>
       </Card>
