@@ -317,16 +317,37 @@ export function buildFeedPageMetadata(options: {
   });
 }
 
+export function openGraphImagePath(canonicalPath: string): string {
+  const normalized =
+    canonicalPath.endsWith("/") ? canonicalPath.slice(0, -1) : canonicalPath;
+  return `${normalized}/opengraph-image`;
+}
+
 export function buildPageMetadata(options: {
   title: string;
   description: string;
   canonicalPath: string;
   robots?: Metadata["robots"];
   openGraphType?: "website" | "article" | "profile";
+  /** When false, omit auto-generated opengraph-image (e.g. root layout). */
+  includeOpenGraphImage?: boolean;
 }): Metadata {
   const url = absoluteUrl(options.canonicalPath);
   const robots = options.robots ?? INDEX_FOLLOW;
   const ogType = options.openGraphType ?? "website";
+  const includeImage = options.includeOpenGraphImage ?? true;
+  const ogImagePath = openGraphImagePath(options.canonicalPath);
+  const ogImageUrl = absoluteUrl(ogImagePath);
+  const ogImage = includeImage
+    ? {
+        url: ogImageUrl,
+        secureUrl: ogImageUrl,
+        width: 1200,
+        height: 630,
+        alt: options.title,
+        type: "image/png",
+      }
+    : null;
 
   return {
     title: options.title,
@@ -340,11 +361,13 @@ export function buildPageMetadata(options: {
       siteName: SITE_NAME,
       type: ogType,
       locale: "en_US",
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: options.title,
       description: options.description,
+      ...(ogImage ? { images: [ogImageUrl] } : {}),
     },
   };
 }

@@ -46,7 +46,7 @@ Workers and the ingest API live in [`../ingest/`](../ingest/) and are **never** 
 |---|---|
 | `REDIS_URL` | BullMQ runs on OVH VM only |
 | `INGEST_API_PORT` | Ingest API port — VM-side only |
-| `JOBS_SOURCE` | Worker label — set by systemd on VM |
+| `JOBS_SOURCE` | Worker label — set by PM2 on VM |
 | `DATABASE_USE_POOLER` | Defaults to `false`; only set if using PgBouncer |
 | `DATABASE_POOL_MAX` | Defaults to `1` on Vercel (`VERCEL=1` auto-detected) |
 

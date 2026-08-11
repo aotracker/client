@@ -48,3 +48,4 @@ next-env.d.ts
 
 # Raw ao-bin-dumps download (regenerate via npm run items:catalog)
 /data/ao-items-raw.json
+.env*
