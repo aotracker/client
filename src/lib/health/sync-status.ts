@@ -4,7 +4,7 @@ import { db, schema } from "@/lib/db";
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { regionLabel } from "@/lib/utils";
 
-/** ~3 missed 12-minute ingest cycles + buffer before we warn users. */
+/** ~1–2 missed 25-minute ingest cycles + buffer before we warn users. */
 export const INGEST_STALE_MINUTES = 45;
 
 /** Expected health cron interval is ~5m; allow two missed runs. */

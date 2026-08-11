@@ -15,7 +15,7 @@ import {
 } from "@/lib/db/api-state";
 import { OPS_EVENTS_RETENTION_DAYS } from "@/lib/ops/events";
 
-export const INGEST_POLL_INTERVAL_MS = 12 * 60 * 1000;
+export const INGEST_POLL_INTERVAL_MS = 25 * 60 * 1000;
 export const HEALTH_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
 export const API_REQUEST_LOG_RETENTION_DAYS = 7;
