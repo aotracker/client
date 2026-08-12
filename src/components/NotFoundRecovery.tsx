@@ -4,10 +4,13 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   Download,
+  Hammer,
   Home,
   RefreshCw,
   Search,
+  Star,
   Swords,
+  Trophy,
 } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { InlineAlert } from "@/components/InlineAlert";
@@ -108,11 +111,32 @@ export function NotFoundRecovery() {
           {tButtons("home")}
         </Link>
         <Link
+          href={feedNavHref("/leaderboards", feedRegion)}
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+        >
+          <Trophy className="h-3.5 w-3.5" aria-hidden />
+          {tNav("leaderboards")}
+        </Link>
+        <Link
           href={feedNavHref("/battles", feedRegion)}
           className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
           <Swords className="h-3.5 w-3.5" aria-hidden />
           {tNav("battles")}
+        </Link>
+        <Link
+          href={feedNavHref("/builds", feedRegion)}
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+        >
+          <Hammer className="h-3.5 w-3.5" aria-hidden />
+          {tNav("builds")}
+        </Link>
+        <Link
+          href="/watchlist"
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+        >
+          <Star className="h-3.5 w-3.5" aria-hidden />
+          {tNav("watchlist")}
         </Link>
         <Link
           href="/search"

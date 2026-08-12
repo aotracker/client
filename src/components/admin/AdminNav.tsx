@@ -27,11 +27,23 @@ const NAV_ITEMS: Array<{
   { href: "/admin/actions", label: "Actions", icon: Zap },
 ];
 
-export function AdminNav() {
+export function AdminNav({
+  orientation = "vertical",
+}: {
+  orientation?: "vertical" | "horizontal";
+}) {
   const pathname = usePathname();
+  const horizontal = orientation === "horizontal";
 
   return (
-    <nav className="flex flex-col gap-1">
+    <nav
+      aria-label="Admin"
+      className={cn(
+        horizontal
+          ? "-mx-1 flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          : "flex flex-col gap-1"
+      )}
+    >
       {NAV_ITEMS.map((item) => {
         const active = item.exact
           ? pathname === item.href
@@ -42,7 +54,10 @@ export function AdminNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              "inline-flex items-center gap-2 rounded-md text-sm font-medium transition-colors",
+              horizontal
+                ? "shrink-0 px-3 py-1.5"
+                : "px-3 py-2",
               active
                 ? "bg-primary/15 text-primary"
                 : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"

@@ -5,8 +5,9 @@ import {
   verifyOpsAccess,
 } from "@/lib/jobs/cron-auth";
 import { AdminLoginRequired } from "@/components/admin/AdminLoginRequired";
-import { AdminFullWidth } from "@/components/admin/AdminFullWidth";
-import { AdminShell } from "@/components/admin/AdminShell";
+import { AdminGateShell, AdminShell } from "@/components/admin/AdminShell";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ToastProvider } from "@/components/Toast";
 import { buildPageMetadata, NOINDEX_NOFOLLOW } from "@/lib/seo";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 
@@ -30,19 +31,25 @@ export default async function AdminLayout({
   const authorized = await verifyOpsAccess();
   if (!authorized && !isOpsAuthDisabled()) {
     return (
-      <NextIntlClientProvider locale={DEFAULT_LOCALE} messages={messages}>
-        <AdminFullWidth>
-          <AdminLoginRequired />
-        </AdminFullWidth>
-      </NextIntlClientProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <NextIntlClientProvider locale={DEFAULT_LOCALE} messages={messages}>
+            <AdminGateShell>
+              <AdminLoginRequired />
+            </AdminGateShell>
+          </NextIntlClientProvider>
+        </ToastProvider>
+      </ThemeProvider>
     );
   }
 
   return (
-    <NextIntlClientProvider locale={DEFAULT_LOCALE} messages={messages}>
-      <AdminFullWidth>
-        <AdminShell>{children}</AdminShell>
-      </AdminFullWidth>
-    </NextIntlClientProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <NextIntlClientProvider locale={DEFAULT_LOCALE} messages={messages}>
+          <AdminShell>{children}</AdminShell>
+        </NextIntlClientProvider>
+      </ToastProvider>
+    </ThemeProvider>
   );
 }

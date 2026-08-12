@@ -49,9 +49,9 @@ type EntityCountRow = Awaited<ReturnType<typeof getRegionEntityCounts>>[number];
 
 function healthBadgeVariant(
   label: RegionApiHealthLabel
-): "solo" | "zvz" | "outline" {
+): "solo" | "group" | "zvz" {
   if (label === "healthy") return "solo";
-  if (label === "delayed") return "outline";
+  if (label === "delayed") return "group";
   return "zvz";
 }
 
@@ -189,7 +189,7 @@ function HealthRegionCard({
   guilds: string;
   kills: string;
   battles: string;
-  badgeVariant: "solo" | "zvz" | "outline";
+  badgeVariant: "solo" | "group" | "zvz";
   labels: {
     connectivity: string;
     circuit: string;

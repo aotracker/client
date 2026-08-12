@@ -7,18 +7,18 @@ import { formatRelativeTime } from "@/lib/utils";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-3">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="text-right">{value}</span>
+    <div className="flex items-start justify-between gap-3">
+      <span className="shrink-0 text-muted-foreground">{label}</span>
+      <span className="min-w-0 break-words text-right">{value}</span>
     </div>
   );
 }
 
 function healthBadgeVariant(
   label: RegionApiHealthLabel
-): "solo" | "zvz" | "outline" {
+): "solo" | "group" | "zvz" {
   if (label === "healthy") return "solo";
-  if (label === "delayed") return "outline";
+  if (label === "delayed") return "group";
   return "zvz";
 }
 
@@ -88,22 +88,24 @@ export function AdminRegionCard({
           : "bg-yellow-500";
 
   return (
-    <Card>
+    <Card className="min-w-0 overflow-hidden">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2 text-base">
-          <span className="flex items-center gap-2">
-            {label}
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="truncate">{label}</span>
             <span className={`h-3 w-3 shrink-0 rounded-full ${dotClass}`} />
           </span>
-          <Badge variant={badgeVariant} className="gap-1">
+          <Badge variant={badgeVariant} className="shrink-0 gap-1">
             <StatusIcon className="size-2.5 shrink-0" aria-hidden />
             {apiHealthText}
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm">
+      <CardContent className="min-w-0 space-y-2 text-sm">
         <Row label="Connectivity" value={liveLabel} />
-        {liveNote && <p className="text-xs text-amber-300">{liveNote}</p>}
+        {liveNote && (
+          <p className="break-words text-xs text-amber-300">{liveNote}</p>
+        )}
         <Row label="Circuit" value={circuitOpen ? "Open" : "Closed"} />
         <Row
           label="Last ingest"
@@ -120,7 +122,7 @@ export function AdminRegionCard({
           value={latestKillAt ? formatRelativeTime(latestKillAt) : "Never"}
         />
         {issues.length > 0 && (
-          <p className="text-xs text-amber-400">
+          <p className="break-words text-xs text-amber-400">
             Issues: {issues.join(", ").replaceAll("_", " ")}
           </p>
         )}
@@ -132,12 +134,12 @@ export function AdminRegionCard({
         <Row label="Kills tracked" value={kills} />
         <Row label="Battles tracked" value={battles} />
         {activeError && (
-          <p className="mt-2 rounded bg-muted/50 p-2 text-xs text-red-300">
+          <p className="mt-2 break-words rounded bg-muted/50 p-2 text-xs text-red-300">
             {activeError}
           </p>
         )}
         {previousError && (
-          <p className="mt-2 rounded bg-muted/30 p-2 text-xs text-muted-foreground">
+          <p className="mt-2 break-words rounded bg-muted/30 p-2 text-xs text-muted-foreground">
             Previous issue (resolved): {previousError}
           </p>
         )}
