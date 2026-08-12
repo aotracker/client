@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 interface BadgeProps {
   children: React.ReactNode;
   className?: string;
-  variant?: "default" | "zvz" | "group" | "solo" | "outline";
+  variant?: "default" | "zvz" | "group" | "solo" | "outline" | "success";
   size?: "default" | "sm";
 }
 
@@ -13,6 +13,7 @@ const variants = {
   group: "bg-group/20 text-group border-group/40",
   solo: "bg-solo/20 text-solo border-solo/40",
   outline: "bg-transparent text-muted-foreground border-border",
+  success: "bg-stat-kill/20 text-stat-kill border-stat-kill/40",
 };
 
 const sizes = {

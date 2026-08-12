@@ -16,8 +16,8 @@ function Row({ label, value }: { label: string; value: string }) {
 
 function healthBadgeVariant(
   label: RegionApiHealthLabel
-): "solo" | "group" | "zvz" {
-  if (label === "healthy") return "solo";
+): "success" | "group" | "zvz" {
+  if (label === "healthy") return "success";
   if (label === "delayed") return "group";
   return "zvz";
 }

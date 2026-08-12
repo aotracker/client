@@ -30,7 +30,7 @@ Workers and the ingest API live in [`../ingest/`](../ingest/) and are **never** 
 | `INGEST_API_URL` | Ingest HTTP API on OVH VM (e.g. `http://VM_HOST:3001`) |
 | `INGEST_API_SECRET` | Bearer token for ingest API (must match `/home/ubuntu/ingest/.env`) |
 | `CRON_SECRET` | Secures ops `/api/cron/*` and `/status` |
-| `DISABLED_REGIONS` | Comma-separated region slugs to skip (e.g. `asia`) |
+| `DISABLED_REGIONS` | Comma-separated region slugs to skip. Empty/unset = all regions enabled |
 | `NEXT_PUBLIC_APP_URL` | Canonical public URL (e.g. `https://www.aotracker.net`) |
 
 ### Optional
