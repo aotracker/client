@@ -25,6 +25,7 @@ import {
   AllianceTopKillsFallback,
   AllianceTopKillsSection,
 } from "@/components/alliance/AllianceTopKillsSection";
+import { AllianceProfileNav } from "@/components/alliance/AllianceProfileNav";
 import { EntityHeaderSkeleton } from "@/components/ui/skeleton";
 import { notFound } from "next/navigation";
 import { formatFame, regionLabel } from "@/lib/utils";
@@ -154,16 +155,25 @@ export default async function AllianceProfilePage({ params }: PageProps) {
         />
       </Suspense>
 
-      <Suspense fallback={<AllianceTopKillsFallback />}>
-        <AllianceTopKillsSection region={albionRegion} allianceId={allianceId} />
-      </Suspense>
+      <AllianceProfileNav />
 
-      <Suspense fallback={<AllianceBattlesSectionsFallback />}>
-        <AllianceBattlesSections
-          region={albionRegion}
-          allianceId={allianceId}
-        />
-      </Suspense>
+      <div id="kills" className="scroll-mt-28">
+        <Suspense fallback={<AllianceTopKillsFallback />}>
+          <AllianceTopKillsSection
+            region={albionRegion}
+            allianceId={allianceId}
+          />
+        </Suspense>
+      </div>
+
+      <div id="battles" className="scroll-mt-28">
+        <Suspense fallback={<AllianceBattlesSectionsFallback />}>
+          <AllianceBattlesSections
+            region={albionRegion}
+            allianceId={allianceId}
+          />
+        </Suspense>
+      </div>
     </div>
   );
 }

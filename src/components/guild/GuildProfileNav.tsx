@@ -3,11 +3,11 @@
 import { ProfileSectionNav } from "@/components/ProfileSectionNav";
 
 const SECTIONS = [
-  { id: "activity", label: "Activity" },
-  { id: "analytics", label: "Analytics" },
-  { id: "allies", label: "Allies" },
+  { id: "kills", label: "Kills" },
+  { id: "rivals", label: "Rivals" },
+  { id: "battles", label: "Battles" },
 ] as const;
 
-export function PlayerProfileNav() {
+export function GuildProfileNav() {
   return <ProfileSectionNav sections={SECTIONS} />;
 }

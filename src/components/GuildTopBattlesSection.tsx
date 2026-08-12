@@ -6,8 +6,9 @@ import {
   unwrapGuildBattleListCache,
 } from "@/lib/albion/battles";
 import type { AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
-import { BattleCard } from "@/components/BattleCard";
+import { EntityBattlesTabs } from "@/components/EntityBattlesTabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { after } from "next/server";
 
 interface GuildBattlesSectionsProps {
@@ -35,51 +36,6 @@ function parseBattles(payload: unknown): GuildBattleSummary[] {
             ? item.guilds.length
             : 0,
     }));
-}
-
-function GuildBattlesList({
-  title,
-  description,
-  battles,
-  region,
-  loadingLabel,
-  emptyLabel,
-}: {
-  title: string;
-  description: string;
-  battles: GuildBattleSummary[];
-  region: AlbionRegion;
-  loadingLabel: string | null;
-  emptyLabel: string;
-}) {
-  return (
-    <section className="min-w-0">
-      <h2 className="mb-3 text-lg font-semibold">
-        {title} ({battles.length})
-      </h2>
-      <p className="mb-3 text-xs text-muted-foreground">{description}</p>
-      <div className="min-w-0 space-y-3">
-        {battles.length === 0 ? (
-          <Card>
-            <CardContent className="py-6 text-center text-muted-foreground">
-              {loadingLabel ?? emptyLabel}
-            </CardContent>
-          </Card>
-        ) : (
-          battles.map((battle) => (
-            <BattleCard
-              key={`${title}-${battle.id}`}
-              battle={battle}
-              region={region}
-              showGuildStats
-              guilds={battle.guilds}
-              guildCount={battle.guildCount}
-            />
-          ))
-        )}
-      </div>
-    </section>
-  );
 }
 
 /** Recent + Top Battles from DB cache; background worker refreshes stale data. */
@@ -111,61 +67,48 @@ export async function GuildBattlesSections({
   }
 
   return (
-    <div className="grid min-w-0 gap-6 lg:grid-cols-2">
-      <GuildBattlesList
-        title="Recent Battles"
-        description="Most recent battles with guild participation in the past 7 days"
-        battles={recentBattles}
-        region={region}
-        loadingLabel={
-          needRecentSync && recentBattles.length === 0
-            ? "Loading battles from Albion Online…"
-            : null
-        }
-        emptyLabel="No recent battles this week"
-      />
-      <GuildBattlesList
-        title="Top Battles"
-        description="Highest kill fame battles with guild participation in the past 7 days"
-        battles={topBattles}
-        region={region}
-        loadingLabel={
-          needTopSync && topBattles.length === 0
-            ? "Loading battles from Albion Online…"
-            : null
-        }
-        emptyLabel="No top battles this week"
-      />
-    </div>
+    <EntityBattlesTabs
+      region={region}
+      recentBattles={recentBattles}
+      topBattles={topBattles}
+      recentDescription="Most recent battles with guild participation in the past 7 days"
+      topDescription="Highest kill fame battles with guild participation in the past 7 days"
+      recentLoadingLabel={
+        needRecentSync && recentBattles.length === 0
+          ? "Loading battles from Albion Online…"
+          : null
+      }
+      topLoadingLabel={
+        needTopSync && topBattles.length === 0
+          ? "Loading battles from Albion Online…"
+          : null
+      }
+      recentEmptyLabel="No recent battles this week"
+      topEmptyLabel="No top battles this week"
+      showGuildStats
+    />
   );
 }
 
 export function GuildBattlesSectionsFallback() {
   return (
-    <div className="grid min-w-0 gap-6 lg:grid-cols-2">
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">Recent Battles</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          Most recent battles with guild participation in the past 7 days
-        </p>
-        <Card>
-          <CardContent className="py-6 text-center text-muted-foreground">
-            Loading recent battles…
-          </CardContent>
-        </Card>
-      </section>
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">Top Battles</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          Highest kill fame battles with guild participation in the past 7 days
-        </p>
-        <Card>
-          <CardContent className="py-6 text-center text-muted-foreground">
-            Loading top battles…
-          </CardContent>
-        </Card>
-      </section>
-    </div>
+    <section className="space-y-3" aria-busy="true" aria-label="Loading battles">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1">
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-3 w-64" />
+        </div>
+        <div className="flex gap-1">
+          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-16" />
+        </div>
+      </div>
+      <Card>
+        <CardContent className="py-6 text-center text-muted-foreground">
+          Loading battles…
+        </CardContent>
+      </Card>
+    </section>
   );
 }
 

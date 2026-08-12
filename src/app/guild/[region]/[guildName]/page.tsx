@@ -28,6 +28,7 @@ import {
   GuildTopKillsFallback,
   GuildTopKillsSection,
 } from "@/components/guild/GuildTopKillsSection";
+import { GuildProfileNav } from "@/components/guild/GuildProfileNav";
 import {
   decodeEntitySegment,
   getEntityResolveJobStateForPending,
@@ -251,25 +252,33 @@ export default async function GuildProfilePage({ params }: PageProps) {
 
       <GuildHeader guild={header} sharePath={canonicalPath} />
 
-      <Suspense fallback={<GuildTopKillsFallback />}>
-        <GuildTopKillsSection
-          region={albionRegion}
-          guildId={albionId}
-          historyLastSyncedAt={historyLastSyncedAt}
-        />
-      </Suspense>
+      <GuildProfileNav />
 
-      <Suspense fallback={<GuildRivalsFallback />}>
-        <GuildRivalsPanel
-          region={albionRegion}
-          guildId={albionId}
-          guildName={header.name}
-        />
-      </Suspense>
+      <div id="kills" className="scroll-mt-28">
+        <Suspense fallback={<GuildTopKillsFallback />}>
+          <GuildTopKillsSection
+            region={albionRegion}
+            guildId={albionId}
+            historyLastSyncedAt={historyLastSyncedAt}
+          />
+        </Suspense>
+      </div>
 
-      <Suspense fallback={<GuildBattlesSectionsFallback />}>
-        <GuildBattlesSections region={albionRegion} guildId={albionId} />
-      </Suspense>
+      <div id="rivals" className="scroll-mt-28">
+        <Suspense fallback={<GuildRivalsFallback />}>
+          <GuildRivalsPanel
+            region={albionRegion}
+            guildId={albionId}
+            guildName={header.name}
+          />
+        </Suspense>
+      </div>
+
+      <div id="battles" className="scroll-mt-28">
+        <Suspense fallback={<GuildBattlesSectionsFallback />}>
+          <GuildBattlesSections region={albionRegion} guildId={albionId} />
+        </Suspense>
+      </div>
     </div>
   );
 }
