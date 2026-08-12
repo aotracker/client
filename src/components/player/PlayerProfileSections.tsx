@@ -5,7 +5,7 @@ import { isPlayerDataIngesting } from "@/lib/ingest-status";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { PlayerAnalyticsLazy } from "@/components/player-analytics/PlayerAnalyticsLazy";
 import { IngestingBanner } from "@/components/IngestingBanner";
-import { KillCard } from "@/components/KillCard";
+import { PlayerRecentActivity } from "@/components/player/PlayerRecentActivity";
 import { Card, CardContent } from "@/components/ui/card";
 import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
 
@@ -83,83 +83,26 @@ export async function PlayerHistorySection({
     !historyLastSyncedAt || isSyncStale(historyLastSyncedAt);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">Recent Kills ({kills.length})</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          Cached kill history from local database
-        </p>
-        <div className="space-y-3">
-          {kills.length === 0 ? (
-            <Card>
-              <CardContent className="py-6 text-center text-muted-foreground">
-                {shouldSyncHistory
-                  ? "Loading kill history from Albion Online…"
-                  : "No recent kills"}
-              </CardContent>
-            </Card>
-          ) : (
-            kills.map((event) => (
-              <KillCard
-                key={`kill-${event.eventId}`}
-                event={event}
-                compact
-                compactSize="large"
-                fameVariant="kill"
-              />
-            ))
-          )}
-        </div>
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">Recent Deaths ({deaths.length})</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          Cached death history from local database
-        </p>
-        <div className="space-y-3">
-          {deaths.length === 0 ? (
-            <Card>
-              <CardContent className="py-6 text-center text-muted-foreground">
-                {shouldSyncHistory
-                  ? "Loading death history from Albion Online…"
-                  : "No recent deaths"}
-              </CardContent>
-            </Card>
-          ) : (
-            deaths.map((event) => (
-              <KillCard
-                key={`death-${event.eventId}`}
-                event={event}
-                compact
-                compactSize="large"
-                fameVariant="death"
-              />
-            ))
-          )}
-        </div>
-      </section>
-    </div>
+    <PlayerRecentActivity
+      kills={kills}
+      deaths={deaths}
+      shouldSyncHistory={shouldSyncHistory}
+    />
   );
 }
 
 export function PlayerHistoryFallback() {
   return (
-    <div className="grid gap-6 lg:grid-cols-2" aria-busy="true" aria-label="Loading history">
-      <div className="space-y-2">
-        <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-3 w-48" />
-        {Array.from({ length: 3 }).map((_, i) => (
+    <section className="space-y-3" aria-busy="true" aria-label="Loading activity">
+      <div className="space-y-1">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-3 w-56" />
+      </div>
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => (
           <KillCardSkeleton key={i} />
         ))}
       </div>
-      <div className="space-y-2">
-        <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-3 w-48" />
-        {Array.from({ length: 3 }).map((_, i) => (
-          <KillCardSkeleton key={i} />
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }

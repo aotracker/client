@@ -16,11 +16,13 @@ export type KillFeedEvent = {
     albionId: string;
     name: string;
     guild?: { name: string; albionId?: string } | null;
+    allianceTag?: string | null;
   } | null;
   victim?: {
     albionId: string;
     name: string;
     guild?: { name: string; albionId?: string } | null;
+    allianceTag?: string | null;
   } | null;
   items?: {
     ownerRole: string;

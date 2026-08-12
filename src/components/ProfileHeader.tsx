@@ -199,7 +199,7 @@ function FameStatSection({
       <div className="mb-2 flex items-baseline justify-between gap-2">
         <h4 className="text-xs font-medium text-muted-foreground">{title}</h4>
         {total != null && (
-          <span className="text-xs tabular-nums text-muted-foreground">
+          <span className="text-xs tabular-nums text-stat-neutral">
             {formatFame(total)}
           </span>
         )}
@@ -213,7 +213,7 @@ function FameStatSection({
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
               {label}
             </p>
-            <p className="mt-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+            <p className="mt-0.5 text-xs font-medium tabular-nums text-stat-neutral">
               {formatFame(value)}
             </p>
           </div>

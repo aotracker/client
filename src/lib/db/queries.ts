@@ -378,6 +378,7 @@ function mapKillEventToCard(event: KillEventWithRelations) {
             albionId: event.killer?.albionId ?? extras.killer!.albionId,
             name: event.killer?.name ?? extras.killer?.name ?? "Unknown",
             guild: killerGuild,
+            allianceTag: extras.killer?.allianceTag ?? null,
           }
         : null,
     victim:
@@ -386,6 +387,7 @@ function mapKillEventToCard(event: KillEventWithRelations) {
             albionId: event.victim?.albionId ?? extras.victim!.albionId,
             name: event.victim?.name ?? extras.victim?.name ?? "Unknown",
             guild: victimGuild,
+            allianceTag: extras.victim?.allianceTag ?? null,
           }
         : null,
     items: extras.items,

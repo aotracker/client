@@ -29,6 +29,7 @@ import {
   PlayerAssociationsFallback,
   PlayerAssociationsSection,
 } from "@/components/player/PlayerAssociationsSection";
+import { PlayerProfileNav } from "@/components/player/PlayerProfileNav";
 import { notFound, permanentRedirect } from "next/navigation";
 import { JsonLd, playerJsonLd } from "@/components/JsonLd";
 import {
@@ -203,21 +204,32 @@ export default async function PlayerProfilePage({ params }: PageProps) {
         sharePath={canonicalPath}
       />
 
-      <Suspense fallback={<PlayerAnalyticsFallback />}>
-        <PlayerAnalyticsSection region={albionRegion} playerId={albionId} />
-      </Suspense>
+      <PlayerProfileNav />
 
-      <Suspense fallback={<PlayerAssociationsFallback />}>
-        <PlayerAssociationsSection region={albionRegion} playerId={albionId} />
-      </Suspense>
+      <div id="activity" className="scroll-mt-28">
+        <Suspense fallback={<PlayerHistoryFallback />}>
+          <PlayerHistorySection
+            region={albionRegion}
+            playerId={albionId}
+            historyLastSyncedAt={player.historyLastSyncedAt}
+          />
+        </Suspense>
+      </div>
 
-      <Suspense fallback={<PlayerHistoryFallback />}>
-        <PlayerHistorySection
-          region={albionRegion}
-          playerId={albionId}
-          historyLastSyncedAt={player.historyLastSyncedAt}
-        />
-      </Suspense>
+      <div id="analytics" className="scroll-mt-28">
+        <Suspense fallback={<PlayerAnalyticsFallback />}>
+          <PlayerAnalyticsSection region={albionRegion} playerId={albionId} />
+        </Suspense>
+      </div>
+
+      <div id="allies" className="scroll-mt-28">
+        <Suspense fallback={<PlayerAssociationsFallback />}>
+          <PlayerAssociationsSection
+            region={albionRegion}
+            playerId={albionId}
+          />
+        </Suspense>
+      </div>
     </div>
   );
 }
