@@ -1,5 +1,5 @@
 import { Link } from "@/i18n/navigation";
-import { Check, Shield } from "lucide-react";
+import { Check, Swords } from "lucide-react";
 import type { AlbionBattleSummary, AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
 import type { BattlesFeedParticipant } from "@/lib/db/queries";
 import { BattleParticipantPreview } from "@/components/BattleParticipantPreview";
@@ -102,7 +102,7 @@ export function BattleCard({
   const identity = (
     <>
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/40 bg-muted/20">
-        <Shield className="h-5 w-5 text-muted-foreground" />
+        <Swords className="h-5 w-5 text-muted-foreground" />
       </div>
       <div className="min-w-0 flex-1 space-y-1">
         {hasParticipants ? (

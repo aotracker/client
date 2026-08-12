@@ -1,4 +1,6 @@
 import { Link } from "@/i18n/navigation";
+import { Trophy } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { regionLabel } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
 import type { TopKillerEntry } from "@/lib/db/queries";
@@ -163,9 +165,7 @@ export function TopKillersList({
 }: TopKillersListProps) {
   if (killers.length === 0) {
     return (
-      <div className="rounded-md border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-        No PvP kills in the last 7 days
-      </div>
+      <EmptyState icon={Trophy}>No PvP kills in the last 7 days</EmptyState>
     );
   }
 

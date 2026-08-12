@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowDown, ChevronsDown, FilterX } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { KillCard } from "@/components/KillCard";
 import { Button } from "@/components/ui/button";
 import type { AlbionRegion } from "@/lib/albion/types";
@@ -212,9 +214,7 @@ export function KillFeedList({
 
   if (events.length === 0) {
     return (
-      <div className="rounded-md border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-        No kills match these filters
-      </div>
+      <EmptyState icon={FilterX}>No kills match these filters</EmptyState>
     );
   }
 
@@ -225,6 +225,7 @@ export function KillFeedList({
       {pendingNew.length > 0 && (
         <div className="flex justify-center">
           <Button type="button" size="sm" variant="outline" onClick={revealPending}>
+            <ArrowDown className="h-3.5 w-3.5" aria-hidden />
             {pendingNew.length} new kill{pendingNew.length === 1 ? "" : "s"} — show
           </Button>
         </div>
@@ -262,6 +263,7 @@ export function KillFeedList({
             onClick={loadMore}
             disabled={loading}
           >
+            <ChevronsDown className="h-3.5 w-3.5" aria-hidden />
             {loading ? "Loading…" : "Load more"}
           </Button>
         </div>

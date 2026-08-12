@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Activity, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/Toast";
@@ -52,6 +53,7 @@ export function AdminActionsPanel() {
             )
           }
         >
+          <Play className="h-3.5 w-3.5" aria-hidden />
           {loading === "ingest" ? "Triggering…" : "Trigger ingest poll"}
         </Button>
         <Button
@@ -65,6 +67,7 @@ export function AdminActionsPanel() {
             )
           }
         >
+          <Activity className="h-3.5 w-3.5" aria-hidden />
           {loading === "health" ? "Triggering…" : "Trigger health check"}
         </Button>
       </CardContent>

@@ -1,8 +1,10 @@
 import { getTranslations } from "next-intl/server";
+import { Swords } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { formatFame } from "@/lib/utils";
 import type { GuildOpponentEntry } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
+import { EmptyState } from "@/components/EmptyState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { feudPath, guildPath } from "@/lib/seo";
 
@@ -21,7 +23,9 @@ export async function GuildRivalsList({
 
   if (rivals.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">{t("empty")}</p>
+      <EmptyState icon={Swords} bordered={false} className="p-0">
+        {t("empty")}
+      </EmptyState>
     );
   }
 
@@ -62,8 +66,9 @@ export async function GuildRivalsList({
             {feudHref && (
               <Link
                 href={feudHref}
-                className="shrink-0 text-xs font-medium text-primary hover:underline"
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-primary hover:underline"
               >
+                <Swords className="h-3.5 w-3.5" aria-hidden />
                 {t("viewFeud")}
               </Link>
             )}

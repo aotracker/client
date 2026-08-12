@@ -18,6 +18,7 @@ import {
 } from "@/lib/search/live-search";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { InlineAlert } from "@/components/InlineAlert";
 import { PageHeader, PageSection } from "@/components/PageSection";
 import { SearchForm } from "@/components/SearchForm";
 import { SearchLivePoller } from "@/components/SearchLivePoller";
@@ -130,9 +131,9 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
       />
 
       {searchError && (
-        <div className="alert-warning rounded-md p-3 text-sm">
+        <InlineAlert variant="warning" className="p-3">
           {searchError}
-        </div>
+        </InlineAlert>
       )}
 
       {ENABLED_REGIONS.length === 0 && (

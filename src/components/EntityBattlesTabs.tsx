@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Clock, Trophy } from "lucide-react";
 import type { AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
 import { BattleCard } from "@/components/BattleCard";
+import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -56,8 +58,8 @@ export function EntityBattlesTabs({
         >
           {(
             [
-              { id: "recent", label: "Recent", count: recentBattles.length },
-              { id: "top", label: "Top", count: topBattles.length },
+              { id: "recent", label: "Recent", count: recentBattles.length, icon: Clock },
+              { id: "top", label: "Top", count: topBattles.length, icon: Trophy },
             ] as const
           ).map((option) => (
             <Button
@@ -69,6 +71,7 @@ export function EntityBattlesTabs({
               onClick={() => setTab(option.id)}
               className={cn(tab === option.id && "shadow-none")}
             >
+              <option.icon className="h-3.5 w-3.5" aria-hidden />
               {option.label}
               <span className="ml-1 tabular-nums opacity-80">{option.count}</span>
             </Button>
@@ -79,8 +82,14 @@ export function EntityBattlesTabs({
       <div className="min-w-0 space-y-3">
         {battles.length === 0 ? (
           <Card>
-            <CardContent className="py-6 text-center text-muted-foreground">
-              {loadingLabel ?? emptyLabel}
+            <CardContent className="py-6">
+              <EmptyState
+                icon={tab === "recent" ? Clock : Trophy}
+                bordered={false}
+                className="p-0"
+              >
+                {loadingLabel ?? emptyLabel}
+              </EmptyState>
             </CardContent>
           </Card>
         ) : (

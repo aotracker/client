@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Languages } from "lucide-react";
 import { LOCALE_DEFINITIONS, type AppLocale } from "@/i18n/locales";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -77,6 +77,7 @@ export function LanguageSelector({
         title={active.label}
         onClick={() => setOpen((value) => !value)}
       >
+        <Languages className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
         <span>{active.code}</span>
         <ChevronDown
           className={cn(

@@ -370,8 +370,8 @@ function PlayerBlock({
       {itemPower ? (
         <>
           {" "}
-          <span className="font-medium text-stat-ip">
-            <ItemPowerValue value={itemPower} className="font-medium" />)
+          <span className="text-[11px] font-medium leading-none text-stat-ip">
+            (<ItemPowerValue value={itemPower} className="font-medium" />)
           </span>
         </>
       ) : null}

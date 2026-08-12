@@ -1,4 +1,6 @@
 import { Link } from "@/i18n/navigation";
+import { Shield } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { formatFame, regionLabel } from "@/lib/utils";
 import { guildPath } from "@/lib/seo";
 import type { TopGuildEntry } from "@/lib/db/queries";
@@ -131,9 +133,7 @@ export function TopGuildsList({
 }: TopGuildsListProps) {
   if (guilds.length === 0) {
     return (
-      <div className="rounded-md border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-        No guild kill fame in this period
-      </div>
+      <EmptyState icon={Shield}>No guild kill fame in this period</EmptyState>
     );
   }
 

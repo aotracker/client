@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Layers, Plus, SearchX, Swords, X } from "lucide-react";
 import { BattleCard } from "@/components/BattleCard";
 import { BattleListPagination } from "@/components/BattleListPagination";
+import { EmptyState } from "@/components/EmptyState";
+import { InlineAlert } from "@/components/InlineAlert";
 import { Button } from "@/components/ui/button";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { BattlesFeedItem } from "@/lib/db/queries";
@@ -202,17 +205,17 @@ export function BattlesFeed({
 
   if (error && battles.length === 0) {
     return (
-      <div className="rounded-md border border-border bg-card p-8 text-center text-muted-foreground">
+      <InlineAlert className="justify-center p-8 text-center">
         {error}
-      </div>
+      </InlineAlert>
     );
   }
 
   if (battles.length === 0) {
     return (
-      <div className="rounded-md border border-border bg-card p-8 text-center text-muted-foreground">
+      <EmptyState icon={searchQuery ? SearchX : Swords} className="p-8">
         {emptyMessage}
-      </div>
+      </EmptyState>
     );
   }
 
@@ -233,6 +236,7 @@ export function BattlesFeed({
             </p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" onClick={clearSelection}>
+                <X className="h-3.5 w-3.5" aria-hidden />
                 {tCommon("buttons.clear")}
               </Button>
               <Button
@@ -240,6 +244,7 @@ export function BattlesFeed({
                 disabled={selectedCount < 2}
                 onClick={combineSelected}
               >
+                <Layers className="h-3.5 w-3.5" aria-hidden />
                 {t("feed.combine", { count: selectedCount })}
               </Button>
             </div>
@@ -259,6 +264,7 @@ export function BattlesFeed({
                     className="h-7 text-xs"
                     onClick={addAllSuggestions}
                   >
+                    <Plus className="h-3.5 w-3.5" aria-hidden />
                     {t("feed.addAllSuggestions")}
                   </Button>
                 )}

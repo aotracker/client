@@ -1,4 +1,6 @@
 import { Link } from "@/i18n/navigation";
+import { Flame } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { formatFame, regionLabel } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
 import type { TopFameEntry } from "@/lib/db/queries";
@@ -181,9 +183,7 @@ export function TopFameList({
 }: TopFameListProps) {
   if (entries.length === 0) {
     return (
-      <div className="rounded-md border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-        No kill fame in this period
-      </div>
+      <EmptyState icon={Flame}>No kill fame in this period</EmptyState>
     );
   }
 

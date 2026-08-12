@@ -1,7 +1,14 @@
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { AlertTriangle, CircleX, Info } from "lucide-react";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 
 const SEVERITIES = ["error", "warning", "info"] as const;
+const SEVERITY_ICONS: Record<(typeof SEVERITIES)[number], LucideIcon> = {
+  error: CircleX,
+  warning: AlertTriangle,
+  info: Info,
+};
 const SOURCES = ["worker", "ingest", "api", "job", "scheduler"] as const;
 const WINDOWS = [
   { value: "", label: "All time" },
@@ -37,15 +44,19 @@ export function OpsEventsFilters({
         <FilterLink href={href({ severity: undefined })} active={!current.severity}>
           All
         </FilterLink>
-        {SEVERITIES.map((s) => (
-          <FilterLink
-            key={s}
-            href={href({ severity: s })}
-            active={current.severity === s}
-          >
-            {s}
-          </FilterLink>
-        ))}
+        {SEVERITIES.map((s) => {
+          const Icon = SEVERITY_ICONS[s];
+          return (
+            <FilterLink
+              key={s}
+              href={href({ severity: s })}
+              active={current.severity === s}
+            >
+              <Icon className="h-3 w-3 shrink-0" aria-hidden />
+              {s}
+            </FilterLink>
+          );
+        })}
       </FilterGroup>
       <FilterGroup label="Source">
         <FilterLink href={href({ source: undefined })} active={!current.source}>
@@ -119,8 +130,8 @@ function FilterLink({
       href={href}
       className={
         active
-          ? "rounded px-2 py-0.5 text-xs font-medium bg-primary/15 text-primary"
-          : "rounded px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground"
+          ? "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium bg-primary/15 text-primary"
+          : "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground"
       }
     >
       {children}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   SearchAutocomplete,
@@ -78,8 +79,9 @@ export function SearchForm({
                 <li key={`${item.ts}-${item.q}-${item.path ?? ""}`}>
                   <Link
                     href={href}
-                    className="inline-flex rounded-md border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
+                    <Clock className="h-3 w-3 shrink-0" aria-hidden />
                     {item.path ?? item.q}
                   </Link>
                 </li>

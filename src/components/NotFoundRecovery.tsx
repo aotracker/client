@@ -2,7 +2,15 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import {
+  Download,
+  Home,
+  RefreshCw,
+  Search,
+  Swords,
+} from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { InlineAlert } from "@/components/InlineAlert";
 import { Button } from "@/components/ui/button";
 import {
   SearchAutocomplete,
@@ -64,9 +72,9 @@ export function NotFoundRecovery() {
       </div>
 
       {recovery?.kind === "disabled" && (
-        <p className="alert-warning rounded-md px-3 py-2 text-sm">
+        <InlineAlert variant="warning" className="px-3 py-2 text-left">
           {t("regionDisabled", { region: recovery.region })}
-        </p>
+        </InlineAlert>
       )}
 
       {recovery?.kind === "entity" && (
@@ -79,6 +87,11 @@ export function NotFoundRecovery() {
             className="w-full sm:w-auto"
             onClick={() => router.push(recovery.path)}
           >
+            {recovery.entityType === "kill" || recovery.entityType === "battle" ? (
+              <RefreshCw className="h-3.5 w-3.5" aria-hidden />
+            ) : (
+              <Download className="h-3.5 w-3.5" aria-hidden />
+            )}
             {recovery.entityType === "kill" || recovery.entityType === "battle"
               ? t("tryAgain")
               : t("queueFetch")}
@@ -89,20 +102,23 @@ export function NotFoundRecovery() {
       <div className="flex flex-wrap justify-center gap-2">
         <Link
           href={feedNavHref("/", feedRegion)}
-          className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
+          <Home className="h-3.5 w-3.5" aria-hidden />
           {tButtons("home")}
         </Link>
         <Link
           href={feedNavHref("/battles", feedRegion)}
-          className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
+          <Swords className="h-3.5 w-3.5" aria-hidden />
           {tNav("battles")}
         </Link>
         <Link
           href="/search"
-          className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
+          <Search className="h-3.5 w-3.5" aria-hidden />
           {tNav("search")}
         </Link>
       </div>

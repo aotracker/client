@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Inbox, Star, Trash2 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { EmptyState } from "@/components/EmptyState";
+import { InlineAlert } from "@/components/InlineAlert";
 import { KillCard } from "@/components/KillCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -69,8 +72,10 @@ export function WatchlistPageContent() {
   if (entries.length === 0) {
     return (
       <Card>
-        <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          {t("empty")}
+        <CardContent className="py-8">
+          <EmptyState icon={Star} bordered={false} className="p-0">
+            {t("empty")}
+          </EmptyState>
         </CardContent>
       </Card>
     );
@@ -106,6 +111,7 @@ export function WatchlistPageContent() {
                 variant="outline"
                 onClick={() => remove(entry.type, entry.region, entry.albionId)}
               >
+                <Trash2 className="h-3.5 w-3.5" aria-hidden />
                 {tCommon("buttons.remove")}
               </Button>
             </li>
@@ -122,11 +128,13 @@ export function WatchlistPageContent() {
             ))}
           </div>
         ) : error ? (
-          <div className="alert-danger rounded-md p-4 text-sm">{error}</div>
+          <InlineAlert>{error}</InlineAlert>
         ) : activity.length === 0 ? (
           <Card>
-            <CardContent className="py-6 text-center text-sm text-muted-foreground">
-              {t("noActivity")}
+            <CardContent className="py-6">
+              <EmptyState icon={Inbox} bordered={false} className="p-0">
+                {t("noActivity")}
+              </EmptyState>
             </CardContent>
           </Card>
         ) : (

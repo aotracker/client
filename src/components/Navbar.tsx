@@ -2,7 +2,20 @@
 
 import { Suspense, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
-import { Menu, Monitor, Moon, Star, Sun, X } from "lucide-react";
+import {
+  Clock,
+  Hammer,
+  Home,
+  Menu,
+  Monitor,
+  Moon,
+  Search,
+  Star,
+  Sun,
+  Swords,
+  Trophy,
+  X,
+} from "lucide-react";
 import {
   SearchAutocomplete,
   useSearchRegion,
@@ -60,12 +73,13 @@ function ServerTime({ className }: { className?: string }) {
   return (
     <p
       className={cn(
-        "shrink-0 tabular-nums text-[11px] leading-none text-muted-foreground",
+        "inline-flex shrink-0 items-center gap-1 tabular-nums text-[11px] leading-none text-muted-foreground",
         className
       )}
       suppressHydrationWarning
       title={t("serverTimeTitle")}
     >
+      <Clock className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
       <span className="sr-only">{t("serverTime")} </span>
       {clock}
       <span className="ml-0.5 opacity-70">UTC</span>
@@ -172,34 +186,37 @@ function NavbarBrandAndDesktopNav({
         <Link
           href={hrefs.leaderboards}
           className={cn(
-            "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            "inline-flex items-center gap-1.5 rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
             pathname.startsWith("/leaderboards")
               ? "text-foreground"
               : "text-muted-foreground"
           )}
         >
+          <Trophy className="h-4 w-4 shrink-0" aria-hidden />
           {t("leaderboards")}
         </Link>
         <Link
           href={hrefs.battles}
           className={cn(
-            "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            "inline-flex items-center gap-1.5 rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
             pathname.startsWith("/battles")
               ? "text-foreground"
               : "text-muted-foreground"
           )}
         >
+          <Swords className="h-4 w-4 shrink-0" aria-hidden />
           {t("battles")}
         </Link>
         <Link
           href={hrefs.builds}
           className={cn(
-            "rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            "inline-flex items-center gap-1.5 rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
             pathname.startsWith("/builds")
               ? "text-foreground"
               : "text-muted-foreground"
           )}
         >
+          <Hammer className="h-4 w-4 shrink-0" aria-hidden />
           {t("builds")}
         </Link>
       </nav>
@@ -221,30 +238,34 @@ function NavbarMobileFeedLinks({
     <>
       <Link
         href={hrefs.home}
-        className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         onClick={onNavigate}
       >
+        <Home className="h-4 w-4 shrink-0" aria-hidden />
         {t("home")}
       </Link>
       <Link
         href={hrefs.leaderboards}
-        className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         onClick={onNavigate}
       >
+        <Trophy className="h-4 w-4 shrink-0" aria-hidden />
         {t("leaderboards")}
       </Link>
       <Link
         href={hrefs.battles}
-        className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         onClick={onNavigate}
       >
+        <Swords className="h-4 w-4 shrink-0" aria-hidden />
         {t("battles")}
       </Link>
       <Link
         href={hrefs.builds}
-        className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         onClick={onNavigate}
       >
+        <Hammer className="h-4 w-4 shrink-0" aria-hidden />
         {t("builds")}
       </Link>
     </>
@@ -369,9 +390,10 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
               </Link>
               <Link
                 href="/search"
-                className="rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 onClick={() => setMenuOpen(false)}
               >
+                <Search className="h-4 w-4 shrink-0" aria-hidden />
                 {t("search")}
               </Link>
             </div>

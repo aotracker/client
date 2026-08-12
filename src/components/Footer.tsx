@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Activity } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ALBION_REF_URL, SITE_NAME } from "@/lib/site";
 import { Link } from "@/i18n/navigation";
@@ -21,8 +22,9 @@ export function Footer() {
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/health"
-            className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex items-center gap-1.5 rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
+            <Activity className="h-3.5 w-3.5" aria-hidden />
             {t("systemStatus")}
           </Link>
           <Link

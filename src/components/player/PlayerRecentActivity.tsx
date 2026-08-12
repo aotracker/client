@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { List, Skull, Swords } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { KillCard } from "@/components/KillCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -76,12 +78,23 @@ export function PlayerRecentActivity({
         >
           {(
             [
-              { id: "all" as const, label: t("filterAll"), count: activity.length },
-              { id: "kills" as const, label: t("filterKills"), count: kills.length },
+              {
+                id: "all" as const,
+                label: t("filterAll"),
+                count: activity.length,
+                icon: List,
+              },
+              {
+                id: "kills" as const,
+                label: t("filterKills"),
+                count: kills.length,
+                icon: Swords,
+              },
               {
                 id: "deaths" as const,
                 label: t("filterDeaths"),
                 count: deaths.length,
+                icon: Skull,
               },
             ] as const
           ).map((option) => (
@@ -101,6 +114,7 @@ export function PlayerRecentActivity({
                   "border-stat-death/40 bg-stat-death/20 text-stat-death hover:bg-stat-death/30"
               )}
             >
+              <option.icon className="h-3.5 w-3.5" aria-hidden />
               {option.label}
               <span className="ml-1 tabular-nums opacity-80">
                 {option.count}
@@ -113,8 +127,20 @@ export function PlayerRecentActivity({
       <div className="space-y-3">
         {filtered.length === 0 ? (
           <Card>
-            <CardContent className="py-6 text-center text-muted-foreground">
-              {emptyMessage}
+            <CardContent className="py-6">
+              <EmptyState
+                icon={
+                  filter === "kills"
+                    ? Swords
+                    : filter === "deaths"
+                      ? Skull
+                      : List
+                }
+                bordered={false}
+                className="p-0"
+              >
+                {emptyMessage}
+              </EmptyState>
             </CardContent>
           </Card>
         ) : (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Swords } from "lucide-react";
 import {
   ProfileSectionNav,
   type ProfileNavSection,
@@ -10,8 +11,8 @@ export function AllianceProfileNav() {
   const t = useTranslations("Alliance.nav");
 
   const sections: ProfileNavSection[] = [
-    { id: "kills", label: t("kills") },
-    { id: "battles", label: t("battles") },
+    { id: "kills", label: t("kills"), icon: Swords },
+    { id: "battles", label: t("battles"), icon: Swords },
   ];
 
   return <ProfileSectionNav sections={sections} />;

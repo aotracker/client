@@ -3,7 +3,8 @@
 import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Flame, Loader2, Shield, Skull, Swords } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
 import {
@@ -17,6 +18,13 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const DAYS = [7, 14, 30] as const;
+
+const TAB_ICONS: Record<LeaderboardTab, LucideIcon> = {
+  killers: Swords,
+  fame: Flame,
+  guilds: Shield,
+  kills: Skull,
+};
 
 interface LeaderboardFiltersProps {
   regions: { value: AlbionRegion | "all"; label: string }[];
@@ -74,6 +82,7 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
       >
         {LEADERBOARD_TABS.map((id) => {
           const active = tab === id;
+          const Icon = TAB_ICONS[id];
           return (
             <button
               key={id}
@@ -82,7 +91,7 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
               disabled={isPending}
               onClick={() => push({ tab: id })}
               className={cn(
-                "inline-flex items-center rounded-t-md px-3 py-2.5 text-sm font-medium transition-colors",
+                "inline-flex items-center gap-1.5 rounded-t-md px-3 py-2.5 text-sm font-medium transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 "disabled:pointer-events-none disabled:opacity-60",
                 active
@@ -90,10 +99,11 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
                   : "text-muted-foreground hover:bg-background/60 hover:text-foreground"
               )}
             >
+              <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
               {t(`tabs.${id}.label`)}
               {isPending && pendingTab === id && (
                 <Loader2
-                  className="ml-1.5 h-3.5 w-3.5 animate-spin"
+                  className="h-3.5 w-3.5 animate-spin"
                   aria-hidden
                 />
               )}

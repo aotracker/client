@@ -1,6 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { ChartNoAxesColumn } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PlayerAnalytics as PlayerAnalyticsData } from "@/lib/db/queries";
 import { ActivityCalendar } from "./ActivityCalendar";
@@ -29,8 +31,10 @@ export function PlayerAnalytics({ data }: PlayerAnalyticsProps) {
 
       {isEmpty ? (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            {t("empty")}
+          <CardContent className="py-8">
+            <EmptyState icon={ChartNoAxesColumn} bordered={false} className="p-0">
+              {t("empty")}
+            </EmptyState>
           </CardContent>
         </Card>
       ) : (

@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ToastItem = {
@@ -47,9 +48,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <div
               key={item.id}
               className={cn(
-                "pointer-events-auto rounded-md border border-border bg-card px-4 py-2 text-sm shadow-lg animate-slide-up"
+                "pointer-events-auto inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm shadow-lg animate-slide-up"
               )}
             >
+              <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden />
               {item.message}
             </div>
           ))}

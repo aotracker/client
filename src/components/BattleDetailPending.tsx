@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { ClockAlert, Loader2, RefreshCw } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
+import { InlineAlert } from "@/components/InlineAlert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { regionLabel } from "@/lib/utils";
@@ -109,10 +110,7 @@ export function BattleDetailPending({
       {!embedded && <BackLink />}
 
       {showApiDelayNotice && (
-        <div
-          role="status"
-          className="alert-warning rounded-md px-4 py-3 text-sm"
-        >
+        <InlineAlert variant="warning" icon={ClockAlert} className="px-4 py-3">
           <p className="font-medium">Albion API delay</p>
           <p className="mt-1 opacity-90">
             This battle has been waiting
@@ -121,21 +119,18 @@ export function BattleDetailPending({
             appears). The worker will keep checking on a longer schedule — no
             action needed unless it eventually fails.
           </p>
-        </div>
+        </InlineAlert>
       )}
 
       {detailUnavailable && (
-        <div
-          role="status"
-          className="alert-danger rounded-md px-4 py-3 text-sm"
-        >
+        <InlineAlert className="px-4 py-3">
           <p className="font-medium">Battle not published by Albion</p>
           <p className="mt-1 opacity-90">
             Gameinfo kept returning not found for this battle, so automatic
             sync was stopped to avoid endless queue jobs. Use Retry if you
             believe Albion has published it since.
           </p>
-        </div>
+        </InlineAlert>
       )}
 
       <Card
@@ -197,6 +192,7 @@ export function BattleDetailPending({
                 onClick={handleRetry}
                 disabled={isPending}
               >
+                <RefreshCw className="h-3.5 w-3.5" aria-hidden />
                 {isPending ? "Re-queuing…" : "Retry fetch"}
               </Button>
               {retryError && (

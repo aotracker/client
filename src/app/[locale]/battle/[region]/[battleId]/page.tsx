@@ -1,7 +1,7 @@
 import { Suspense, cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { Shield } from "lucide-react";
+import { Swords } from "lucide-react";
 import type {
   AlbionBattle,
   AlbionRegion,
@@ -158,7 +158,7 @@ function BattleSummaryCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-border/40 bg-muted/20">
-            <Shield className="h-6 w-6 text-muted-foreground" />
+            <Swords className="h-6 w-6 text-muted-foreground" />
           </div>
           <div>
             <h1 className="font-display text-2xl font-semibold leading-none tracking-tight">

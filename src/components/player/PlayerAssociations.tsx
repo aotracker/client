@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
+import { Users } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { PlayerAssociationEntry } from "@/lib/db/queries";
+import { EmptyState } from "@/components/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
@@ -22,9 +24,9 @@ export async function PlayerAssociations({ allies }: PlayerAssociationsProps) {
       <Card>
         <CardContent className="pt-6">
           {allies.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">
+            <EmptyState icon={Users} bordered={false} className="py-4">
               {t("empty")}
-            </p>
+            </EmptyState>
           ) : (
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {allies.map((entry) => {

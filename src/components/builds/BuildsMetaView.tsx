@@ -1,8 +1,10 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { PackageOpen } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ContentBadge } from "@/components/ContentBadge";
+import { EmptyState } from "@/components/EmptyState";
 import { ItemIcon } from "@/components/ItemIcon";
 import { PageSection } from "@/components/PageSection";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
@@ -338,12 +340,16 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
             </div>
 
             {builds.length === 0 ? (
-              <p className="rounded-md border border-dashed border-border/70 bg-background/40 px-4 py-10 text-center text-sm text-muted-foreground">
+              <EmptyState
+                icon={PackageOpen}
+                bordered={false}
+                className="rounded-md border border-dashed border-border/70 bg-background/40 px-4 py-10"
+              >
                 {t("sections.empty", {
                   contentType: contentLabel(section.type),
                   days: data.windowDays,
                 })}
-              </p>
+              </EmptyState>
             ) : (
               <ol className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                 {builds.map((build) => (

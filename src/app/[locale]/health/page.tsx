@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import type { LucideIcon } from "lucide-react";
+import { CheckCircle2, Clock, Database, Unplug } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getApiSyncState, getGlobalSyncStatus, getRegionEntityCounts } from "@/lib/db/queries";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { InlineAlert } from "@/components/InlineAlert";
 import { PageHeader } from "@/components/PageSection";
 import { formatRelativeTime, regionLabel } from "@/lib/utils";
 import { buildPageMetadata, NOINDEX_FOLLOW } from "@/lib/seo";
@@ -14,6 +17,13 @@ import {
 } from "@/lib/health/sync-status";
 
 export const dynamic = "force-dynamic";
+
+const HEALTH_ICONS: Record<RegionApiHealthLabel, LucideIcon> = {
+  healthy: CheckCircle2,
+  delayed: Clock,
+  unreachable: Unplug,
+  cooling_down: Unplug,
+};
 
 interface HealthPageProps {
   params: Promise<{ locale: string }>;
@@ -87,9 +97,7 @@ export default async function HealthPage({ params }: HealthPageProps) {
       <PageHeader title={t("title")} description={t("description")} />
 
       {dbError && (
-        <div className="rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
-          {t("unavailable")}
-        </div>
+        <InlineAlert icon={Database}>{t("unavailable")}</InlineAlert>
       )}
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -209,6 +217,7 @@ function HealthRegionCard({
         : apiHealthLabel === "cooling_down"
           ? "bg-red-500"
           : "bg-yellow-500";
+  const StatusIcon = HEALTH_ICONS[apiHealthLabel];
 
   return (
     <Card>
@@ -218,7 +227,10 @@ function HealthRegionCard({
             {label}
             <span className={`h-3 w-3 shrink-0 rounded-full ${dotClass}`} />
           </span>
-          <Badge variant={badgeVariant}>{apiHealthText}</Badge>
+          <Badge variant={badgeVariant} className="gap-1">
+            <StatusIcon className="size-2.5 shrink-0" aria-hidden />
+            {apiHealthText}
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">

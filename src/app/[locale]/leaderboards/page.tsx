@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { InlineAlert } from "@/components/InlineAlert";
 import { TopKillersList } from "@/components/TopKillersList";
 import { LeaderboardFilters } from "@/components/leaderboards/LeaderboardFilters";
 import { LeaderboardKillsList } from "@/components/leaderboards/LeaderboardKillsList";
@@ -148,7 +149,7 @@ export default async function LeaderboardsPage({
 
           <LeaderboardResultsPending>
             {error ? (
-              <div className="alert-danger rounded-md p-4 text-sm">{error}</div>
+              <InlineAlert>{error}</InlineAlert>
             ) : tab === "killers" ? (
               <TopKillersList killers={killers} layout="wide" />
             ) : tab === "guilds" ? (

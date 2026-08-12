@@ -1,3 +1,5 @@
+import { Swords } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { KillCard } from "@/components/KillCard";
 import type { LeaderboardPodiumEntry } from "@/components/leaderboards/leaderboard-rank-styles";
 import { LeaderboardTopThree } from "@/components/leaderboards/LeaderboardTopThree";
@@ -32,11 +34,7 @@ interface LeaderboardKillsListProps {
 
 export function LeaderboardKillsList({ kills }: LeaderboardKillsListProps) {
   if (kills.length === 0) {
-    return (
-      <div className="rounded-md border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-        No kills in this period
-      </div>
-    );
+    return <EmptyState icon={Swords}>No kills in this period</EmptyState>;
   }
 
   return (

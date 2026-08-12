@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatFame, regionLabel } from "@/lib/utils";
 import { RelativeTime } from "@/components/RelativeTime";
-import { Shield } from "lucide-react";
+import { Swords } from "lucide-react";
 import { notFound } from "next/navigation";
 import { MAX_COMBINED_BATTLES } from "@/lib/battles-constants";
 
@@ -151,7 +151,7 @@ function CombinedSummaryCard({
       <CardHeader className="space-y-4">
         <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-border/40 bg-muted/20">
-            <Shield className="h-6 w-6 text-muted-foreground" />
+            <Swords className="h-6 w-6 text-muted-foreground" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

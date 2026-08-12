@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+import { CheckCircle2, Clock, Unplug } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { RegionApiHealthLabel } from "@/lib/health/sync-status";
@@ -25,6 +27,13 @@ const STATUS_LABEL: Record<RegionApiHealthLabel, string> = {
   delayed: "Delayed",
   unreachable: "Unreachable",
   cooling_down: "Cooling down",
+};
+
+const STATUS_ICON: Record<RegionApiHealthLabel, LucideIcon> = {
+  healthy: CheckCircle2,
+  delayed: Clock,
+  unreachable: Unplug,
+  cooling_down: Unplug,
 };
 
 export function AdminRegionCard({
@@ -68,6 +77,7 @@ export function AdminRegionCard({
 }) {
   const apiHealthText = STATUS_LABEL[apiHealthLabel];
   const badgeVariant = healthBadgeVariant(apiHealthLabel);
+  const StatusIcon = STATUS_ICON[apiHealthLabel];
   const dotClass =
     apiHealthLabel === "healthy"
       ? "bg-green-500"
@@ -85,7 +95,10 @@ export function AdminRegionCard({
             {label}
             <span className={`h-3 w-3 shrink-0 rounded-full ${dotClass}`} />
           </span>
-          <Badge variant={badgeVariant}>{apiHealthText}</Badge>
+          <Badge variant={badgeVariant} className="gap-1">
+            <StatusIcon className="size-2.5 shrink-0" aria-hidden />
+            {apiHealthText}
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">

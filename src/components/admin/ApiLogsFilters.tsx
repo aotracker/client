@@ -1,7 +1,14 @@
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { Check, CircleDashed, X } from "lucide-react";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 
 const STATUSES = ["success", "error", "miss"] as const;
+const STATUS_ICONS: Record<(typeof STATUSES)[number], LucideIcon> = {
+  success: Check,
+  error: X,
+  miss: CircleDashed,
+};
 const WINDOWS = [
   { value: "1h", label: "1 hour" },
   { value: "24h", label: "24 hours" },
@@ -36,15 +43,19 @@ export function ApiLogsFilters({
           <FilterLink href={href({ status: undefined })} active={!current.status}>
             All
           </FilterLink>
-          {STATUSES.map((s) => (
-            <FilterLink
-              key={s}
-              href={href({ status: s })}
-              active={current.status === s}
-            >
-              {s}
-            </FilterLink>
-          ))}
+          {STATUSES.map((s) => {
+            const Icon = STATUS_ICONS[s];
+            return (
+              <FilterLink
+                key={s}
+                href={href({ status: s })}
+                active={current.status === s}
+              >
+                <Icon className="h-3 w-3 shrink-0" aria-hidden />
+                {s}
+              </FilterLink>
+            );
+          })}
         </FilterGroup>
         <FilterGroup label="Region">
           <FilterLink href={href({ region: undefined })} active={!current.region}>
@@ -105,8 +116,8 @@ function FilterLink({
       href={href}
       className={
         active
-          ? "rounded px-2 py-0.5 text-xs font-medium bg-primary/15 text-primary"
-          : "rounded px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground"
+          ? "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium bg-primary/15 text-primary"
+          : "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground"
       }
     >
       {children}

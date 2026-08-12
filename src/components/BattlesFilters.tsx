@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
 import {
   buildFeedHref,
@@ -67,6 +67,7 @@ export function BattlesFilters({ regions }: BattlesFiltersProps) {
           />
         </div>
         <Button type="submit" size="sm">
+          <Search className="h-3.5 w-3.5" aria-hidden />
           Search
         </Button>
         {qParam && (
@@ -79,6 +80,7 @@ export function BattlesFilters({ regions }: BattlesFiltersProps) {
               pushParams({ q: null });
             }}
           >
+            <X className="h-3.5 w-3.5" aria-hidden />
             Clear
           </Button>
         )}

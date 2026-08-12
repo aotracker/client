@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ProfileNavSection = {
   id: string;
   label: string;
+  icon?: LucideIcon;
 };
 
 /** Sticky under the site navbar (~57px). Keep in sync with Navbar height. */
@@ -80,6 +82,7 @@ export function ProfileSectionNav({
       <div className="flex gap-1 overflow-x-auto py-2" role="list">
         {sections.map((section) => {
           const isActive = activeId === section.id;
+          const Icon = section.icon;
           return (
             <a
               key={section.id}
@@ -87,12 +90,13 @@ export function ProfileSectionNav({
               role="listitem"
               aria-current={isActive ? "true" : undefined}
               className={cn(
-                "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                "inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary/15 text-primary"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >
+              {Icon ? <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden /> : null}
               {section.label}
             </a>
           );
