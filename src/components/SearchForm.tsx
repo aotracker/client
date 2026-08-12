@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   SearchAutocomplete,
@@ -10,8 +11,7 @@ import type { AlbionRegion } from "@/lib/albion/types";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 import { regionLabel } from "@/lib/utils";
 import { getRecentSearches } from "@/lib/search/recent-searches";
-import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { RecentSearch } from "@/lib/search/recent-searches";
 
 interface SearchFormProps {
@@ -26,6 +26,7 @@ export function SearchForm({
   initialRegion,
   regions = ENABLED_REGIONS,
 }: SearchFormProps) {
+  const t = useTranslations("Search");
   const [region, setRegion] = useSearchRegion(
     initialRegion ?? regions[0] ?? "americas",
     { preferStored: initialRegion == null }
@@ -66,7 +67,7 @@ export function SearchForm({
       {!initialQuery && recent.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Recent searches
+            {t("recentSearches")}
           </p>
           <ul className="flex flex-wrap gap-2">
             {recent.map((item) => {

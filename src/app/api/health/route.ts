@@ -24,6 +24,7 @@ export async function GET() {
         lastHealthCheckOk: row.lastHealthCheckOk,
         ingestLagMinutes: row.ingestLagMinutes,
         latestKillAt: row.latestKillAt,
+        latestKillLagMinutes: row.latestKillLagMinutes,
       })),
     });
   } catch (error) {

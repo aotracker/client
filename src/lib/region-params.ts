@@ -16,7 +16,10 @@ export function isFeedPath(pathname: string): pathname is FeedPath {
   return (FEED_PATHS as readonly string[]).includes(pathname);
 }
 
-/** Region filter chips shared by feed pages. */
+/**
+ * Region filter chips shared by feed pages.
+ * Labels are English fallbacks — callers should translate via Common.regions / Nav when rendering UI.
+ */
 export function feedRegionFilterOptions(): {
   value: FeedRegion;
   label: string;

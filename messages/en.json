@@ -1,0 +1,684 @@
+{
+  "Nav": {
+    "home": "Home",
+    "leaderboards": "Leaderboards",
+    "battles": "Battles",
+    "builds": "Builds",
+    "watchlist": "Watchlist",
+    "search": "Search",
+    "serverTime": "Server time",
+    "serverTimeTitle": "Albion server time (UTC)",
+    "serverTimePlaceholder": "--:--:-- UTC",
+    "themeSwitchToLight": "Switch to light mode",
+    "themeSwitchToDark": "Switch to dark mode",
+    "themeSwitchToSystem": "Use system theme",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "region": "Region",
+    "serverRegion": "Server region",
+    "selectRegion": "Select region",
+    "allRegions": "All Regions",
+    "watchlistAria": "Watchlist",
+    "watchlistAriaWithCount": "Watchlist ({count})",
+    "selectLanguage": "Select language",
+    "preferences": "Preferences"
+  },
+  "Footer": {
+    "copyright": "© {year} {siteName}. All rights reserved.",
+    "disclaimer": "{siteName} is not affiliated with, endorsed by, or sponsored by Albion Online or Sandbox Interactive GmbH.",
+    "systemStatus": "System status",
+    "privacyPolicy": "Privacy Policy",
+    "getAlbion": "Get Albion"
+  },
+  "Common": {
+    "regions": {
+      "all": "All Regions",
+      "americas": "Americas",
+      "europe": "Europe",
+      "asia": "Asia"
+    },
+    "contentTypes": {
+      "all": "All",
+      "SOLO": "1v1",
+      "GROUP": "Group",
+      "ZVZ": "ZvZ"
+    },
+    "entityKinds": {
+      "player": "Player",
+      "guild": "Guild",
+      "alliance": "Alliance",
+      "kill": "Kill",
+      "battle": "Battle",
+      "link": "Link"
+    },
+    "relativeTime": {
+      "justNow": "just now",
+      "oneMinuteAgo": "1 minute ago",
+      "minutesAgo": "{count} minutes ago",
+      "oneHourAgo": "1 hour ago",
+      "hoursAgo": "{count} hours ago",
+      "unknownDate": "Unknown date",
+      "exactAtUtc": "{date} at {time} UTC"
+    },
+    "buttons": {
+      "viewAll": "View all",
+      "search": "Search",
+      "clear": "Clear",
+      "loadMore": "Load more",
+      "loading": "Loading…",
+      "previous": "Previous",
+      "next": "Next",
+      "copyLink": "Copy link",
+      "retry": "Retry fetch",
+      "reQueuing": "Re-queuing…",
+      "add": "Add",
+      "remove": "Remove",
+      "watch": "Watch",
+      "watching": "Watching",
+      "back": "← Back",
+      "home": "Home"
+    },
+    "a11y": {
+      "entityLocation": "Entity location",
+      "leaderboardType": "Leaderboard type",
+      "filterBattles": "Filter battles",
+      "filterRecentActivity": "Filter recent activity",
+      "contentMix": "Content mix",
+      "loadingJuicyKills": "Loading juicy kills",
+      "loadingTopKillers": "Loading top killers",
+      "loadingTopFameEarners": "Loading top fame earners",
+      "loadingRecentKills": "Loading recent kills",
+      "loadingPlayer": "Loading player",
+      "loadingKillDetails": "Loading kill details",
+      "loadingBattle": "Loading battle",
+      "loadingBattles": "Loading battles",
+      "loadingCombinedBattles": "Loading combined battles",
+      "loadingTopKills": "Loading top kills",
+      "loadingGuildRivals": "Loading guild rivals",
+      "loadingAnalytics": "Loading analytics",
+      "loadingActivity": "Loading activity",
+      "loadingPlayerAssociations": "Loading player associations",
+      "searchPlayersOrGuilds": "Search players or guilds",
+      "searchBattles": "Search battles by guild, alliance, or player",
+      "searchPlayers": "Search players",
+      "searchGuilds": "Search guilds",
+      "searchAlliances": "Search alliances",
+      "selectBattle": "Select battle {id}"
+    },
+    "stats": {
+      "killFame": "Kill Fame",
+      "deathFame": "Death Fame",
+      "lifetimeKillFame": "Lifetime Kill Fame",
+      "lifetimeDeathFame": "Lifetime Death Fame",
+      "kdRatio": "K/D Ratio",
+      "kdShort": "K/D",
+      "members": "Members",
+      "guilds": "Guilds",
+      "fame": "Fame",
+      "kills": "Kills",
+      "deaths": "Deaths",
+      "totalFame": "Total Fame",
+      "totalKills": "Total Kills",
+      "totalPlayers": "Total Players",
+      "players": "Players",
+      "uses": "Uses",
+      "assists": "Assists",
+      "avgIp": "Avg IP"
+    },
+    "labels": {
+      "lastUpdated": "Last updated: {datetime}",
+      "founder": "Founder:",
+      "founded": "Founded: {datetime}",
+      "status": "Status:",
+      "unknown": "Unknown",
+      "emDash": "—",
+      "mainHand": "Main hand",
+      "offHand": "Off hand",
+      "albionId": "Albion ID",
+      "albionPlayerId": "Albion player ID",
+      "albionGuildId": "Albion guild ID",
+      "albionAllianceId": "Albion alliance ID",
+      "ip": "IP {value}",
+      "averageIp": "Average IP:",
+      "estValue": "Est. value: {value}",
+      "killFameWithUnit": "{value} kill fame",
+      "membersCount": "{count} members",
+      "showingRange": "Showing {start}–{end} of {total}",
+      "pageOf": "Page {page} of {totalPages}",
+      "lastNDays": "Last {days} days",
+      "allContent": "All content",
+      "allRegionsLower": "all regions",
+      "never": "Never",
+      "cached": "Cached",
+      "live": "Live",
+      "recent": "Recent",
+      "deepLink": "Deep link",
+      "linkCopied": "Link copied",
+      "couldNotCopyLink": "Could not copy link",
+      "copyLinkTitle": "Copy this page's link to the clipboard",
+      "weaponRoles": {
+        "healer": "Healer",
+        "tank": "Tank",
+        "support": "Support",
+        "dps": "DPS"
+      },
+      "lifetimeFame": "Lifetime Fame",
+      "pve": "PvE",
+      "gathering": "Gathering",
+      "other": "Other"
+    },
+    "toasts": {
+      "linkCopied": "Link copied",
+      "couldNotCopyLink": "Could not copy link"
+    }
+  },
+  "Filters": {
+    "contentAll": "All",
+    "contentSolo": "1v1",
+    "contentGroup": "Group",
+    "contentZvz": "ZvZ",
+    "region": "Region",
+    "period": "Period",
+    "contentType": "Content type",
+    "lastDays": "Last {days} days"
+  },
+  "Home": {
+    "srOnlyTitle": "{siteName} — {pageTitle}",
+    "sections": {
+      "recentKillsTitle": "Recent Kills (10)",
+      "recentKillsDescription": "The 10 most recent kills in tracked PvP data",
+      "juicyKillsTitle": "Top 10 Juicy Kills",
+      "juicyKillsDescription": "Highest fame kills in the last 7 days",
+      "topKillersTitle": "Top 10 Killers",
+      "topKillersDescription": "Most PvP kills in the last 7 days",
+      "topFameTitle": "Top 10 Fame Earners",
+      "topFameDescription": "Highest kill fame earned in the last 7 days"
+    },
+    "autoUpdates": "Auto-updates every 20s",
+    "checkedAt": " · checked {relative}",
+    "emptyRecentTitle": "No kills to show yet",
+    "emptyRecentBody": "Fresh Albion kills will appear here as they are ingested. Check back soon, or <searchLink>search for a player or guild</searchLink>.",
+    "emptyRecentSearchLink": "search for a player or guild",
+    "emptyJuicy": "No juicy kills in the last 7 days",
+    "errorRecent": "Kill feed temporarily unavailable.",
+    "errorJuicy": "Juicy kills temporarily unavailable.",
+    "errorTopKillers": "Top killers temporarily unavailable.",
+    "errorTopFame": "Top fame earners temporarily unavailable."
+  },
+  "Player": {
+    "kind": "Player",
+    "nav": {
+      "activity": "Activity",
+      "analytics": "Analytics",
+      "allies": "Allies"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "subtitle": "Cached kill and death history · {kills} kills · {deaths} deaths",
+      "filterAll": "All",
+      "filterKills": "Kills",
+      "filterDeaths": "Deaths",
+      "empty": "No recent activity",
+      "emptyKills": "No recent kills",
+      "emptyDeaths": "No recent deaths",
+      "loading": "Loading activity from Albion Online…"
+    },
+    "analytics": {
+      "title": "Player Analytics",
+      "subtitle": "Based on cached kill/death history · last 30 days",
+      "empty": "No analytics yet. Kill and death history will appear here once cached.",
+      "activityTitle": "Activity",
+      "activityDescription": "Last 30 days · PvP events participated in per day",
+      "preferredContentTitle": "Preferred content",
+      "preferredContentDescription": "Last 30 days · mix of 1v1, group, and ZvZ fights",
+      "fameTitle": "Fame earned vs lost",
+      "fameDescription": "Last 30 days · daily kill fame as killer vs victim",
+      "fameEarned": "Earned",
+      "fameLost": "Lost",
+      "topBuildsTitle": "Top Player Builds",
+      "topBuildsDescription": "Last 30 days · Same weapons/gear across tiers · shown as T8 Excellent",
+      "contentAxis": "Content"
+    },
+    "associations": {
+      "title": "Player Associations",
+      "subtitle": "Players who partied or assisted on your kills · last 30 days · any guild · fame > 0 kills only",
+      "empty": "No allied fighters tracked yet",
+      "sharedKill": "{count} shared kill",
+      "sharedKills": "{count} shared kills"
+    },
+    "pending": {
+      "title": "Fetching player profile",
+      "body": "This player is not cached yet. A background job is fetching it from Albion Online and saving it locally. This page refreshes automatically every few seconds.",
+      "entityLabel": "player profile"
+    },
+    "killCard": {
+      "kill": "Kill",
+      "death": "Death",
+      "killDetails": "Kill Details"
+    }
+  },
+  "Guild": {
+    "kind": "Guild",
+    "nav": {
+      "kills": "Kills",
+      "rivals": "Rivals",
+      "battles": "Battles"
+    },
+    "topKills": {
+      "title": "Top Kills ({count})",
+      "description": "Highest fame kills by guild members",
+      "loading": "Loading top kills from Albion Online…",
+      "empty": "No cached top kills yet"
+    },
+    "rivals": {
+      "title": "Guild Rivals",
+      "description": "Most active opponents for {guildName} in the last 30 days",
+      "empty": "No tracked rival guilds in the last 30 days",
+      "statsLine": "{kills} kills · {fame} fame",
+      "statsLineWithDeaths": "{kills} kills · {fame} fame · {deaths} deaths · {fameLost} lost",
+      "viewFeud": "View feud"
+    },
+    "battles": {
+      "recentDescription": "Most recent battles with guild participation in the past 7 days",
+      "topDescription": "Highest kill fame battles with guild participation in the past 7 days",
+      "loading": "Loading battles from Albion Online…",
+      "recentEmpty": "No recent battles this week",
+      "topEmpty": "No top battles this week"
+    },
+    "pending": {
+      "title": "Fetching guild profile",
+      "body": "This guild is not cached yet. A background job is fetching it from Albion Online and saving it locally. This page refreshes automatically every few seconds.",
+      "entityLabel": "guild profile"
+    },
+    "feud": {
+      "title": "{guildA} vs {guildB} — Guild Feud",
+      "description": "Head-to-head PvP stats and recent kills between {guildA} and {guildB} on {region}."
+    }
+  },
+  "Alliance": {
+    "kind": "Alliance",
+    "nav": {
+      "kills": "Kills",
+      "battles": "Battles"
+    },
+    "memberGuilds": "Member guilds ({count})",
+    "noGuilds": "No guilds in this alliance",
+    "topKills": {
+      "title": "Top Kills ({count})",
+      "description": "Highest fame kills by current member guild players",
+      "empty": "No cached kills for alliance members yet"
+    },
+    "battles": {
+      "recentDescription": "Most recent battles with alliance participation in the past 7 days",
+      "topDescription": "Highest fame battles with alliance participation in the past 7 days",
+      "loading": "Loading battles from Albion Online…",
+      "recentEmpty": "No recent battles this week",
+      "topEmpty": "No top battles this week"
+    },
+    "pending": {
+      "title": "Fetching alliance profile",
+      "body": "This alliance is not cached yet. A background job is fetching it from Albion Online and saving it locally. This page refreshes automatically every few seconds.",
+      "entityLabel": "alliance profile"
+    },
+    "statsMobile": {
+      "kills": "Kills",
+      "deaths": "Deaths"
+    }
+  },
+  "Kill": {
+    "killId": "Kill ID:",
+    "playersInBattle": " · {count} players in battle",
+    "killer": "Killer",
+    "victim": "Victim",
+    "killed": "killed",
+    "killFame": "Kill Fame",
+    "assists": "Assists ({count})",
+    "killerEquipment": "Killer's Equipment",
+    "victimEquipment": "Victim's Equipment",
+    "victimLoot": "Victim's Inventory Loot",
+    "itemsDropped": "{count} item dropped",
+    "itemsDropped_plural": "{count} items dropped",
+    "lootItems": "{count} loot items",
+    "lootDescription": "Items {victimName} was carrying when killed",
+    "pending": {
+      "title": "Fetching kill details",
+      "body": "This kill is being fetched from Albion Online and will be available shortly. This page refreshes automatically every few seconds.",
+      "meta": "{region} · Kill ID #{eventId}"
+    },
+    "feed": {
+      "loadMore": "Load more",
+      "loading": "Loading…",
+      "failedLoadMore": "Failed to load more kills"
+    }
+  },
+  "Battle": {
+    "title": "Albion Battle #{id}",
+    "started": "Started",
+    "startedAt": "Started: {time}",
+    "endedAt": "Ended: {time}",
+    "fightTimeMinute": "Fight time: {count} minute",
+    "fightTimeMinutes": "Fight time: {count} minutes",
+    "listUpdated": "Battle list updated {time}",
+    "pageTitle": "Latest Albion Online Battles",
+    "pageDescription": "Latest Albion Online battles. Search by guild, alliance, or player. Select multiple battles to combine stats",
+    "searchPlaceholder": "Search guild, alliance, or player...",
+    "card": {
+      "fame": "Fame",
+      "members": "Members",
+      "kills": "Kills",
+      "totalFame": "Total Fame",
+      "totalKills": "Total Kills",
+      "totalPlayers": "Total Players",
+      "alliances": "Alliances",
+      "guilds": "Guilds"
+    },
+    "feed": {
+      "selected": "{count} selected",
+      "maxSelected": " (max {max})",
+      "combine": "Combine {count} battles",
+      "suggestedBattles": "Suggested Battles",
+      "addAllSuggestions": "Add all suggestions",
+      "battleHash": "Battle #{id}",
+      "emptySearch": "No battles found matching “{query}”.",
+      "emptyAll": "No battles in the local database yet.",
+      "emptyRegion": "No battles found for {region}.",
+      "failedLoad": "Failed to load battles"
+    },
+    "tabs": {
+      "title": "Battles",
+      "recent": "Recent",
+      "top": "Top",
+      "loading": "Loading battles…"
+    },
+    "lists": {
+      "alliancesTitle": "Alliances",
+      "alliancesSearchPlaceholder": "Search alliances…",
+      "alliancesEmpty": "No alliance data for this battle",
+      "guildsTitle": "Guilds",
+      "guildsSearchPlaceholder": "Search guilds…",
+      "guildsEmpty": "No guild data for this battle",
+      "playersSearchPlaceholder": "Search players…",
+      "sortFame": "Fame",
+      "sortKills": "Kills",
+      "sortDeaths": "Deaths"
+    },
+    "combined": {
+      "title": "Combined Battles ({count})",
+      "description": "Combined stats for {count} Albion Online battles · {region}",
+      "includedBattles": "Included battles",
+      "fameSuffix": " · {fame} fame"
+    },
+    "pending": {
+      "fetching": "Fetching battle details",
+      "fetchingBody": "This battle is being fetched from Albion Online and will be available shortly. This page refreshes automatically every few seconds.",
+      "waiting": "Still waiting on Albion Online",
+      "waitingBody": "Albion’s API has not returned this battle yet. We will keep retrying automatically.",
+      "failed": "Could not fetch battle",
+      "failedBody": "The background job stopped retrying. You can re-queue the fetch below.",
+      "unavailable": "Battle unavailable from Albion",
+      "unavailableBody": "Albion’s API never returned this battle after repeated checks. Ingest will no longer re-queue sync jobs for it.",
+      "apiDelayTitle": "Albion API delay",
+      "apiDelayBody": "This battle has been waiting {duration} for Albion Online's gameinfo API to publish it (often a 404 until it appears). The worker will keep checking on a longer schedule — no action needed unless it eventually fails.",
+      "apiDelayBodyOverHour": "This battle has been waiting over an hour for Albion Online's gameinfo API to publish it (often a 404 until it appears). The worker will keep checking on a longer schedule — no action needed unless it eventually fails.",
+      "notPublishedTitle": "Battle not published by Albion",
+      "notPublishedBody": "Gameinfo kept returning not found for this battle, so automatic sync was stopped to avoid endless queue jobs. Use Retry if you believe Albion has published it since.",
+      "meta": "{region} · Battle ID #{battleId}",
+      "lastProbe": "Last probe: {error}",
+      "retryFailed": "Retry failed",
+      "requeueFailed": "Failed to re-queue battle sync",
+      "jobStates": {
+        "waiting": "Queued (pending) — waiting for worker",
+        "delayed": "Scheduled (pending) — starts after delay / retry / circuit defer",
+        "active": "Processing — fetching from Albion Online",
+        "completed": "Fetch complete — loading cached data",
+        "failed": "Failed — use Retry to re-queue",
+        "failedProfile": "Fetch failed — retrying on refresh",
+        "unavailable": "Unavailable — Albion never published this battle (stopped auto-retry)",
+        "waitingOnApi": "Scheduled — waiting for Albion to publish this battle ({next})",
+        "nextCheckIn": "next check in {minutes}m",
+        "nextCheckScheduled": "next check scheduled"
+      },
+      "durationMinutes": "{count} minute",
+      "durationMinutes_plural": "{count} minutes",
+      "durationHours": "{count} hour",
+      "durationHours_plural": "{count} hours",
+      "durationHoursMinutes": "{hours}h {minutes}m"
+    }
+  },
+  "Leaderboards": {
+    "pageTitle": "PvP Leaderboards",
+    "pageDescription": "Top performers from cached Albion kill data. Pick a leaderboard, then narrow by region, period, and content type.",
+    "metaTitle": "Albion Online PvP Leaderboards",
+    "metaDescription": "Top killers, guilds, and highest fame kills from tracked Albion Online PvP data. Filter by region, content type, and time period.",
+    "summaryLine": "{tabDescription} · {region} · Last {days} days · {content}",
+    "tabs": {
+      "killers": {
+        "label": "Top Killers",
+        "description": "Players ranked by number of kills"
+      },
+      "guilds": {
+        "label": "Top Guilds",
+        "description": "Guilds ranked by total kill fame"
+      },
+      "kills": {
+        "label": "Top Kills",
+        "description": "Highest fame individual kills"
+      },
+      "fame": {
+        "label": "Top Fame",
+        "description": "Players ranked by kill fame earned"
+      }
+    },
+    "columns": {
+      "player": "Player",
+      "region": "Region",
+      "guild": "Guild",
+      "kills": "Kills"
+    },
+    "failedLoad": "Failed to load leaderboards"
+  },
+  "Builds": {
+    "pageTitle": "Albion Online Meta Builds",
+    "pageDescription": "Most-used loadouts for 1v1, group, and ZvZ over the last {days} days ({region}) — including supports, tanks, and healers on assists. Same weapons and gear are combined across tiers.",
+    "metaTitle": "Albion Online Meta Builds for 1v1, Group, and ZVZ content",
+    "metaDescription": "Explore top Albion Online builds by content type — 1v1, group, and ZvZ — with kill/death stats, fame, item power, and popular weapons from live kill data.",
+    "stats": {
+      "eventsAnalyzed": "PvP events analyzed",
+      "eventsHint": "Last {days} days",
+      "fameTracked": "Kill fame tracked",
+      "fameHint": "From fame-positive kills",
+      "buildsRanked": "Builds ranked",
+      "buildsHint": "Across 1v1, group & ZvZ",
+      "loadoutsSampled": "Loadouts sampled",
+      "loadoutsHint": "Killers, victims & assists"
+    },
+    "pvpEventsCount": "{count} PvP events",
+    "hottestWeapons": {
+      "title": "Hottest weapons",
+      "description": "Top main-hands within each fight size — one row per weapon, with a split showing where it shows up most.",
+      "uses": "{count} uses",
+      "killsSuffix": " · {count} kills",
+      "assistsSuffix": " · {count} assists"
+    },
+    "sections": {
+      "soloTitle": "1v1 Meta",
+      "soloBlurb": "Top builds from two-player fights.",
+      "groupTitle": "Group Meta",
+      "groupBlurb": "Top builds from 3–{maxPlayers} player fights.",
+      "zvzTitle": "ZvZ Meta",
+      "zvzBlurb": "Top builds from {minPlayers}+ player battles.",
+      "topByUsage": "Top {count} · by usage",
+      "empty": "No {contentType} build data in the last {days} days yet."
+    },
+    "unknownBuild": "Unknown build",
+    "failedLoad": "Failed to load builds"
+  },
+  "Search": {
+    "title": "Search",
+    "resultsTitle": "Search Results",
+    "description": "Find Albion Online players and guilds by name.",
+    "resultsDescription": "Results for “{query}”",
+    "metaDescription": "Search Albion Online players and guilds across all regions.",
+    "placeholder": "Search players or guilds...",
+    "recentSearches": "Recent searches",
+    "players": "Players",
+    "guilds": "Guilds",
+    "alliances": "Alliances",
+    "noPlayers": "No players found.",
+    "noPlayersYet": "No cached players yet — checking Albion Online…",
+    "noGuilds": "No guilds found.",
+    "noGuildsYet": "No cached guilds yet — checking Albion Online…",
+    "noAlliances": "No alliances found. Alliance search is local-only.",
+    "noRegions": "No regions enabled.",
+    "searching": "Searching Albion Online in {regions} for “{query}”…",
+    "foundFromAlbion": "Found {parts} from Albion Online ({regions}).",
+    "playerCount": "{count} player",
+    "playerCount_plural": "{count} players",
+    "guildCount": "{count} guild",
+    "guildCount_plural": "{count} guilds",
+    "liveSearchFailed": "Live search failed: {error}",
+    "temporarilyUnavailable": "Search temporarily unavailable"
+  },
+  "Watchlist": {
+    "title": "Watchlist",
+    "description": "Pinned players and guilds stored in your browser. No account required.",
+    "metaDescription": "Your pinned Albion Online players and guilds. Recent kill activity from your local watchlist.",
+    "empty": "No watched players or guilds yet. Use the Watch button on a player or guild profile to pin them here.",
+    "pinned": "Pinned ({count})",
+    "recentActivity": "Recent activity",
+    "noActivity": "No recent kills involving your watchlist",
+    "failedActivity": "Failed to load activity",
+    "typePlayer": "Player",
+    "typeGuild": "Guild"
+  },
+  "Status": {
+    "title": "System Status",
+    "description": "Public health of Albion API connectivity and kill ingest by region",
+    "metaDescription": "Public AOTracker ingest and API health.",
+    "unavailable": "Status temporarily unavailable.",
+    "overallStatus": "Overall Status",
+    "healthy": "Healthy",
+    "delayed": "Delayed",
+    "degraded": "Degraded",
+    "unreachable": "Unreachable",
+    "coolingDown": "Cooling down",
+    "lastIngest": "Last ingest:",
+    "ingestDelayed": "Kill feed is delayed ({minutes}m since latest kill)",
+    "circuitCooldown": "One or more regions are cooling down — new data may be delayed",
+    "apiHealth": "API health",
+    "connectivity": "Connectivity",
+    "circuit": "Circuit",
+    "circuitOpen": "Open",
+    "circuitClosed": "Closed",
+    "healthCheck": "Health check",
+    "healthOk": "OK",
+    "healthFailed": "Failed",
+    "latestKill": "Latest kill",
+    "issues": "Issues: {list}",
+    "playersTracked": "Players tracked",
+    "guildsTracked": "Guilds tracked",
+    "killsTracked": "Kills tracked",
+    "battlesTracked": "Battles tracked",
+    "onlineMs": "Online ({ms}ms)",
+    "offlineMs": "Offline ({ms}ms)",
+    "awaitingHealthCheck": "Awaiting health check",
+    "databaseUnavailable": "Database unavailable"
+  },
+  "Privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: August 1, 2026",
+    "metaDescription": "Privacy policy for {siteName}.",
+    "intro": "{siteName} (“we”, “our”) provides Albion Online kill and profile tracking. This page explains what information we handle when you use the site.",
+    "sections": {
+      "informationTitle": "Information we process",
+      "informationBody": "We store and display publicly available Albion Online game data such as player names, guilds, alliances, kill events, and battle statistics retrieved from third-party game APIs. We do not ask you to create an account or provide personal contact details to browse the site.",
+      "logsTitle": "Logs and analytics",
+      "logsBody1": "Our hosting provider may automatically collect standard request logs (for example IP address, user agent, and pages requested) for security, reliability, and performance. We do not sell personal information.",
+      "logsBody2": "We use Google Analytics 4 to understand aggregate traffic and how pages are used (for example page views, approximate location, device type, and referrers). Google may set cookies or use similar technologies and process this data according to <googlePrivacyLink>Google's Privacy Policy</googlePrivacyLink>. You can limit analytics cookies through your browser settings or Google's opt-out tools.",
+      "googlePrivacyPolicy": "Google's Privacy Policy",
+      "cookiesTitle": "Cookies",
+      "cookiesBody1": "The site may use cookies or similar technologies required for basic operation, by our hosting platform, or by Google Analytics (when enabled). You can control cookies through your browser settings.",
+      "cookiesBody2": "Search autocomplete may store recent queries and your preferred region in your browser's local storage only on your device. This data is not sent to our servers.",
+      "thirdPartyTitle": "Third-party links",
+      "thirdPartyBody": "Links to Albion Online or other external sites are provided for convenience. Their privacy practices are governed by their own policies.",
+      "contactTitle": "Contact",
+      "contactBody": "If you have questions about this privacy policy, contact the site operator through the channels listed on the project repository or hosting account for this deployment."
+    },
+    "disclaimer": "{siteName} is not affiliated with Albion Online or Sandbox Interactive GmbH."
+  },
+  "Seo": {
+    "defaultDescription": "Explore Albion Online PvP kills, battles, leaderboards, and meta builds. Player and guild profiles, gear, loot, and combat stats across all regions.",
+    "homePageTitle": "Albion Online PvP Stats, Battles & Leaderboards",
+    "feedRegionSuffix": "{title} — {region}",
+    "feedRegionDescription": "{description} Showing {region} region data.",
+    "entityTitle": "{name} — Albion Online {region} {kind}",
+    "kinds": {
+      "player": "Player",
+      "guild": "Guild",
+      "alliance": "Alliance",
+      "kill": "Kill",
+      "battle": "Battle"
+    },
+    "playerDescription": "{name} is an Albion Online {region} player{affiliation}. Lifetime PvP stats: {stats}. View kills, deaths, gear, loot, and combat history on {siteName}.",
+    "playerInGuild": " in guild {guild}",
+    "playerAlliance": " (alliance {alliance})",
+    "playerStats": "{killFame} kill fame {deathFame} death fame{ratio}",
+    "playerRatio": " {ratio} K/D ratio",
+    "guildDescription": "{name} is an Albion Online {region} guild{alliancePart}. {stats}. {founding} Track top kills, Albion battles, members, and PvP stats on {siteName}.",
+    "guildAlliancePart": " in the {alliance} alliance",
+    "allianceDescription": "{name} is an Albion Online {region} alliance. {stats}. {founding} View member guilds, top kills, Albion battles, and PvP stats on {siteName}.",
+    "foundedBy": "Founded by {name}",
+    "killTitle": "{killer} killed {victim}{famePart}",
+    "killFamePart": " for {fame} fame",
+    "killDescription": "{killer} killed {victim} in an Albion Online {region} {content}PvP fight. {details}. View killer and victim gear, loot, assists, and kill details on {siteName}.",
+    "battleTitle": "Battle #{id}",
+    "battleDescription": "Albion Battle #{id} is an Albion Online {region} PvP battle. {stats}. View participating alliances, guilds, players, and kill stats on {siteName}.",
+    "pendingTitle": "{entity} not loaded yet",
+    "pendingDescription": "This {entity} is still being fetched from Albion Online.",
+    "notFoundTitle": "Not Found",
+    "og": {
+      "playerAlt": "Player profile",
+      "playerNotFound": "Player not found",
+      "playerNotFoundSubtitle": "This player profile is unavailable.",
+      "playerLoading": "Loading player…",
+      "playerLoadingSubtitle": "Profile is still being fetched from Albion Online.",
+      "killAlt": "Kill details",
+      "killNotFound": "Kill not found",
+      "killNotFoundSubtitle": "This kill event is unavailable.",
+      "killLoading": "Loading kill…",
+      "killLoadingSubtitle": "Kill details are still being fetched.",
+      "battleAlt": "Battle details",
+      "battleNotFound": "Battle not found",
+      "battleNotFoundSubtitle": "This battle is unavailable.",
+      "battleLoadingSubtitle": "Battle data is loading…",
+      "battleBadge": "Albion Battle"
+    }
+  },
+  "Errors": {
+    "notFound": {
+      "code": "404",
+      "message": "This page could not be found.",
+      "regionDisabled": "The {region} region is disabled on this site.",
+      "entityHint": "This looks like a {entityType} link. You can try loading it again — profiles and kills are fetched on demand when missing from the cache.",
+      "tryAgain": "Try loading again",
+      "queueFetch": "Queue profile fetch",
+      "searchHeading": "Search"
+    },
+    "generic": {
+      "failedJuicyKills": "Failed to load juicy kills",
+      "failedTopKillers": "Failed to load top killers",
+      "failedTopFame": "Failed to load top fame earners",
+      "failedKillFeed": "Failed to load kill feed",
+      "failedLeaderboards": "Failed to load leaderboards",
+      "failedBuilds": "Failed to load builds",
+      "failedBattles": "Failed to load battles"
+    },
+    "profileJobStates": {
+      "waiting": "Queued (pending) — waiting for worker",
+      "delayed": "Scheduled (pending) — starts after delay / retry / circuit defer",
+      "active": "Processing — fetching from Albion Online",
+      "completed": "Fetch complete — loading cached data",
+      "failed": "Fetch failed — retrying on refresh"
+    }
+  }
+}

@@ -4,8 +4,14 @@ import { db, schema } from "@/lib/db";
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { regionLabel } from "@/lib/utils";
 
-/** ~1–2 missed 25-minute ingest cycles + buffer before we warn users. */
-export const INGEST_STALE_MINUTES = 45;
+/**
+ * Public "Delayed" threshold: warn when the newest kill for a region is older
+ * than this (~1–2 missed 25-minute ingest cycles + buffer).
+ */
+export const LATEST_KILL_STALE_MINUTES = 45;
+
+/** @deprecated Prefer LATEST_KILL_STALE_MINUTES; same value for config registry. */
+export const INGEST_STALE_MINUTES = LATEST_KILL_STALE_MINUTES;
 
 /** Expected health cron interval is ~5m; allow two missed runs. */
 export const HEALTH_CHECK_STALE_MINUTES = 12;
@@ -17,6 +23,13 @@ export type RegionHealthIssue =
 
 export type BannerIssueKind = RegionHealthIssue;
 
+/** Public-facing Albion API health label for a single region. */
+export type RegionApiHealthLabel =
+  | "healthy"
+  | "delayed"
+  | "unreachable"
+  | "cooling_down";
+
 export interface RegionSyncStatus {
   region: AlbionRegion;
   issues: RegionHealthIssue[];
@@ -26,6 +39,7 @@ export interface RegionSyncStatus {
   lastHealthCheckOk: boolean;
   ingestLagMinutes: number | null;
   latestKillAt: Date | null;
+  latestKillLagMinutes: number | null;
 }
 
 export interface GlobalSyncStatus {
@@ -35,8 +49,9 @@ export interface GlobalSyncStatus {
   regions: RegionSyncStatus[];
   /** @deprecated Use lastIngestAt on regions; kept for /api/health compat */
   lastSyncAt: Date | null;
-  /** @deprecated Use per-region ingest checks */
+  /** True when any region has a delayed kill feed (latest kill > threshold). */
   isStale: boolean;
+  /** Max latest-kill lag across regions (minutes). */
   lagMinutes: number | null;
   anyCircuitOpen: boolean;
   anyRecentFailure: boolean;
@@ -52,6 +67,15 @@ function minutesSince(date: Date | null | undefined, nowMs: number): number | nu
 
 function formatRegionList(regions: AlbionRegion[]): string {
   return regions.map((region) => regionLabel(region)).join(", ");
+}
+
+export function getRegionApiHealthLabel(
+  region: RegionSyncStatus
+): RegionApiHealthLabel {
+  if (region.issues.includes("circuit_open")) return "cooling_down";
+  if (region.issues.includes("api_unreachable")) return "unreachable";
+  if (region.issues.includes("ingest_stale")) return "delayed";
+  return "healthy";
 }
 
 export function buildStatusBannerMessage(status: GlobalSyncStatus): string | null {
@@ -71,13 +95,13 @@ export function buildStatusBannerMessage(status: GlobalSyncStatus): string | nul
     case "ingest_stale": {
       const lag = status.regions
         .filter((row) => row.issues.includes("ingest_stale"))
-        .map((row) => row.ingestLagMinutes)
+        .map((row) => row.latestKillLagMinutes)
         .filter((value): value is number => value != null);
       const maxLag = lag.length > 0 ? Math.max(...lag) : null;
-      const lagText = maxLag != null ? ` (last poll ${maxLag}m ago)` : "";
+      const lagText = maxLag != null ? ` (latest kill ${maxLag}m ago)` : "";
       return regions.length > 0
-        ? `Kill feed ingest is delayed for ${formatRegionList(regions)}${lagText} — data may be outdated.`
-        : `Kill feed ingest is delayed${lagText} — data may be outdated.`;
+        ? `Albion API delayed for ${formatRegionList(regions)}${lagText} — kill data may be outdated.`
+        : `Albion API delayed${lagText} — kill data may be outdated.`;
     }
     default:
       return "Albion API sync is degraded — showing cached data.";
@@ -96,6 +120,7 @@ function evaluateRegion(
   const lastHealthCheckOk = (row?.lastHealthCheckOk ?? 0) === 1;
   const ingestLagMinutes = minutesSince(lastIngestAt, nowMs);
   const healthLagMinutes = minutesSince(lastHealthCheckAt, nowMs);
+  const latestKillLagMinutes = minutesSince(latestKillAt, nowMs);
 
   const issues: RegionHealthIssue[] = [];
 
@@ -110,7 +135,11 @@ function evaluateRegion(
     issues.push("api_unreachable");
   }
 
-  if (ingestLagMinutes === null || ingestLagMinutes > INGEST_STALE_MINUTES) {
+  // Public "Delayed": newest kill for this region is missing or older than threshold.
+  if (
+    latestKillLagMinutes === null ||
+    latestKillLagMinutes > LATEST_KILL_STALE_MINUTES
+  ) {
     issues.push("ingest_stale");
   }
 
@@ -123,6 +152,7 @@ function evaluateRegion(
     lastHealthCheckOk,
     ingestLagMinutes,
     latestKillAt,
+    latestKillLagMinutes,
   };
 }
 
@@ -181,7 +211,7 @@ export const getGlobalSyncStatus = cache(async function getGlobalSyncStatus(): P
     return {
       isHealthy: false,
       bannerIssue: "ingest_stale",
-      message: "Kill feed ingest has not run yet — data may be incomplete.",
+      message: "Kill feed has not started yet — data may be incomplete.",
       regions: ENABLED_REGIONS.map((region) =>
         evaluateRegion(region, undefined, latestKills.get(region) ?? null, nowMs)
       ),
@@ -217,9 +247,11 @@ export const getGlobalSyncStatus = cache(async function getGlobalSyncStatus(): P
     return latest;
   }, null as Date | null);
 
-  const ingestLagMinutes = minutesSince(lastIngest, nowMs);
-  const isStale =
-    ingestLagMinutes !== null && ingestLagMinutes > INGEST_STALE_MINUTES;
+  const killLags = regions
+    .map((row) => row.latestKillLagMinutes)
+    .filter((value): value is number => value != null);
+  const maxKillLag = killLags.length > 0 ? Math.max(...killLags) : null;
+  const isStale = regions.some((row) => row.issues.includes("ingest_stale"));
 
   const anyCircuitOpen = regions.some((row) => row.circuitOpen);
   const anyRecentFailure = syncRows.some((row) => {
@@ -234,7 +266,7 @@ export const getGlobalSyncStatus = cache(async function getGlobalSyncStatus(): P
     regions,
     lastSyncAt: lastIngest,
     isStale,
-    lagMinutes: ingestLagMinutes,
+    lagMinutes: maxKillLag,
     anyCircuitOpen,
     anyRecentFailure,
     affectedRegions,

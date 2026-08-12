@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { formatItemTooltip } from "@/lib/items/catalog";
 import { itemIconRemoteUrl, itemIconUrl } from "@/lib/item-icons";
@@ -27,7 +28,8 @@ export function ItemIcon({
   width,
   height,
 }: ItemIconProps) {
-  const label = tooltip ?? formatItemTooltip(itemType);
+  const locale = useLocale();
+  const label = tooltip ?? formatItemTooltip(itemType, locale);
   const primary = itemIconUrl(itemType, quality);
   const fallback = itemIconRemoteUrl(itemType, quality);
   const [src, setSrc] = useState(primary);
@@ -37,8 +39,6 @@ export function ItemIcon({
       title={label}
       className={cn(
         "relative",
-        // `block` avoids the inline-replaced baseline gap that makes icons
-        // look top-aligned inside bordered flex containers.
         fill ? "block size-full" : "block"
       )}
       style={!fill && width && height ? { width, height } : undefined}

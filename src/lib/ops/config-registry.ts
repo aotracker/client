@@ -1,5 +1,5 @@
 import {
-  INGEST_STALE_MINUTES,
+  LATEST_KILL_STALE_MINUTES,
   HEALTH_CHECK_STALE_MINUTES,
 } from "@/lib/health/sync-status";
 import {
@@ -51,9 +51,10 @@ export function getConfigRegistry(): ConfigRegistryGroup[] {
       title: "Health thresholds",
       items: [
         {
-          name: "Ingest stale warning",
-          value: `${INGEST_STALE_MINUTES} min`,
+          name: "Latest kill delayed warning",
+          value: `${LATEST_KILL_STALE_MINUTES} min`,
           source: "client/src/lib/health/sync-status.ts",
+          note: "Region API health shows Delayed when newest kill is older than this",
         },
         {
           name: "Health check stale",

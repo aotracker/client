@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from "react";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   EntityStatStrip,
@@ -30,12 +31,14 @@ interface EntityHeaderProps {
   className?: string;
 }
 
-function AffiliationTrail({ items }: { items: EntityAffiliation[] }) {
+async function AffiliationTrail({ items }: { items: EntityAffiliation[] }) {
   if (items.length === 0) return null;
+
+  const t = await getTranslations("Common.a11y");
 
   return (
     <nav
-      aria-label="Entity location"
+      aria-label={t("entityLocation")}
       className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-muted-foreground"
     >
       {items.map((item, index) => (
@@ -64,7 +67,7 @@ function AffiliationTrail({ items }: { items: EntityAffiliation[] }) {
   );
 }
 
-export function EntityHeader({
+export async function EntityHeader({
   title,
   kind,
   affiliations = [],
@@ -72,10 +75,12 @@ export function EntityHeader({
   stats,
   footerMeta,
   entityId,
-  entityIdLabel = "Albion ID",
+  entityIdLabel,
   children,
   className,
 }: EntityHeaderProps) {
+  const t = await getTranslations("Common.labels");
+  const resolvedIdLabel = entityIdLabel ?? t("albionId");
   const hasFooter = Boolean(footerMeta) || Boolean(entityId);
 
   return (
@@ -114,7 +119,7 @@ export function EntityHeader({
           {entityId && (
             <span
               className="break-all font-mono text-xs text-muted-foreground/70 sm:max-w-[50%] sm:text-right"
-              title={entityIdLabel}
+              title={resolvedIdLabel}
             >
               {entityId}
             </span>

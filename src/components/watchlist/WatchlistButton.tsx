@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { AlbionRegion } from "@/lib/albion/types";
@@ -22,6 +23,7 @@ export function WatchlistButton({
   name,
   className,
 }: WatchlistButtonProps) {
+  const t = useTranslations("Common.buttons");
   const { ready, isWatching, toggle } = useWatchlist();
   const watching = ready && isWatching(type, region as AlbionRegion, albionId);
 
@@ -41,7 +43,7 @@ export function WatchlistButton({
         className={cn("h-4 w-4", watching ? "fill-current" : "")}
         aria-hidden
       />
-      {watching ? "Watching" : "Watch"}
+      {watching ? t("watching") : t("watch")}
     </Button>
   );
 }

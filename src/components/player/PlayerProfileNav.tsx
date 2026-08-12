@@ -1,13 +1,19 @@
 "use client";
 
-import { ProfileSectionNav } from "@/components/ProfileSectionNav";
-
-const SECTIONS = [
-  { id: "activity", label: "Activity" },
-  { id: "analytics", label: "Analytics" },
-  { id: "allies", label: "Allies" },
-] as const;
+import { useTranslations } from "next-intl";
+import {
+  ProfileSectionNav,
+  type ProfileNavSection,
+} from "@/components/ProfileSectionNav";
 
 export function PlayerProfileNav() {
-  return <ProfileSectionNav sections={SECTIONS} />;
+  const t = useTranslations("Player.nav");
+
+  const sections: ProfileNavSection[] = [
+    { id: "activity", label: t("activity") },
+    { id: "analytics", label: t("analytics") },
+    { id: "allies", label: t("allies") },
+  ];
+
+  return <ProfileSectionNav sections={sections} />;
 }

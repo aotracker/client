@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { KillCard } from "@/components/KillCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +13,8 @@ import { regionLabel } from "@/lib/utils";
 import { useWatchlist } from "./useWatchlist";
 
 export function WatchlistPageContent() {
+  const t = useTranslations("Watchlist");
+  const tCommon = useTranslations("Common");
   const { entries, ready, remove } = useWatchlist();
   const [activity, setActivity] = useState<KillCardEvent[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,16 +40,16 @@ export function WatchlistPageContent() {
             .map((e) => ({ region: e.region, albionId: e.albionId })),
         }),
       });
-      if (!res.ok) throw new Error("Failed to load activity");
+      if (!res.ok) throw new Error(t("failedActivity"));
       const data = (await res.json()) as { events: KillCardEvent[] };
       setActivity(data.events ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load activity");
+      setError(e instanceof Error ? e.message : t("failedActivity"));
       setActivity([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!ready) return;
@@ -67,8 +70,7 @@ export function WatchlistPageContent() {
     return (
       <Card>
         <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          No watched players or guilds yet. Use the Watch button on a player or
-          guild profile to pin them here.
+          {t("empty")}
         </CardContent>
       </Card>
     );
@@ -77,7 +79,9 @@ export function WatchlistPageContent() {
   return (
     <div className="space-y-6">
       <section>
-        <h2 className="mb-3 text-lg font-semibold">Pinned ({entries.length})</h2>
+        <h2 className="mb-3 text-lg font-semibold">
+          {t("pinned", { count: entries.length })}
+        </h2>
         <ul className="divide-y divide-border/60 overflow-hidden rounded-md border border-border/60 bg-card/40">
           {entries.map((entry) => (
             <li
@@ -92,7 +96,7 @@ export function WatchlistPageContent() {
                   {entry.name}
                 </Link>
                 <p className="text-xs text-muted-foreground">
-                  {entry.type === "player" ? "Player" : "Guild"} ·{" "}
+                  {entry.type === "player" ? t("typePlayer") : t("typeGuild")} ·{" "}
                   {regionLabel(entry.region)}
                 </p>
               </div>
@@ -102,7 +106,7 @@ export function WatchlistPageContent() {
                 variant="outline"
                 onClick={() => remove(entry.type, entry.region, entry.albionId)}
               >
-                Remove
+                {tCommon("buttons.remove")}
               </Button>
             </li>
           ))}
@@ -110,7 +114,7 @@ export function WatchlistPageContent() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold">Recent activity</h2>
+        <h2 className="mb-3 text-lg font-semibold">{t("recentActivity")}</h2>
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -122,7 +126,7 @@ export function WatchlistPageContent() {
         ) : activity.length === 0 ? (
           <Card>
             <CardContent className="py-6 text-center text-sm text-muted-foreground">
-              No recent kills involving your watchlist
+              {t("noActivity")}
             </CardContent>
           </Card>
         ) : (

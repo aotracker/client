@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Clock, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,14 +31,6 @@ type SuggestItem = {
   kind: "player" | "guild" | "alliance" | "recent" | "path";
 };
 
-function kindLabel(kind: SuggestItem["kind"]): string | null {
-  if (kind === "player") return "Player";
-  if (kind === "guild") return "Guild";
-  if (kind === "alliance") return "Alliance";
-  if (kind === "path") return "Link";
-  return null;
-}
-
 interface SearchAutocompleteProps {
   region: AlbionRegion;
   onRegionResolved?: (region: AlbionRegion) => void;
@@ -57,13 +50,15 @@ export function SearchAutocomplete({
   region,
   onRegionResolved,
   initialQuery = "",
-  placeholder = "Search players or guilds...",
+  placeholder,
   autoFocus = false,
   compact = false,
   showSubmitButton = true,
   className,
   onNavigate,
 }: SearchAutocompleteProps) {
+  const t = useTranslations("Search");
+  const tCommon = useTranslations("Common");
   const router = useRouter();
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -73,6 +68,21 @@ export function SearchAutocomplete({
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recent, setRecent] = useState<RecentSearch[]>([]);
   const [suggestions, setSuggestions] = useState<SuggestItem[]>([]);
+  const resolvedPlaceholder = placeholder ?? t("placeholder");
+
+  function kindLabel(kind: SuggestItem["kind"]): string | null {
+    if (kind === "player") return tCommon("entityKinds.player");
+    if (kind === "guild") return tCommon("entityKinds.guild");
+    if (kind === "alliance") return tCommon("entityKinds.alliance");
+    if (kind === "path") return tCommon("entityKinds.link");
+    return null;
+  }
+
+  function badgeLabel(badge: NonNullable<SuggestItem["badge"]>): string {
+    if (badge === "Cached") return tCommon("labels.cached");
+    if (badge === "Live") return tCommon("labels.live");
+    return tCommon("labels.recent");
+  }
 
   useEffect(() => {
     setRecent(getRecentSearches());
@@ -113,12 +123,12 @@ export function SearchAutocomplete({
           href: item.path
             ? item.path
             : `/search?q=${encodeURIComponent(item.q)}&region=${item.region}`,
-          meta: item.path ? "Deep link" : regionLabel(item.region),
+          meta: item.path ? tCommon("labels.deepLink") : regionLabel(item.region),
           badge: "Recent" as const,
           kind,
         };
       }),
-    [recent]
+    [recent, tCommon]
   );
 
   const visibleItems: SuggestItem[] = useMemo(() => {
@@ -331,7 +341,7 @@ export function SearchAutocomplete({
         <div className={cn("relative min-w-0 flex-1", compact && "max-w-56")}>
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -343,7 +353,7 @@ export function SearchAutocomplete({
             className="pl-9"
             name="q"
             autoFocus={autoFocus}
-            aria-label="Search players or guilds"
+            aria-label={tCommon("a11y.searchPlayersOrGuilds")}
             aria-autocomplete="list"
             aria-controls={listId}
             aria-expanded={open}
@@ -353,14 +363,14 @@ export function SearchAutocomplete({
         {showSubmitButton && (
           <>
             <Button type="submit" size="sm" className="hidden sm:inline-flex">
-              Search
+              {tCommon("buttons.search")}
             </Button>
             <Button
               type="submit"
               size="sm"
               variant="outline"
               className="px-2 sm:hidden"
-              aria-label="Search"
+              aria-label={tCommon("buttons.search")}
             >
               <Search className="h-4 w-4" />
             </Button>
@@ -375,11 +385,13 @@ export function SearchAutocomplete({
           className="absolute z-50 mt-1 max-h-80 w-full overflow-auto rounded-md border border-border bg-card shadow-lg"
         >
           {loading && suggestions.length === 0 && !deepLink && query.trim() && (
-            <p className="px-3 py-2 text-xs text-muted-foreground">Searching…</p>
+            <p className="px-3 py-2 text-xs text-muted-foreground">
+              {tCommon("buttons.loading")}
+            </p>
           )}
           {!query.trim() && recentItems.length > 0 && (
             <p className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              Recent
+              {tCommon("labels.recent")}
             </p>
           )}
           {visibleItems.map((item, index) => (
@@ -429,7 +441,7 @@ export function SearchAutocomplete({
               )}
               {item.badge && item.badge !== "Recent" && (
                 <Badge variant={item.badge === "Live" ? "default" : "outline"}>
-                  {item.badge}
+                  {badgeLabel(item.badge)}
                 </Badge>
               )}
             </button>

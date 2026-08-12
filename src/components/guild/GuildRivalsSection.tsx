@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { formatFame } from "@/lib/utils";
 import type { GuildOpponentEntry } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
@@ -11,16 +12,16 @@ interface GuildRivalsListProps {
   rivals: GuildOpponentEntry[];
 }
 
-export function GuildRivalsList({
+export async function GuildRivalsList({
   region,
   guildName,
   rivals,
 }: GuildRivalsListProps) {
+  const t = await getTranslations("Guild.rivals");
+
   if (rivals.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No tracked rival guilds in the last 30 days
-      </p>
+      <p className="text-sm text-muted-foreground">{t("empty")}</p>
     );
   }
 
@@ -45,10 +46,17 @@ export function GuildRivalsList({
                 {rival.guildName}
               </Link>
               <p className="text-xs text-muted-foreground">
-                {rival.killsAgainst} kills · {formatFame(rival.fameAgainst)} fame
                 {rival.deathsTo > 0
-                  ? ` · ${rival.deathsTo} deaths · ${formatFame(rival.fameLost)} lost`
-                  : ""}
+                  ? t("statsLineWithDeaths", {
+                      kills: rival.killsAgainst,
+                      fame: formatFame(rival.fameAgainst),
+                      deaths: rival.deathsTo,
+                      fameLost: formatFame(rival.fameLost),
+                    })
+                  : t("statsLine", {
+                      kills: rival.killsAgainst,
+                      fame: formatFame(rival.fameAgainst),
+                    })}
               </p>
             </div>
             {feudHref && (
@@ -56,7 +64,7 @@ export function GuildRivalsList({
                 href={feudHref}
                 className="shrink-0 text-xs font-medium text-primary hover:underline"
               >
-                View feud
+                {t("viewFeud")}
               </Link>
             )}
           </li>
@@ -66,7 +74,7 @@ export function GuildRivalsList({
   );
 }
 
-export function GuildRivalsSection({
+export async function GuildRivalsSection({
   region,
   guildId: _guildId,
   guildName,
@@ -77,13 +85,15 @@ export function GuildRivalsSection({
   guildName: string;
   rivals: GuildOpponentEntry[];
 }) {
+  const t = await getTranslations("Guild.rivals");
+
   return (
     <section>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Guild Rivals</CardTitle>
+          <CardTitle className="text-base">{t("title")}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Most active opponents for {guildName} in the last 30 days
+            {t("description", { guildName })}
           </p>
         </CardHeader>
         <CardContent>

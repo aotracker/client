@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/Toast";
@@ -17,9 +18,11 @@ export function ShareLinkButton({
   url,
   path,
   className,
-  label = "Copy link",
+  label,
 }: ShareLinkButtonProps) {
   const { toast } = useToast();
+  const t = useTranslations("Common");
+  const resolvedLabel = label ?? t("buttons.copyLink");
 
   async function handleCopy() {
     const href =
@@ -36,7 +39,7 @@ export function ShareLinkButton({
 
     try {
       await navigator.clipboard.writeText(href);
-      toast("Link copied");
+      toast(t("toasts.linkCopied"));
     } catch {
       try {
         const input = document.createElement("input");
@@ -45,9 +48,9 @@ export function ShareLinkButton({
         input.select();
         document.execCommand("copy");
         document.body.removeChild(input);
-        toast("Link copied");
+        toast(t("toasts.linkCopied"));
       } catch {
-        toast("Could not copy link");
+        toast(t("toasts.couldNotCopyLink"));
       }
     }
   }
@@ -58,12 +61,12 @@ export function ShareLinkButton({
       variant="outline"
       size="sm"
       className={cn("gap-1.5", className)}
-      title="Copy this page's link to the clipboard"
-      aria-label={label}
+      title={t("labels.copyLinkTitle")}
+      aria-label={resolvedLabel}
       onClick={() => void handleCopy()}
     >
       <Copy className="h-3.5 w-3.5" />
-      {label}
+      {resolvedLabel}
     </Button>
   );
 }

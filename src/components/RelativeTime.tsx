@@ -1,10 +1,11 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import {
   cn,
-  formatExactDateTime,
-  formatRelativeTime,
-  formatRelativeTimeLong,
+  formatExactDateTimeI18n,
+  formatRelativeTimeI18n,
+  formatRelativeTimeLongI18n,
   isWithinRelativeTimeWindow,
 } from "@/lib/utils";
 
@@ -15,8 +16,10 @@ interface RelativeTimeProps {
 
 /** Kill/event timestamps: relative within 24h (with exact UTC tooltip), otherwise standard UTC format. */
 export function RelativeTime({ date, className }: RelativeTimeProps) {
-  const exact = formatExactDateTime(date);
-  const relative = formatRelativeTimeLong(date);
+  const t = useTranslations("Common.relativeTime");
+  const locale = useLocale();
+  const exact = formatExactDateTimeI18n(date, t, locale);
+  const relative = formatRelativeTimeLongI18n(date, t);
   const showRelative = isWithinRelativeTimeWindow(date) && relative;
 
   if (showRelative) {
@@ -56,9 +59,11 @@ export function RelativeTimeLabel({
   date: Date | string;
   className?: string;
 }) {
+  const t = useTranslations("Common.relativeTime");
+  const locale = useLocale();
   return (
     <span className={className} suppressHydrationWarning>
-      {formatRelativeTime(date)}
+      {formatRelativeTimeI18n(date, t, locale)}
     </span>
   );
 }

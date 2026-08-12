@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { KillFeedList, type KillFeedEvent } from "@/components/KillFeedList";
 import { PageSection } from "@/components/PageSection";
 import type { AlbionRegion } from "@/lib/albion/types";
@@ -24,6 +25,7 @@ export function RecentKillsFeedSection({
   contentType,
   pageSize,
 }: RecentKillsFeedSectionProps) {
+  const t = useTranslations("Home");
   const [lastPollAt, setLastPollAt] = useState<Date | null>(null);
 
   return (
@@ -32,8 +34,10 @@ export function RecentKillsFeedSection({
       description={description}
       descriptionActions={
         <>
-          Auto-updates every 20s
-          {lastPollAt ? ` · checked ${formatRelativeTime(lastPollAt)}` : ""}
+          {t("autoUpdates")}
+          {lastPollAt
+            ? t("checkedAt", { relative: formatRelativeTime(lastPollAt) })
+            : ""}
         </>
       }
     >

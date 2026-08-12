@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Check, Shield } from "lucide-react";
 import type { AlbionBattleSummary, AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
 import type { BattlesFeedParticipant } from "@/lib/db/queries";

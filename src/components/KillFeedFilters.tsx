@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
@@ -10,12 +11,7 @@ import {
 } from "@/lib/region-params";
 import { Button } from "@/components/ui/button";
 
-const CONTENT_FILTERS: { value: ContentTypeFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "SOLO", label: "1v1" },
-  { value: "GROUP", label: "Group" },
-  { value: "ZVZ", label: "ZvZ" },
-];
+const CONTENT_FILTERS: ContentTypeFilter[] = ["all", "SOLO", "GROUP", "ZVZ"];
 
 interface KillFeedFiltersProps {
   regions: { value: AlbionRegion | "all"; label: string }[];
@@ -23,7 +19,7 @@ interface KillFeedFiltersProps {
 }
 
 function isContentTypeFilter(value: string): value is ContentTypeFilter {
-  return CONTENT_FILTERS.some((filter) => filter.value === value);
+  return CONTENT_FILTERS.includes(value as ContentTypeFilter);
 }
 
 export function KillFeedFilters({
@@ -32,6 +28,8 @@ export function KillFeedFilters({
 }: KillFeedFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tRegions = useTranslations("Common.regions");
+  const tContent = useTranslations("Common.contentTypes");
   const region = readFeedRegionParam(searchParams);
   const typeParam = searchParams.get("type") ?? "all";
   const contentType = isContentTypeFilter(typeParam) ? typeParam : "all";
@@ -70,7 +68,7 @@ export function KillFeedFilters({
               aria-pressed={region === r.value}
               onClick={() => update({ region: r.value })}
             >
-              {r.label}
+              {tRegions.has(r.value) ? tRegions(r.value) : r.label}
             </Button>
           ))}
         </div>
@@ -79,13 +77,13 @@ export function KillFeedFilters({
         <div className="flex flex-wrap gap-2">
           {CONTENT_FILTERS.map((filter) => (
             <Button
-              key={filter.value}
-              variant={contentType === filter.value ? "default" : "outline"}
+              key={filter}
+              variant={contentType === filter ? "default" : "outline"}
               size="sm"
-              aria-pressed={contentType === filter.value}
-              onClick={() => update({ type: filter.value })}
+              aria-pressed={contentType === filter}
+              onClick={() => update({ type: filter })}
             >
-              {filter.label}
+              {tContent(filter)}
             </Button>
           ))}
         </div>

@@ -1,8 +1,8 @@
+import { getTranslations } from "next-intl/server";
 import {
   formatAllianceTag,
   formatExactDateTime,
   formatFame,
-  regionLabel,
 } from "@/lib/utils";
 import { guildPath } from "@/lib/seo";
 import { EntityHeader } from "@/components/EntityHeader";
@@ -34,7 +34,12 @@ interface ProfileHeaderProps {
   sharePath?: string;
 }
 
-export function ProfileHeader({ player, sharePath }: ProfileHeaderProps) {
+export async function ProfileHeader({ player, sharePath }: ProfileHeaderProps) {
+  const t = await getTranslations("Player");
+  const tStats = await getTranslations("Common.stats");
+  const tLabels = await getTranslations("Common.labels");
+  const tRegions = await getTranslations("Common.regions");
+
   const allianceId = player.guild?.allianceId ?? player.allianceId;
   const allianceName = player.guild?.allianceName ?? player.allianceName;
   const allianceTag = player.guild?.allianceTag ?? null;
@@ -43,8 +48,13 @@ export function ProfileHeader({ player, sharePath }: ProfileHeaderProps) {
     ? formatAllianceTag(allianceName, allianceTag)
     : null;
 
+  const regionKey = player.region as "americas" | "europe" | "asia";
+  const regionDisplay = tRegions.has(regionKey)
+    ? tRegions(regionKey)
+    : player.region;
+
   const affiliations = [
-    { key: "region", label: regionLabel(player.region) },
+    { key: "region", label: regionDisplay },
     ...(player.guild
       ? [
           {
@@ -70,13 +80,21 @@ export function ProfileHeader({ player, sharePath }: ProfileHeaderProps) {
 
   const lifetime =
     player.lifetimeStats != null ? (
-      <LifetimeStats stats={player.lifetimeStats} />
+      <LifetimeStats
+        stats={player.lifetimeStats}
+        titles={{
+          lifetimeFame: tLabels("lifetimeFame"),
+          pve: tLabels("pve"),
+          gathering: tLabels("gathering"),
+          other: tLabels("other"),
+        }}
+      />
     ) : null;
 
   return (
     <EntityHeader
       title={player.name}
-      kind="Player"
+      kind={t("kind")}
       affiliations={affiliations}
       actions={
         <div className="flex flex-wrap items-center gap-2">
@@ -91,32 +109,34 @@ export function ProfileHeader({ player, sharePath }: ProfileHeaderProps) {
       }
       stats={[
         {
-          label: "Lifetime Kill Fame",
-          mobileLabel: "Kill Fame",
+          label: tStats("lifetimeKillFame"),
+          mobileLabel: tStats("killFame"),
           value: formatFame(player.killFame),
           variant: "kill",
         },
         {
-          label: "Lifetime Death Fame",
-          mobileLabel: "Death Fame",
+          label: tStats("lifetimeDeathFame"),
+          mobileLabel: tStats("deathFame"),
           value: formatFame(player.deathFame),
           variant: "death",
         },
         {
-          label: "K/D Ratio",
-          mobileLabel: "K/D",
+          label: tStats("kdRatio"),
+          mobileLabel: tStats("kdShort"),
           value: player.fameRatio
             ? parseFloat(player.fameRatio).toFixed(2)
-            : "—",
+            : tLabels("emDash"),
           variant: "neutral",
         },
       ]}
       entityId={player.albionId}
-      entityIdLabel="Albion player ID"
+      entityIdLabel={tLabels("albionPlayerId")}
       footerMeta={
         player.lastSyncedAt ? (
           <p className="text-xs">
-            Last updated: {formatExactDateTime(player.lastSyncedAt)}
+            {tLabels("lastUpdated", {
+              datetime: formatExactDateTime(player.lastSyncedAt),
+            })}
           </p>
         ) : null
       }
@@ -223,7 +243,18 @@ function FameStatSection({
   );
 }
 
-function LifetimeStats({ stats }: { stats: Record<string, unknown> }) {
+function LifetimeStats({
+  stats,
+  titles,
+}: {
+  stats: Record<string, unknown>;
+  titles: {
+    lifetimeFame: string;
+    pve: string;
+    gathering: string;
+    other: string;
+  };
+}) {
   const pveItems = sortItems(
     summarizeSection(stats.PvE as Record<string, unknown> | undefined),
     PVE_ORDER
@@ -261,23 +292,23 @@ function LifetimeStats({ stats }: { stats: Record<string, unknown> }) {
   return (
     <div className="space-y-2">
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
-        Lifetime Fame
+        {titles.lifetimeFame}
       </p>
       <div className="grid gap-2 lg:grid-cols-2">
         <FameStatSection
-          title="PvE"
+          title={titles.pve}
           items={pveItems}
           totalKey="Total"
           gridClass="grid-cols-2 sm:grid-cols-4"
         />
         <FameStatSection
-          title="Other"
+          title={titles.other}
           items={otherItems}
           gridClass="grid-cols-2 sm:grid-cols-3"
         />
       </div>
       <FameStatSection
-        title="Gathering"
+        title={titles.gathering}
         items={gatheringItems}
         totalKey="All"
         gridClass="grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
 import {
   isOpsAuthDisabled,
   verifyOpsAccess,
@@ -7,6 +8,7 @@ import { AdminLoginRequired } from "@/components/admin/AdminLoginRequired";
 import { AdminFullWidth } from "@/components/admin/AdminFullWidth";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { buildPageMetadata, NOINDEX_NOFOLLOW } from "@/lib/seo";
+import { DEFAULT_LOCALE } from "@/i18n/locales";
 
 export const dynamic = "force-dynamic";
 
@@ -22,18 +24,25 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const messages = (await import(`../../../messages/${DEFAULT_LOCALE}.json`))
+    .default;
+
   const authorized = await verifyOpsAccess();
   if (!authorized && !isOpsAuthDisabled()) {
     return (
-      <AdminFullWidth>
-        <AdminLoginRequired />
-      </AdminFullWidth>
+      <NextIntlClientProvider locale={DEFAULT_LOCALE} messages={messages}>
+        <AdminFullWidth>
+          <AdminLoginRequired />
+        </AdminFullWidth>
+      </NextIntlClientProvider>
     );
   }
 
   return (
-    <AdminFullWidth>
-      <AdminShell>{children}</AdminShell>
-    </AdminFullWidth>
+    <NextIntlClientProvider locale={DEFAULT_LOCALE} messages={messages}>
+      <AdminFullWidth>
+        <AdminShell>{children}</AdminShell>
+      </AdminFullWidth>
+    </NextIntlClientProvider>
   );
 }

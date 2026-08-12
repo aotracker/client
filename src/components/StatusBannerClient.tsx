@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { AlertTriangle, X } from "lucide-react";
 
 const DISMISS_KEY = "aotrackr:status-banner-dismissed";

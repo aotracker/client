@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
 import { Card, CardContent } from "@/components/ui/card";
-import { regionLabel } from "@/lib/utils";
 
 type EntityType = "player" | "guild" | "alliance";
 
@@ -17,29 +17,6 @@ interface ProfileFetchPendingProps {
   jobState?: string | null;
 }
 
-const ENTITY_LABELS: Record<EntityType, string> = {
-  player: "player profile",
-  guild: "guild profile",
-  alliance: "alliance profile",
-};
-
-function formatJobState(state: string | null | undefined): string {
-  switch (state) {
-    case "waiting":
-      return "Queued (pending) — waiting for worker";
-    case "delayed":
-      return "Scheduled (pending) — starts after delay / retry / circuit defer";
-    case "active":
-      return "Processing — fetching from Albion Online";
-    case "completed":
-      return "Fetch complete — loading cached data";
-    case "failed":
-      return "Fetch failed — retrying on refresh";
-    default:
-      return "Queued (pending) — waiting for worker";
-  }
-}
-
 export function ProfileFetchPending({
   entityType,
   region,
@@ -48,7 +25,17 @@ export function ProfileFetchPending({
   jobState,
 }: ProfileFetchPendingProps) {
   const router = useRouter();
-  const label = ENTITY_LABELS[entityType];
+  const namespace =
+    entityType === "player"
+      ? "Player"
+      : entityType === "guild"
+        ? "Guild"
+        : "Alliance";
+  const t = useTranslations(namespace);
+  const tJob = useTranslations("Errors.profileJobStates");
+  const tLabels = useTranslations("Common.labels");
+  const tRegions = useTranslations("Common.regions");
+  const tKinds = useTranslations("Common.entityKinds");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -58,6 +45,20 @@ export function ProfileFetchPending({
     return () => clearInterval(interval);
   }, [router]);
 
+  const jobKey =
+    jobState === "waiting" ||
+    jobState === "delayed" ||
+    jobState === "active" ||
+    jobState === "completed" ||
+    jobState === "failed"
+      ? jobState
+      : "waiting";
+
+  const regionKey = region as "americas" | "europe" | "asia";
+  const regionDisplay = tRegions.has(regionKey)
+    ? tRegions(regionKey)
+    : region;
+
   return (
     <div className="space-y-6">
       <BackLink />
@@ -65,20 +66,20 @@ export function ProfileFetchPending({
       <Card className="border-info-border/30">
         <CardContent className="flex flex-col items-center px-6 py-12 text-center">
           <Loader2 className="mb-4 h-10 w-10 animate-spin text-info" />
-          <h1 className="text-xl font-semibold">Fetching {label}</h1>
+          <h1 className="text-xl font-semibold">{t("pending.title")}</h1>
           <p className="mt-2 max-w-md text-sm text-muted-foreground">
-            This {entityType} is not cached yet. A background job is fetching it from
-            Albion Online and saving it locally. This page refreshes automatically every
-            few seconds.
+            {t("pending.body")}
           </p>
           <p className="mt-4 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-            <span className="text-muted-foreground">Status: </span>
-            <span className="font-medium text-foreground">{formatJobState(jobState)}</span>
+            <span className="text-muted-foreground">{tLabels("status")} </span>
+            <span className="font-medium text-foreground">{tJob(jobKey)}</span>
           </p>
           <p className="mt-4 text-xs text-muted-foreground">
-            {regionLabel(region)}
+            {regionDisplay}
             {entityName ? ` · ${entityName}` : null}
-            {entityId ? ` · ${entityType} ID ${entityId}` : null}
+            {entityId
+              ? ` · ${tKinds(entityType)} ID ${entityId}`
+              : null}
           </p>
         </CardContent>
       </Card>

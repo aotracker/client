@@ -1,6 +1,11 @@
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { getRegionHealthMetrics } from "@/lib/db/api-state";
 import { getApiSyncState, getRegionEntityCounts } from "@/lib/db/queries";
+import {
+  getRegionApiHealthLabel,
+  type GlobalSyncStatus,
+  type RegionSyncStatus,
+} from "@/lib/health/sync-status";
 import { regionLabel } from "@/lib/utils";
 import { getActiveErrorMessage } from "@/lib/ops/status-utils";
 import { AdminRegionCard } from "./AdminRegionCard";
@@ -11,12 +16,17 @@ type EntityCountRow = Awaited<ReturnType<typeof getRegionEntityCounts>>[number];
 export async function AdminRegionCards({
   syncStates,
   entityCounts,
+  globalStatus,
 }: {
   syncStates: SyncStateRow[];
   entityCounts: EntityCountRow[];
+  globalStatus: GlobalSyncStatus | null;
 }) {
   const countsByRegion = new Map(
     entityCounts.map((row) => [row.region, row])
+  );
+  const regionStatusByRegion = new Map<AlbionRegion, RegionSyncStatus>(
+    (globalStatus?.regions ?? []).map((row) => [row.region, row])
   );
 
   const healthMetrics = Object.fromEntries(
@@ -35,12 +45,15 @@ export async function AdminRegionCards({
     <div className="grid gap-4 md:grid-cols-3">
       {ENABLED_REGIONS.map((region) => {
         const dbState = syncStates.find((s) => s.region === region);
+        const regionStatus = regionStatusByRegion.get(region);
         const metrics = healthMetrics[region];
         const circuitOpen =
           metrics?.circuitOpen || dbState?.circuitOpen === 1;
         const healthCheckOk = (dbState?.lastHealthCheckOk ?? 0) === 1;
         const activeError = getActiveErrorMessage(dbState);
-        const isOnline = healthCheckOk && !circuitOpen;
+        const apiHealthLabel = regionStatus
+          ? getRegionApiHealthLabel(regionStatus)
+          : "unreachable";
         const counts = countsByRegion.get(region);
         const liveLabel = dbState?.lastHealthCheckAt
           ? healthCheckOk
@@ -52,9 +65,7 @@ export async function AdminRegionCards({
           <AdminRegionCard
             key={region}
             regionLabel={regionLabel(region)}
-            statusDot={
-              isOnline ? "online" : circuitOpen ? "circuit" : "offline"
-            }
+            apiHealthLabel={apiHealthLabel}
             liveLabel={liveLabel}
             liveNote={
               circuitOpen ? "Circuit open — cooling down" : undefined
@@ -65,6 +76,8 @@ export async function AdminRegionCards({
             }
             lastHealthCheck={dbState?.lastHealthCheckAt ?? null}
             healthCheckOk={healthCheckOk}
+            latestKillAt={regionStatus?.latestKillAt ?? null}
+            issues={regionStatus?.issues ?? []}
             failures={String(
               dbState?.consecutiveFailures ??
                 metrics?.consecutiveFailures ??

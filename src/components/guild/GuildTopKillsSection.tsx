@@ -4,6 +4,7 @@ import type { AlbionRegion } from "@/lib/albion/types";
 import { KillCard } from "@/components/KillCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
+import { getTranslations } from "next-intl/server";
 
 export async function GuildTopKillsSection({
   region,
@@ -14,6 +15,7 @@ export async function GuildTopKillsSection({
   guildId: string;
   historyLastSyncedAt: Date | null;
 }) {
+  const t = await getTranslations("Guild.topKills");
   const topKills = await getGuildTopKillsFromDb(region, guildId);
   const shouldSyncHistory =
     !historyLastSyncedAt || isSyncStale(historyLastSyncedAt);
@@ -21,18 +23,14 @@ export async function GuildTopKillsSection({
   return (
     <section>
       <h2 className="mb-3 text-lg font-semibold">
-        Top Kills ({topKills.length})
+        {t("title", { count: topKills.length })}
       </h2>
-      <p className="mb-3 text-xs text-muted-foreground">
-        Highest fame kills by guild members
-      </p>
+      <p className="mb-3 text-xs text-muted-foreground">{t("description")}</p>
       <div className="space-y-2">
         {topKills.length === 0 ? (
           <Card>
             <CardContent className="py-6 text-center text-muted-foreground">
-              {shouldSyncHistory
-                ? "Loading top kills from Albion Online…"
-                : "No cached top kills yet"}
+              {shouldSyncHistory ? t("loading") : t("empty")}
             </CardContent>
           </Card>
         ) : (

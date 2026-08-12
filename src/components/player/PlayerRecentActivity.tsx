@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { KillCard } from "@/components/KillCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +30,8 @@ export function PlayerRecentActivity({
   deaths,
   shouldSyncHistory,
 }: PlayerRecentActivityProps) {
+  const t = useTranslations("Player.activity");
+  const tA11y = useTranslations("Common.a11y");
   const [filter, setFilter] = useState<ActivityFilter>("all");
 
   const activity = useMemo<ActivityEvent[]>(() => {
@@ -50,35 +53,36 @@ export function PlayerRecentActivity({
 
   const emptyMessage = (() => {
     if (activity.length === 0) {
-      return shouldSyncHistory
-        ? "Loading activity from Albion Online…"
-        : "No recent activity";
+      return shouldSyncHistory ? t("loading") : t("empty");
     }
-    if (filter === "kills") return "No recent kills";
-    if (filter === "deaths") return "No recent deaths";
-    return "No recent activity";
+    if (filter === "kills") return t("emptyKills");
+    if (filter === "deaths") return t("emptyDeaths");
+    return t("empty");
   })();
 
   return (
     <section className="space-y-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Recent Activity</h2>
+          <h2 className="text-lg font-semibold">{t("title")}</h2>
           <p className="text-xs text-muted-foreground">
-            Cached kill and death history · {kills.length} kills ·{" "}
-            {deaths.length} deaths
+            {t("subtitle", { kills: kills.length, deaths: deaths.length })}
           </p>
         </div>
         <div
           className="flex flex-wrap gap-1"
           role="group"
-          aria-label="Filter recent activity"
+          aria-label={tA11y("filterRecentActivity")}
         >
           {(
             [
-              { id: "all", label: "All", count: activity.length },
-              { id: "kills", label: "Kills", count: kills.length },
-              { id: "deaths", label: "Deaths", count: deaths.length },
+              { id: "all" as const, label: t("filterAll"), count: activity.length },
+              { id: "kills" as const, label: t("filterKills"), count: kills.length },
+              {
+                id: "deaths" as const,
+                label: t("filterDeaths"),
+                count: deaths.length,
+              },
             ] as const
           ).map((option) => (
             <Button

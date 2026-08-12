@@ -2,11 +2,12 @@
 
 import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
 import {
-  LEADERBOARD_TAB_META,
+  LEADERBOARD_TABS,
   type LeaderboardTab,
 } from "@/lib/leaderboards/params";
 import { readFeedRegionParam } from "@/lib/region-params";
@@ -14,13 +15,6 @@ import { useLeaderboardNavigation } from "@/components/leaderboards/LeaderboardN
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-
-const CONTENT_TYPES: { value: ContentTypeFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "SOLO", label: "1v1" },
-  { value: "GROUP", label: "Group" },
-  { value: "ZVZ", label: "ZvZ" },
-];
 
 const DAYS = [7, 14, 30] as const;
 
@@ -46,6 +40,9 @@ function FilterRow({
 }
 
 export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
+  const t = useTranslations("Leaderboards");
+  const tFilters = useTranslations("Filters");
+  const tCommon = useTranslations("Common");
   const searchParams = useSearchParams();
   const { isPending, pendingTab, push } = useLeaderboardNavigation();
 
@@ -54,13 +51,28 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
   const days = Number(searchParams.get("days") ?? "7");
   const type = (searchParams.get("type") as ContentTypeFilter) || "all";
 
+  const contentTypes: { value: ContentTypeFilter; label: string }[] = [
+    { value: "all", label: tFilters("contentAll") },
+    { value: "SOLO", label: tFilters("contentSolo") },
+    { value: "GROUP", label: tFilters("contentGroup") },
+    { value: "ZVZ", label: tFilters("contentZvz") },
+  ];
+
+  const regionLabel = (value: AlbionRegion | "all") => {
+    if (value === "all") return tCommon("regions.all");
+    if (value === "americas") return tCommon("regions.americas");
+    if (value === "europe") return tCommon("regions.europe");
+    if (value === "asia") return tCommon("regions.asia");
+    return value;
+  };
+
   return (
     <Card className="overflow-hidden">
       <nav
         className="flex flex-wrap gap-1 border-b border-border bg-muted/20 px-3 pt-2 sm:px-4"
-        aria-label="Leaderboard type"
+        aria-label={tCommon("a11y.leaderboardType")}
       >
-        {(Object.keys(LEADERBOARD_TAB_META) as LeaderboardTab[]).map((id) => {
+        {LEADERBOARD_TABS.map((id) => {
           const active = tab === id;
           return (
             <button
@@ -78,7 +90,7 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
                   : "text-muted-foreground hover:bg-background/60 hover:text-foreground"
               )}
             >
-              {LEADERBOARD_TAB_META[id].label}
+              {t(`tabs.${id}.label`)}
               {isPending && pendingTab === id && (
                 <Loader2
                   className="ml-1.5 h-3.5 w-3.5 animate-spin"
@@ -91,7 +103,7 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
       </nav>
 
       <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-        <FilterRow label="Region">
+        <FilterRow label={tFilters("region")}>
           {regions.map((r) => (
             <Button
               key={r.value}
@@ -100,12 +112,12 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
               aria-pressed={region === r.value}
               onClick={() => push({ region: r.value })}
             >
-              {r.label}
+              {regionLabel(r.value)}
             </Button>
           ))}
         </FilterRow>
 
-        <FilterRow label="Period">
+        <FilterRow label={tFilters("period")}>
           {DAYS.map((d) => (
             <Button
               key={d}
@@ -114,13 +126,13 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
               aria-pressed={days === d}
               onClick={() => push({ days: String(d) })}
             >
-              Last {d} days
+              {tFilters("lastDays", { days: d })}
             </Button>
           ))}
         </FilterRow>
 
-        <FilterRow label="Content type">
-          {CONTENT_TYPES.map((item) => (
+        <FilterRow label={tFilters("contentType")}>
+          {contentTypes.map((item) => (
             <Button
               key={item.value}
               size="sm"

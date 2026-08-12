@@ -65,6 +65,71 @@ export function formatRelativeTimeLong(date: Date | string): string | null {
   return `${hours} hours ago`;
 }
 
+/** Translator for `Common.relativeTime` (next-intl `t` for that namespace). */
+export type RelativeTimeTranslate = (
+  key:
+    | "justNow"
+    | "oneMinuteAgo"
+    | "minutesAgo"
+    | "oneHourAgo"
+    | "hoursAgo"
+    | "unknownDate"
+    | "exactAtUtc",
+  values?: Record<string, string | number>
+) => string;
+
+export function formatRelativeTimeLongI18n(
+  date: Date | string,
+  t: RelativeTimeTranslate
+): string | null {
+  if (!isWithinRelativeTimeWindow(date)) return null;
+  const diff = Date.now() - toDate(date).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return t("justNow");
+  if (minutes === 1) return t("oneMinuteAgo");
+  if (minutes < 60) return t("minutesAgo", { count: minutes });
+  const hours = Math.floor(minutes / 60);
+  if (hours === 1) return t("oneHourAgo");
+  return t("hoursAgo", { count: hours });
+}
+
+/** Localized Albion UTC timestamp using `Common.relativeTime.exactAtUtc`. */
+export function formatExactDateTimeI18n(
+  date: Date | string,
+  t: RelativeTimeTranslate,
+  locale = "en"
+): string {
+  const d = toDate(date);
+  if (Number.isNaN(d.getTime())) return t("unknownDate");
+
+  const datePart = d.toLocaleString(locale, {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const timePart = d.toLocaleString(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "UTC",
+  });
+
+  return t("exactAtUtc", { date: datePart, time: timePart });
+}
+
+/** Localized relative/exact timestamp helper using `Common.relativeTime`. */
+export function formatRelativeTimeI18n(
+  date: Date | string,
+  t: RelativeTimeTranslate,
+  locale = "en"
+): string {
+  return (
+    formatRelativeTimeLongI18n(date, t) ?? formatExactDateTimeI18n(date, t, locale)
+  );
+}
+
 /** Albion server timestamp: "August 3, 2026 at 03:04:10 UTC". */
 export function formatExactDateTime(date: Date | string): string {
   const d = toDate(date);

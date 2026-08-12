@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { ItemIcon } from "@/components/ItemIcon";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
 import { getCatalogItemName, getItemFamilyDisplayName } from "@/lib/items/catalog";
@@ -11,28 +12,32 @@ interface TopBuildsListProps {
   topBuilds: PlayerTopBuild[];
 }
 
-function buildTitle(items: PlayerTopBuild["items"]): string {
-  const mainHand = items.find((i) => i.slot === "MainHand");
-  if (!mainHand) return "Unknown build";
-  return (
-    getItemFamilyDisplayName(mainHand.itemType) ??
-    getCatalogItemName(mainHand.itemType) ??
-    formatItemName(mainHand.itemType)
-  );
-}
-
-function slotLabel(slot: string): string {
-  switch (slot) {
-    case "MainHand":
-      return "Main hand";
-    case "OffHand":
-      return "Off hand";
-    default:
-      return slot;
-  }
-}
-
 export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
+  const locale = useLocale();
+  const t = useTranslations("Builds");
+  const tCommon = useTranslations("Common");
+
+  const slotLabel = (slot: string): string => {
+    switch (slot) {
+      case "MainHand":
+        return tCommon("labels.mainHand");
+      case "OffHand":
+        return tCommon("labels.offHand");
+      default:
+        return slot;
+    }
+  };
+
+  const buildTitle = (items: PlayerTopBuild["items"]): string => {
+    const mainHand = items.find((i) => i.slot === "MainHand");
+    if (!mainHand) return t("unknownBuild");
+    return (
+      getItemFamilyDisplayName(mainHand.itemType, locale) ??
+      getCatalogItemName(mainHand.itemType, locale) ??
+      formatItemName(mainHand.itemType)
+    );
+  };
+
   if (topBuilds.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-muted-foreground">
@@ -45,10 +50,11 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
     <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {topBuilds.map((build, index) => {
         const bySlot = new Map(build.items.map((item) => [item.slot, item]));
+        const title = buildTitle(build.items);
 
         return (
           <li
-            key={`${buildTitle(build.items)}-${index}`}
+            key={`${title}-${index}`}
             className="rounded-md border border-border/60 bg-muted/20 p-3"
           >
             <div className="mb-2 flex items-start gap-3">
@@ -58,7 +64,7 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-medium leading-snug break-words">
-                    {buildTitle(build.items)}
+                    {title}
                   </p>
                   <WeaponRoleBadge itemType={bySlot.get("MainHand")?.itemType} />
                 </div>
@@ -77,7 +83,7 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
                   <div
                     key={slot}
                     className="flex items-center justify-center rounded-md border border-border/50 bg-card/60 p-1 leading-none"
-                    title={`${slotLabel(slot)}: ${getCatalogItemName(item.itemType) ?? formatItemName(item.itemType)}`}
+                    title={`${slotLabel(slot)}: ${getCatalogItemName(item.itemType, locale) ?? formatItemName(item.itemType)}`}
                   >
                     <ItemIcon
                       itemType={item.itemType}

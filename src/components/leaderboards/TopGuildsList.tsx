@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { formatFame, regionLabel } from "@/lib/utils";
 import { guildPath } from "@/lib/seo";
 import type { TopGuildEntry } from "@/lib/db/queries";

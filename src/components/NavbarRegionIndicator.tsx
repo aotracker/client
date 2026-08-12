@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
 import {
   buildFeedHref,
-  feedRegionFilterOptions,
   isFeedPath,
   readFeedRegionParam,
   rememberFeedRegionSelection,
   type FeedRegion,
 } from "@/lib/region-params";
-import { Button } from "@/components/ui/button";
-import { cn, regionLabel } from "@/lib/utils";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 
 interface NavbarRegionSelectorProps {
   regions: AlbionRegion[];
@@ -37,9 +37,12 @@ export function useActiveFeedRegion(
   return preferredRegion ?? "all";
 }
 
-function regionOptionLabel(region: FeedRegion): string {
-  return region === "all" ? "All Regions" : regionLabel(region);
-}
+const REGION_SHORT: Record<FeedRegion, string> = {
+  all: "ALL",
+  americas: "AM",
+  europe: "EU",
+  asia: "AS",
+};
 
 export function NavbarRegionSelector({
   regions,
@@ -49,6 +52,8 @@ export function NavbarRegionSelector({
   variant = "dropdown",
   className,
 }: NavbarRegionSelectorProps) {
+  const t = useTranslations("Common.regions");
+  const tNav = useTranslations("Nav");
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -57,9 +62,15 @@ export function NavbarRegionSelector({
   const [open, setOpen] = useState(false);
   const activeRegion = useActiveFeedRegion(preferredRegion);
 
-  const options = feedRegionFilterOptions().filter(
-    (option) => option.value === "all" || regions.includes(option.value)
-  );
+  function regionOptionLabel(region: FeedRegion): string {
+    if (region === "all") return t("all");
+    return t(region);
+  }
+
+  const options: { value: FeedRegion; label: string }[] = [
+    { value: "all", label: t("all") },
+    ...regions.map((r) => ({ value: r as FeedRegion, label: t(r) })),
+  ];
 
   useEffect(() => {
     if (!open) return;
@@ -113,20 +124,24 @@ export function NavbarRegionSelector({
     return (
       <div className={cn("space-y-2", className)}>
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Region
+          {tNav("region")}
         </p>
         <div className="flex flex-wrap gap-2">
           {options.map((option) => (
-            <Button
+            <button
               key={option.value}
               type="button"
-              size="sm"
-              variant={activeRegion === option.value ? "default" : "outline"}
+              className={cn(
+                "inline-flex h-8 items-center rounded-md border px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                activeRegion === option.value
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}
               aria-pressed={activeRegion === option.value}
               onClick={() => selectRegion(option.value)}
             >
               {option.label}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
@@ -134,39 +149,39 @@ export function NavbarRegionSelector({
   }
 
   return (
-    <div ref={rootRef} className={cn("relative hidden shrink-0 sm:block", className)}>
-      <Button
+    <div ref={rootRef} className={cn("relative shrink-0", className)}>
+      <button
         type="button"
-        size="sm"
-        variant="outline"
-        className="h-8 gap-1.5 px-2.5"
-        aria-haspopup="listbox"
+        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-transparent px-2 text-xs font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         aria-expanded={open}
         aria-controls={listId}
+        aria-haspopup="listbox"
+        aria-label={tNav("selectRegion")}
+        title={`${tNav("serverRegion")}: ${regionOptionLabel(activeRegion)}`}
         onClick={() => setOpen((value) => !value)}
       >
         <Globe className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-        <span className="max-w-[6.5rem] truncate">
-          {regionOptionLabel(activeRegion)}
+        <span className="tabular-nums tracking-wide text-foreground">
+          {REGION_SHORT[activeRegion]}
         </span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200",
+            "h-3 w-3 shrink-0 text-muted-foreground transition-transform",
             open && "rotate-180"
           )}
           aria-hidden
         />
-      </Button>
+      </button>
 
       {open && (
         <div
           id={listId}
           role="listbox"
-          aria-label="Select region"
+          aria-label={tNav("selectRegion")}
           className="absolute right-0 top-[calc(100%+0.375rem)] z-50 min-w-[11rem] overflow-hidden rounded-md border border-border bg-card p-1 shadow-lg"
         >
           <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Server region
+            {tNav("serverRegion")}
           </p>
           {options.map((option) => {
             const selected = activeRegion === option.value;

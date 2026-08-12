@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { regionLabel } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
 import type { TopKillerEntry } from "@/lib/db/queries";

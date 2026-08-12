@@ -1,0 +1,684 @@
+{
+  "Nav": {
+    "home": "Inicio",
+    "leaderboards": "Clasificaciones",
+    "battles": "Batallas",
+    "builds": "Builds",
+    "watchlist": "Lista de seguimiento",
+    "search": "Buscar",
+    "serverTime": "Hora del servidor",
+    "serverTimeTitle": "Hora del servidor de Albion (UTC)",
+    "serverTimePlaceholder": "--:--:-- UTC",
+    "themeSwitchToLight": "Cambiar a modo claro",
+    "themeSwitchToDark": "Cambiar a modo oscuro",
+    "themeSwitchToSystem": "Usar tema del sistema",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "region": "Región",
+    "serverRegion": "Región del servidor",
+    "selectRegion": "Seleccionar región",
+    "allRegions": "Todas las regiones",
+    "watchlistAria": "Lista de seguimiento",
+    "watchlistAriaWithCount": "Lista de seguimiento ({count})",
+    "selectLanguage": "Seleccionar idioma",
+    "preferences": "Preferencias"
+  },
+  "Footer": {
+    "copyright": "© {year} {siteName}. Todos los derechos reservados.",
+    "disclaimer": "{siteName} no está afiliado, respaldado ni patrocinado por Albion Online ni por Sandbox Interactive GmbH.",
+    "systemStatus": "Estado del sistema",
+    "privacyPolicy": "Política de privacidad",
+    "getAlbion": "Obtener Albion"
+  },
+  "Common": {
+    "regions": {
+      "all": "Todas las regiones",
+      "americas": "Américas",
+      "europe": "Europa",
+      "asia": "Asia"
+    },
+    "contentTypes": {
+      "all": "Todo",
+      "SOLO": "1v1",
+      "GROUP": "Grupo",
+      "ZVZ": "ZvZ"
+    },
+    "entityKinds": {
+      "player": "Jugador",
+      "guild": "Gremio",
+      "alliance": "Alianza",
+      "kill": "Baja",
+      "battle": "Batalla",
+      "link": "Enlace"
+    },
+    "relativeTime": {
+      "justNow": "ahora mismo",
+      "oneMinuteAgo": "hace 1 minuto",
+      "minutesAgo": "hace {count} minutos",
+      "oneHourAgo": "hace 1 hora",
+      "hoursAgo": "hace {count} horas",
+      "unknownDate": "Fecha desconocida",
+      "exactAtUtc": "{date} a las {time} UTC"
+    },
+    "buttons": {
+      "viewAll": "Ver todo",
+      "search": "Buscar",
+      "clear": "Borrar",
+      "loadMore": "Cargar más",
+      "loading": "Cargando…",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "copyLink": "Copiar enlace",
+      "retry": "Reintentar descarga",
+      "reQueuing": "Volviendo a encolar…",
+      "add": "Añadir",
+      "remove": "Quitar",
+      "watch": "Seguir",
+      "watching": "Siguiendo",
+      "back": "← Volver",
+      "home": "Inicio"
+    },
+    "a11y": {
+      "entityLocation": "Ubicación de la entidad",
+      "leaderboardType": "Tipo de clasificación",
+      "filterBattles": "Filtrar batallas",
+      "filterRecentActivity": "Filtrar actividad reciente",
+      "contentMix": "Mezcla de contenido",
+      "loadingJuicyKills": "Cargando bajas jugosas",
+      "loadingTopKillers": "Cargando mejores asesinos",
+      "loadingTopFameEarners": "Cargando líderes de fama",
+      "loadingRecentKills": "Cargando bajas recientes",
+      "loadingPlayer": "Cargando jugador",
+      "loadingKillDetails": "Cargando detalles de la baja",
+      "loadingBattle": "Cargando batalla",
+      "loadingBattles": "Cargando batallas",
+      "loadingCombinedBattles": "Cargando batallas combinadas",
+      "loadingTopKills": "Cargando mejores bajas",
+      "loadingGuildRivals": "Cargando rivales del gremio",
+      "loadingAnalytics": "Cargando analíticas",
+      "loadingActivity": "Cargando actividad",
+      "loadingPlayerAssociations": "Cargando asociaciones del jugador",
+      "searchPlayersOrGuilds": "Buscar jugadores o gremios",
+      "searchBattles": "Buscar batallas por gremio, alianza o jugador",
+      "searchPlayers": "Buscar jugadores",
+      "searchGuilds": "Buscar gremios",
+      "searchAlliances": "Buscar alianzas",
+      "selectBattle": "Seleccionar batalla {id}"
+    },
+    "stats": {
+      "killFame": "Fama de kills",
+      "deathFame": "Fama de muertes",
+      "lifetimeKillFame": "Fama de kills de por vida",
+      "lifetimeDeathFame": "Fama de muertes de por vida",
+      "kdRatio": "Ratio K/D",
+      "kdShort": "K/D",
+      "members": "Miembros",
+      "guilds": "Gremios",
+      "fame": "Fama",
+      "kills": "Bajas",
+      "deaths": "Muertes",
+      "totalFame": "Fama total",
+      "totalKills": "Bajas totales",
+      "totalPlayers": "Jugadores totales",
+      "players": "Jugadores",
+      "uses": "Usos",
+      "assists": "Asistencias",
+      "avgIp": "PI media"
+    },
+    "labels": {
+      "lastUpdated": "Última actualización: {datetime}",
+      "founder": "Fundador:",
+      "founded": "Fundado: {datetime}",
+      "status": "Estado:",
+      "unknown": "Desconocido",
+      "emDash": "—",
+      "mainHand": "Mano principal",
+      "offHand": "Mano secundaria",
+      "albionId": "ID de Albion",
+      "albionPlayerId": "ID de jugador de Albion",
+      "albionGuildId": "ID de gremio de Albion",
+      "albionAllianceId": "ID de alianza de Albion",
+      "ip": "PI {value}",
+      "averageIp": "PI media:",
+      "estValue": "Valor est.: {value}",
+      "killFameWithUnit": "{value} fama de kills",
+      "membersCount": "{count} miembros",
+      "showingRange": "Mostrando {start}–{end} de {total}",
+      "pageOf": "Página {page} de {totalPages}",
+      "lastNDays": "Últimos {days} días",
+      "allContent": "Todo el contenido",
+      "allRegionsLower": "todas las regiones",
+      "never": "Nunca",
+      "cached": "En caché",
+      "live": "En vivo",
+      "recent": "Reciente",
+      "deepLink": "Enlace directo",
+      "linkCopied": "Enlace copiado",
+      "couldNotCopyLink": "No se pudo copiar el enlace",
+      "copyLinkTitle": "Copiar el enlace de esta página al portapapeles",
+      "weaponRoles": {
+        "healer": "Sanador",
+        "tank": "Tanque",
+        "support": "Soporte",
+        "dps": "DPS"
+      },
+      "lifetimeFame": "Fama de por vida",
+      "pve": "PvE",
+      "gathering": "Recolección",
+      "other": "Otro"
+    },
+    "toasts": {
+      "linkCopied": "Enlace copiado",
+      "couldNotCopyLink": "No se pudo copiar el enlace"
+    }
+  },
+  "Filters": {
+    "contentAll": "Todo",
+    "contentSolo": "1v1",
+    "contentGroup": "Grupo",
+    "contentZvz": "ZvZ",
+    "region": "Región",
+    "period": "Periodo",
+    "contentType": "Tipo de contenido",
+    "lastDays": "Últimos {days} días"
+  },
+  "Home": {
+    "srOnlyTitle": "{siteName} — {pageTitle}",
+    "sections": {
+      "recentKillsTitle": "Bajas recientes (10)",
+      "recentKillsDescription": "Las 10 bajas más recientes en los datos de JcJ rastreados",
+      "juicyKillsTitle": "Top 10 bajas jugosas",
+      "juicyKillsDescription": "Bajas con más fama en los últimos 7 días",
+      "topKillersTitle": "Top 10 asesinos",
+      "topKillersDescription": "Más bajas JcJ en los últimos 7 días",
+      "topFameTitle": "Top 10 en fama",
+      "topFameDescription": "Mayor fama de kills obtenida en los últimos 7 días"
+    },
+    "autoUpdates": "Actualización automática cada 20 s",
+    "checkedAt": " · comprobado {relative}",
+    "emptyRecentTitle": "Aún no hay bajas que mostrar",
+    "emptyRecentBody": "Las bajas frescas de Albion aparecerán aquí conforme se ingieran. Vuelve pronto o <searchLink>busca un jugador o gremio</searchLink>.",
+    "emptyRecentSearchLink": "busca un jugador o gremio",
+    "emptyJuicy": "No hay bajas jugosas en los últimos 7 días",
+    "errorRecent": "El feed de bajas no está disponible temporalmente.",
+    "errorJuicy": "Las bajas jugosas no están disponibles temporalmente.",
+    "errorTopKillers": "Los mejores asesinos no están disponibles temporalmente.",
+    "errorTopFame": "Los líderes de fama no están disponibles temporalmente."
+  },
+  "Player": {
+    "kind": "Jugador",
+    "nav": {
+      "activity": "Actividad",
+      "analytics": "Analíticas",
+      "allies": "Aliados"
+    },
+    "activity": {
+      "title": "Actividad reciente",
+      "subtitle": "Historial de bajas y muertes en caché · {kills} bajas · {deaths} muertes",
+      "filterAll": "Todo",
+      "filterKills": "Bajas",
+      "filterDeaths": "Muertes",
+      "empty": "Sin actividad reciente",
+      "emptyKills": "Sin bajas recientes",
+      "emptyDeaths": "Sin muertes recientes",
+      "loading": "Cargando actividad desde Albion Online…"
+    },
+    "analytics": {
+      "title": "Analíticas del jugador",
+      "subtitle": "Basado en el historial de bajas/muertes en caché · últimos 30 días",
+      "empty": "Aún no hay analíticas. El historial de bajas y muertes aparecerá aquí una vez esté en caché.",
+      "activityTitle": "Actividad",
+      "activityDescription": "Últimos 30 días · eventos JcJ en los que participó por día",
+      "preferredContentTitle": "Contenido preferido",
+      "preferredContentDescription": "Últimos 30 días · mezcla de combates 1v1, grupo y ZvZ",
+      "fameTitle": "Fama ganada vs perdida",
+      "fameDescription": "Últimos 30 días · fama de kills diaria como asesino frente a víctima",
+      "fameEarned": "Ganada",
+      "fameLost": "Perdida",
+      "topBuildsTitle": "Mejores builds del jugador",
+      "topBuildsDescription": "Últimos 30 días · Mismas armas/equipo entre niveles · mostradas como T8 Excelente",
+      "contentAxis": "Contenido"
+    },
+    "associations": {
+      "title": "Asociaciones del jugador",
+      "subtitle": "Jugadores que formaron grupo o asistieron en tus bajas · últimos 30 días · cualquier gremio · solo bajas con fama > 0",
+      "empty": "Aún no se han rastreado aliados de combate",
+      "sharedKill": "{count} baja compartida",
+      "sharedKills": "{count} bajas compartidas"
+    },
+    "pending": {
+      "title": "Obteniendo perfil del jugador",
+      "body": "Este jugador aún no está en caché. Un trabajo en segundo plano lo está obteniendo de Albion Online y guardándolo localmente. Esta página se actualiza automáticamente cada pocos segundos.",
+      "entityLabel": "perfil de jugador"
+    },
+    "killCard": {
+      "kill": "Baja",
+      "death": "Muerte",
+      "killDetails": "Detalles de la baja"
+    }
+  },
+  "Guild": {
+    "kind": "Gremio",
+    "nav": {
+      "kills": "Bajas",
+      "rivals": "Rivales",
+      "battles": "Batallas"
+    },
+    "topKills": {
+      "title": "Mejores bajas ({count})",
+      "description": "Bajas con más fama de miembros del gremio",
+      "loading": "Cargando mejores bajas desde Albion Online…",
+      "empty": "Aún no hay mejores bajas en caché"
+    },
+    "rivals": {
+      "title": "Rivales del gremio",
+      "description": "Oponentes más activos de {guildName} en los últimos 30 días",
+      "empty": "No hay gremios rivales rastreados en los últimos 30 días",
+      "statsLine": "{kills} bajas · {fame} fama",
+      "statsLineWithDeaths": "{kills} bajas · {fame} fama · {deaths} muertes · {fameLost} perdida",
+      "viewFeud": "Ver enemistad"
+    },
+    "battles": {
+      "recentDescription": "Batallas más recientes con participación del gremio en los últimos 7 días",
+      "topDescription": "Batallas con más fama de kills y participación del gremio en los últimos 7 días",
+      "loading": "Cargando batallas desde Albion Online…",
+      "recentEmpty": "No hay batallas recientes esta semana",
+      "topEmpty": "No hay batallas destacadas esta semana"
+    },
+    "pending": {
+      "title": "Obteniendo perfil del gremio",
+      "body": "Este gremio aún no está en caché. Un trabajo en segundo plano lo está obteniendo de Albion Online y guardándolo localmente. Esta página se actualiza automáticamente cada pocos segundos.",
+      "entityLabel": "perfil de gremio"
+    },
+    "feud": {
+      "title": "{guildA} vs {guildB} — Enemistad de gremios",
+      "description": "Estadísticas JcJ cara a cara y bajas recientes entre {guildA} y {guildB} en {region}."
+    }
+  },
+  "Alliance": {
+    "kind": "Alianza",
+    "nav": {
+      "kills": "Bajas",
+      "battles": "Batallas"
+    },
+    "memberGuilds": "Gremios miembros ({count})",
+    "noGuilds": "No hay gremios en esta alianza",
+    "topKills": {
+      "title": "Mejores bajas ({count})",
+      "description": "Bajas con más fama de jugadores de gremios miembros actuales",
+      "empty": "Aún no hay bajas en caché de miembros de la alianza"
+    },
+    "battles": {
+      "recentDescription": "Batallas más recientes con participación de la alianza en los últimos 7 días",
+      "topDescription": "Batallas con más fama y participación de la alianza en los últimos 7 días",
+      "loading": "Cargando batallas desde Albion Online…",
+      "recentEmpty": "No hay batallas recientes esta semana",
+      "topEmpty": "No hay batallas destacadas esta semana"
+    },
+    "pending": {
+      "title": "Obteniendo perfil de la alianza",
+      "body": "Esta alianza aún no está en caché. Un trabajo en segundo plano la está obteniendo de Albion Online y guardándola localmente. Esta página se actualiza automáticamente cada pocos segundos.",
+      "entityLabel": "perfil de alianza"
+    },
+    "statsMobile": {
+      "kills": "Bajas",
+      "deaths": "Muertes"
+    }
+  },
+  "Kill": {
+    "killId": "ID de baja:",
+    "playersInBattle": " · {count} jugadores en batalla",
+    "killer": "Asesino",
+    "victim": "Víctima",
+    "killed": "mató a",
+    "killFame": "Fama de kills",
+    "assists": "Asistencias ({count})",
+    "killerEquipment": "Equipamiento del asesino",
+    "victimEquipment": "Equipamiento de la víctima",
+    "victimLoot": "Botín del inventario de la víctima",
+    "itemsDropped": "{count} objeto soltado",
+    "itemsDropped_plural": "{count} objetos soltados",
+    "lootItems": "{count} objetos de botín",
+    "lootDescription": "Objetos que llevaba {victimName} al morir",
+    "pending": {
+      "title": "Obteniendo detalles de la baja",
+      "body": "Esta baja se está obteniendo de Albion Online y estará disponible en breve. Esta página se actualiza automáticamente cada pocos segundos.",
+      "meta": "{region} · ID de baja #{eventId}"
+    },
+    "feed": {
+      "loadMore": "Cargar más",
+      "loading": "Cargando…",
+      "failedLoadMore": "Error al cargar más bajas"
+    }
+  },
+  "Battle": {
+    "title": "Batalla de Albion #{id}",
+    "started": "Inicio",
+    "startedAt": "Inicio: {time}",
+    "endedAt": "Fin: {time}",
+    "fightTimeMinute": "Tiempo de combate: {count} minuto",
+    "fightTimeMinutes": "Tiempo de combate: {count} minutos",
+    "listUpdated": "Lista de batallas actualizada {time}",
+    "pageTitle": "Últimas batallas de Albion Online",
+    "pageDescription": "Últimas batallas de Albion Online. Busca por gremio, alianza o jugador. Selecciona varias batallas para combinar estadísticas",
+    "searchPlaceholder": "Buscar gremio, alianza o jugador...",
+    "card": {
+      "fame": "Fama",
+      "members": "Miembros",
+      "kills": "Bajas",
+      "totalFame": "Fama total",
+      "totalKills": "Bajas totales",
+      "totalPlayers": "Jugadores totales",
+      "alliances": "Alianzas",
+      "guilds": "Gremios"
+    },
+    "feed": {
+      "selected": "{count} seleccionadas",
+      "maxSelected": " (máx. {max})",
+      "combine": "Combinar {count} batallas",
+      "suggestedBattles": "Batallas sugeridas",
+      "addAllSuggestions": "Añadir todas las sugerencias",
+      "battleHash": "Batalla #{id}",
+      "emptySearch": "No se encontraron batallas que coincidan con “{query}”.",
+      "emptyAll": "Aún no hay batallas en la base de datos local.",
+      "emptyRegion": "No se encontraron batallas para {region}.",
+      "failedLoad": "Error al cargar batallas"
+    },
+    "tabs": {
+      "title": "Batallas",
+      "recent": "Recientes",
+      "top": "Top",
+      "loading": "Cargando batallas…"
+    },
+    "lists": {
+      "alliancesTitle": "Alianzas",
+      "alliancesSearchPlaceholder": "Buscar alianzas…",
+      "alliancesEmpty": "No hay datos de alianzas para esta batalla",
+      "guildsTitle": "Gremios",
+      "guildsSearchPlaceholder": "Buscar gremios…",
+      "guildsEmpty": "No hay datos de gremios para esta batalla",
+      "playersSearchPlaceholder": "Buscar jugadores…",
+      "sortFame": "Fama",
+      "sortKills": "Bajas",
+      "sortDeaths": "Muertes"
+    },
+    "combined": {
+      "title": "Batallas combinadas ({count})",
+      "description": "Estadísticas combinadas de {count} batallas de Albion Online · {region}",
+      "includedBattles": "Batallas incluidas",
+      "fameSuffix": " · {fame} fama"
+    },
+    "pending": {
+      "fetching": "Obteniendo detalles de la batalla",
+      "fetchingBody": "Esta batalla se está obteniendo de Albion Online y estará disponible en breve. Esta página se actualiza automáticamente cada pocos segundos.",
+      "waiting": "Aún esperando a Albion Online",
+      "waitingBody": "La API de Albion aún no ha devuelto esta batalla. Seguiremos reintentándolo automáticamente.",
+      "failed": "No se pudo obtener la batalla",
+      "failedBody": "El trabajo en segundo plano dejó de reintentar. Puedes volver a encolar la descarga más abajo.",
+      "unavailable": "Batalla no disponible desde Albion",
+      "unavailableBody": "La API de Albion nunca devolvió esta batalla tras varios intentos. La ingesta ya no volverá a encolar trabajos de sincronización para ella.",
+      "apiDelayTitle": "Retraso de la API de Albion",
+      "apiDelayBody": "Esta batalla lleva {duration} esperando a que la API gameinfo de Albion Online la publique (a menudo un 404 hasta que aparece). El worker seguirá comprobando con un intervalo más largo — no hace falta hacer nada a menos que falle al final.",
+      "apiDelayBodyOverHour": "Esta batalla lleva más de una hora esperando a que la API gameinfo de Albion Online la publique (a menudo un 404 hasta que aparece). El worker seguirá comprobando con un intervalo más largo — no hace falta hacer nada a menos que falle al final.",
+      "notPublishedTitle": "Batalla no publicada por Albion",
+      "notPublishedBody": "Gameinfo seguía devolviendo no encontrado para esta batalla, así que se detuvo la sincronización automática para evitar trabajos interminables en cola. Usa Reintentar si crees que Albion la ha publicado desde entonces.",
+      "meta": "{region} · ID de batalla #{battleId}",
+      "lastProbe": "Última sonda: {error}",
+      "retryFailed": "El reintento falló",
+      "requeueFailed": "Error al volver a encolar la sincronización de la batalla",
+      "jobStates": {
+        "waiting": "En cola (pendiente) — esperando al worker",
+        "delayed": "Programado (pendiente) — empieza tras retraso / reintento / aplazamiento del circuito",
+        "active": "Procesando — obteniendo de Albion Online",
+        "completed": "Descarga completa — cargando datos en caché",
+        "failed": "Fallido — usa Reintentar para volver a encolar",
+        "failedProfile": "Descarga fallida — reintentando al actualizar",
+        "unavailable": "No disponible — Albion nunca publicó esta batalla (reintento automático detenido)",
+        "waitingOnApi": "Programado — esperando a que Albion publique esta batalla ({next})",
+        "nextCheckIn": "próxima comprobación en {minutes} m",
+        "nextCheckScheduled": "próxima comprobación programada"
+      },
+      "durationMinutes": "{count} minuto",
+      "durationMinutes_plural": "{count} minutos",
+      "durationHours": "{count} hora",
+      "durationHours_plural": "{count} horas",
+      "durationHoursMinutes": "{hours} h {minutes} m"
+    }
+  },
+  "Leaderboards": {
+    "pageTitle": "Clasificaciones JcJ",
+    "pageDescription": "Mejores resultados a partir de datos de bajas de Albion en caché. Elige una clasificación y filtra por región, periodo y tipo de contenido.",
+    "metaTitle": "Clasificaciones JcJ de Albion Online",
+    "metaDescription": "Mejores asesinos, gremios y bajas con más fama a partir de datos JcJ rastreados de Albion Online. Filtra por región, tipo de contenido y periodo.",
+    "summaryLine": "{tabDescription} · {region} · Últimos {days} días · {content}",
+    "tabs": {
+      "killers": {
+        "label": "Mejores asesinos",
+        "description": "Jugadores clasificados por número de bajas"
+      },
+      "guilds": {
+        "label": "Mejores gremios",
+        "description": "Gremios clasificados por fama de kills total"
+      },
+      "kills": {
+        "label": "Mejores bajas",
+        "description": "Bajas individuales con más fama"
+      },
+      "fame": {
+        "label": "Más fama",
+        "description": "Jugadores clasificados por fama de kills obtenida"
+      }
+    },
+    "columns": {
+      "player": "Jugador",
+      "region": "Región",
+      "guild": "Gremio",
+      "kills": "Bajas"
+    },
+    "failedLoad": "Error al cargar las clasificaciones"
+  },
+  "Builds": {
+    "pageTitle": "Builds meta de Albion Online",
+    "pageDescription": "Equipaciones más usadas en 1v1, grupo y ZvZ de los últimos {days} días ({region}) — incluidos soportes, tanques y sanadores en asistencias. Las mismas armas y equipo se agrupan entre niveles.",
+    "metaTitle": "Builds meta de Albion Online para contenido 1v1, grupo y ZVZ",
+    "metaDescription": "Explora las mejores builds de Albion Online por tipo de contenido — 1v1, grupo y ZvZ — con estadísticas de bajas/muertes, fama, poder de objeto y armas populares a partir de datos de bajas en vivo.",
+    "stats": {
+      "eventsAnalyzed": "Eventos JcJ analizados",
+      "eventsHint": "Últimos {days} días",
+      "fameTracked": "Fama de kills rastreada",
+      "fameHint": "De bajas con fama positiva",
+      "buildsRanked": "Builds clasificadas",
+      "buildsHint": "En 1v1, grupo y ZvZ",
+      "loadoutsSampled": "Equipaciones muestreadas",
+      "loadoutsHint": "Asesinos, víctimas y asistencias"
+    },
+    "pvpEventsCount": "{count} eventos JcJ",
+    "hottestWeapons": {
+      "title": "Armas más populares",
+      "description": "Mejores armas de mano principal en cada tamaño de combate — una fila por arma, con un desglose de dónde aparece más.",
+      "uses": "{count} usos",
+      "killsSuffix": " · {count} bajas",
+      "assistsSuffix": " · {count} asistencias"
+    },
+    "sections": {
+      "soloTitle": "Meta 1v1",
+      "soloBlurb": "Mejores builds de combates entre dos jugadores.",
+      "groupTitle": "Meta de grupo",
+      "groupBlurb": "Mejores builds de combates de 3–{maxPlayers} jugadores.",
+      "zvzTitle": "Meta ZvZ",
+      "zvzBlurb": "Mejores builds de batallas de {minPlayers}+ jugadores.",
+      "topByUsage": "Top {count} · por uso",
+      "empty": "Aún no hay datos de builds de {contentType} en los últimos {days} días."
+    },
+    "unknownBuild": "Build desconocida",
+    "failedLoad": "Error al cargar builds"
+  },
+  "Search": {
+    "title": "Buscar",
+    "resultsTitle": "Resultados de búsqueda",
+    "description": "Encuentra jugadores y gremios de Albion Online por nombre.",
+    "resultsDescription": "Resultados para “{query}”",
+    "metaDescription": "Busca jugadores y gremios de Albion Online en todas las regiones.",
+    "placeholder": "Buscar jugadores o gremios...",
+    "recentSearches": "Búsquedas recientes",
+    "players": "Jugadores",
+    "guilds": "Gremios",
+    "alliances": "Alianzas",
+    "noPlayers": "No se encontraron jugadores.",
+    "noPlayersYet": "Aún no hay jugadores en caché — consultando Albion Online…",
+    "noGuilds": "No se encontraron gremios.",
+    "noGuildsYet": "Aún no hay gremios en caché — consultando Albion Online…",
+    "noAlliances": "No se encontraron alianzas. La búsqueda de alianzas es solo local.",
+    "noRegions": "No hay regiones activadas.",
+    "searching": "Buscando en Albion Online en {regions} por “{query}”…",
+    "foundFromAlbion": "Se encontró {parts} en Albion Online ({regions}).",
+    "playerCount": "{count} jugador",
+    "playerCount_plural": "{count} jugadores",
+    "guildCount": "{count} gremio",
+    "guildCount_plural": "{count} gremios",
+    "liveSearchFailed": "La búsqueda en vivo falló: {error}",
+    "temporarilyUnavailable": "Búsqueda temporalmente no disponible"
+  },
+  "Watchlist": {
+    "title": "Lista de seguimiento",
+    "description": "Jugadores y gremios fijados guardados en tu navegador. No hace falta una cuenta.",
+    "metaDescription": "Tus jugadores y gremios de Albion Online fijados. Actividad reciente de bajas de tu lista de seguimiento local.",
+    "empty": "Aún no hay jugadores ni gremios en seguimiento. Usa el botón Seguir en el perfil de un jugador o gremio para fijarlos aquí.",
+    "pinned": "Fijados ({count})",
+    "recentActivity": "Actividad reciente",
+    "noActivity": "No hay bajas recientes relacionadas con tu lista de seguimiento",
+    "failedActivity": "Error al cargar la actividad",
+    "typePlayer": "Jugador",
+    "typeGuild": "Gremio"
+  },
+  "Status": {
+    "title": "Estado del sistema",
+    "description": "Estado público de la conectividad con la API de Albion y de la ingesta de bajas por región",
+    "metaDescription": "Estado público de la ingesta y la API de AOTracker.",
+    "unavailable": "Estado temporalmente no disponible.",
+    "overallStatus": "Estado general",
+    "healthy": "Correcto",
+    "delayed": "Retrasado",
+    "degraded": "Degradado",
+    "unreachable": "Inalcanzable",
+    "coolingDown": "En enfriamiento",
+    "lastIngest": "Última ingesta:",
+    "ingestDelayed": "El feed de bajas está retrasado ({minutes} m desde la última baja)",
+    "circuitCooldown": "Una o más regiones están en enfriamiento — los datos nuevos pueden retrasarse",
+    "apiHealth": "Estado de la API",
+    "connectivity": "Conectividad",
+    "circuit": "Circuito",
+    "circuitOpen": "Abierto",
+    "circuitClosed": "Cerrado",
+    "healthCheck": "Comprobación de salud",
+    "healthOk": "OK",
+    "healthFailed": "Fallido",
+    "latestKill": "Última baja",
+    "issues": "Problemas: {list}",
+    "playersTracked": "Jugadores rastreados",
+    "guildsTracked": "Gremios rastreados",
+    "killsTracked": "Bajas rastreadas",
+    "battlesTracked": "Batallas rastreadas",
+    "onlineMs": "En línea ({ms} ms)",
+    "offlineMs": "Fuera de línea ({ms} ms)",
+    "awaitingHealthCheck": "Esperando comprobación de salud",
+    "databaseUnavailable": "Base de datos no disponible"
+  },
+  "Privacy": {
+    "title": "Política de privacidad",
+    "lastUpdated": "Última actualización: 1 de agosto de 2026",
+    "metaDescription": "Política de privacidad de {siteName}.",
+    "intro": "{siteName} («nosotros», «nuestro») ofrece seguimiento de bajas y perfiles de Albion Online. Esta página explica qué información tratamos cuando usas el sitio.",
+    "sections": {
+      "informationTitle": "Información que tratamos",
+      "informationBody": "Almacenamos y mostramos datos públicos del juego Albion Online, como nombres de jugadores, gremios, alianzas, eventos de bajas y estadísticas de batallas obtenidos de APIs de juego de terceros. No te pedimos crear una cuenta ni facilitar datos de contacto personales para navegar por el sitio.",
+      "logsTitle": "Registros y analíticas",
+      "logsBody1": "Nuestro proveedor de alojamiento puede recopilar automáticamente registros de solicitud estándar (por ejemplo, dirección IP, agente de usuario y páginas solicitadas) por motivos de seguridad, fiabilidad y rendimiento. No vendemos información personal.",
+      "logsBody2": "Usamos Google Analytics 4 para comprender el tráfico agregado y cómo se usan las páginas (por ejemplo, vistas de página, ubicación aproximada, tipo de dispositivo y referentes). Google puede establecer cookies o tecnologías similares y tratar estos datos según <googlePrivacyLink>Política de privacidad de Google</googlePrivacyLink>. Puedes limitar las cookies de analítica mediante la configuración del navegador o las herramientas de exclusión de Google.",
+      "googlePrivacyPolicy": "Política de privacidad de Google",
+      "cookiesTitle": "Cookies",
+      "cookiesBody1": "El sitio puede usar cookies o tecnologías similares necesarias para el funcionamiento básico, de nuestra plataforma de alojamiento o de Google Analytics (cuando esté activado). Puedes controlar las cookies desde la configuración de tu navegador.",
+      "cookiesBody2": "El autocompletado de búsqueda puede guardar consultas recientes y tu región preferida solo en el almacenamiento local de tu navegador, en tu dispositivo. Estos datos no se envían a nuestros servidores.",
+      "thirdPartyTitle": "Enlaces de terceros",
+      "thirdPartyBody": "Los enlaces a Albion Online u otros sitios externos se ofrecen por comodidad. Sus prácticas de privacidad se rigen por sus propias políticas.",
+      "contactTitle": "Contacto",
+      "contactBody": "Si tienes preguntas sobre esta política de privacidad, contacta con el operador del sitio a través de los canales indicados en el repositorio del proyecto o en la cuenta de alojamiento de este despliegue."
+    },
+    "disclaimer": "{siteName} no está afiliado con Albion Online ni con Sandbox Interactive GmbH."
+  },
+  "Seo": {
+    "defaultDescription": "Explora bajas JcJ, batallas, clasificaciones y builds meta de Albion Online. Perfiles de jugadores y gremios, equipo, botín y estadísticas de combate en todas las regiones.",
+    "homePageTitle": "Estadísticas JcJ, batallas y clasificaciones de Albion Online",
+    "feedRegionSuffix": "{title} — {region}",
+    "feedRegionDescription": "{description} Mostrando datos de la región {region}.",
+    "entityTitle": "{name} — {kind} de Albion Online {region}",
+    "kinds": {
+      "player": "Jugador",
+      "guild": "Gremio",
+      "alliance": "Alianza",
+      "kill": "Baja",
+      "battle": "Batalla"
+    },
+    "playerDescription": "{name} es un jugador de Albion Online {region}{affiliation}. Estadísticas JcJ de por vida: {stats}. Consulta bajas, muertes, equipo, botín e historial de combate en {siteName}.",
+    "playerInGuild": " en el gremio {guild}",
+    "playerAlliance": " (alianza {alliance})",
+    "playerStats": "{killFame} fama de kills {deathFame} fama de muertes{ratio}",
+    "playerRatio": " ratio K/D {ratio}",
+    "guildDescription": "{name} es un gremio de Albion Online {region}{alliancePart}. {stats}. {founding} Consulta mejores bajas, batallas de Albion, miembros y estadísticas JcJ en {siteName}.",
+    "guildAlliancePart": " en la alianza {alliance}",
+    "allianceDescription": "{name} es una alianza de Albion Online {region}. {stats}. {founding} Consulta gremios miembros, mejores bajas, batallas de Albion y estadísticas JcJ en {siteName}.",
+    "foundedBy": "Fundado por {name}",
+    "killTitle": "{killer} mató a {victim}{famePart}",
+    "killFamePart": " por {fame} de fama",
+    "killDescription": "{killer} mató a {victim} en un combate JcJ {content}de Albion Online {region}. {details}. Consulta el equipo del asesino y de la víctima, botín, asistencias y detalles de la baja en {siteName}.",
+    "battleTitle": "Batalla #{id}",
+    "battleDescription": "La batalla de Albion #{id} es una batalla JcJ de Albion Online {region}. {stats}. Consulta alianzas, gremios, jugadores participantes y estadísticas de bajas en {siteName}.",
+    "pendingTitle": "{entity} aún no cargado",
+    "pendingDescription": "Este {entity} todavía se está obteniendo de Albion Online.",
+    "notFoundTitle": "No encontrado",
+    "og": {
+      "playerAlt": "Perfil de jugador",
+      "playerNotFound": "Jugador no encontrado",
+      "playerNotFoundSubtitle": "Este perfil de jugador no está disponible.",
+      "playerLoading": "Cargando jugador…",
+      "playerLoadingSubtitle": "El perfil todavía se está obteniendo de Albion Online.",
+      "killAlt": "Detalles de la baja",
+      "killNotFound": "Baja no encontrada",
+      "killNotFoundSubtitle": "Este evento de baja no está disponible.",
+      "killLoading": "Cargando baja…",
+      "killLoadingSubtitle": "Los detalles de la baja todavía se están obteniendo.",
+      "battleAlt": "Detalles de la batalla",
+      "battleNotFound": "Batalla no encontrada",
+      "battleNotFoundSubtitle": "Esta batalla no está disponible.",
+      "battleLoadingSubtitle": "Los datos de la batalla se están cargando…",
+      "battleBadge": "Batalla de Albion"
+    }
+  },
+  "Errors": {
+    "notFound": {
+      "code": "404",
+      "message": "No se pudo encontrar esta página.",
+      "regionDisabled": "La región {region} está desactivada en este sitio.",
+      "entityHint": "Esto parece un enlace de {entityType}. Puedes intentar cargarlo de nuevo: los perfiles y las bajas se obtienen bajo demanda cuando faltan en la caché.",
+      "tryAgain": "Intentar cargar de nuevo",
+      "queueFetch": "Encolar obtención del perfil",
+      "searchHeading": "Buscar"
+    },
+    "generic": {
+      "failedJuicyKills": "Error al cargar las bajas jugosas",
+      "failedTopKillers": "Error al cargar los mejores asesinos",
+      "failedTopFame": "Error al cargar los líderes de fama",
+      "failedKillFeed": "Error al cargar el feed de bajas",
+      "failedLeaderboards": "Error al cargar las clasificaciones",
+      "failedBuilds": "Error al cargar builds",
+      "failedBattles": "Error al cargar batallas"
+    },
+    "profileJobStates": {
+      "waiting": "En cola (pendiente) — esperando al worker",
+      "delayed": "Programado (pendiente) — empieza tras retraso / reintento / aplazamiento del circuito",
+      "active": "Procesando — obteniendo de Albion Online",
+      "completed": "Descarga completa — cargando datos en caché",
+      "failed": "Descarga fallida — reintentando al actualizar"
+    }
+  }
+}

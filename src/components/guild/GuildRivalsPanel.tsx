@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getGuildTopOpponents } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { GuildRivalsSection } from "./GuildRivalsSection";

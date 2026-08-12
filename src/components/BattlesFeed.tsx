@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { BattleCard } from "@/components/BattleCard";
 import { BattleListPagination } from "@/components/BattleListPagination";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,8 @@ export function BattlesFeed({
   searchQuery,
   pageSize = BATTLES_FEED_PAGE_SIZE,
 }: BattlesFeedProps) {
+  const t = useTranslations("Battle");
+  const tCommon = useTranslations("Common");
   const router = useRouter();
   const [battles, setBattles] = useState(initialBattles);
   const [total, setTotal] = useState(initialTotal);
@@ -75,7 +78,7 @@ export function BattlesFeed({
           cache: "no-store",
         });
         if (!res.ok) {
-          throw new Error("Failed to load battles");
+          throw new Error(t("feed.failedLoad"));
         }
 
         const data = (await res.json()) as {
@@ -86,12 +89,12 @@ export function BattlesFeed({
         setTotal(data.total ?? 0);
         setPage(nextPage);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load battles");
+        setError(e instanceof Error ? e.message : t("feed.failedLoad"));
       } finally {
         setLoading(false);
       }
     },
-    [loading, pageSize, region, searchQuery]
+    [loading, pageSize, region, searchQuery, t]
   );
 
   const selectedCount = selected.size;
@@ -191,11 +194,11 @@ export function BattlesFeed({
 
   const emptyMessage = useMemo(() => {
     if (searchQuery) {
-      return `No battles found matching “${searchQuery}”.`;
+      return t("feed.emptySearch", { query: searchQuery });
     }
-    if (region === "all") return "No battles in the local database yet.";
-    return `No battles found for ${regionLabel(region)}.`;
-  }, [region, searchQuery]);
+    if (region === "all") return t("feed.emptyAll");
+    return t("feed.emptyRegion", { region: regionLabel(region) });
+  }, [region, searchQuery, t]);
 
   if (error && battles.length === 0) {
     return (
@@ -222,20 +225,22 @@ export function BattlesFeed({
         <div className="sticky top-[57px] z-40 space-y-3 rounded-md border border-border bg-background/95 px-4 py-3 backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
-              {selectedCount} selected
+              {t("feed.selected", { count: selectedCount })}
               {selectedRegion ? ` · ${regionLabel(selectedRegion)}` : ""}
-              {atLimit ? ` (max ${MAX_COMBINED_BATTLES})` : ""}
+              {atLimit
+                ? t("feed.maxSelected", { max: MAX_COMBINED_BATTLES })
+                : ""}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" onClick={clearSelection}>
-                Clear
+                {tCommon("buttons.clear")}
               </Button>
               <Button
                 size="sm"
                 disabled={selectedCount < 2}
                 onClick={combineSelected}
               >
-                Combine {selectedCount} battles
+                {t("feed.combine", { count: selectedCount })}
               </Button>
             </div>
           </div>
@@ -244,7 +249,7 @@ export function BattlesFeed({
             <div className="space-y-2 border-t border-border/60 pt-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Suggested Battles
+                  {t("feed.suggestedBattles")}
                 </p>
                 {suggestions.length > 1 && (
                   <Button
@@ -254,7 +259,7 @@ export function BattlesFeed({
                     className="h-7 text-xs"
                     onClick={addAllSuggestions}
                   >
-                    Add all suggestions
+                    {t("feed.addAllSuggestions")}
                   </Button>
                 )}
               </div>
@@ -267,7 +272,7 @@ export function BattlesFeed({
                     className="inline-flex max-w-full flex-col items-start gap-0.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-left text-xs transition-colors hover:border-primary/40 sm:flex-row sm:items-center sm:gap-2"
                   >
                     <span className="min-w-0 truncate font-medium">
-                      Battle #{s.id}
+                      {t("feed.battleHash", { id: s.id })}
                       {s.overlapGuildName ? ` · ${s.overlapGuildName}` : ""}
                     </span>
                     {s.startTime && (
@@ -278,7 +283,9 @@ export function BattlesFeed({
                     <span className="shrink-0 text-stat-fame">
                       {formatFame(s.totalFame)}
                     </span>
-                    <span className="shrink-0 text-primary">Add</span>
+                    <span className="shrink-0 text-primary">
+                      {tCommon("buttons.add")}
+                    </span>
                   </button>
                 ))}
               </div>

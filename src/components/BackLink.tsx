@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 
 interface BackLinkProps {
   className?: string;
@@ -10,10 +11,11 @@ interface BackLinkProps {
 
 export function BackLink({
   className = "text-sm text-muted-foreground hover:text-foreground",
-  children = "← Back",
+  children,
   fallbackHref = "/",
 }: BackLinkProps) {
   const router = useRouter();
+  const t = useTranslations("Common.buttons");
 
   function handleClick() {
     if (typeof window !== "undefined" && window.history.length > 1) {
@@ -29,7 +31,7 @@ export function BackLink({
       onClick={handleClick}
       className={`cursor-pointer rounded-sm bg-transparent p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${className}`}
     >
-      {children}
+      {children ?? t("back")}
     </button>
   );
 }

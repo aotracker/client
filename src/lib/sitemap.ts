@@ -12,6 +12,7 @@ import {
   listSitemapPlayers,
 } from "@/lib/db/queries";
 import { absoluteUrl, entityPath, type EntityType } from "@/lib/seo";
+import { LOCALE_DEFINITIONS, withLocalePrefix } from "@/i18n/locales";
 
 export const URLS_PER_SITEMAP = 10_000;
 
@@ -34,70 +35,66 @@ function pageCount(total: number): number {
   return Math.ceil(total / URLS_PER_SITEMAP);
 }
 
+function localizeUrls(
+  path: string,
+  extras: Omit<MetadataRoute.Sitemap[number], "url">
+): MetadataRoute.Sitemap {
+  return LOCALE_DEFINITIONS.map((def) => ({
+    url: absoluteUrl(withLocalePrefix(def.code, path)),
+    ...extras,
+  }));
+}
+
 function mapEntityRows(
   type: EntityType,
   rows: { name: string; albionId: string; region: string; updatedAt: Date | null }[]
 ): MetadataRoute.Sitemap {
-  return rows.map((row) => ({
-    url: absoluteUrl(
-      entityPath(
-        type,
-        row.region,
-        type === "player" || type === "guild" ? row.name : row.albionId
-      )
-    ),
-    lastModified: row.updatedAt ?? undefined,
-    changeFrequency: "daily" as const,
-    priority: type === "player" || type === "guild" ? 0.8 : 0.7,
-  }));
+  return rows.flatMap((row) => {
+    const path = entityPath(
+      type,
+      row.region,
+      type === "player" || type === "guild" ? row.name : row.albionId
+    );
+    return localizeUrls(path, {
+      lastModified: row.updatedAt ?? undefined,
+      changeFrequency: "daily" as const,
+      priority: type === "player" || type === "guild" ? 0.8 : 0.7,
+    });
+  });
 }
 
 function mapNumericRows(
   type: "kill" | "battle",
   rows: { entityId: number; region: string; updatedAt: Date | null }[]
 ): MetadataRoute.Sitemap {
-  return rows.map((row) => ({
-    url: absoluteUrl(entityPath(type, row.region, row.entityId)),
-    lastModified: row.updatedAt ?? undefined,
-    changeFrequency: type === "kill" ? ("hourly" as const) : ("daily" as const),
-    priority: type === "battle" ? 0.75 : 0.65,
-  }));
+  return rows.flatMap((row) => {
+    const path = entityPath(type, row.region, row.entityId);
+    return localizeUrls(path, {
+      lastModified: row.updatedAt ?? undefined,
+      changeFrequency: type === "kill" ? ("hourly" as const) : ("daily" as const),
+      priority: type === "battle" ? 0.75 : 0.65,
+    });
+  });
 }
 
 export function staticSitemapEntries(): MetadataRoute.Sitemap {
   const now = new Date();
-  return [
-    {
-      url: absoluteUrl("/"),
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 1,
-    },
-    {
-      url: absoluteUrl("/battles"),
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.9,
-    },
-    {
-      url: absoluteUrl("/leaderboards"),
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.9,
-    },
-    {
-      url: absoluteUrl("/builds"),
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: absoluteUrl("/watchlist"),
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.6,
-    },
+  const paths: { path: string; changeFrequency: "hourly" | "daily"; priority: number }[] = [
+    { path: "/", changeFrequency: "hourly", priority: 1 },
+    { path: "/battles", changeFrequency: "hourly", priority: 0.9 },
+    { path: "/leaderboards", changeFrequency: "hourly", priority: 0.9 },
+    { path: "/builds", changeFrequency: "daily", priority: 0.8 },
+    { path: "/watchlist", changeFrequency: "daily", priority: 0.6 },
+    { path: "/privacy", changeFrequency: "daily", priority: 0.3 },
   ];
+
+  return paths.flatMap(({ path, changeFrequency, priority }) =>
+    localizeUrls(path, {
+      lastModified: now,
+      changeFrequency,
+      priority,
+    })
+  );
 }
 
 export async function buildSitemapSlices(): Promise<SitemapSlice[]> {

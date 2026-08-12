@@ -1,5 +1,4 @@
 import { PageHeader } from "@/components/PageSection";
-import { AdminStatusOverview } from "@/components/admin/AdminStatusOverview";
 import { AdminRegionCards } from "@/components/admin/AdminRegionCards";
 import { ApiStatsMiniPanel } from "@/components/admin/ApiStatsMiniPanel";
 import { RecentOpsEventsPreview } from "@/components/admin/RecentOpsEventsPreview";
@@ -42,19 +41,13 @@ export default async function AdminDashboardPage() {
         </div>
       )}
 
-      {snapshot?.globalStatus && (
-        <AdminStatusOverview
-          globalStatus={snapshot.globalStatus}
-          workerHealth={snapshot.crons.health}
-        />
-      )}
-
       <ApiStatsMiniPanel stats={apiStats} />
 
       {snapshot && (
         <AdminRegionCards
           syncStates={snapshot.syncStates}
           entityCounts={entityCounts}
+          globalStatus={snapshot.globalStatus}
         />
       )}
 

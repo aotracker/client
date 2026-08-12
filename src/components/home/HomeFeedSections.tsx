@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { KillCard } from "@/components/KillCard";
 import { RecentKillsFeedSection } from "@/components/home/RecentKillsFeedSection";
 import { TopKillersList } from "@/components/TopKillersList";
@@ -13,19 +14,18 @@ import {
 } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { appendFeedRegionToHref } from "@/lib/region-params";
-import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
+
+export {
+  JuicyKillsFallback,
+  RecentKillsFallback,
+  TopFameEarnersFallback,
+  TopKillersFallback,
+} from "@/components/home/HomeFeedFallbacks";
 
 const HOME_RECENT_LIMIT = 10;
 const HOME_JUICY_LIMIT = 10;
 const HOME_KILLERS_LIMIT = 10;
 const HOME_FAME_LIMIT = 10;
-
-const HOME_SECTION_DESCRIPTIONS = {
-  recentKills: "The 10 most recent kills in tracked PvP data",
-  juicyKills: "Highest fame kills in the last 7 days",
-  topKillers: "Most PvP kills in the last 7 days",
-  topFame: "Highest kill fame earned in the last 7 days",
-} as const;
 
 export function HomeFeedGrid({ children }: { children: React.ReactNode }) {
   return (
@@ -33,12 +33,14 @@ export function HomeFeedGrid({ children }: { children: React.ReactNode }) {
   );
 }
 
-
 export async function JuicyKillsSection({
   region,
 }: {
   region: AlbionRegion | "all";
 }) {
+  const t = await getTranslations("Home");
+  const tCommon = await getTranslations("Common");
+
   let juicyKills: Awaited<ReturnType<typeof getRecentJuicyKills>> = [];
   let error: string | null = null;
 
@@ -48,17 +50,17 @@ export async function JuicyKillsSection({
       limit: HOME_JUICY_LIMIT,
     });
   } catch (e) {
-    error = e instanceof Error ? e.message : "Failed to load juicy kills";
+    error = e instanceof Error ? e.message : t("errorJuicy");
   }
 
   if (error) {
     return (
       <PageSection
-        title="Top 10 Juicy Kills"
-        description={HOME_SECTION_DESCRIPTIONS.juicyKills}
+        title={t("sections.juicyKillsTitle")}
+        description={t("sections.juicyKillsDescription")}
       >
         <div className="alert-danger rounded-md p-4 text-sm">
-          Juicy kills temporarily unavailable.
+          {t("errorJuicy")}
         </div>
       </PageSection>
     );
@@ -66,20 +68,20 @@ export async function JuicyKillsSection({
 
   return (
     <PageSection
-      title="Top 10 Juicy Kills"
-      description={HOME_SECTION_DESCRIPTIONS.juicyKills}
+      title={t("sections.juicyKillsTitle")}
+      description={t("sections.juicyKillsDescription")}
       actions={
         <Link
           href={appendFeedRegionToHref("/leaderboards", region, { tab: "kills" })}
           className="text-sm text-primary hover:underline"
         >
-          View all
+          {tCommon("buttons.viewAll")}
         </Link>
       }
     >
       {juicyKills.length === 0 ? (
         <div className="rounded-md border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-          No juicy kills in the last 7 days
+          {t("emptyJuicy")}
         </div>
       ) : (
         <div className="space-y-2 stagger-children">
@@ -96,27 +98,14 @@ export async function JuicyKillsSection({
   );
 }
 
-export function JuicyKillsFallback() {
-  return (
-    <PageSection title="Top 10 Juicy Kills" description={HOME_SECTION_DESCRIPTIONS.juicyKills}>
-      <div
-        className="space-y-2"
-        aria-busy="true"
-        aria-label="Loading juicy kills"
-      >
-        {Array.from({ length: HOME_JUICY_LIMIT }).map((_, i) => (
-          <KillCardSkeleton key={i} compactSize="default" />
-        ))}
-      </div>
-    </PageSection>
-  );
-}
-
 export async function TopKillersSection({
   region,
 }: {
   region: AlbionRegion | "all";
 }) {
+  const t = await getTranslations("Home");
+  const tCommon = await getTranslations("Common");
+
   let topKillers: Awaited<ReturnType<typeof getTopKillers>> = [];
   let error: string | null = null;
 
@@ -127,17 +116,17 @@ export async function TopKillersSection({
       days: 7,
     });
   } catch (e) {
-    error = e instanceof Error ? e.message : "Failed to load top killers";
+    error = e instanceof Error ? e.message : t("errorTopKillers");
   }
 
   if (error) {
     return (
       <PageSection
-        title="Top 10 Killers"
-        description={HOME_SECTION_DESCRIPTIONS.topKillers}
+        title={t("sections.topKillersTitle")}
+        description={t("sections.topKillersDescription")}
       >
         <div className="alert-danger rounded-md p-4 text-sm">
-          Top killers temporarily unavailable.
+          {t("errorTopKillers")}
         </div>
       </PageSection>
     );
@@ -145,8 +134,8 @@ export async function TopKillersSection({
 
   return (
     <PageSection
-      title="Top 10 Killers"
-      description={HOME_SECTION_DESCRIPTIONS.topKillers}
+      title={t("sections.topKillersTitle")}
+      description={t("sections.topKillersDescription")}
       actions={
         <Link
           href={appendFeedRegionToHref("/leaderboards", region, {
@@ -154,37 +143,11 @@ export async function TopKillersSection({
           })}
           className="text-sm text-primary hover:underline"
         >
-          View all
+          {tCommon("buttons.viewAll")}
         </Link>
       }
     >
       <TopKillersList killers={topKillers} layout="stack" />
-    </PageSection>
-  );
-}
-
-export function TopKillersFallback() {
-  return (
-    <PageSection title="Top 10 Killers" description={HOME_SECTION_DESCRIPTIONS.topKillers}>
-      <div
-        className="grid grid-cols-1 gap-2.5"
-        aria-busy="true"
-        aria-label="Loading top killers"
-      >
-        {Array.from({ length: HOME_KILLERS_LIMIT }).map((_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 rounded-lg border border-border bg-card px-3.5 py-3"
-          >
-            <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-1/2" />
-            </div>
-            <Skeleton className="h-4 w-8" />
-          </div>
-        ))}
-      </div>
     </PageSection>
   );
 }
@@ -194,6 +157,9 @@ export async function TopFameEarnersSection({
 }: {
   region: AlbionRegion | "all";
 }) {
+  const t = await getTranslations("Home");
+  const tCommon = await getTranslations("Common");
+
   let topFame: Awaited<ReturnType<typeof getTopPlayersByKillFame>> = [];
   let error: string | null = null;
 
@@ -204,17 +170,17 @@ export async function TopFameEarnersSection({
       days: 7,
     });
   } catch (e) {
-    error = e instanceof Error ? e.message : "Failed to load top fame earners";
+    error = e instanceof Error ? e.message : t("errorTopFame");
   }
 
   if (error) {
     return (
       <PageSection
-        title="Top 10 Fame Earners"
-        description={HOME_SECTION_DESCRIPTIONS.topFame}
+        title={t("sections.topFameTitle")}
+        description={t("sections.topFameDescription")}
       >
         <div className="alert-danger rounded-md p-4 text-sm">
-          Top fame earners temporarily unavailable.
+          {t("errorTopFame")}
         </div>
       </PageSection>
     );
@@ -222,47 +188,18 @@ export async function TopFameEarnersSection({
 
   return (
     <PageSection
-      title="Top 10 Fame Earners"
-      description={HOME_SECTION_DESCRIPTIONS.topFame}
+      title={t("sections.topFameTitle")}
+      description={t("sections.topFameDescription")}
       actions={
         <Link
           href={appendFeedRegionToHref("/leaderboards", region, { tab: "fame" })}
           className="text-sm text-primary hover:underline"
         >
-          View all
+          {tCommon("buttons.viewAll")}
         </Link>
       }
     >
       <TopFameList entries={topFame} layout="stack" />
-    </PageSection>
-  );
-}
-
-export function TopFameEarnersFallback() {
-  return (
-    <PageSection
-      title="Top 10 Fame Earners"
-      description={HOME_SECTION_DESCRIPTIONS.topFame}
-    >
-      <div
-        className="grid grid-cols-1 gap-2.5"
-        aria-busy="true"
-        aria-label="Loading top fame earners"
-      >
-        {Array.from({ length: HOME_FAME_LIMIT }).map((_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 rounded-lg border border-border bg-card px-3.5 py-3"
-          >
-            <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-1/2" />
-            </div>
-            <Skeleton className="h-4 w-10" />
-          </div>
-        ))}
-      </div>
     </PageSection>
   );
 }
@@ -274,6 +211,8 @@ export async function RecentKillsSection({
   region: AlbionRegion | "all";
   contentType: ContentTypeFilter;
 }) {
+  const t = await getTranslations("Home");
+
   let feedKills: Awaited<ReturnType<typeof getKillFeed>> = [];
   let error: string | null = null;
 
@@ -285,17 +224,17 @@ export async function RecentKillsSection({
       offset: 0,
     });
   } catch (e) {
-    error = e instanceof Error ? e.message : "Failed to load kill feed";
+    error = e instanceof Error ? e.message : t("errorRecent");
   }
 
   if (error) {
     return (
       <PageSection
-        title="Recent Kills (10)"
-        description={HOME_SECTION_DESCRIPTIONS.recentKills}
+        title={t("sections.recentKillsTitle")}
+        description={t("sections.recentKillsDescription")}
       >
         <div className="alert-danger rounded-md p-4 text-sm">
-          Kill feed temporarily unavailable.
+          {t("errorRecent")}
         </div>
       </PageSection>
     );
@@ -304,21 +243,22 @@ export async function RecentKillsSection({
   if (feedKills.length === 0) {
     return (
       <PageSection
-        title="Recent Kills (10)"
-        description={HOME_SECTION_DESCRIPTIONS.recentKills}
+        title={t("sections.recentKillsTitle")}
+        description={t("sections.recentKillsDescription")}
       >
         <div className="rounded-md border border-border bg-card p-8 text-center text-muted-foreground">
-          <p className="font-medium text-foreground">No kills to show yet</p>
+          <p className="font-medium text-foreground">{t("emptyRecentTitle")}</p>
           <p className="mt-2 text-sm">
-            Fresh Albion kills will appear here as they are ingested. Check back
-            soon, or{" "}
-            <Link
-              href="/search"
-              className="font-medium text-primary underline-offset-2 hover:underline"
-            >
-              search for a player or guild
-            </Link>
-            .
+            {t.rich("emptyRecentBody", {
+              searchLink: (chunks) => (
+                <Link
+                  href="/search"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         </div>
       </PageSection>
@@ -327,32 +267,12 @@ export async function RecentKillsSection({
 
   return (
     <RecentKillsFeedSection
-      title="Recent Kills (10)"
-      description={HOME_SECTION_DESCRIPTIONS.recentKills}
+      title={t("sections.recentKillsTitle")}
+      description={t("sections.recentKillsDescription")}
       initialEvents={feedKills}
       region={region}
       contentType={contentType}
       pageSize={HOME_RECENT_LIMIT}
     />
-  );
-}
-
-export function RecentKillsFallback() {
-  return (
-    <PageSection
-      title="Recent Kills (10)"
-      description={HOME_SECTION_DESCRIPTIONS.recentKills}
-      descriptionActions="Auto-updates every 20s"
-    >
-      <div
-        className="space-y-2"
-        aria-busy="true"
-        aria-label="Loading recent kills"
-      >
-        {Array.from({ length: HOME_RECENT_LIMIT }).map((_, i) => (
-          <KillCardSkeleton key={i} compactSize="default" />
-        ))}
-      </div>
-    </PageSection>
   );
 }

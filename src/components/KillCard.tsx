@@ -1,4 +1,7 @@
-import Link from "next/link";
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Swords } from "lucide-react";
 import { ContentBadge } from "@/components/ContentBadge";
 import { Badge } from "@/components/ui/badge";
@@ -58,22 +61,15 @@ interface KillCardProps {
   rank?: number;
 }
 
-function slotLabel(slot: string): string {
-  switch (slot) {
-    case "MainHand":
-      return "Main hand";
-    case "OffHand":
-      return "Off hand";
-    default:
-      return slot;
-  }
-}
-
 function itemsForRole(items: KillCardItem[] | undefined, role: "killer" | "victim") {
   return items?.filter((i) => i.ownerRole === role && i.category === "equipment") ?? [];
 }
 
 export function KillCard({ event, compact = false, compactSize = "default", fameVariant, rank }: KillCardProps) {
+  const locale = useLocale();
+  const t = useTranslations("Kill");
+  const tPlayer = useTranslations("Player.killCard");
+  const tCommon = useTranslations("Common");
   const killHref = `/kill/${event.region}/${event.eventId}`;
 
   const borderClass =
@@ -96,6 +92,7 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
   const victimIp = formatItemPower(
     event.participants?.find((p) => p.role === "victim")?.averageItemPower
   );
+  const unknown = tCommon("labels.unknown");
 
   if (compact) {
     const large = compactSize === "large";
@@ -114,19 +111,21 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
                       : "border-stat-death/40 bg-stat-death/15 text-stat-death"
                   }
                 >
-                  {fameVariant === "kill" ? "Kill" : "Death"}
+                  {fameVariant === "kill" ? tPlayer("kill") : tPlayer("death")}
                 </Badge>
               ) : null}
               <ContentBadge type={event.contentType} />
               <Link
                 href={killHref}
-                title="Kill Details"
+                title={tPlayer("killDetails")}
                 className={cn(
                   "truncate font-bold text-stat-fame hover:underline",
                   large ? "text-base lg:text-lg" : "text-sm"
                 )}
               >
-                {formatFame(event.totalVictimKillFame)} fame
+                {tCommon("labels.killFameWithUnit", {
+                  value: formatFame(event.totalVictimKillFame),
+                })}
               </Link>
             </div>
             <span className={cn(
@@ -146,7 +145,7 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
             <PlayerBlock
               compact
               compactSize={compactSize}
-              name={event.killer?.name ?? "Unknown"}
+              name={event.killer?.name ?? unknown}
               guild={event.killer?.guild}
               allianceTag={event.killer?.allianceTag}
               region={event.region}
@@ -154,6 +153,7 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
               weapon={killerMainHand}
               equipment={killerEquipment}
               itemPower={killerIp}
+              locale={locale}
             />
             <span
               className={cn(
@@ -161,12 +161,12 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
                 large && "lg:pt-2.5 lg:text-sm"
               )}
             >
-              killed
+              {t("killed")}
             </span>
             <PlayerBlock
               compact
               compactSize={compactSize}
-              name={event.victim?.name ?? "Unknown"}
+              name={event.victim?.name ?? unknown}
               guild={event.victim?.guild}
               allianceTag={event.victim?.allianceTag}
               region={event.region}
@@ -175,12 +175,13 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
               equipment={victimEquipment}
               itemPower={victimIp}
               isVictim
+              locale={locale}
             />
           </div>
 
           {lootCount > 0 && (
             <p className={cn("text-group", "text-xs")}>
-              {lootCount} loot items
+              {t("lootItems", { count: lootCount })}
             </p>
           )}
         </div>
@@ -193,23 +194,24 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
       <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
           <PlayerBlock
-            name={event.killer?.name ?? "Unknown"}
+            name={event.killer?.name ?? unknown}
             guild={event.killer?.guild}
             allianceTag={event.killer?.allianceTag}
             region={event.region}
             albionId={event.killer?.albionId}
             weapon={killerMainHand}
             itemPower={killerIp}
+            locale={locale}
           />
 
           <Link
             href={killHref}
-            title="Kill Details"
+            title={tPlayer("killDetails")}
             className="flex shrink-0 flex-col items-center rounded-md px-3 py-2 text-center transition-colors hover:bg-accent/50"
           >
             <Swords className="mb-1 h-5 w-5 text-muted-foreground" />
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              killed
+              {t("killed")}
             </span>
             <span className="text-sm font-bold text-stat-fame">
               {formatFame(event.totalVictimKillFame)}
@@ -220,7 +222,7 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
           </Link>
 
           <PlayerBlock
-            name={event.victim?.name ?? "Unknown"}
+            name={event.victim?.name ?? unknown}
             guild={event.victim?.guild}
             allianceTag={event.victim?.allianceTag}
             region={event.region}
@@ -228,6 +230,7 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
             weapon={victimMainHand}
             itemPower={victimIp}
             isVictim
+            locale={locale}
           />
         </div>
 
@@ -236,7 +239,9 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
             {regionLabel(event.region)} · <RelativeTime date={event.occurredAt} />
           </span>
           {lootCount > 0 && (
-            <span className="text-xs text-group">{lootCount} loot items</span>
+            <span className="text-xs text-group">
+              {t("lootItems", { count: lootCount })}
+            </span>
           )}
         </div>
       </div>
@@ -246,9 +251,12 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
 
 function BuildStrip({
   equipment,
+  locale,
 }: {
   equipment: KillCardItem[];
+  locale: string;
 }) {
+  const tCommon = useTranslations("Common");
   const bySlot = new Map(
     equipment
       .filter((item) => item.slot != null)
@@ -256,6 +264,17 @@ function BuildStrip({
   );
 
   if (bySlot.size === 0) return null;
+
+  const slotLabel = (slot: string): string => {
+    switch (slot) {
+      case "MainHand":
+        return tCommon("labels.mainHand");
+      case "OffHand":
+        return tCommon("labels.offHand");
+      default:
+        return slot;
+    }
+  };
 
   const renderSlot = (slot: string) => {
     const item = bySlot.get(slot);
@@ -273,7 +292,7 @@ function BuildStrip({
     }
 
     const name =
-      getCatalogItemName(item.itemType) ?? formatItemName(item.itemType);
+      getCatalogItemName(item.itemType, locale) ?? formatItemName(item.itemType);
 
     return (
       <div
@@ -315,6 +334,7 @@ function PlayerBlock({
   isVictim = false,
   compact = false,
   compactSize = "default",
+  locale,
 }: {
   name: string;
   guild?: { name: string; albionId?: string } | null;
@@ -327,6 +347,7 @@ function PlayerBlock({
   isVictim?: boolean;
   compact?: boolean;
   compactSize?: "default" | "large";
+  locale: string;
 }) {
   const nameClassName = cn(
     "font-semibold hover:underline",
@@ -350,7 +371,7 @@ function PlayerBlock({
         <>
           {" "}
           <span className="font-medium text-stat-ip">
-            (<ItemPowerValue value={itemPower} className="font-medium" />)
+            <ItemPowerValue value={itemPower} className="font-medium" />)
           </span>
         </>
       ) : null}
@@ -380,7 +401,7 @@ function PlayerBlock({
               </p>
             ) : null}
           </div>
-          <BuildStrip equipment={equipment ?? []} />
+          <BuildStrip equipment={equipment ?? []} locale={locale} />
         </div>
       );
     }

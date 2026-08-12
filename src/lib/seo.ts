@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { SITE_NAME } from "@/lib/site";
 import type { FeedRegion } from "@/lib/region-params";
 import { formatFame, regionLabel } from "@/lib/utils";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_DEFINITIONS,
+  withLocalePrefix,
+} from "@/i18n/locales";
 
 export const DEFAULT_DESCRIPTION =
   "Explore Albion Online PvP kills, battles, leaderboards, and meta builds. Player and guild profiles, gear, loot, and combat stats across all regions.";
@@ -23,6 +28,7 @@ export function absoluteUrl(path = "/"): string {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+/** Unprefixed paths for next-intl `Link` (locale added by the navigation helpers). */
 export function playerPath(region: string, name: string): string {
   return `/player/${region}/${encodeURIComponent(name)}`;
 }
@@ -52,9 +58,24 @@ export function entityPath(
 export function entityCanonical(
   type: EntityType,
   region: string,
-  id: string | number
+  id: string | number,
+  locale: string = DEFAULT_LOCALE
 ): string {
-  return absoluteUrl(entityPath(type, region, id));
+  return absoluteUrl(withLocalePrefix(locale, entityPath(type, region, id)));
+}
+
+/** hreflang map for a locale-stripped internal path (e.g. `/player/americas/Name`). */
+export function languageAlternates(
+  path: string
+): Record<string, string> {
+  const languages: Record<string, string> = {};
+  for (const def of LOCALE_DEFINITIONS) {
+    languages[def.code] = absoluteUrl(withLocalePrefix(def.code, path));
+  }
+  languages["x-default"] = absoluteUrl(
+    withLocalePrefix(DEFAULT_LOCALE, path)
+  );
+  return languages;
 }
 
 /** e.g. "PlayerName — Albion Online Americas Player" */
@@ -309,11 +330,13 @@ export function buildFeedPageMetadata(options: {
   description: string;
   canonicalPath: string;
   region: FeedRegion;
+  locale?: string;
 }): Metadata {
   return buildPageMetadata({
     title: feedPageTitle(options.title, options.region),
     description: feedPageDescription(options.description, options.region),
     canonicalPath: options.canonicalPath,
+    locale: options.locale,
   });
 }
 
@@ -331,12 +354,19 @@ export function buildPageMetadata(options: {
   openGraphType?: "website" | "article" | "profile";
   /** When false, omit auto-generated opengraph-image (e.g. root layout). */
   includeOpenGraphImage?: boolean;
+  /** App locale for OG locale + hreflang (defaults to English). */
+  locale?: string;
 }): Metadata {
-  const url = absoluteUrl(options.canonicalPath);
+  const locale = options.locale ?? DEFAULT_LOCALE;
+  const localeDef =
+    LOCALE_DEFINITIONS.find((l) => l.code === locale) ??
+    LOCALE_DEFINITIONS.find((l) => l.code === DEFAULT_LOCALE)!;
+  const localizedPath = withLocalePrefix(locale, options.canonicalPath);
+  const url = absoluteUrl(localizedPath);
   const robots = options.robots ?? INDEX_FOLLOW;
   const ogType = options.openGraphType ?? "website";
   const includeImage = options.includeOpenGraphImage ?? true;
-  const ogImagePath = openGraphImagePath(options.canonicalPath);
+  const ogImagePath = openGraphImagePath(localizedPath);
   const ogImageUrl = absoluteUrl(ogImagePath);
   const ogImage = includeImage
     ? {
@@ -352,7 +382,10 @@ export function buildPageMetadata(options: {
   return {
     title: options.title,
     description: options.description,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      languages: languageAlternates(options.canonicalPath),
+    },
     robots,
     openGraph: {
       title: options.title,
@@ -360,7 +393,7 @@ export function buildPageMetadata(options: {
       url,
       siteName: SITE_NAME,
       type: ogType,
-      locale: "en_US",
+      locale: localeDef.ogLocale,
       ...(ogImage ? { images: [ogImage] } : {}),
     },
     twitter: {

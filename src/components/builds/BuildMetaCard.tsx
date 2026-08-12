@@ -1,3 +1,6 @@
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 import { ItemIcon } from "@/components/ItemIcon";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
 import { getCatalogItemName, getItemFamilyDisplayName } from "@/lib/items/catalog";
@@ -10,59 +13,59 @@ interface BuildMetaCardProps {
   accentClassName: string;
 }
 
-function buildTitle(items: MetaBuildEntry["items"]): string {
-  const mainHand = items.find((i) => i.slot === "MainHand");
-  if (!mainHand) return "Unknown build";
-  return (
-    getItemFamilyDisplayName(mainHand.itemType) ??
-    getCatalogItemName(mainHand.itemType) ??
-    formatItemName(mainHand.itemType)
-  );
-}
-
-function slotLabel(slot: string): string {
-  switch (slot) {
-    case "MainHand":
-      return "Main hand";
-    case "OffHand":
-      return "Off hand";
-    default:
-      return slot;
-  }
-}
-
 export function BuildMetaCard({
   build,
   accentClassName,
 }: BuildMetaCardProps) {
+  const locale = useLocale();
+  const t = useTranslations("Builds");
+  const tCommon = useTranslations("Common");
   const bySlot = new Map(build.items.map((item) => [item.slot, item]));
-  const title = buildTitle(build.items);
+
+  const mainHand = build.items.find((i) => i.slot === "MainHand");
+  const title = !mainHand
+    ? t("unknownBuild")
+    : getItemFamilyDisplayName(mainHand.itemType, locale) ??
+      getCatalogItemName(mainHand.itemType, locale) ??
+      formatItemName(mainHand.itemType);
+
   const avgIp = formatItemPower(build.avgIp);
+
+  const slotLabel = (slot: string): string => {
+    switch (slot) {
+      case "MainHand":
+        return tCommon("labels.mainHand");
+      case "OffHand":
+        return tCommon("labels.offHand");
+      default:
+        return slot;
+    }
+  };
 
   const stats = [
     {
-      label: "Uses",
+      label: tCommon("stats.uses"),
       value: build.appearances.toLocaleString(),
       className: undefined as string | undefined,
     },
     {
-      label: "Assists",
+      label: tCommon("stats.assists"),
       value: build.assists.toLocaleString(),
       className: undefined,
     },
     {
-      label: "Kills",
+      label: tCommon("stats.kills"),
       value: build.kills.toLocaleString(),
       className: "text-stat-kill",
     },
     {
-      label: "Deaths",
+      label: tCommon("stats.deaths"),
       value: build.deaths.toLocaleString(),
       className: "text-stat-death",
     },
     {
-      label: "Avg IP",
-      value: avgIp ?? "—",
+      label: tCommon("stats.avgIp"),
+      value: avgIp ?? tCommon("labels.emDash"),
       className: "text-stat-ip",
     },
   ];
@@ -94,8 +97,7 @@ export function BuildMetaCard({
               />
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {build.uniquePlayers} player
-              {build.uniquePlayers === 1 ? "" : "s"}
+              {tCommon("stats.players")}: {build.uniquePlayers}
             </p>
           </div>
         </div>
@@ -105,7 +107,8 @@ export function BuildMetaCard({
             const item = bySlot.get(slot);
             if (!item) return null;
             const label =
-              getCatalogItemName(item.itemType) ?? formatItemName(item.itemType);
+              getCatalogItemName(item.itemType, locale) ??
+              formatItemName(item.itemType);
 
             return (
               <div

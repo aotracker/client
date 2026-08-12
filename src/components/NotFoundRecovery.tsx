@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import {
   SearchAutocomplete,
@@ -18,6 +18,10 @@ const ENTITY_RE =
 export function NotFoundRecovery() {
   const pathname = usePathname() ?? "";
   const router = useRouter();
+  const t = useTranslations("Errors.notFound");
+  const tNav = useTranslations("Nav");
+  const tButtons = useTranslations("Common.buttons");
+  const tKinds = useTranslations("Common.entityKinds");
   const [region, setRegion] = useSearchRegion(getDefaultRegion());
   const feedRegion = getStoredPreferredRegion();
 
@@ -38,31 +42,37 @@ export function NotFoundRecovery() {
     };
   }, [pathname]);
 
+  const entityKindLabel =
+    recovery?.kind === "entity" &&
+    (recovery.entityType === "player" ||
+      recovery.entityType === "guild" ||
+      recovery.entityType === "alliance" ||
+      recovery.entityType === "kill" ||
+      recovery.entityType === "battle")
+      ? tKinds(recovery.entityType)
+      : recovery?.kind === "entity"
+        ? recovery.entityType
+        : "";
+
   return (
     <div className="mx-auto w-full max-w-lg space-y-6 text-center">
       <div>
-        <h1 className="font-display text-5xl font-bold tracking-tight">404</h1>
-        <p className="mt-2 text-muted-foreground">
-          This page could not be found.
-        </p>
+        <h1 className="font-display text-5xl font-bold tracking-tight">
+          {t("code")}
+        </h1>
+        <p className="mt-2 text-muted-foreground">{t("message")}</p>
       </div>
 
       {recovery?.kind === "disabled" && (
         <p className="alert-warning rounded-md px-3 py-2 text-sm">
-          The <span className="font-medium">{recovery.region}</span> region is
-          disabled on this site.
+          {t("regionDisabled", { region: recovery.region })}
         </p>
       )}
 
       {recovery?.kind === "entity" && (
         <div className="space-y-3 rounded-md border border-border bg-card p-4 text-left">
           <p className="text-sm text-muted-foreground">
-            This looks like a{" "}
-            <span className="font-medium text-foreground">
-              {recovery.entityType}
-            </span>{" "}
-            link. You can try loading it again — profiles and kills are fetched
-            on demand when missing from the cache.
+            {t("entityHint", { entityType: entityKindLabel })}
           </p>
           <Button
             type="button"
@@ -70,8 +80,8 @@ export function NotFoundRecovery() {
             onClick={() => router.push(recovery.path)}
           >
             {recovery.entityType === "kill" || recovery.entityType === "battle"
-              ? "Try loading again"
-              : "Queue profile fetch"}
+              ? t("tryAgain")
+              : t("queueFetch")}
           </Button>
         </div>
       )}
@@ -81,25 +91,25 @@ export function NotFoundRecovery() {
           href={feedNavHref("/", feedRegion)}
           className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
-          Home
+          {tButtons("home")}
         </Link>
         <Link
           href={feedNavHref("/battles", feedRegion)}
           className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
-          Battles
+          {tNav("battles")}
         </Link>
         <Link
           href="/search"
           className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
         >
-          Search
+          {tNav("search")}
         </Link>
       </div>
 
       <div className="space-y-2 text-left">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Search
+          {t("searchHeading")}
         </p>
         <SearchAutocomplete
           region={region}

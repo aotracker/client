@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { Swords } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
 import { ContentBadge } from "@/components/ContentBadge";
@@ -10,7 +11,6 @@ import {
   formatFame,
   formatItemPower,
   formatSilver,
-  regionLabel,
 } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
 import { RelativeTime } from "@/components/RelativeTime";
@@ -64,17 +64,23 @@ export type KillDetailViewProps = {
   gearSection?: React.ReactNode;
 };
 
-export function KillDetailView(props: KillDetailViewProps) {
+export async function KillDetailView(props: KillDetailViewProps) {
+  const t = await getTranslations("Kill");
+  const tLabels = await getTranslations("Common.labels");
+  const tRegions = await getTranslations("Common.regions");
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <BackLink />
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-sm text-muted-foreground">
-            Kill ID:{" "}
+            {t("killId")}{" "}
             <span className="font-mono text-foreground">{props.eventId}</span>
             {props.battleTotalPlayers != null && (
-              <span> · {props.battleTotalPlayers} players in battle</span>
+              <span>
+                {t("playersInBattle", { count: props.battleTotalPlayers })}
+              </span>
             )}
           </p>
           <ShareLinkButton path={props.sharePath} />
@@ -82,23 +88,64 @@ export function KillDetailView(props: KillDetailViewProps) {
       </div>
 
       <div className="lg:sticky lg:top-[57px] lg:z-30">
-        <KillSummaryCard {...props} />
+        <KillSummaryCard
+          {...props}
+          killerLabel={t("killer")}
+          victimLabel={t("victim")}
+          killFameLabel={t("killFame")}
+          regionLabelText={
+            tRegions.has(props.region) ? tRegions(props.region) : props.region
+          }
+        />
       </div>
 
-      <AssistsSection assistants={props.assistants} />
-      {props.gearSection ?? <GearSection {...props} />}
-      {props.victimLoot.length > 0 && <LootSection {...props} />}
+      <AssistsSection
+        assistants={props.assistants}
+        title={t("assists", { count: props.assistants.length })}
+      />
+      {props.gearSection ?? (
+        <GearSection
+          {...props}
+          killerEquipmentTitle={t("killerEquipment")}
+          victimEquipmentTitle={t("victimEquipment")}
+          estValueLabel={(value) => tLabels("estValue", { value })}
+          averageIpLabel={tLabels("averageIp")}
+        />
+      )}
+      {props.victimLoot.length > 0 && (
+        <LootSection
+          victimLoot={props.victimLoot}
+          title={t("victimLoot")}
+          itemsDropped={t("itemsDropped", {
+            count: props.victimLoot.length,
+          })}
+          lootDescription={t("lootDescription", {
+            victimName: props.victim.name,
+          })}
+        />
+      )}
     </div>
   );
 }
 
-function KillSummaryCard(props: KillDetailViewProps) {
+function KillSummaryCard({
+  killerLabel,
+  victimLabel,
+  killFameLabel,
+  regionLabelText,
+  ...props
+}: KillDetailViewProps & {
+  killerLabel: string;
+  victimLabel: string;
+  killFameLabel: string;
+  regionLabelText: string;
+}) {
   return (
     <Card className="overflow-hidden border-border/80 bg-card/95 backdrop-blur">
       <CardContent className="p-0">
         <div className="flex flex-col items-stretch sm:flex-row">
           <PlayerSummary
-            label="Killer"
+            label={killerLabel}
             name={props.killer.name}
             guild={props.killer.guildName}
             guildHref={
@@ -117,7 +164,7 @@ function KillSummaryCard(props: KillDetailViewProps) {
           <div className="flex flex-col items-center justify-center border-y border-border bg-muted/10 px-6 py-6 sm:border-x sm:border-y-0">
             <Swords className="mb-2 h-8 w-8 text-muted-foreground" />
             <StatValue
-              label="Kill Fame"
+              label={killFameLabel}
               value={formatFame(props.totalVictimKillFame)}
               variant="fame"
               size="header"
@@ -126,12 +173,12 @@ function KillSummaryCard(props: KillDetailViewProps) {
               <ContentBadge type={props.contentType} />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              {regionLabel(props.region)} ·{" "}
+              {regionLabelText} ·{" "}
               <RelativeTime date={new Date(props.occurredAt)} />
             </p>
           </div>
           <PlayerSummary
-            label="Victim"
+            label={victimLabel}
             name={props.victim.name}
             guild={props.victim.guildName}
             guildHref={
@@ -155,14 +202,16 @@ function KillSummaryCard(props: KillDetailViewProps) {
 
 function AssistsSection({
   assistants,
+  title,
 }: {
   assistants: KillDetailAssistant[];
+  title: string;
 }) {
   if (assistants.length === 0) return null;
   return (
     <div className="rounded-lg border border-border/40 bg-muted/5 px-4 py-3">
       <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
-        Assists ({assistants.length})
+        {title}
       </p>
       <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
         {assistants.map((assistant) => (
@@ -206,24 +255,33 @@ function GearSection({
   victimIp,
   killerEstSilver,
   victimEstSilver,
-}: KillDetailViewProps) {
+  killerEquipmentTitle,
+  victimEquipmentTitle,
+  estValueLabel,
+  averageIpLabel,
+}: KillDetailViewProps & {
+  killerEquipmentTitle: string;
+  victimEquipmentTitle: string;
+  estValueLabel: (value: string) => string;
+  averageIpLabel: string;
+}) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between gap-3">
             <CardTitle className="text-base text-stat-kill">
-              Killer&apos;s Equipment
+              {killerEquipmentTitle}
             </CardTitle>
             {killerEstSilver != null && killerEstSilver > 0 && (
               <p className="shrink-0 text-sm text-muted-foreground">
-                Est. value: {formatSilver(killerEstSilver)}
+                {estValueLabel(formatSilver(killerEstSilver))}
               </p>
             )}
           </div>
           {formatItemPower(killerIp) && (
             <p className="text-sm text-muted-foreground">
-              Average IP:{" "}
+              {averageIpLabel}{" "}
               <ItemPowerValue value={killerIp} withSuffix={false} />
             </p>
           )}
@@ -237,17 +295,17 @@ function GearSection({
         <CardHeader>
           <div className="flex items-start justify-between gap-3">
             <CardTitle className="text-base text-stat-death">
-              Victim&apos;s Equipment
+              {victimEquipmentTitle}
             </CardTitle>
             {victimEstSilver != null && victimEstSilver > 0 && (
               <p className="shrink-0 text-sm text-muted-foreground">
-                Est. value: {formatSilver(victimEstSilver)}
+                {estValueLabel(formatSilver(victimEstSilver))}
               </p>
             )}
           </div>
           {formatItemPower(victimIp) && (
             <p className="text-sm text-muted-foreground">
-              Average IP:{" "}
+              {averageIpLabel}{" "}
               <ItemPowerValue value={victimIp} withSuffix={false} />
             </p>
           )}
@@ -262,20 +320,24 @@ function GearSection({
 
 function LootSection({
   victimLoot,
-  victim,
-}: Pick<KillDetailViewProps, "victimLoot" | "victim">) {
+  title,
+  itemsDropped,
+  lootDescription,
+}: Pick<KillDetailViewProps, "victimLoot"> & {
+  title: string;
+  itemsDropped: string;
+  lootDescription: string;
+}) {
   return (
     <Card className="border-group/30">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Victim&apos;s Inventory Loot</span>
+          <span>{title}</span>
           <span className="text-sm font-normal text-muted-foreground">
-            {victimLoot.length} item{victimLoot.length !== 1 ? "s" : ""} dropped
+            {itemsDropped}
           </span>
         </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Items {victim.name} was carrying when killed
-        </p>
+        <p className="text-sm text-muted-foreground">{lootDescription}</p>
       </CardHeader>
       <CardContent>
         <LootGrid items={victimLoot} />

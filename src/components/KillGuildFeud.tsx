@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { KillCard } from "@/components/KillCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getGuildFeudKillsFromDb } from "@/lib/db/queries";

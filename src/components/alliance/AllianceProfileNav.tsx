@@ -1,12 +1,18 @@
 "use client";
 
-import { ProfileSectionNav } from "@/components/ProfileSectionNav";
-
-const SECTIONS = [
-  { id: "kills", label: "Kills" },
-  { id: "battles", label: "Battles" },
-] as const;
+import { useTranslations } from "next-intl";
+import {
+  ProfileSectionNav,
+  type ProfileNavSection,
+} from "@/components/ProfileSectionNav";
 
 export function AllianceProfileNav() {
-  return <ProfileSectionNav sections={SECTIONS} />;
+  const t = useTranslations("Alliance.nav");
+
+  const sections: ProfileNavSection[] = [
+    { id: "kills", label: t("kills") },
+    { id: "battles", label: t("battles") },
+  ];
+
+  return <ProfileSectionNav sections={sections} />;
 }
