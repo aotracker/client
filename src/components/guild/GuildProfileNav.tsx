@@ -12,8 +12,8 @@ export function GuildProfileNav() {
 
   const sections: ProfileNavSection[] = [
     { id: "kills", label: t("kills"), icon: Swords },
-    { id: "rivals", label: t("rivals"), icon: Swords },
     { id: "battles", label: t("battles"), icon: Swords },
+    { id: "rivals", label: t("rivals"), icon: Swords },
   ];
 
   return <ProfileSectionNav sections={sections} />;

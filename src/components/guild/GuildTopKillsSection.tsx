@@ -2,6 +2,7 @@ import { getGuildTopKillsFromDb } from "@/lib/db/queries";
 import { isSyncStale } from "@/lib/db/sync";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { KillCard } from "@/components/KillCard";
+import { PageSection } from "@/components/PageSection";
 import { Card, CardContent } from "@/components/ui/card";
 import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { getTranslations } from "next-intl/server";
@@ -21,11 +22,10 @@ export async function GuildTopKillsSection({
     !historyLastSyncedAt || isSyncStale(historyLastSyncedAt);
 
   return (
-    <section>
-      <h2 className="mb-3 text-lg font-semibold">
-        {t("title", { count: topKills.length })}
-      </h2>
-      <p className="mb-3 text-xs text-muted-foreground">{t("description")}</p>
+    <PageSection
+      title={t("title", { count: topKills.length })}
+      description={t("description")}
+    >
       <div className="space-y-2">
         {topKills.length === 0 ? (
           <Card>
@@ -44,15 +44,17 @@ export async function GuildTopKillsSection({
           ))
         )}
       </div>
-    </section>
+    </PageSection>
   );
 }
 
 export function GuildTopKillsFallback() {
   return (
-    <section aria-busy="true" aria-label="Loading top kills">
-      <Skeleton className="mb-3 h-5 w-32" />
-      <Skeleton className="mb-3 h-3 w-48" />
+    <section className="space-y-3" aria-busy="true" aria-label="Loading top kills">
+      <div className="space-y-1">
+        <Skeleton className="h-6 w-32" />
+        <Skeleton className="h-4 w-56" />
+      </div>
       <div className="space-y-2">
         {Array.from({ length: 3 }).map((_, i) => (
           <KillCardSkeleton key={i} />

@@ -88,6 +88,7 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
                     <ItemIcon
                       itemType={item.itemType}
                       quality={item.quality}
+                      tooltip={`${slotLabel(slot)}: ${getCatalogItemName(item.itemType, locale) ?? formatItemName(item.itemType)}`}
                       width={48}
                       height={48}
                       className="block object-contain"

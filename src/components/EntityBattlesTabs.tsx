@@ -5,6 +5,7 @@ import { Clock, Trophy } from "lucide-react";
 import type { AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
 import { BattleCard } from "@/components/BattleCard";
 import { EmptyState } from "@/components/EmptyState";
+import { PageSection } from "@/components/PageSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -45,12 +46,11 @@ export function EntityBattlesTabs({
   const emptyLabel = tab === "recent" ? recentEmptyLabel : topEmptyLabel;
 
   return (
-    <section className="min-w-0 space-y-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">Battles</h2>
-          <p className="text-xs text-muted-foreground">{description}</p>
-        </div>
+    <PageSection
+      className="min-w-0"
+      title="Battles"
+      description={description}
+      actions={
         <div
           className="flex flex-wrap gap-1"
           role="group"
@@ -77,8 +77,8 @@ export function EntityBattlesTabs({
             </Button>
           ))}
         </div>
-      </div>
-
+      }
+    >
       <div className="min-w-0 space-y-3">
         {battles.length === 0 ? (
           <Card>
@@ -105,6 +105,6 @@ export function EntityBattlesTabs({
           ))
         )}
       </div>
-    </section>
+    </PageSection>
   );
 }

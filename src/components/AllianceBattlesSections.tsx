@@ -95,10 +95,10 @@ export async function AllianceBattlesSections({
 export function AllianceBattlesSectionsFallback() {
   return (
     <section className="space-y-3" aria-busy="true" aria-label="Loading battles">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <Skeleton className="h-6 w-24" />
-          <Skeleton className="h-3 w-64" />
+          <Skeleton className="h-4 w-64" />
         </div>
         <div className="flex gap-1">
           <Skeleton className="h-8 w-20" />

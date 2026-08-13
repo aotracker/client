@@ -119,6 +119,7 @@ export function BuildMetaCard({
                 <ItemIcon
                   itemType={item.itemType}
                   quality={item.quality}
+                  tooltip={`${slotLabel(slot)}: ${label}`}
                   width={64}
                   height={64}
                   className="block object-contain"

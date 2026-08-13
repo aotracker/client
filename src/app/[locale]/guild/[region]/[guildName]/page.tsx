@@ -270,6 +270,12 @@ export default async function GuildProfilePage({ params }: PageProps) {
         </Suspense>
       </div>
 
+      <div id="battles" className="scroll-mt-28">
+        <Suspense fallback={<GuildBattlesSectionsFallback />}>
+          <GuildBattlesSections region={albionRegion} guildId={albionId} />
+        </Suspense>
+      </div>
+
       <div id="rivals" className="scroll-mt-28">
         <Suspense fallback={<GuildRivalsFallback />}>
           <GuildRivalsPanel
@@ -277,12 +283,6 @@ export default async function GuildProfilePage({ params }: PageProps) {
             guildId={albionId}
             guildName={header.name}
           />
-        </Suspense>
-      </div>
-
-      <div id="battles" className="scroll-mt-28">
-        <Suspense fallback={<GuildBattlesSectionsFallback />}>
-          <GuildBattlesSections region={albionRegion} guildId={albionId} />
         </Suspense>
       </div>
     </div>

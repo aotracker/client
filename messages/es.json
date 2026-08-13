@@ -75,7 +75,7 @@
       "remove": "Quitar",
       "watch": "Seguir",
       "watching": "Siguiendo",
-      "back": "← Volver",
+      "goBack": "Volver",
       "home": "Inicio"
     },
     "a11y": {

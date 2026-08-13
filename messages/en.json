@@ -75,7 +75,7 @@
       "remove": "Remove",
       "watch": "Watch",
       "watching": "Watching",
-      "back": "← Back",
+      "goBack": "Back",
       "home": "Home"
     },
     "a11y": {

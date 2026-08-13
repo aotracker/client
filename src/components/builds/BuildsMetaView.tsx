@@ -283,6 +283,7 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
                     <ItemIcon
                       itemType={weapon.itemType}
                       quality={ITEM_QUALITY_EXCELLENT}
+                      tooltip={weaponLabel(weapon.itemType, locale)}
                       width={52}
                       height={52}
                       className="block object-contain"

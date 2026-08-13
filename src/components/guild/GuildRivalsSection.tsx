@@ -5,7 +5,7 @@ import { formatFame } from "@/lib/utils";
 import type { GuildOpponentEntry } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { EmptyState } from "@/components/EmptyState";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageSection } from "@/components/PageSection";
 import { feudPath, guildPath } from "@/lib/seo";
 
 interface GuildRivalsListProps {
@@ -93,22 +93,15 @@ export async function GuildRivalsSection({
   const t = await getTranslations("Guild.rivals");
 
   return (
-    <section>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("title")}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {t("description", { guildName })}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <GuildRivalsList
-            region={region}
-            guildName={guildName}
-            rivals={rivals}
-          />
-        </CardContent>
-      </Card>
-    </section>
+    <PageSection
+      title={t("title")}
+      description={t("description", { guildName })}
+    >
+      <GuildRivalsList
+        region={region}
+        guildName={guildName}
+        rivals={rivals}
+      />
+    </PageSection>
   );
 }
