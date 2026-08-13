@@ -41,7 +41,7 @@ export function BattleAlliancesList({ region, alliances }: BattleAlliancesListPr
               <th className={cn(battleTableHeaderNumericClass, statHeaderClass("death"))}>
                 Deaths
               </th>
-              <th className={cn(battleTableHeaderNumericClass, statHeaderClass("ip"))}>
+              <th className={cn(battleTableHeaderNumericClass, "w-14 sm:w-16", statHeaderClass("ip"))}>
                 Avg IP
               </th>
               <th className={cn(battleTableHeaderNumericClass, statHeaderClass("fame"))}>
@@ -55,7 +55,8 @@ export function BattleAlliancesList({ region, alliances }: BattleAlliancesListPr
                 <td className={battleTableCellClass}>
                   <Link
                     href={`/alliance/${region}/${alliance.id}`}
-                    className="font-medium hover:text-primary hover:underline"
+                    title={alliance.name}
+                    className="block truncate font-medium hover:text-primary hover:underline"
                   >
                     {alliance.name}
                   </Link>

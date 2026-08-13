@@ -38,7 +38,7 @@ export function BattleGuildsList({ region, guilds }: BattleGuildsListProps) {
           <thead>
             <tr>
               <th className={battleTableHeaderClass}>Guild</th>
-              <th className={battleTableHeaderClass}>Alliance</th>
+              <th className={cn(battleTableHeaderClass, "w-[4.75rem] sm:w-20")}>Alliance</th>
               <th className={battleTableHeaderNumericClass}>Players</th>
               <th className={cn(battleTableHeaderNumericClass, statHeaderClass("kill"))}>
                 Kills
@@ -46,7 +46,7 @@ export function BattleGuildsList({ region, guilds }: BattleGuildsListProps) {
               <th className={cn(battleTableHeaderNumericClass, statHeaderClass("death"))}>
                 Deaths
               </th>
-              <th className={cn(battleTableHeaderNumericClass, statHeaderClass("ip"))}>
+              <th className={cn(battleTableHeaderNumericClass, "w-14 sm:w-16", statHeaderClass("ip"))}>
                 Avg IP
               </th>
               <th className={cn(battleTableHeaderNumericClass, statHeaderClass("fame"))}>
@@ -60,16 +60,18 @@ export function BattleGuildsList({ region, guilds }: BattleGuildsListProps) {
                 <td className={battleTableCellClass}>
                   <Link
                     href={guildPath(region, guild.name)}
-                    className="font-medium hover:text-primary hover:underline"
+                    title={guild.name}
+                    className="block truncate font-medium hover:text-primary hover:underline"
                   >
                     {guild.name}
                   </Link>
                 </td>
-                <td className={battleTableCellClass}>
+                <td className={cn(battleTableCellClass, "w-[4.75rem] sm:w-20")}>
                   {guild.alliance && guild.allianceId ? (
                     <Link
                       href={`/alliance/${region}/${guild.allianceId}`}
-                      className="text-muted-foreground hover:text-primary hover:underline"
+                      title={guild.alliance}
+                      className="block truncate text-muted-foreground hover:text-primary hover:underline"
                     >
                       {guild.alliance}
                     </Link>

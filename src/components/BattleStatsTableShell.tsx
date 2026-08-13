@@ -49,7 +49,7 @@ export function BattleStatsTableShell<T>({
   const pagedItems = filteredItems.slice(pageStart, pageStart + BATTLE_LIST_PAGE_SIZE);
 
   return (
-    <section>
+    <section className="min-w-0">
       <Card>
         <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-lg font-semibold">
@@ -75,9 +75,7 @@ export function BattleStatsTableShell<T>({
               {noMatchMessage(search.trim())}
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[28rem] text-sm">{children(pagedItems)}</table>
-            </div>
+            <table className="w-full table-fixed text-sm">{children(pagedItems)}</table>
           )}
         </CardContent>
       </Card>
@@ -95,15 +93,15 @@ export function BattleStatsTableShell<T>({
 }
 
 export const battleTableHeaderClass =
-  "px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground first:pl-0 last:pr-0";
+  "px-2 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground first:pl-0 last:pr-0 sm:px-3";
 
 export const battleTableHeaderNumericClass =
-  "px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground last:pr-0";
+  "w-12 px-1.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground last:pr-0 sm:w-14 sm:px-2";
 
-export const battleTableCellClass = "px-3 py-2.5 first:pl-0 last:pr-0";
+export const battleTableCellClass = "min-w-0 truncate px-2 py-2.5 first:pl-0 last:pr-0 sm:px-3";
 
 export const battleTableCellNumericClass =
-  "px-3 py-2.5 text-right tabular-nums last:pr-0";
+  "w-12 px-1.5 py-2.5 text-right tabular-nums whitespace-nowrap last:pr-0 sm:w-14 sm:px-2";
 
 export const battleTableRowClass =
   "border-b border-border/40 transition-colors hover:bg-muted/30 last:border-0";
