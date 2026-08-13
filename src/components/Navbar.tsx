@@ -43,6 +43,8 @@ interface NavbarProps {
   preferredRegion: AlbionRegion | null;
 }
 
+const SERVER_CLOCK_PLACEHOLDER = "--:--:--";
+
 function formatUtcClock(date: Date): string {
   return date.toLocaleTimeString("en-GB", {
     timeZone: "UTC",
@@ -53,13 +55,25 @@ function formatUtcClock(date: Date): string {
   });
 }
 
+let cachedClock = formatUtcClock(new Date());
+
 function subscribeToClock(onStoreChange: () => void) {
-  const id = window.setInterval(onStoreChange, 1000);
+  const id = window.setInterval(() => {
+    const next = formatUtcClock(new Date());
+    if (next !== cachedClock) {
+      cachedClock = next;
+      onStoreChange();
+    }
+  }, 1000);
   return () => window.clearInterval(id);
 }
 
 function getClockSnapshot() {
-  return formatUtcClock(new Date());
+  return cachedClock;
+}
+
+function getServerClockSnapshot() {
+  return SERVER_CLOCK_PLACEHOLDER;
 }
 
 function ServerTime({ className }: { className?: string }) {
@@ -67,7 +81,7 @@ function ServerTime({ className }: { className?: string }) {
   const clock = useSyncExternalStore(
     subscribeToClock,
     getClockSnapshot,
-    () => "--:--:--"
+    getServerClockSnapshot
   );
 
   return (

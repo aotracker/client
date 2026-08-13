@@ -26,19 +26,19 @@ Workers and the ingest API live in [`../ingest/`](../ingest/) and are **never** 
 
 | Variable | Purpose |
 |---|---|
-| `DATABASE_URL` | PostgreSQL on OVH VM (`postgresql://albion:…@VM_HOST:5432/albion_kills?sslmode=no-verify`) |
-| `INGEST_API_URL` | Ingest HTTP API on OVH VM (e.g. `http://VM_HOST:3001`) |
+| `DATABASE_URL` | PostgreSQL on OVH VM public IP (`postgresql://albion:…@VM_PUBLIC_IP:5432/albion_kills?sslmode=no-verify`) |
+| `INGEST_API_URL` | `https://queue.aotracker.net` (ingest HTTP API; not Cloudflare-proxied today) |
 | `INGEST_API_SECRET` | Bearer token for ingest API (must match `/home/ubuntu/ingest/.env`) |
 | `CRON_SECRET` | Secures ops `/api/cron/*` and `/status` |
 | `DISABLED_REGIONS` | Comma-separated region slugs to skip. Empty/unset = all regions enabled |
-| `NEXT_PUBLIC_APP_URL` | Canonical public URL (e.g. `https://www.aotracker.net`) |
+| `NEXT_PUBLIC_APP_URL` | Canonical public URL (`https://www.aotracker.net`) |
 
 ### Optional
 
 | Variable | Purpose |
 |---|---|
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 |
-| `NEXT_PUBLIC_ITEM_ICON_CDN` | CDN base URL for item icons |
+| `NEXT_PUBLIC_ITEM_ICON_CDN` | `https://cdn.aotracker.net/item-icons` (Cloudflare R2 custom domain, prefix `item-icons/`) |
 
 ### Not needed on Vercel
 
@@ -95,7 +95,7 @@ src/
 └── lib/              # Albion API, DB, ingest HTTP client
 drizzle/              # SQL migrations
 data/                 # Item icon manifest + name catalog
-public/item-icons/    # Cached item icon PNGs (deployed to Vercel)
+public/item-icons/    # Local/dev item icon PNGs (production uses R2 CDN)
 vercel.json           # Vercel config
 ```
 

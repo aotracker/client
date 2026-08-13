@@ -1,5 +1,4 @@
 import { getGuildByAlbionId } from "@/lib/db/queries";
-import { ensureGuildSyncQueued } from "@/lib/jobs/queue";
 import {
   guildBattleListNeedsRefresh,
   hasBattleKillFame,
@@ -9,7 +8,6 @@ import type { AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
 import { EntityBattlesTabs } from "@/components/EntityBattlesTabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { after } from "next/server";
 
 interface GuildBattlesSectionsProps {
   region: AlbionRegion;
@@ -61,10 +59,6 @@ export async function GuildBattlesSections({
     guild?.recentBattlesPayload,
     guild?.battlesLastSyncedAt
   );
-
-  if (needRecentSync || needTopSync) {
-    after(() => ensureGuildSyncQueued(region, guildId));
-  }
 
   return (
     <EntityBattlesTabs

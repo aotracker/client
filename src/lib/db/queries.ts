@@ -7,6 +7,7 @@ import {
   BUILDS_CACHE_REVALIDATE_SECONDS,
   HOME_CACHE_REVALIDATE_SECONDS,
   LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  PATCH_NOTES_CACHE_REVALIDATE_SECONDS,
   cachedQuery,
 } from "@/lib/cache";
 import { getCatalogItemName } from "@/lib/items/catalog";
@@ -33,6 +34,10 @@ import {
   parseItemType,
 } from "@/lib/item-icons";
 import { db, schema } from "@/lib/db";
+import {
+  ALBION_FORUM_PATCH_NOTES_FEED_KEY,
+  type ForumPatchNoteItem,
+} from "@/lib/db/schema";
 import { BATTLES_FEED_PREVIEW_LIMIT, RELATED_BATTLE_WINDOW_MS } from "@/lib/battles-constants";
 import { scoreRelatedBattles } from "@/lib/battles/related";
 
@@ -1376,6 +1381,57 @@ export async function getApiSyncState() {
   return db.query.apiSyncState.findMany({
     where: inArray(schema.apiSyncState.region, ENABLED_REGIONS),
   });
+}
+
+export interface AlbionPatchNotesFeed {
+  items: ForumPatchNoteItem[];
+  fetchedAt: string | null;
+  lastError: string | null;
+}
+
+function isPatchNoteItem(value: unknown): value is ForumPatchNoteItem {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  return (
+    typeof item.title === "string" &&
+    typeof item.url === "string" &&
+    typeof item.publishedAt === "string" &&
+    typeof item.excerpt === "string"
+  );
+}
+
+async function loadAlbionPatchNotes(): Promise<AlbionPatchNotesFeed> {
+  const row = await db.query.externalFeedCache.findFirst({
+    where: eq(
+      schema.externalFeedCache.feedKey,
+      ALBION_FORUM_PATCH_NOTES_FEED_KEY
+    ),
+  });
+
+  if (!row) {
+    return { items: [], fetchedAt: null, lastError: null };
+  }
+
+  const items = Array.isArray(row.items)
+    ? row.items.filter(isPatchNoteItem)
+    : [];
+
+  return {
+    items,
+    fetchedAt: row.fetchedAt?.toISOString() ?? null,
+    lastError: row.lastError,
+  };
+}
+
+const cachedAlbionPatchNotes = cachedQuery(
+  loadAlbionPatchNotes,
+  ["albion-patch-notes"],
+  PATCH_NOTES_CACHE_REVALIDATE_SECONDS,
+  ["patch-notes"]
+);
+
+export async function getAlbionPatchNotes(): Promise<AlbionPatchNotesFeed> {
+  return cachedAlbionPatchNotes();
 }
 
 export interface RegionEntityCounts {

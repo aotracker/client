@@ -6,11 +6,8 @@ export type {
 
 export {
   ensurePlayerSyncQueued,
-  ensurePlayerSyncQueuedAfter,
   ensureGuildSyncQueued,
-  ensureGuildSyncQueuedAfter,
   ensureAllianceRefreshQueued,
-  ensureAllianceRefreshQueuedAfter,
   ensureKillEventQueued,
   ensureBattleDetailQueued,
   ensureEntityResolveQueued,

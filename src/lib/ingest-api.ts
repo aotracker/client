@@ -89,13 +89,6 @@ async function getJson<T>(path: string): Promise<T | null> {
   }
 }
 
-function postJsonFireAndForget(
-  path: string,
-  body: Record<string, unknown>
-): void {
-  void postJson(path, body);
-}
-
 export async function ensurePlayerSyncQueued(
   region: AlbionRegion,
   albionId: string,
@@ -103,19 +96,6 @@ export async function ensurePlayerSyncQueued(
 ): Promise<void> {
   if (!isIngestApiConfigured()) return;
   await postJson("/jobs/player-sync", {
-    region,
-    playerId: albionId,
-    immediate: options?.immediate === true,
-  });
-}
-
-export function ensurePlayerSyncQueuedAfter(
-  region: AlbionRegion,
-  albionId: string,
-  options?: { immediate?: boolean }
-): void {
-  if (!isIngestApiConfigured()) return;
-  postJsonFireAndForget("/jobs/player-sync", {
     region,
     playerId: albionId,
     immediate: options?.immediate === true,
@@ -136,20 +116,6 @@ export async function ensureGuildSyncQueued(
   });
 }
 
-export function ensureGuildSyncQueuedAfter(
-  region: AlbionRegion,
-  guildId: string,
-  options?: { immediate?: boolean; force?: boolean }
-): void {
-  if (!isIngestApiConfigured()) return;
-  postJsonFireAndForget("/jobs/guild-sync", {
-    region,
-    guildId,
-    immediate: options?.immediate === true,
-    force: options?.force === true,
-  });
-}
-
 export async function ensureAllianceRefreshQueued(
   region: AlbionRegion,
   allianceId: string,
@@ -157,19 +123,6 @@ export async function ensureAllianceRefreshQueued(
 ): Promise<void> {
   if (!isIngestApiConfigured()) return;
   await postJson("/jobs/alliance-refresh", {
-    region,
-    allianceId,
-    immediate: options?.immediate === true,
-  });
-}
-
-export function ensureAllianceRefreshQueuedAfter(
-  region: AlbionRegion,
-  allianceId: string,
-  options?: { immediate?: boolean }
-): void {
-  if (!isIngestApiConfigured()) return;
-  postJsonFireAndForget("/jobs/alliance-refresh", {
     region,
     allianceId,
     immediate: options?.immediate === true,

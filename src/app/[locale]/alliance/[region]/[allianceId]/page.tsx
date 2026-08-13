@@ -6,6 +6,7 @@ import {
   getAllianceProfileFromDb,
 } from "@/lib/db/queries";
 import { isSyncStale } from "@/lib/db/sync";
+import { guildBattleListNeedsRefresh } from "@/lib/albion/battles";
 import {
   ensureAllianceRefreshQueued,
   getAllianceRefreshJobState,
@@ -54,11 +55,20 @@ const loadAllianceProfile = cache(async function loadAllianceProfile(
     return null;
   }
 
+  const { alliance } = profile;
   const shouldRefreshProfile =
-    !profile.alliance.lastSyncedAt ||
-    isSyncStale(profile.alliance.lastSyncedAt) ||
-    !profile.alliance.battlesLastSyncedAt ||
-    isSyncStale(profile.alliance.battlesLastSyncedAt);
+    !alliance.lastSyncedAt ||
+    isSyncStale(alliance.lastSyncedAt) ||
+    guildBattleListNeedsRefresh(
+      alliance.recentBattlesPayload,
+      alliance.topBattlesPayload,
+      alliance.battlesLastSyncedAt
+    ) ||
+    guildBattleListNeedsRefresh(
+      alliance.topBattlesPayload,
+      alliance.recentBattlesPayload,
+      alliance.battlesLastSyncedAt
+    );
 
   if (shouldRefreshProfile) {
     after(() => ensureAllianceRefreshQueued(region, allianceId));

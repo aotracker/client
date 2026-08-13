@@ -36,9 +36,7 @@ export default async function Image({ params }: Props) {
   const cached = await getCachedBattleDetail(albionRegion, parsedBattleId);
 
   if (!cached) {
-    await ensureBattleDetailQueued(albionRegion, parsedBattleId, {
-      immediate: true,
-    });
+    await ensureBattleDetailQueued(albionRegion, parsedBattleId);
     return createOgImage({
       title: `Albion Battle #${parsedBattleId}`,
       subtitle: "Battle data is loading…",

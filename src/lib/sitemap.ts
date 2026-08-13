@@ -85,6 +85,7 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
     { path: "/leaderboards", changeFrequency: "hourly", priority: 0.9 },
     { path: "/builds", changeFrequency: "daily", priority: 0.8 },
     { path: "/watchlist", changeFrequency: "daily", priority: 0.6 },
+    { path: "/patch-notes", changeFrequency: "daily", priority: 0.5 },
     { path: "/privacy", changeFrequency: "daily", priority: 0.3 },
   ];
 
