@@ -28,7 +28,6 @@
     "disclaimer": "{siteName} no está afiliado, respaldado ni patrocinado por Albion Online ni por Sandbox Interactive GmbH.",
     "systemStatus": "Estado del sistema",
     "privacyPolicy": "Política de privacidad",
-    "albionPatchNotes": "Notas de parche de Albion Online",
     "getAlbion": "Obtener Albion"
   },
   "Common": {
@@ -606,16 +605,6 @@
       "contactBody": "Si tienes preguntas sobre esta política de privacidad, contacta con el operador del sitio a través de los canales indicados en el repositorio del proyecto o en la cuenta de alojamiento de este despliegue."
     },
     "disclaimer": "{siteName} no está afiliado con Albion Online ni con Sandbox Interactive GmbH."
-  },
-  "PatchNotes": {
-    "title": "Notas de parche de Albion Online",
-    "description": "Notas de parche oficiales del juego publicadas por los desarrolladores.",
-    "metaDescription": "Notas de parche oficiales de Albion Online. Últimas actualizaciones y hotfixes de Sandbox Interactive.",
-    "source": "Fuente: <changelogLink>changelog oficial de Albion Online</changelogLink>",
-    "readOfficial": "Leer notas oficiales",
-    "error": "No se pudieron cargar las notas de parche de Albion Online. Consulta el <changelogLink>changelog oficial</changelogLink>.",
-    "empty": "Aún no hay notas de parche de Albion Online en caché",
-    "emptyHint": "Consulta el <changelogLink>changelog oficial</changelogLink> en albiononline.com."
   },
   "Seo": {
     "defaultDescription": "Explora bajas JcJ, batallas, clasificaciones y builds meta de Albion Online. Perfiles de jugadores y gremios, equipo, botín y estadísticas de combate en todas las regiones.",

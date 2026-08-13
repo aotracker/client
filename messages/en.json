@@ -28,7 +28,6 @@
     "disclaimer": "{siteName} is not affiliated with, endorsed by, or sponsored by Albion Online or Sandbox Interactive GmbH.",
     "systemStatus": "System status",
     "privacyPolicy": "Privacy Policy",
-    "albionPatchNotes": "Albion Online Patch Notes",
     "getAlbion": "Get Albion"
   },
   "Common": {
@@ -606,16 +605,6 @@
       "contactBody": "If you have questions about this privacy policy, contact the site operator through the channels listed on the project repository or hosting account for this deployment."
     },
     "disclaimer": "{siteName} is not affiliated with Albion Online or Sandbox Interactive GmbH."
-  },
-  "PatchNotes": {
-    "title": "Albion Online Patch Notes",
-    "description": "Official Albion Online game patch notes from the developers.",
-    "metaDescription": "Official Albion Online game patch notes. Latest updates and hotfixes from Sandbox Interactive.",
-    "source": "Source: <changelogLink>official Albion Online changelog</changelogLink>",
-    "readOfficial": "Read official notes",
-    "error": "Could not load Albion Online patch notes. See the <changelogLink>official changelog</changelogLink>.",
-    "empty": "No Albion Online patch notes are cached yet",
-    "emptyHint": "Check the <changelogLink>official changelog</changelogLink> on albiononline.com."
   },
   "Seo": {
     "defaultDescription": "Explore Albion Online PvP kills, battles, leaderboards, and meta builds. Player and guild profiles, gear, loot, and combat stats across all regions.",

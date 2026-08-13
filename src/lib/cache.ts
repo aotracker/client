@@ -9,9 +9,6 @@ export const LEADERBOARD_CACHE_REVALIDATE_SECONDS = 30;
 /** Cross-request TTL for meta builds (expensive participant aggregation). */
 export const BUILDS_CACHE_REVALIDATE_SECONDS = 60;
 
-/** Cross-request TTL for Albion Online patch notes (ingest-owned RSS cache). */
-export const PATCH_NOTES_CACHE_REVALIDATE_SECONDS = 60;
-
 /**
  * Request-scoped memoization stub — Next.js wraps with `react` cache at the
  * app layer when needed. Prefer `cachedQuery` for cross-request page data.
