@@ -32,6 +32,7 @@ export type KillFeedEvent = {
     itemType: string;
     quality: number | null;
     category: string;
+    displayNames?: Record<string, string>;
   }[];
   participants?: {
     role: string;
@@ -192,9 +193,7 @@ export function KillFeedList({
       if (region !== "all") params.set("region", region);
       if (contentType !== "all") params.set("type", contentType);
 
-      const res = await fetch(`/api/kills?${params.toString()}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(`/api/kills?${params.toString()}`);
       if (!res.ok) {
         throw new Error("Failed to load more kills");
       }

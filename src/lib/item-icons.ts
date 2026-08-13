@@ -1,5 +1,3 @@
-import manifest from "../../data/item-icon-manifest.json";
-
 const RENDER_BASE = "https://render.albiononline.com/v1/item";
 const LOCAL_ICON_PREFIX = "/item-icons";
 const CDN_BASE = process.env.NEXT_PUBLIC_ITEM_ICON_CDN?.replace(/\/$/, "");
@@ -64,15 +62,6 @@ export function itemIconIdentifier(type: string): string {
   return enchantment > 0 ? `${baseName}@${enchantment}` : baseName;
 }
 
-const cachedKeys = new Set(manifest.keys);
-
-export function isItemIconCached(
-  type: string,
-  quality: number | null | undefined = 1
-): boolean {
-  return cachedKeys.has(itemIconCacheKey(type, quality));
-}
-
 /** Albion render service URL (enchantment in path, quality as query param). */
 export function itemIconRemoteUrl(
   type: string,
@@ -100,17 +89,17 @@ export function itemIconLocalPath(
   return path;
 }
 
-/** Prefer local/CDN cache when available; otherwise Albion render API. */
+/**
+ * Client-safe icon URL. Prefers the public CDN when configured; otherwise the
+ * Albion render API. Does not consult the 23k-key icon manifest — that JSON
+ * must stay out of client component bundles.
+ */
 export function itemIconUrl(
   type: string,
   quality: number | null | undefined = 1
 ): string {
-  if (isItemIconCached(type, quality)) {
+  if (CDN_BASE) {
     return itemIconLocalPath(type, quality);
   }
   return itemIconRemoteUrl(type, quality);
-}
-
-export function getCachedItemIconKeys(): string[] {
-  return [...cachedKeys];
 }

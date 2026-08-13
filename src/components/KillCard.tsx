@@ -16,7 +16,6 @@ import {
   KILL_CARD_PRIMARY_SLOTS,
   KILL_CARD_SECONDARY_SLOTS,
 } from "@/lib/albion/player-history";
-import { getCatalogItemName } from "@/lib/items/catalog";
 
 type KillCardItem = {
   ownerRole: string;
@@ -24,6 +23,7 @@ type KillCardItem = {
   itemType: string;
   quality: number | null;
   category: string;
+  displayNames?: Record<string, string>;
 };
 
 interface KillCardProps {
@@ -59,6 +59,10 @@ interface KillCardProps {
   fameVariant?: "kill" | "death";
   /** Leaderboard rank for top-3 highlight styling. */
   rank?: number;
+}
+
+function itemDisplayName(item: { itemType: string; displayNames?: Record<string, string> }, locale: string) {
+  return item.displayNames?.[locale] ?? formatItemName(item.itemType);
 }
 
 function itemsForRole(items: KillCardItem[] | undefined, role: "killer" | "victim") {
@@ -291,8 +295,7 @@ function BuildStrip({
       );
     }
 
-    const name =
-      getCatalogItemName(item.itemType, locale) ?? formatItemName(item.itemType);
+    const name = itemDisplayName(item, locale);
 
     return (
       <div
@@ -303,6 +306,7 @@ function BuildStrip({
         <ItemIcon
           itemType={item.itemType}
           quality={item.quality}
+          tooltip={name}
           fill
           className="block object-contain"
         />
@@ -341,7 +345,7 @@ function PlayerBlock({
   allianceTag?: string | null;
   region: string;
   albionId?: string;
-  weapon?: { itemType: string; quality: number | null } | null;
+  weapon?: { itemType: string; quality: number | null; displayNames?: Record<string, string> } | null;
   equipment?: KillCardItem[];
   itemPower?: string | null;
   isVictim?: boolean;
@@ -416,6 +420,7 @@ function PlayerBlock({
               itemType={weapon.itemType}
               quality={weapon.quality ?? 1}
               alt="weapon"
+              tooltip={itemDisplayName(weapon, locale)}
               fill
             />
           </div>
@@ -449,6 +454,7 @@ function PlayerBlock({
             itemType={weapon.itemType}
             quality={weapon.quality ?? 1}
             alt="weapon"
+            tooltip={itemDisplayName(weapon, locale)}
             fill
           />
         </div>

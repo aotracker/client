@@ -59,6 +59,8 @@ export interface KillCardEvent {
     itemType: string;
     quality: number | null;
     category: string;
+    /** Localized catalog names resolved on the server — not the full catalog. */
+    displayNames?: Record<string, string>;
   }[];
   participants?: {
     role: string;

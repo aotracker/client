@@ -1,7 +1,16 @@
 import { cache } from "react";
 import { and, count, desc, eq, gt, gte, ilike, inArray, isNotNull, lte, ne, or, sql, sum } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
+import { LOCALE_CODES } from "@/i18n/locales";
 import { albionEventToKillCard } from "@/lib/albion/player-history";
+import {
+  BUILDS_CACHE_REVALIDATE_SECONDS,
+  HOME_CACHE_REVALIDATE_SECONDS,
+  LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  cachedQuery,
+} from "@/lib/cache";
+import { getCatalogItemName } from "@/lib/items/catalog";
+import { formatItemName } from "@/lib/utils";
 import { normalizeAllianceInfo, parseAllianceGuilds } from "@/lib/albion/alliance-info";
 import type {
   AlbionBattle,
@@ -84,6 +93,9 @@ const EMPTY_PLAYER_ANALYTICS: PlayerAnalytics = {
 function getLast30DaysCutoff() {
   return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 }
+
+/** Cap gear-sample rows so active ZvZ players cannot load unbounded JSONB. */
+const PLAYER_ANALYTICS_BUILD_SAMPLE_LIMIT = 500;
 
 function toDateKey(value: Date | string): string {
   const d = typeof value === "string" ? new Date(value) : value;
@@ -390,7 +402,16 @@ function mapKillEventToCard(event: KillEventWithRelations) {
             allianceTag: extras.victim?.allianceTag ?? null,
           }
         : null,
-    items: extras.items,
+    items: extras.items?.map((item) => ({
+      ...item,
+      displayNames: Object.fromEntries(
+        LOCALE_CODES.map((locale) => [
+          locale,
+          getCatalogItemName(item.itemType, locale) ??
+            formatItemName(item.itemType),
+        ])
+      ),
+    })),
     participants: extras.participants,
   };
 }
@@ -490,15 +511,15 @@ function battlesFeedWhere(
   return and(...conditions);
 }
 
-export const getKillFeed = cache(async function getKillFeed(filters: KillFeedFilters = {}) {
-  const {
-    region = "all",
-    contentType = "all",
-    limit = 50,
-    offset = 0,
-    after,
-    afterEventId,
-  } = filters;
+async function loadKillFeed(filters: {
+  region: AlbionRegion | "all";
+  contentType: ContentTypeFilter;
+  limit: number;
+  offset: number;
+  after?: string;
+  afterEventId?: number;
+}) {
+  const { region, contentType, limit, offset, after, afterEventId } = filters;
 
   const conditions = [killFamePositiveCondition()];
   const regionFilter = regionCondition(region);
@@ -507,7 +528,7 @@ export const getKillFeed = cache(async function getKillFeed(filters: KillFeedFil
     conditions.push(eq(schema.killEvents.contentType, contentType));
   }
   if (after) {
-    const afterDate = after instanceof Date ? after : new Date(after);
+    const afterDate = new Date(after);
     if (!Number.isNaN(afterDate.getTime())) {
       if (afterEventId != null && Number.isFinite(afterEventId)) {
         const afterCond = or(
@@ -538,12 +559,53 @@ export const getKillFeed = cache(async function getKillFeed(filters: KillFeedFil
   });
 
   return events.map(mapKillEventToCard);
+}
+
+const cachedKillFeed = cachedQuery(
+  async (
+    region: AlbionRegion | "all",
+    contentType: ContentTypeFilter,
+    limit: number,
+    offset: number
+  ) => loadKillFeed({ region, contentType, limit, offset }),
+  ["kill-feed"],
+  HOME_CACHE_REVALIDATE_SECONDS,
+  ["kills"]
+);
+
+export const getKillFeed = cache(async function getKillFeed(
+  filters: KillFeedFilters = {}
+) {
+  const {
+    region = "all",
+    contentType = "all",
+    limit = 50,
+    offset = 0,
+    after,
+    afterEventId,
+  } = filters;
+
+  if (after) {
+    const afterIso = after instanceof Date ? after.toISOString() : after;
+    return loadKillFeed({
+      region,
+      contentType,
+      limit,
+      offset: 0,
+      after: afterIso,
+      afterEventId,
+    });
+  }
+
+  return cachedKillFeed(region, contentType, limit, offset);
 });
 
-export const getRecentJuicyKills = cache(async function getRecentJuicyKills(
-  filters: JuicyKillsFilters = {}
+async function loadRecentJuicyKills(
+  region: AlbionRegion | "all",
+  limit: number,
+  days: number,
+  contentType: ContentTypeFilter
 ) {
-  const { region = "all", limit = 5, days = 7, contentType = "all" } = filters;
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = leaderboardConditions(
@@ -562,17 +624,28 @@ export const getRecentJuicyKills = cache(async function getRecentJuicyKills(
   });
 
   return events.map(mapKillEventToCard);
+}
+
+const cachedRecentJuicyKills = cachedQuery(
+  loadRecentJuicyKills,
+  ["juicy-kills"],
+  LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  ["kills", "leaderboards"]
+);
+
+export const getRecentJuicyKills = cache(async function getRecentJuicyKills(
+  filters: JuicyKillsFilters = {}
+) {
+  const { region = "all", limit = 5, days = 7, contentType = "all" } = filters;
+  return cachedRecentJuicyKills(region, limit, days, contentType);
 });
 
-export const getTopKillers = cache(async function getTopKillers(
-  filters: TopKillerFilters = {}
+async function loadTopKillers(
+  region: AlbionRegion | "all",
+  limit: number,
+  days: number,
+  contentType: ContentTypeFilter
 ) {
-  const {
-    region = "all",
-    limit = 10,
-    days = 7,
-    contentType = "all",
-  } = filters;
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = [
@@ -623,6 +696,25 @@ export const getTopKillers = cache(async function getTopKillers(
     });
     return acc;
   }, []);
+}
+
+const cachedTopKillers = cachedQuery(
+  loadTopKillers,
+  ["top-killers"],
+  LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  ["kills", "leaderboards"]
+);
+
+export const getTopKillers = cache(async function getTopKillers(
+  filters: TopKillerFilters = {}
+) {
+  const {
+    region = "all",
+    limit = 10,
+    days = 7,
+    contentType = "all",
+  } = filters;
+  return cachedTopKillers(region, limit, days, contentType);
 });
 
 export async function getKillEvent(region: AlbionRegion, eventId: number) {
@@ -978,7 +1070,9 @@ export async function getPlayerAnalytics(
           eq(schema.killParticipants.playerId, playerId),
           gte(schema.killEvents.occurredAt, cutoff)
         )
-      ),
+      )
+      .orderBy(desc(schema.killEvents.occurredAt))
+      .limit(PLAYER_ANALYTICS_BUILD_SAMPLE_LIMIT),
   ]);
 
   const activity: PlayerActivityDay[] = activityRows
@@ -1914,14 +2008,11 @@ function aggregateMetaBuilds(
  * loadouts surface even without last-hits. Same weapons/gear across tiers
  * are combined (matches player analytics).
  */
-export async function getMetaBuilds(options?: {
-  region?: AlbionRegion | "all";
-  days?: number;
-  limitPerType?: number;
-}): Promise<MetaBuildsResult> {
-  const region = options?.region ?? "all";
-  const days = Math.min(Math.max(options?.days ?? 30, 1), 30);
-  const limitPerType = options?.limitPerType ?? META_BUILDS_PER_TYPE;
+async function loadMetaBuilds(
+  region: AlbionRegion | "all",
+  days: number,
+  limitPerType: number
+): Promise<MetaBuildsResult> {
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const [contentMixRows, ...sampleRowGroups] = await Promise.all([
@@ -2167,15 +2258,30 @@ export async function getMetaBuilds(options?: {
   };
 }
 
-export const getTopPlayersByKillFame = cache(async function getTopPlayersByKillFame(
-  filters: LeaderboardFilters = {}
+const cachedMetaBuilds = cachedQuery(
+  loadMetaBuilds,
+  ["meta-builds"],
+  BUILDS_CACHE_REVALIDATE_SECONDS,
+  ["builds"]
+);
+
+export async function getMetaBuilds(options?: {
+  region?: AlbionRegion | "all";
+  days?: number;
+  limitPerType?: number;
+}): Promise<MetaBuildsResult> {
+  const region = options?.region ?? "all";
+  const days = Math.min(Math.max(options?.days ?? 30, 1), 30);
+  const limitPerType = options?.limitPerType ?? META_BUILDS_PER_TYPE;
+  return cachedMetaBuilds(region, days, limitPerType);
+}
+
+async function loadTopPlayersByKillFame(
+  region: AlbionRegion | "all",
+  limit: number,
+  days: number,
+  contentType: ContentTypeFilter
 ) {
-  const {
-    region = "all",
-    limit = 50,
-    days = 7,
-    contentType = "all",
-  } = filters;
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = [
@@ -2227,9 +2333,16 @@ export const getTopPlayersByKillFame = cache(async function getTopPlayersByKillF
     });
     return acc;
   }, []);
-});
+}
 
-export const getTopGuildsByKillFame = cache(async function getTopGuildsByKillFame(
+const cachedTopPlayersByKillFame = cachedQuery(
+  loadTopPlayersByKillFame,
+  ["top-fame"],
+  LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  ["kills", "leaderboards"]
+);
+
+export const getTopPlayersByKillFame = cache(async function getTopPlayersByKillFame(
   filters: LeaderboardFilters = {}
 ) {
   const {
@@ -2238,6 +2351,15 @@ export const getTopGuildsByKillFame = cache(async function getTopGuildsByKillFam
     days = 7,
     contentType = "all",
   } = filters;
+  return cachedTopPlayersByKillFame(region, limit, days, contentType);
+});
+
+async function loadTopGuildsByKillFame(
+  region: AlbionRegion | "all",
+  limit: number,
+  days: number,
+  contentType: ContentTypeFilter
+) {
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = [
@@ -2285,6 +2407,25 @@ export const getTopGuildsByKillFame = cache(async function getTopGuildsByKillFam
     });
     return acc;
   }, []);
+}
+
+const cachedTopGuildsByKillFame = cachedQuery(
+  loadTopGuildsByKillFame,
+  ["top-guilds"],
+  LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  ["kills", "leaderboards"]
+);
+
+export const getTopGuildsByKillFame = cache(async function getTopGuildsByKillFame(
+  filters: LeaderboardFilters = {}
+) {
+  const {
+    region = "all",
+    limit = 50,
+    days = 7,
+    contentType = "all",
+  } = filters;
+  return cachedTopGuildsByKillFame(region, limit, days, contentType);
 });
 
 export async function getGuildTopOpponents(

@@ -2,9 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { useLocale } from "next-intl";
-import { cn } from "@/lib/utils";
-import { formatItemTooltip } from "@/lib/items/catalog";
+import { cn, formatItemName } from "@/lib/utils";
 import { itemIconRemoteUrl, itemIconUrl } from "@/lib/item-icons";
 
 interface ItemIconProps {
@@ -28,11 +26,11 @@ export function ItemIcon({
   width,
   height,
 }: ItemIconProps) {
-  const locale = useLocale();
-  const label = tooltip ?? formatItemTooltip(itemType, locale);
+  const label = tooltip ?? alt ?? formatItemName(itemType);
   const primary = itemIconUrl(itemType, quality);
   const fallback = itemIconRemoteUrl(itemType, quality);
   const [src, setSrc] = useState(primary);
+  const optimizeRemote = src.startsWith("https://render.albiononline.com/");
 
   return (
     <span
@@ -49,8 +47,9 @@ export function ItemIcon({
         fill={fill}
         width={fill ? undefined : width}
         height={fill ? undefined : height}
+        sizes={fill ? "64px" : undefined}
         className={cn("block", className)}
-        unoptimized
+        unoptimized={!optimizeRemote}
         onError={() => {
           if (src !== fallback) setSrc(fallback);
         }}

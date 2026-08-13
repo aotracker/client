@@ -1,13 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import {
-  parseItemType,
-  itemIconUrl,
-  itemIconRemoteUrl,
-  itemIconCacheKey,
-} from "@/lib/item-icons";
-
-export { parseItemType, itemIconUrl, itemIconRemoteUrl, itemIconCacheKey };
+import { parseItemType } from "@/lib/item-icons";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

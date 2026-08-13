@@ -32,7 +32,18 @@ export async function GET(request: Request) {
           ? afterEventId
           : undefined,
     });
-    return NextResponse.json({ events });
+    return NextResponse.json(
+      { events },
+      {
+        headers: {
+          // Incremental `after` polls are per-client; keep them uncached.
+          // Shared list/load-more URLs can sit at the CDN for 10s.
+          "Cache-Control": after
+            ? "private, no-store"
+            : "public, s-maxage=10, stale-while-revalidate=30",
+        },
+      }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to fetch kills" },
