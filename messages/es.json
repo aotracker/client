@@ -180,6 +180,9 @@
     "region": "Región",
     "period": "Periodo",
     "contentType": "Tipo de contenido",
+    "utcHour": "Hora UTC",
+    "anyHour": "Cualquier hora",
+    "primeTime": "Prime Time",
     "lastDays": "Últimos {days} días"
   },
   "Home": {
@@ -260,9 +263,24 @@
   "Guild": {
     "kind": "Gremio",
     "nav": {
+      "activity": "Actividad",
       "kills": "Bajas",
       "rivals": "Rivales",
       "battles": "Batallas"
+    },
+    "activity": {
+      "title": "Actividad del gremio",
+      "description": "Miembros únicos del gremio en eventos JcJ en los Prime Time de esta región · últimos {days} días",
+      "peak": "Pico {hour} UTC · {members} miembros únicos del gremio",
+      "peakPrimeTime": "Hora más activa del gremio",
+      "peakLabel": "Más activa",
+      "peakMembers": "{members} miembros únicos del gremio",
+      "empty": "Aún no hay actividad JcJ con hora en caché",
+      "hoverHint": "Pasa el cursor por una ventana para ver detalles",
+      "hover": "{hour} UTC · {members} miembros únicos · {kills} bajas · {deaths} muertes · {fame} fama",
+      "legendPeak": "Más activa — este gremio",
+      "legendPrime": "Prime Time de la región",
+      "hourAxis": "UTC"
     },
     "topKills": {
       "title": "Mejores bajas ({count})",
@@ -451,6 +469,7 @@
     "metaTitle": "Clasificaciones JcJ de Albion Online",
     "metaDescription": "Mejores asesinos, gremios y bajas con más fama a partir de datos JcJ rastreados de Albion Online. Filtra por región, tipo de contenido y periodo.",
     "summaryLine": "{tabDescription} · {region} · Últimos {days} días · {content}",
+    "summaryLineHour": "{tabDescription} · {region} · Últimos {days} días · {content} · {hour} UTC",
     "tabs": {
       "killers": {
         "label": "Mejores asesinos",
@@ -458,7 +477,8 @@
       },
       "guilds": {
         "label": "Mejores gremios",
-        "description": "Gremios clasificados por fama de kills total"
+        "description": "Gremios clasificados por fama de kills total",
+        "descriptionHour": "Gremios clasificados por miembros únicos en eventos JcJ a esta hora UTC"
       },
       "kills": {
         "label": "Mejores bajas",
@@ -473,8 +493,11 @@
       "player": "Jugador",
       "region": "Región",
       "guild": "Gremio",
-      "kills": "Bajas"
+      "kills": "Bajas",
+      "members": "Miembros"
     },
+    "emptyGuilds": "No hay fama de kills de gremios en este periodo",
+    "emptyGuildsHour": "No hay actividad de gremios en esta hora UTC",
     "failedLoad": "Error al cargar las clasificaciones"
   },
   "Builds": {

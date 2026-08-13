@@ -9,9 +9,14 @@ import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
 import {
   LEADERBOARD_TABS,
+  parseLeaderboardHour,
   type LeaderboardTab,
 } from "@/lib/leaderboards/params";
 import { readFeedRegionParam } from "@/lib/region-params";
+import {
+  formatUtcHour,
+  primeTimeHoursForFilter,
+} from "@/lib/albion/prime-times";
 import { useLeaderboardNavigation } from "@/components/leaderboards/LeaderboardNavigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -58,6 +63,11 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
   const region = readFeedRegionParam(searchParams);
   const days = Number(searchParams.get("days") ?? "7");
   const type = (searchParams.get("type") as ContentTypeFilter) || "all";
+  const hour = parseLeaderboardHour(searchParams.get("hour") ?? undefined);
+  const showPrimeTime = tab === "guilds";
+  const ptHours = primeTimeHoursForFilter(region);
+  const selectedPtHour =
+    hour != null && ptHours.includes(hour) ? hour : null;
 
   const contentTypes: { value: ContentTypeFilter; label: string }[] = [
     { value: "all", label: tFilters("contentAll") },
@@ -120,7 +130,14 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
               size="sm"
               variant={region === r.value ? "default" : "outline"}
               aria-pressed={region === r.value}
-              onClick={() => push({ region: r.value })}
+              onClick={() => {
+                const nextHours = primeTimeHoursForFilter(r.value);
+                const keepHour =
+                  hour != null && nextHours.includes(hour)
+                    ? String(hour)
+                    : "";
+                push({ region: r.value, hour: keepHour });
+              }}
             >
               {regionLabel(r.value)}
             </Button>
@@ -154,6 +171,30 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
             </Button>
           ))}
         </FilterRow>
+
+        {showPrimeTime ? (
+          <FilterRow label={tFilters("primeTime")}>
+            <Button
+              size="sm"
+              variant={selectedPtHour == null ? "default" : "outline"}
+              aria-pressed={selectedPtHour == null}
+              onClick={() => push({ hour: "" })}
+            >
+              {tFilters("contentAll")}
+            </Button>
+            {ptHours.map((slot) => (
+              <Button
+                key={slot}
+                size="sm"
+                variant={selectedPtHour === slot ? "default" : "outline"}
+                aria-pressed={selectedPtHour === slot}
+                onClick={() => push({ hour: String(slot) })}
+              >
+                {formatUtcHour(slot)}
+              </Button>
+            ))}
+          </FilterRow>
+        ) : null}
       </div>
     </Card>
   );

@@ -50,3 +50,12 @@ export function parseLeaderboardContentType(
   if (value === "SOLO" || value === "GROUP" || value === "ZVZ") return value;
   return "all";
 }
+
+export function parseLeaderboardHour(
+  value: string | undefined
+): number | undefined {
+  if (value == null || value === "") return undefined;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0 || parsed > 23) return undefined;
+  return parsed;
+}

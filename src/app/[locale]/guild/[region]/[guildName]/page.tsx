@@ -28,6 +28,10 @@ import {
   GuildTopKillsFallback,
   GuildTopKillsSection,
 } from "@/components/guild/GuildTopKillsSection";
+import {
+  GuildActivityFallback,
+  GuildActivitySection,
+} from "@/components/guild/GuildActivitySection";
 import { GuildProfileNav } from "@/components/guild/GuildProfileNav";
 import {
   decodeEntitySegment,
@@ -259,6 +263,12 @@ export default async function GuildProfilePage({ params }: PageProps) {
       <GuildHeader guild={header} sharePath={canonicalPath} />
 
       <GuildProfileNav />
+
+      <div id="activity" className="scroll-mt-28">
+        <Suspense fallback={<GuildActivityFallback />}>
+          <GuildActivitySection region={albionRegion} guildId={albionId} />
+        </Suspense>
+      </div>
 
       <div id="kills" className="scroll-mt-28">
         <Suspense fallback={<GuildTopKillsFallback />}>

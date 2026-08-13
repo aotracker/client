@@ -180,6 +180,9 @@
     "region": "Region",
     "period": "Period",
     "contentType": "Content type",
+    "utcHour": "UTC hour",
+    "anyHour": "Any hour",
+    "primeTime": "Prime Time",
     "lastDays": "Last {days} days"
   },
   "Home": {
@@ -260,9 +263,24 @@
   "Guild": {
     "kind": "Guild",
     "nav": {
+      "activity": "Activity",
       "kills": "Kills",
       "rivals": "Rivals",
       "battles": "Battles"
+    },
+    "activity": {
+      "title": "Guild Activity",
+      "description": "Unique guild members in PvP events during this region's Albion Prime Times · last {days} days",
+      "peak": "Peak {hour} UTC · {members} unique guild members",
+      "peakPrimeTime": "Guild's busiest hour",
+      "peakLabel": "Busiest",
+      "peakMembers": "{members} unique guild members",
+      "empty": "No timed PvP activity cached yet",
+      "hoverHint": "Hover a window for details",
+      "hover": "{hour} UTC · {members} unique members · {kills} kills · {deaths} deaths · {fame} fame",
+      "legendPeak": "Busiest — this guild",
+      "legendPrime": "Region Prime Time",
+      "hourAxis": "UTC"
     },
     "topKills": {
       "title": "Top Kills ({count})",
@@ -451,6 +469,7 @@
     "metaTitle": "Albion Online PvP Leaderboards",
     "metaDescription": "Top killers, guilds, and highest fame kills from tracked Albion Online PvP data. Filter by region, content type, and time period.",
     "summaryLine": "{tabDescription} · {region} · Last {days} days · {content}",
+    "summaryLineHour": "{tabDescription} · {region} · Last {days} days · {content} · {hour} UTC",
     "tabs": {
       "killers": {
         "label": "Top Killers",
@@ -458,7 +477,8 @@
       },
       "guilds": {
         "label": "Top Guilds",
-        "description": "Guilds ranked by total kill fame"
+        "description": "Guilds ranked by total kill fame",
+        "descriptionHour": "Guilds ranked by unique members in PvP events at this UTC hour"
       },
       "kills": {
         "label": "Top Kills",
@@ -473,8 +493,11 @@
       "player": "Player",
       "region": "Region",
       "guild": "Guild",
-      "kills": "Kills"
+      "kills": "Kills",
+      "members": "Members"
     },
+    "emptyGuilds": "No guild kill fame in this period",
+    "emptyGuildsHour": "No guild activity in this UTC hour",
     "failedLoad": "Failed to load leaderboards"
   },
   "Builds": {

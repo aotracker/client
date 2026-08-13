@@ -54,6 +54,14 @@ function buildLeaderboardHref(
     }
 
     if (
+      key === "hour" &&
+      (value === undefined || value === "")
+    ) {
+      params.delete("hour");
+      continue;
+    }
+
+    if (
       !value ||
       (key === "days" && value === "7") ||
       (key === "tab" && value === "killers") ||

@@ -25,6 +25,7 @@ import type {
   NormalizedAllianceInfo,
 } from "@/lib/albion/types";
 import { ENABLED_REGIONS, TOP_BUILD_SLOTS } from "@/lib/albion/types";
+import { primeTimeHours } from "@/lib/albion/prime-times";
 import { wrapGuildBattleListCache, isGuildBattleCacheComplete } from "@/lib/albion/battles";
 import {
   canonicalizeItemType,
@@ -261,17 +262,39 @@ export interface TopKillerFilters extends RegionFilters {
 
 export interface LeaderboardFilters extends TopKillerFilters {
   limit?: number;
+  /** UTC hour 0–23. When set, guilds tab ranks by unique members in that hour. */
+  utcHour?: number;
 }
 
 export interface TopGuildEntry {
   rank: number;
   killFame: number;
   killCount: number;
+  uniqueMembers?: number;
   guild: {
     albionId: string;
     name: string;
     region: AlbionRegion;
   };
+}
+
+export const GUILD_ACTIVITY_LOOKBACK_DAYS = 14;
+
+export interface GuildHourBucket {
+  utcHour: number;
+  uniqueMembers: number;
+  kills: number;
+  deaths: number;
+  fame: number;
+}
+
+export interface GuildHourActivity {
+  days: number;
+  hours: GuildHourBucket[];
+  peakHour: number | null;
+  peakUniqueMembers: number;
+  peakPrimeHour: number | null;
+  peakPrimeUniqueMembers: number;
 }
 
 export interface TopFameEntry {
@@ -2354,12 +2377,133 @@ export const getTopPlayersByKillFame = cache(async function getTopPlayersByKillF
   return cachedTopPlayersByKillFame(region, limit, days, contentType);
 });
 
+async function loadTopGuildsByHour(
+  region: AlbionRegion | "all",
+  limit: number,
+  days: number,
+  contentType: ContentTypeFilter,
+  utcHour: number
+): Promise<TopGuildEntry[]> {
+  const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+
+  const memberConditions = [
+    eq(schema.guildHourPlayers.utcHour, utcHour),
+    gte(schema.guildHourPlayers.utcDate, cutoffDate),
+  ];
+  const statsConditions = [
+    eq(schema.guildHourStats.utcHour, utcHour),
+    gte(schema.guildHourStats.utcDate, cutoffDate),
+  ];
+
+  if (region !== "all") {
+    memberConditions.push(eq(schema.guildHourPlayers.region, region));
+    statsConditions.push(eq(schema.guildHourStats.region, region));
+  } else if (ENABLED_REGIONS.length === 0) {
+    return [];
+  } else {
+    memberConditions.push(
+      inArray(schema.guildHourPlayers.region, ENABLED_REGIONS)
+    );
+    statsConditions.push(
+      inArray(schema.guildHourStats.region, ENABLED_REGIONS)
+    );
+  }
+
+  if (contentType !== "all") {
+    memberConditions.push(
+      eq(schema.guildHourPlayers.contentType, contentType)
+    );
+    statsConditions.push(eq(schema.guildHourStats.contentType, contentType));
+  }
+
+  const membersSq = db
+    .select({
+      region: schema.guildHourPlayers.region,
+      guildAlbionId: schema.guildHourPlayers.guildAlbionId,
+      uniqueMembers:
+        sql<number>`count(distinct ${schema.guildHourPlayers.playerAlbionId})`.as(
+          "unique_members"
+        ),
+    })
+    .from(schema.guildHourPlayers)
+    .where(and(...memberConditions))
+    .groupBy(
+      schema.guildHourPlayers.region,
+      schema.guildHourPlayers.guildAlbionId
+    )
+    .as("guild_hour_members");
+
+  const statsSq = db
+    .select({
+      region: schema.guildHourStats.region,
+      guildAlbionId: schema.guildHourStats.guildAlbionId,
+      guildName: sql<string>`max(${schema.guildHourStats.guildName})`.as(
+        "guild_name"
+      ),
+      killFame: sql<number>`coalesce(sum(${schema.guildHourStats.fame}), 0)`.as(
+        "kill_fame"
+      ),
+      killCount: sql<number>`coalesce(sum(${schema.guildHourStats.kills}), 0)`.as(
+        "kill_count"
+      ),
+    })
+    .from(schema.guildHourStats)
+    .where(and(...statsConditions))
+    .groupBy(schema.guildHourStats.region, schema.guildHourStats.guildAlbionId)
+    .as("guild_hour_agg");
+
+  const rows = await db
+    .select({
+      region: membersSq.region,
+      guildAlbionId: membersSq.guildAlbionId,
+      guildName: statsSq.guildName,
+      uniqueMembers: membersSq.uniqueMembers,
+      killFame: statsSq.killFame,
+      killCount: statsSq.killCount,
+    })
+    .from(membersSq)
+    .leftJoin(
+      statsSq,
+      and(
+        eq(membersSq.region, statsSq.region),
+        eq(membersSq.guildAlbionId, statsSq.guildAlbionId)
+      )
+    )
+    .orderBy(desc(membersSq.uniqueMembers), desc(statsSq.killFame))
+    .limit(limit);
+
+  return rows.reduce<TopGuildEntry[]>((acc, row, index) => {
+    const albionId = row.guildAlbionId?.trim();
+    const name = row.guildName?.trim() || albionId;
+    if (!albionId || !name) return acc;
+
+    acc.push({
+      rank: index + 1,
+      killFame: Number(row.killFame ?? 0),
+      killCount: Number(row.killCount ?? 0),
+      uniqueMembers: Number(row.uniqueMembers ?? 0),
+      guild: {
+        albionId,
+        name,
+        region: row.region,
+      },
+    });
+    return acc;
+  }, []);
+}
+
 async function loadTopGuildsByKillFame(
   region: AlbionRegion | "all",
   limit: number,
   days: number,
-  contentType: ContentTypeFilter
+  contentType: ContentTypeFilter,
+  utcHour: number | null
 ) {
+  if (utcHour != null) {
+    return loadTopGuildsByHour(region, limit, days, contentType, utcHour);
+  }
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = [
@@ -2424,9 +2568,119 @@ export const getTopGuildsByKillFame = cache(async function getTopGuildsByKillFam
     limit = 50,
     days = 7,
     contentType = "all",
+    utcHour,
   } = filters;
-  return cachedTopGuildsByKillFame(region, limit, days, contentType);
+  return cachedTopGuildsByKillFame(
+    region,
+    limit,
+    days,
+    contentType,
+    utcHour ?? null
+  );
 });
+
+export async function getGuildHourActivity(
+  region: AlbionRegion,
+  guildAlbionId: string,
+  days = GUILD_ACTIVITY_LOOKBACK_DAYS
+): Promise<GuildHourActivity> {
+  const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const guildId = guildAlbionId.trim();
+  if (!guildId) {
+    return {
+      days,
+      hours: [],
+      peakHour: null,
+      peakUniqueMembers: 0,
+      peakPrimeHour: null,
+      peakPrimeUniqueMembers: 0,
+    };
+  }
+
+  const memberWhere = and(
+    eq(schema.guildHourPlayers.region, region),
+    eq(schema.guildHourPlayers.guildAlbionId, guildId),
+    gte(schema.guildHourPlayers.utcDate, cutoffDate)
+  );
+  const statsWhere = and(
+    eq(schema.guildHourStats.region, region),
+    eq(schema.guildHourStats.guildAlbionId, guildId),
+    gte(schema.guildHourStats.utcDate, cutoffDate)
+  );
+
+  const [memberRows, statsRows] = await Promise.all([
+    db
+      .select({
+        utcHour: schema.guildHourPlayers.utcHour,
+        uniqueMembers:
+          sql<number>`count(distinct ${schema.guildHourPlayers.playerAlbionId})`.as(
+            "unique_members"
+          ),
+      })
+      .from(schema.guildHourPlayers)
+      .where(memberWhere)
+      .groupBy(schema.guildHourPlayers.utcHour),
+    db
+      .select({
+        utcHour: schema.guildHourStats.utcHour,
+        kills: sql<number>`coalesce(sum(${schema.guildHourStats.kills}), 0)`.as(
+          "kills"
+        ),
+        deaths: sql<number>`coalesce(sum(${schema.guildHourStats.deaths}), 0)`.as(
+          "deaths"
+        ),
+        fame: sql<number>`coalesce(sum(${schema.guildHourStats.fame}), 0)`.as(
+          "fame"
+        ),
+      })
+      .from(schema.guildHourStats)
+      .where(statsWhere)
+      .groupBy(schema.guildHourStats.utcHour),
+  ]);
+
+  const statsByHour = new Map(
+    statsRows.map((row) => [
+      row.utcHour,
+      {
+        kills: Number(row.kills ?? 0),
+        deaths: Number(row.deaths ?? 0),
+        fame: Number(row.fame ?? 0),
+      },
+    ])
+  );
+
+  const hours: GuildHourBucket[] = memberRows
+    .map((row) => {
+      const extras = statsByHour.get(row.utcHour);
+      return {
+        utcHour: row.utcHour,
+        uniqueMembers: Number(row.uniqueMembers ?? 0),
+        kills: extras?.kills ?? 0,
+        deaths: extras?.deaths ?? 0,
+        fame: extras?.fame ?? 0,
+      };
+    })
+    .sort((a, b) => a.utcHour - b.utcHour);
+
+  const ranked = [...hours].sort(
+    (a, b) => b.uniqueMembers - a.uniqueMembers || b.fame - a.fame
+  );
+  const peak = ranked[0];
+  const ptHours = new Set(primeTimeHours(region));
+  const peakPrime = ranked.find(
+    (row) => ptHours.has(row.utcHour) && row.uniqueMembers > 0
+  );
+  return {
+    days,
+    hours,
+    peakHour: peak ? peak.utcHour : null,
+    peakUniqueMembers: peak ? peak.uniqueMembers : 0,
+    peakPrimeHour: peakPrime ? peakPrime.utcHour : null,
+    peakPrimeUniqueMembers: peakPrime ? peakPrime.uniqueMembers : 0,
+  };
+}
 
 export async function getGuildTopOpponents(
   region: AlbionRegion,

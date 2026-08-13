@@ -12,6 +12,7 @@ import {
 import {
   parseLeaderboardContentType,
   parseLeaderboardDays,
+  parseLeaderboardHour,
   parseLeaderboardTab,
   type LeaderboardTab,
 } from "@/lib/leaderboards/params";
@@ -29,6 +30,7 @@ import {
   feedRegionFilterOptions,
   parseFeedRegion,
 } from "@/lib/region-params";
+import { formatUtcHour, isPrimeTimeHourForFilter } from "@/lib/albion/prime-times";
 import { regionLabel } from "@/lib/utils";
 import { buildFeedPageMetadata } from "@/lib/seo";
 
@@ -39,6 +41,7 @@ interface LeaderboardsPageProps {
     region?: string;
     days?: string;
     type?: string;
+    hour?: string;
   }>;
 }
 
@@ -84,6 +87,11 @@ export default async function LeaderboardsPage({
   const region = parseFeedRegion(search.region);
   const days = parseLeaderboardDays(search.days);
   const contentType = parseLeaderboardContentType(search.type);
+  const parsedHour = parseLeaderboardHour(search.hour);
+  const utcHour =
+    parsedHour != null && isPrimeTimeHourForFilter(region, parsedHour)
+      ? parsedHour
+      : undefined;
   const filterRegions = feedRegionFilterOptions();
 
   const filters = {
@@ -91,11 +99,15 @@ export default async function LeaderboardsPage({
     days,
     contentType,
     limit: 50,
+    utcHour,
   };
 
   const keys = tabMetaKey(tab);
   const tabLabel = t(keys.label as "tabs.killers.label");
-  const tabDescription = t(keys.description as "tabs.killers.description");
+  const tabDescription =
+    tab === "guilds" && utcHour != null
+      ? t("tabs.guilds.descriptionHour")
+      : t(keys.description as "tabs.killers.description");
   const regionLabelText =
     region === "all" ? tCommon("regions.all") : regionLabel(region);
   const contentLabel =
@@ -138,12 +150,20 @@ export default async function LeaderboardsPage({
           <div className="space-y-1">
             <h2 className="text-lg font-semibold">{tabLabel}</h2>
             <p className="text-sm text-muted-foreground">
-              {t("summaryLine", {
-                tabDescription,
-                region: regionLabelText,
-                days,
-                content: contentLabel,
-              })}
+              {utcHour != null && tab === "guilds"
+                ? t("summaryLineHour", {
+                    tabDescription,
+                    region: regionLabelText,
+                    days,
+                    content: contentLabel,
+                    hour: formatUtcHour(utcHour),
+                  })
+                : t("summaryLine", {
+                    tabDescription,
+                    region: regionLabelText,
+                    days,
+                    content: contentLabel,
+                  })}
             </p>
           </div>
 
@@ -153,7 +173,11 @@ export default async function LeaderboardsPage({
             ) : tab === "killers" ? (
               <TopKillersList killers={killers} layout="wide" />
             ) : tab === "guilds" ? (
-              <TopGuildsList guilds={guilds} layout="wide" />
+              <TopGuildsList
+                guilds={guilds}
+                layout="wide"
+                byHour={utcHour != null}
+              />
             ) : tab === "kills" ? (
               <LeaderboardKillsList kills={kills} />
             ) : (
