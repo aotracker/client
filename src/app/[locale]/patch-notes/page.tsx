@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/PageSection";
 import { PatchNotesList } from "@/components/patch-notes/PatchNotesList";
 import { getAlbionPatchNotes } from "@/lib/db/queries";
 import { buildPageMetadata } from "@/lib/seo";
-import { ALBION_PATCH_NOTES_BOARD_URL } from "@/lib/site";
+import { ALBION_CHANGELOG_URL } from "@/lib/site";
 
 interface PatchNotesPageProps {
   params: Promise<{ locale: string }>;
@@ -46,14 +46,14 @@ export default async function PatchNotesPage({ params }: PatchNotesPageProps) {
   const empty = !failed && items.length === 0;
 
   return (
-    <div className="mx-auto w-full space-y-6 2xl:relative 2xl:left-1/2 2xl:w-[min(85rem,calc(100vw-2rem))] 2xl:max-w-none 2xl:-translate-x-1/2">
+    <div className="space-y-6">
       <PageHeader title={t("title")} description={t("description")} />
 
       <p className="text-sm text-muted-foreground">
         {t.rich("source", {
-          forumLink: (chunks) => (
+          changelogLink: (chunks) => (
             <a
-              href={ALBION_PATCH_NOTES_BOARD_URL}
+              href={ALBION_CHANGELOG_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="text-foreground underline underline-offset-2"
@@ -67,9 +67,9 @@ export default async function PatchNotesPage({ params }: PatchNotesPageProps) {
       {failed ? (
         <InlineAlert>
           {t.rich("error", {
-            forumLink: (chunks) => (
+            changelogLink: (chunks) => (
               <a
-                href={ALBION_PATCH_NOTES_BOARD_URL}
+                href={ALBION_CHANGELOG_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-foreground underline underline-offset-2"
@@ -84,9 +84,9 @@ export default async function PatchNotesPage({ params }: PatchNotesPageProps) {
       {empty ? (
         <EmptyState icon={ScrollText} title={t("empty")}>
           {t.rich("emptyHint", {
-            forumLink: (chunks) => (
+            changelogLink: (chunks) => (
               <a
-                href={ALBION_PATCH_NOTES_BOARD_URL}
+                href={ALBION_CHANGELOG_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-foreground underline underline-offset-2"
@@ -99,7 +99,7 @@ export default async function PatchNotesPage({ params }: PatchNotesPageProps) {
       ) : null}
 
       {items.length > 0 ? (
-        <PatchNotesList items={items} readOnForumLabel={t("readOnForum")} />
+        <PatchNotesList items={items} readOfficialLabel={t("readOfficial")} />
       ) : null}
     </div>
   );

@@ -609,13 +609,13 @@
   },
   "PatchNotes": {
     "title": "Notas de parche de Albion Online",
-    "description": "Notas de parche oficiales del juego publicadas en el foro de Albion Online.",
-    "metaDescription": "Notas de parche oficiales de Albion Online. Últimas actualizaciones y hotfixes del foro de Albion Online.",
-    "source": "Fuente: <forumLink>foro oficial de Albion Online</forumLink>",
-    "readOnForum": "Leer en el foro",
-    "error": "No se pudieron cargar las notas de parche de Albion Online. Consulta el <forumLink>foro oficial</forumLink>.",
+    "description": "Notas de parche oficiales del juego publicadas por los desarrolladores.",
+    "metaDescription": "Notas de parche oficiales de Albion Online. Últimas actualizaciones y hotfixes de Sandbox Interactive.",
+    "source": "Fuente: <changelogLink>changelog oficial de Albion Online</changelogLink>",
+    "readOfficial": "Leer notas oficiales",
+    "error": "No se pudieron cargar las notas de parche de Albion Online. Consulta el <changelogLink>changelog oficial</changelogLink>.",
     "empty": "Aún no hay notas de parche de Albion Online en caché",
-    "emptyHint": "Consulta el <forumLink>tablero oficial de notas de parche</forumLink> en el foro de Albion Online."
+    "emptyHint": "Consulta el <changelogLink>changelog oficial</changelogLink> en albiononline.com."
   },
   "Seo": {
     "defaultDescription": "Explora bajas JcJ, batallas, clasificaciones y builds meta de Albion Online. Perfiles de jugadores y gremios, equipo, botín y estadísticas de combate en todas las regiones.",

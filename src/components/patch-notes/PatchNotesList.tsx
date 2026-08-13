@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 
 export function PatchNotesList({
   items,
-  readOnForumLabel,
+  readOfficialLabel,
 }: {
   items: ForumPatchNoteItem[];
-  readOnForumLabel: string;
+  readOfficialLabel: string;
 }) {
   return (
     <ul className="space-y-3">
@@ -45,7 +45,7 @@ export function PatchNotesList({
                   item.excerpt && "mt-3"
                 )}
               >
-                {readOnForumLabel}
+                {readOfficialLabel}
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden />
               </a>
             </CardContent>

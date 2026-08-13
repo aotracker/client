@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function PatchNotesLoading() {
   return (
     <div
-      className="mx-auto w-full space-y-6 2xl:relative 2xl:left-1/2 2xl:w-[min(85rem,calc(100vw-2rem))] 2xl:max-w-none 2xl:-translate-x-1/2"
+      className="space-y-6"
       aria-busy="true"
       aria-label="Loading Albion Online patch notes"
     >
