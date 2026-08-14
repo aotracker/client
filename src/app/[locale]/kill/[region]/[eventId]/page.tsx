@@ -1,6 +1,7 @@
 import { cache, Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getKillEvent } from "@/lib/db/queries";
 import { ensureKillEventQueued } from "@/lib/jobs/queue";
 import type { AlbionEvent, AlbionPlayerRef, AlbionRegion } from "@/lib/albion/types";
@@ -12,6 +13,10 @@ import {
   KillGearFallback,
   KillGearWithEstimates,
 } from "@/components/KillGearWithEstimates";
+import {
+  KillLootFallback,
+  KillLootWithEstimates,
+} from "@/components/KillLootWithEstimates";
 import {
   KillGuildFeud,
   KillGuildFeudFallback,
@@ -152,6 +157,29 @@ export default async function KillDetailPage({ params }: PageProps) {
     </Suspense>
   );
 
+  const tKill = await getTranslations("Kill");
+  const lootSection =
+    victimLoot.length > 0 ? (
+      <Suspense
+        fallback={
+          <KillLootFallback
+            victimLoot={victimLoot}
+            title={tKill("victimLoot")}
+            itemsDropped={tKill("itemsDropped", { count: victimLoot.length })}
+            lootDescription={tKill("lootDescription", {
+              victimName: event.victim?.name ?? "Unknown",
+            })}
+          />
+        }
+      >
+        <KillLootWithEstimates
+          region={albionRegion}
+          victimLoot={victimLoot}
+          victimName={event.victim?.name ?? "Unknown"}
+        />
+      </Suspense>
+    ) : undefined;
+
   return (
     <>
       <JsonLd
@@ -197,6 +225,7 @@ export default async function KillDetailPage({ params }: PageProps) {
           victimLoot={victimLoot}
           assistants={assistants}
           gearSection={gearSection}
+          lootSection={lootSection}
         />
         {showGuildFeud && (
           <section>

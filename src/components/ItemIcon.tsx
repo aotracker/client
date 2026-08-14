@@ -34,7 +34,7 @@ export function ItemIcon({
 
   return (
     <span
-      title={tooltip ?? (alt && alt !== "weapon" ? alt : undefined)}
+      title={label}
       className={cn(
         "relative",
         fill ? "block size-full" : "block"
@@ -44,6 +44,7 @@ export function ItemIcon({
       <Image
         src={src}
         alt={alt ?? label}
+        title={label}
         fill={fill}
         width={fill ? undefined : width}
         height={fill ? undefined : height}

@@ -1,7 +1,8 @@
-import { getLocale } from "next-intl/server";
-import { cn } from "@/lib/utils";
+import { getLocale, getTranslations } from "next-intl/server";
+import { cn, formatSilver } from "@/lib/utils";
 import { ItemIcon } from "@/components/ItemIcon";
 import { formatItemTooltip } from "@/lib/items/catalog";
+import { formatKillItemTooltip } from "@/lib/items/tooltips";
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from "@/lib/albion/types";
 
 export interface GearItem {
@@ -10,6 +11,7 @@ export interface GearItem {
   quality?: number | null;
   count?: number | null;
   category?: string;
+  estSilver?: number | null;
 }
 
 /**
@@ -48,6 +50,8 @@ export async function EquipmentGrid({
   emptyMessage = "No equipment data",
 }: EquipmentGridProps) {
   const locale = await getLocale();
+  const tLabels = await getTranslations("Common.labels");
+  const estValueLabel = (value: string) => tLabels("estValue", { value });
   const equipment = items.filter(
     (i) =>
       i.category === "equipment" ||
@@ -84,7 +88,12 @@ export async function EquipmentGrid({
               height: SLOT_SIZE.height,
             }}
           >
-            <ItemDisplay item={item} layout="fill" locale={locale} />
+            <ItemDisplay
+              item={item}
+              layout="fill"
+              locale={locale}
+              estValueLabel={estValueLabel}
+            />
           </div>
         );
       })}
@@ -102,6 +111,8 @@ export async function LootGrid({
   emptyMessage = "No loot in inventory",
 }: LootGridProps) {
   const locale = await getLocale();
+  const tLabels = await getTranslations("Common.labels");
+  const estValueLabel = (value: string) => tLabels("estValue", { value });
   const loot = items.filter((i) => i.category === "inventory");
 
   if (loot.length === 0) {
@@ -115,7 +126,12 @@ export async function LootGrid({
           key={`${item.itemType}-${i}`}
           className="flex shrink-0 flex-col items-center rounded-lg border border-border bg-muted/20 p-2"
         >
-          <ItemDisplay item={item} layout="icon" locale={locale} />
+          <ItemDisplay
+            item={item}
+            layout="icon"
+            locale={locale}
+            estValueLabel={estValueLabel}
+          />
         </div>
       ))}
     </div>
@@ -126,23 +142,30 @@ function ItemDisplay({
   item,
   layout = "stack",
   locale,
+  estValueLabel,
 }: {
   item: GearItem;
   layout?: "stack" | "icon" | "fill";
   locale: string;
+  estValueLabel: (value: string) => string;
 }) {
   const quality = item.quality ?? 1;
-  const dim =
-    layout === "fill" ? "h-full w-full" : "h-20 w-20";
-  const name = formatItemTooltip(item.itemType, locale);
+  const dim = layout === "fill" ? "h-full w-full" : "h-20 w-20";
+  const tooltip = formatKillItemTooltip({
+    itemType: item.itemType,
+    locale,
+    estSilver: item.estSilver,
+    estValueLabel,
+  });
+  const alt = formatItemTooltip(item.itemType, locale);
 
   const icon = (
     <div className={cn("relative shrink-0", dim)}>
       <ItemIcon
         itemType={item.itemType}
         quality={quality}
-        alt={name}
-        tooltip={name}
+        alt={alt}
+        tooltip={tooltip}
         fill
       />
       {(item.count ?? 1) > 1 && (
@@ -153,8 +176,21 @@ function ItemDisplay({
     </div>
   );
 
-  if (layout === "icon" || layout === "fill") {
+  if (layout === "fill") {
     return icon;
+  }
+
+  if (layout === "icon") {
+    return (
+      <div className="flex flex-col items-center gap-1">
+        {icon}
+        {item.estSilver != null && item.estSilver > 0 && (
+          <span className="text-[10px] tabular-nums text-muted-foreground">
+            {formatSilver(item.estSilver)}
+          </span>
+        )}
+      </div>
+    );
   }
 
   return (

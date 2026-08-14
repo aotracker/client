@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { ItemIcon } from "@/components/ItemIcon";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
+import { ArmorClassBadge } from "@/components/ArmorClassBadge";
 import { getCatalogItemName, getItemFamilyDisplayName } from "@/lib/items/catalog";
 import { formatItemName } from "@/lib/utils";
 import { TOP_BUILD_SLOTS } from "@/lib/albion/types";
@@ -67,6 +68,7 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
                     {title}
                   </p>
                   <WeaponRoleBadge itemType={bySlot.get("MainHand")?.itemType} />
+                  <ArmorClassBadge items={build.items} />
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {build.count} event{build.count === 1 ? "" : "s"}

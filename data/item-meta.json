@@ -1,0 +1,4452 @@
+{
+  "source": "ao-bin-dumps/items.xml + itemroles.json",
+  "updatedAt": "2026-08-14T05:17:03.147Z",
+  "count": 703,
+  "items": {
+    "OFF_SHIELD": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "shieldtype",
+      "twoHanded": false
+    },
+    "OFF_TOWERSHIELD_UNDEAD": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "shieldtype",
+      "twoHanded": false
+    },
+    "OFF_SHIELD_HELL": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "shieldtype",
+      "twoHanded": false
+    },
+    "OFF_SPIKEDSHIELD_MORGANA": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "shieldtype",
+      "twoHanded": false
+    },
+    "OFF_SHIELD_AVALON": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "shieldtype",
+      "twoHanded": false
+    },
+    "OFF_SHIELD_CRYSTAL": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "shieldtype",
+      "twoHanded": false
+    },
+    "OFF_BOOK": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "booktype",
+      "twoHanded": false
+    },
+    "OFF_ORB_MORGANA": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "booktype",
+      "twoHanded": false
+    },
+    "OFF_DEMONSKULL_HELL": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "booktype",
+      "twoHanded": false
+    },
+    "OFF_TOTEM_KEEPER": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "booktype",
+      "twoHanded": false
+    },
+    "OFF_CENSER_AVALON": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "booktype",
+      "twoHanded": false
+    },
+    "OFF_TOME_CRYSTAL": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "booktype",
+      "twoHanded": false
+    },
+    "OFF_TORCH": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "torchtype",
+      "twoHanded": false
+    },
+    "OFF_HORN_KEEPER": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "torchtype",
+      "twoHanded": false
+    },
+    "OFF_TALISMAN_AVALON": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "torchtype",
+      "twoHanded": false
+    },
+    "OFF_LAMP_UNDEAD": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "torchtype",
+      "twoHanded": false
+    },
+    "OFF_JESTERCANE_HELL": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "torchtype",
+      "twoHanded": false
+    },
+    "OFF_TORCH_CRYSTAL": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "torchtype",
+      "twoHanded": false
+    },
+    "CAPE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_capes",
+      "twoHanded": false
+    },
+    "CAPEITEM_FW_BRIDGEWATCH": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_bridgewatch",
+      "twoHanded": false
+    },
+    "CAPEITEM_FW_FORTSTERLING": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_fortsterling",
+      "twoHanded": false
+    },
+    "CAPEITEM_FW_LYMHURST": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_lymhurst",
+      "twoHanded": false
+    },
+    "CAPEITEM_FW_MARTLOCK": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_martlock",
+      "twoHanded": false
+    },
+    "CAPEITEM_FW_THETFORD": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_thetford",
+      "twoHanded": false
+    },
+    "CAPEITEM_FW_CAERLEON": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_caerleon",
+      "twoHanded": false
+    },
+    "CAPEITEM_FW_BRECILIEN": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_brecilien",
+      "twoHanded": false
+    },
+    "CAPEITEM_AVALON": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_avalon",
+      "twoHanded": false
+    },
+    "CAPEITEM_SMUGGLER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_smuggler",
+      "twoHanded": false
+    },
+    "CAPEITEM_HERETIC": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_heretic",
+      "twoHanded": false
+    },
+    "CAPEITEM_UNDEAD": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_undead",
+      "twoHanded": false
+    },
+    "CAPEITEM_KEEPER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_keeper",
+      "twoHanded": false
+    },
+    "CAPEITEM_MORGANA": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_morgana",
+      "twoHanded": false
+    },
+    "CAPEITEM_DEMON": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "accessoires_capes_demon",
+      "twoHanded": false
+    },
+    "BAG": {
+      "slot": "bag",
+      "shop": "bags",
+      "sub": "bags",
+      "twoHanded": false
+    },
+    "BAG_INSIGHT": {
+      "slot": "bag",
+      "shop": "bags",
+      "sub": "satchels",
+      "twoHanded": false
+    },
+    "2H_TOOL_PICK": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "ore",
+      "twoHanded": true
+    },
+    "2H_TOOL_PICK_AVALON": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "ore",
+      "twoHanded": true
+    },
+    "2H_TOOL_HAMMER": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "rock",
+      "twoHanded": true
+    },
+    "2H_TOOL_HAMMER_AVALON": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "rock",
+      "twoHanded": true
+    },
+    "2H_TOOL_AXE": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "wood",
+      "twoHanded": true
+    },
+    "2H_TOOL_AXE_AVALON": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "wood",
+      "twoHanded": true
+    },
+    "2H_TOOL_SICKLE": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "fiber",
+      "twoHanded": true
+    },
+    "2H_TOOL_SICKLE_AVALON": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "fiber",
+      "twoHanded": true
+    },
+    "2H_TOOL_KNIFE": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "hide",
+      "twoHanded": true
+    },
+    "2H_TOOL_KNIFE_AVALON": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "hide",
+      "twoHanded": true
+    },
+    "2H_TOOL_SIEGEHAMMER": {
+      "slot": "mainhand",
+      "shop": "other",
+      "sub": "guilds",
+      "twoHanded": true
+    },
+    "2H_TOOL_SIEGEHAMMER_AVALON": {
+      "slot": "mainhand",
+      "shop": "other",
+      "sub": "guilds",
+      "twoHanded": true
+    },
+    "2H_TOOL_FISHINGROD": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "fish",
+      "twoHanded": true
+    },
+    "2H_TOOL_FISHINGROD_AVALON": {
+      "slot": "mainhand",
+      "shop": "gathering",
+      "sub": "fish",
+      "twoHanded": true
+    },
+    "UNIQUE_SHOES_RUBBERBANDING": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FOUNDER_ASIA_CRYSTAL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_FOUNDER_ASIA_CRYSTAL": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_FOUNDER_ASIA_CRYSTAL": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_FOUNDER_ASIA_CRYSTAL": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FOUNDER_ASIA_GOLD": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_FOUNDER_ASIA_GOLD": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_FOUNDER_ASIA_GOLD": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_FOUNDER_ASIA_GOLD": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_WARRIOR_KING": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_WARRIOR_KING": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_WARRIOR_KING": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_WARRIOR_KING": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_WARRIOR_KNIGHT": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_WARRIOR_KNIGHT": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_WARRIOR_KNIGHT": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_WARRIOR_KNIGHT": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DARK_SORCERER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DARK_SORCERER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DARK_SORCERER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_DARK_SORCERER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DARK_NOVICE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DARK_NOVICE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DARK_NOVICE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_DARK_NOVICE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_INTERNAL_HEAD_GAMEMASTER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_INTERNAL_ARMOR_GAMEMASTER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_INTERNAL_SHOES_GAMEMASTER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_INTERNAL_OFF_SCROLL_GAMEMASTER": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "HEAD_PLATE_SET1": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_SET1": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_SET1": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_PLATE_SET2": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_SET2": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_SET2": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_PLATE_SET3": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_SET3": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_SET3": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_PLATE_UNDEAD": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_UNDEAD": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_UNDEAD": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_PLATE_HELL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_HELL": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_HELL": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_PLATE_KEEPER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_KEEPER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_KEEPER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_PLATE_FEY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_FEY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_FEY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_PLATE_AVALON": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_AVALON": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_AVALON": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_LEATHER_SET1": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_SET1": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_SET1": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_LEATHER_SET2": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_SET2": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_SET2": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_LEATHER_SET3": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_SET3": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_SET3": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_LEATHER_MORGANA": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_MORGANA": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_MORGANA": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_LEATHER_HELL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_HELL": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_HELL": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_LEATHER_UNDEAD": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_UNDEAD": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_UNDEAD": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_LEATHER_FEY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_FEY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_FEY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_LEATHER_AVALON": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_AVALON": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_AVALON": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_CLOTH_SET1": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_SET1": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_SET1": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_CLOTH_SET2": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_SET2": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_SET2": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_CLOTH_SET3": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_SET3": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_SET3": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_CLOTH_KEEPER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_KEEPER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_KEEPER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_CLOTH_HELL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_HELL": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_HELL": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_CLOTH_MORGANA": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_MORGANA": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_MORGANA": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_CLOTH_FEY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_FEY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_FEY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_CLOTH_AVALON": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_AVALON": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_AVALON": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_CLOTH_ROYAL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "cloth_helmet",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "ARMOR_CLOTH_ROYAL": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_ROYAL": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_LEATHER_ROYAL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_ROYAL": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_ROYAL": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_PLATE_ROYAL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_ROYAL": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_ROYAL": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "HEAD_GATHERER_FIBER": {
+      "slot": "head",
+      "shop": "gathering",
+      "sub": "fiber",
+      "twoHanded": false
+    },
+    "ARMOR_GATHERER_FIBER": {
+      "slot": "armor",
+      "shop": "gathering",
+      "sub": "fiber",
+      "twoHanded": false
+    },
+    "SHOES_GATHERER_FIBER": {
+      "slot": "shoes",
+      "shop": "gathering",
+      "sub": "fiber",
+      "twoHanded": false
+    },
+    "BACKPACK_GATHERER_FIBER": {
+      "slot": "cape",
+      "shop": "gathering",
+      "sub": "fiber",
+      "twoHanded": false
+    },
+    "HEAD_GATHERER_HIDE": {
+      "slot": "head",
+      "shop": "gathering",
+      "sub": "hide",
+      "twoHanded": false
+    },
+    "ARMOR_GATHERER_HIDE": {
+      "slot": "armor",
+      "shop": "gathering",
+      "sub": "hide",
+      "twoHanded": false
+    },
+    "SHOES_GATHERER_HIDE": {
+      "slot": "shoes",
+      "shop": "gathering",
+      "sub": "hide",
+      "twoHanded": false
+    },
+    "BACKPACK_GATHERER_HIDE": {
+      "slot": "cape",
+      "shop": "gathering",
+      "sub": "hide",
+      "twoHanded": false
+    },
+    "HEAD_GATHERER_ORE": {
+      "slot": "head",
+      "shop": "gathering",
+      "sub": "ore",
+      "twoHanded": false
+    },
+    "ARMOR_GATHERER_ORE": {
+      "slot": "armor",
+      "shop": "gathering",
+      "sub": "ore",
+      "twoHanded": false
+    },
+    "SHOES_GATHERER_ORE": {
+      "slot": "shoes",
+      "shop": "gathering",
+      "sub": "ore",
+      "twoHanded": false
+    },
+    "BACKPACK_GATHERER_ORE": {
+      "slot": "cape",
+      "shop": "gathering",
+      "sub": "ore",
+      "twoHanded": false
+    },
+    "HEAD_GATHERER_ROCK": {
+      "slot": "head",
+      "shop": "gathering",
+      "sub": "rock",
+      "twoHanded": false
+    },
+    "ARMOR_GATHERER_ROCK": {
+      "slot": "armor",
+      "shop": "gathering",
+      "sub": "rock",
+      "twoHanded": false
+    },
+    "SHOES_GATHERER_ROCK": {
+      "slot": "shoes",
+      "shop": "gathering",
+      "sub": "rock",
+      "twoHanded": false
+    },
+    "BACKPACK_GATHERER_ROCK": {
+      "slot": "cape",
+      "shop": "gathering",
+      "sub": "rock",
+      "twoHanded": false
+    },
+    "HEAD_GATHERER_WOOD": {
+      "slot": "head",
+      "shop": "gathering",
+      "sub": "wood",
+      "twoHanded": false
+    },
+    "ARMOR_GATHERER_WOOD": {
+      "slot": "armor",
+      "shop": "gathering",
+      "sub": "wood",
+      "twoHanded": false
+    },
+    "SHOES_GATHERER_WOOD": {
+      "slot": "shoes",
+      "shop": "gathering",
+      "sub": "wood",
+      "twoHanded": false
+    },
+    "BACKPACK_GATHERER_WOOD": {
+      "slot": "cape",
+      "shop": "gathering",
+      "sub": "wood",
+      "twoHanded": false
+    },
+    "HEAD_GATHERER_FISH": {
+      "slot": "head",
+      "shop": "gathering",
+      "sub": "fish",
+      "twoHanded": false
+    },
+    "ARMOR_GATHERER_FISH": {
+      "slot": "armor",
+      "shop": "gathering",
+      "sub": "fish",
+      "twoHanded": false
+    },
+    "SHOES_GATHERER_FISH": {
+      "slot": "shoes",
+      "shop": "gathering",
+      "sub": "fish",
+      "twoHanded": false
+    },
+    "BACKPACK_GATHERER_FISH": {
+      "slot": "cape",
+      "shop": "gathering",
+      "sub": "fish",
+      "twoHanded": false
+    },
+    "2H_BOW": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "bow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_WARBOW": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "bow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_LONGBOW": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "bow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_LONGBOW_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "bow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_BOW_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "bow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_BOW_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "bow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_BOW_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "bow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_BOW_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "bow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_CROSSBOW": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "crossbow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_CROSSBOWLARGE": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "crossbow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_1HCROSSBOW": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "crossbow",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_REPEATINGCROSSBOW_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "crossbow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DUALCROSSBOW_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "crossbow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_CROSSBOWLARGE_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "crossbow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_CROSSBOW_CANNON_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "crossbow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DUALCROSSBOW_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "crossbow",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_CURSEDSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "cursestaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_CURSEDSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "cursestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DEMONICSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "cursestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_CURSEDSTAFF_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "cursestaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_SKULLORB_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "cursestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_CURSEDSTAFF_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "cursestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_CURSEDSTAFF_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "cursestaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "MAIN_CURSEDSTAFF_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "cursestaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "MAIN_FIRESTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "firestaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_FIRESTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "firestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_INFERNOSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "firestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_FIRESTAFF_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "firestaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_FIRESTAFF_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "firestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_INFERNOSTAFF_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "firestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_FIRE_RINGPAIR_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "firestaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_FIRESTAFF_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "firestaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "MAIN_FROSTSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "froststaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_FROSTSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "froststaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_GLACIALSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "froststaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_FROSTSTAFF_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "froststaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_ICEGAUNTLETS_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "froststaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_ICECRYSTAL_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "froststaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_FROSTSTAFF_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "froststaff",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_FROSTSTAFF_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "froststaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_ARCANESTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "arcanestaff",
+      "twoHanded": false,
+      "role": "support"
+    },
+    "2H_ARCANESTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "arcanestaff",
+      "twoHanded": true,
+      "role": "support"
+    },
+    "2H_ENIGMATICSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "arcanestaff",
+      "twoHanded": true,
+      "role": "support"
+    },
+    "MAIN_ARCANESTAFF_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "arcanestaff",
+      "twoHanded": false,
+      "role": "support"
+    },
+    "2H_ARCANESTAFF_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "arcanestaff",
+      "twoHanded": true,
+      "role": "support"
+    },
+    "2H_ENIGMATICORB_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "arcanestaff",
+      "twoHanded": true,
+      "role": "support"
+    },
+    "2H_ARCANE_RINGPAIR_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "arcanestaff",
+      "twoHanded": true,
+      "role": "support"
+    },
+    "2H_ARCANESTAFF_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "arcanestaff",
+      "twoHanded": true,
+      "role": "support"
+    },
+    "MAIN_HOLYSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "holystaff",
+      "twoHanded": false,
+      "role": "healer"
+    },
+    "2H_HOLYSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "holystaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "2H_DIVINESTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "holystaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "MAIN_HOLYSTAFF_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "holystaff",
+      "twoHanded": false,
+      "role": "healer"
+    },
+    "2H_HOLYSTAFF_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "holystaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "2H_HOLYSTAFF_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "holystaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "MAIN_HOLYSTAFF_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "holystaff",
+      "twoHanded": false,
+      "role": "healer"
+    },
+    "2H_HOLYSTAFF_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "holystaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "MAIN_NATURESTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "naturestaff",
+      "twoHanded": false,
+      "role": "healer"
+    },
+    "2H_NATURESTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "naturestaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "2H_WILDSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "naturestaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "MAIN_NATURESTAFF_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "naturestaff",
+      "twoHanded": false,
+      "role": "healer"
+    },
+    "2H_NATURESTAFF_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "naturestaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "2H_NATURESTAFF_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "naturestaff",
+      "twoHanded": true,
+      "role": "healer"
+    },
+    "MAIN_NATURESTAFF_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "naturestaff",
+      "twoHanded": false,
+      "role": "healer"
+    },
+    "MAIN_NATURESTAFF_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "naturestaff",
+      "twoHanded": false,
+      "role": "healer"
+    },
+    "MAIN_DAGGER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "dagger",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_DAGGERPAIR": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "dagger",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_CLAWPAIR": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "dagger",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_RAPIER_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "dagger",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "MAIN_DAGGER_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "dagger",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_IRONGAUNTLETS_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DUALSICKLE_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "dagger",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DAGGER_KATAR_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "dagger",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DAGGERPAIR_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "dagger",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_SPEAR": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "spear",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_SPEAR": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "spear",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_GLAIVE": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "spear",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_SPEAR_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "spear",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_HARPOON_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "spear",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_TRIDENT_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "spear",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_SPEAR_LANCE_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "spear",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_GLAIVE_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "spear",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_AXE": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "axe",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_AXE": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "axe",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_HALBERD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "axe",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_HALBERD_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "axe",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SCYTHE_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "axe",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DUALAXE_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "axe",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_AXE_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "axe",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SCYTHE_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "axe",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_SWORD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "sword",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_CLAYMORE": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "sword",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DUALSWORD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "sword",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_SCIMITAR_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "sword",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_CLEAVER_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "sword",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DUALSCIMITAR_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "sword",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_CLAYMORE_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "sword",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_SWORD_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "sword",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "2H_QUARTERSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "quarterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_IRONCLADEDSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "quarterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DOUBLEBLADEDSTAFF": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "quarterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_COMBATSTAFF_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "quarterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_TWINSCYTHE_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "quarterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_ROCKSTAFF_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "quarterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_QUARTERSTAFF_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "quarterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_DOUBLEBLADEDSTAFF_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "quarterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "MAIN_HAMMER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "hammer",
+      "twoHanded": false,
+      "role": "tank"
+    },
+    "2H_POLEHAMMER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "hammer",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "2H_HAMMER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "hammer",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "2H_HAMMER_UNDEAD": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "hammer",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "2H_DUALHAMMER_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "hammer",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "2H_RAM_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "hammer",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "2H_HAMMER_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "hammer",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "2H_HAMMER_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "hammer",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "MAIN_MACE": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "mace",
+      "twoHanded": false,
+      "role": "tank"
+    },
+    "2H_MACE": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "mace",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "2H_FLAIL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "mace",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "MAIN_ROCKMACE_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "mace",
+      "twoHanded": false,
+      "role": "tank"
+    },
+    "MAIN_MACE_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "mace",
+      "twoHanded": false,
+      "role": "tank"
+    },
+    "2H_MACE_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "mace",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "2H_DUALMACE_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "mace",
+      "twoHanded": true,
+      "role": "tank"
+    },
+    "MAIN_MACE_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "mace",
+      "twoHanded": false,
+      "role": "tank"
+    },
+    "2H_KNUCKLES_SET1": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_KNUCKLES_SET2": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_KNUCKLES_SET3": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_KNUCKLES_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_KNUCKLES_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_KNUCKLES_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_KNUCKLES_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_KNUCKLES_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "knuckles",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SHAPESHIFTER_SET1": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "shapeshifterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SHAPESHIFTER_SET2": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "shapeshifterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SHAPESHIFTER_SET3": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "shapeshifterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SHAPESHIFTER_MORGANA": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "shapeshifterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SHAPESHIFTER_HELL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "shapeshifterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SHAPESHIFTER_KEEPER": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "shapeshifterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SHAPESHIFTER_AVALON": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "shapeshifterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "2H_SHAPESHIFTER_CRYSTAL": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "shapeshifterstaff",
+      "twoHanded": true,
+      "role": "dps"
+    },
+    "UNIQUE_WEAPONMASTER_HEAD_PROTOTYPE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_WEAPONMASTER_ARMOR_PROTOTYPE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_WEAPONMASTER_SHOES_PROTOTYPE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DESTINY_SHARDS_05": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_NO_HELMET": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_NO_CAPE": {
+      "slot": "cape",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_NO_MAIN_HAND": {
+      "slot": "mainhand",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_NO_OFF_HAND": {
+      "slot": "offhand",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_JESTER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_JESTER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_JESTER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DRESS_RED": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DRESS_RED": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DRESS_RED": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DRESS_BLACK": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DRESS_BLACK": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DRESS_BLACK": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DRESS_BLUE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DRESS_BLUE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DRESS_BLUE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_RICH_NOBLE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_RICH_NOBLE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_RICH_NOBLE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_SANTACLAUS": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_SANTACLAUS": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_SANTACLAUS": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_BACKPACK_VANITY_SANTACLAUS": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_WEDDING_DRESS": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_WEDDING_DRESS": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_WEDDING_DRESS": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_WEDDING_DRESS": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_WEDDING_TUXEDO": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_WEDDING_TUXEDO": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_WEDDING_TUXEDO": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_WEDDING_TUXEDO": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_WEDDING_TUXEDO": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_BARD": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_BARD": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_BARD": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PRIEST": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PRIEST": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PRIEST": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PRIEST": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_INNKEEPER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_INNKEEPER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_INNKEEPER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_INNKEEPER": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PIRATE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PIRATE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PIRATE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PIRATE": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_CHARITY_MARCH2020": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_FW_BRIDGEWATCH_BANNER": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_FW_THETFORD_BANNER": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_FW_FORTSTERLING_BANNER": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_FW_MARTLOCK_BANNER": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_FW_LYMHURST_BANNER": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_FW_CAERLEON_BANNER": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_HEAD_VANITY_ARENA_SET_01": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_ARENA_SET_01": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_ARENA_SET_01": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_ARENA_SET_01": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_ARENA_EYEPATCH": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_ARENA_BANNER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_GLADIATOR_ARENA": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_GLADIATOR_ARENA": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_GLADIATOR_ARENA": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_GLADIATOR_ARENA": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_GLADIATOR_CRYSTAL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_GLADIATOR_CRYSTAL": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_GLADIATOR_CRYSTAL": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_GLADIATOR_CRYSTAL": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_TELLAFRIEND_BATRIDER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_EASTER_WHITE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_EASTER_BROWN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_EASTER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_EASTER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_BACKPACK_VANITY_EASTER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PLAGUEDOC": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PLAGUEDOC": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PLAGUEDOC": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_SKELETON": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_SKELETON": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_SKELETON": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_SKELETON": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PUMPKIN_01": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PUMPKIN_02": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PUMPKIN_03": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_XMAS": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_PORTALGUN_TELLAFRIEND": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_CHICKENGUN_EASTER": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_GUN_ANNIVERSARY": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_MAIN_BEERMUG_TELLAFRIEND": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_MAIN_HORN_TELLAFRIEND": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_MAIN_FOXCROP_TELLAFRIEND": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_MAIN_TRUMPET_TELLAFRIEND": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_MAIN_BEERMUG_02_TELLAFRIEND": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_FOUNDER_LEGENDARY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_FOUNDER_LEGENDARY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_FOUNDER_LEGENDARY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_FOUNDER_LEGENDARY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_FOUNDER_ELITE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_FOUNDER_ELITE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_FOUNDER_ELITE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_STARTERPACK_LEGENDARY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_STARTERPACK_LEGENDARY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_STARTERPACK_LEGENDARY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_STARTERPACK_LEGENDARY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_STARTERPACK_ELITE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_STARTERPACK_ELITE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_STARTERPACK_ELITE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_SKELETON_UNDEAD": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_SKELETON_UNDEAD": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_SKELETON_UNDEAD": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_SKELETON_UNDEAD": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_TELLAFRIEND": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_TELLAFRIEND_02": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_TELLAFRIEND_BATRIDER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_TELLAFRIEND_BANNER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_TELLAFRIEND_BANNER_02": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_TOAD_TELLAFRIEND": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_BLOODHOUND_TELLAFRIEND": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_TIGER_TELLAFRIEND": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_RAM_TELLAFRIEND": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_WOLF_GREY_TELLAFRIEND": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_PLATE_UNDEAD": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_LEATHER_UNDEAD": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_CLOTH_UNDEAD": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_PLATE_KEEPER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_LEATHER_KEEPER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_CLOTH_KEEPER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_PLATE_MORGANA": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_LEATHER_MORGANA": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CAPE_CLOTH_MORGANA": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_ROGUE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_ROGUE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_ROGUE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_ROGUE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_MAIN_POISONBOTTLE_ROGUE": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_ROGUE_GUILD_COLORED": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_ROGUE_GUILD_COLORED": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_KNIGHT": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_KNIGHT": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_KNIGHT": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_KNIGHT": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_BANNER_KNIGHT_GUILD_COLORED": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_HEAD_VANITY_KNIGHT_GUILD_COLORED": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_KNIGHT_GUILD_COLORED": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_KNIGHT_GUILD_COLORED": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_MAGE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_MAGE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_MAGE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_MAGE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_SPELLBOOK_MAGE": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_HEAD_VANITY_MAGE_GUILD_COLORED": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_MAGE_GUILD_COLORED": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_MAGE_GUILD_COLORED": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_BARBARIAN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_BARBARIAN": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_BARBARIAN": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_BARBARIAN": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_SOULKEEPER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_SOULKEEPER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_SOULKEEPER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_SOULKEEPER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_PHYLACTERY_SOULKEEPER": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_HEAD_VANITY_PALADIN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PALADIN": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PALADIN": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_PALADIN": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PALADIN_GUILD_COLORED": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_PALADIN_GUILD_COLORED": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PALADIN_ANNIVERSARY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PALADIN_ANNIVERSARY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PALADIN_ANNIVERSARY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_PALADIN_ANNIVERSARY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DEMONHUNTER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DEMONHUNTER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DEMONHUNTER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_DEMONHUNTER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DRUID": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DRUID": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DRUID": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_DRUID": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DEMONICWARRIOR": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DEMONICWARRIOR": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DEMONICWARRIOR": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_DEMONICWARRIOR": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_MONK": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_MONK_HAT": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_MONK_MASK": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_MONK": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_MONK": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_MONK": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_MONK_MASK_GUILD_COLORED": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_MONK_GUILD_COLORED": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_MARAUDER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_MARAUDER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_MARAUDER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_MARAUDER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_MARAUDER_ANNIVERSARY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_MARAUDER_ANNIVERSARY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_MARAUDER_ANNIVERSARY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_MARAUDER_ANNIVERSARY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FIREMAGE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_FIREMAGE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_FIREMAGE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_FIREMAGE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FROSTMAGE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_FROSTMAGE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_FROSTMAGE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_FROSTMAGE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PRIEST_HOLY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PRIEST_HOLY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PRIEST_HOLY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_PRIEST_HOLY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_RANGER_HOOD": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_RANGER_MASK": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_RANGER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_RANGER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_RANGER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_BATTLEMAGE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_BATTLEMAGE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_BATTLEMAGE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_BATTLEMAGE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_ZEALOT": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_ZEALOT": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_ZEALOT": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_ZEALOT": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_TITAN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_TITAN": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_TITAN": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_TITAN": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_ASSASSIN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_ASSASSIN": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_ASSASSIN": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_ASSASSIN": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_TRACKER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_TRACKER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_TRACKER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_TRACKER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_ALCHEMIST": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_ALCHEMIST": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_ALCHEMIST": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_ALCHEMIST": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_ALCHEMIST_ANNIVERSARY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_ALCHEMIST_ANNIVERSARY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_ALCHEMIST_ANNIVERSARY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_ALCHEMIST_ANNIVERSARY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FROSTKNIGHT": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_FROSTKNIGHT": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_FROSTKNIGHT": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_FROSTKNIGHT": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DUELIST": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DUELIST": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DUELIST": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_DUELIST": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_CORRUPTED_PREACHER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_CORRUPTED_PREACHER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_CORRUPTED_PREACHER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_CORRUPTED_PREACHER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_CORRUPTED_PREACHER_ANNIVERSARY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_CORRUPTED_PREACHER_ANNIVERSARY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_CORRUPTED_PREACHER_ANNIVERSARY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_CORRUPTED_PREACHER_ANNIVERSARY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_BARBARIAN_ANNIVERSARY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_BARBARIAN_ANNIVERSARY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_BARBARIAN_ANNIVERSARY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_BARBARIAN_ANNIVERSARY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PRIEST_HOLY_ANNIVERSARY": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PRIEST_HOLY_ANNIVERSARY": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PRIEST_HOLY_ANNIVERSARY": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_PRIEST_HOLY_ANNIVERSARY": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FW_COMMANDER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_FW_COMMANDER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_FW_COMMANDER_GUILD_COLORED": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_FW_COMMANDER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_FW_COMMANDER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_FW_COMMANDER_GUILD_COLORED": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PRIEST_DARK_SWAMP": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PRIEST_DARK_SWAMP": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PRIEST_DARK_SWAMP": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_PRIEST_DARK_SWAMP": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_BACKPACK_VANITY_KICKSTART": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_KICKSTART_2024_UPGRADE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_KICKSTART_2024_UPGRADE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_KICKSTART_2024_UPGRADE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_KICKSTART_2024_UPGRADE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_KICKSTART_2024": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_KICKSTART_2024": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_KICKSTART_2024": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_KICKSTART_2024": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_KNIGHT_GREEN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_KNIGHT_GREEN": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_KNIGHT_GREEN": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_KNIGHT_GREEN": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_KNIGHT_GREEN_ELITE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_KNIGHT_GREEN_ELITE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_KNIGHT_GREEN_ELITE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_KNIGHT_GREEN_ELITE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_SMUGGLER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_SMUGGLER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_SMUGGLER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_SMUGGLER": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_KNIGHT_AOCP": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_KNIGHT_AOCP": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_KNIGHT_AOCP": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_KNIGHT_AOCP": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PUMPKIN_HAPPY": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PUMPKIN_SAD": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PUMPKIN_ANGRY": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FW_SOLDIER_PLATE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_FW_SOLDIER_PLATE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_FW_SOLDIER_PLATE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_FW_SOLDIER_PLATE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_VALKYRIE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_VALKYRIE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_VALKYRIE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_VALKYRIE": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "CD_DUNGEONWEAPON": {
+      "slot": "mainhand",
+      "shop": "magic",
+      "sub": "cursestaff",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DRESS_GREEN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DRESS_GREEN": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_DRESS_GREEN": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_ENTERTAINER": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_ENTERTAINER": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_ENTERTAINER": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_NIGHTGOWN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_HYENA": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PIRATE_GREEN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PIRATE_GREEN": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PIRATE_GREEN": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PIRATE_RED": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PIRATE_GREEN": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PIRATE_COCKATOO": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_PRIEST_RED": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_PRIEST_RED": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_PRIEST_RED": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_OFF_VANITY_PRIEST_RED": {
+      "slot": "offhand",
+      "shop": "vanity",
+      "sub": "offhands",
+      "twoHanded": false
+    },
+    "UNIQUE_CAPE_VANITY_SNOWLEOPARD": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_RICH_NOBLE_PURPLE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_RICH_NOBLE_PURPLE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_RICH_NOBLE_PURPLE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_NIGHTGOWN_BLACK": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_NIGHTGOWN_BELL": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_BARD_BLUE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_BARD_BLUE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_SHOES_VANITY_BARD_BLUE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_DRAGONKEEPER_AJ": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DRAGONKEEPER_AJ": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_HEAD_TUTORIAL_COMPLETED_AJ": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_MAIN_DICE_SIXSIDED_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_MAIN_DICE_TWENTYSIDED_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_MULTITOOL_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_MULTITOOL_OVERCHARGED_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_ARMOR_VANITY_WEALTHY_NOBLE_AJ": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_ARMOR_VANITY_VERY_WEALTHY_NOBLE_AJ": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FARMER_AJ": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_FARMER_COZY_AJ": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_LUTE_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_LUTE_MAGNIFICENT_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_HEAD_VANITY_SHADOW_HELMET_ORANGE_AJ": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_SHADOW_HELMET_RED_AJ": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_BANNER_GUIDON_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_BANNER_GUIDON_GOLDEN_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": true
+    },
+    "UNIQUE_VANITY_2H_SKULL_UNDEAD_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_VANITY_2H_SKULL_DEMON_GOLDEN_AJ": {
+      "slot": "mainhand",
+      "shop": "vanity",
+      "sub": "weapons",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DESTINY_STONES_AJ": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "UNIQUE_HEAD_VANITY_DESTINY_STONES_ADVANCED_AJ": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "DEBUG_HEAD_HIDDEN": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "DEBUG_ARMOR_HIDDEN": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "DEBUG_CAPE_HIDDEN": {
+      "slot": "cape",
+      "shop": "capes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "DEBUG_SHOES_HIDDEN": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "DEBUG_MAINHAND_HIDDEN": {
+      "slot": "mainhand",
+      "shop": "weapons",
+      "sub": "other",
+      "twoHanded": false,
+      "role": "dps"
+    },
+    "DEBUG_OFFHAND_HIDDEN": {
+      "slot": "offhand",
+      "shop": "offhands",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "HEAD_CLOTH_PROTOTYPE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "other",
+      "twoHanded": false
+    },
+    "ARMOR_CLOTH_PROTOTYPE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "cloth_armor",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "SHOES_CLOTH_PROTOTYPE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "cloth_shoes",
+      "twoHanded": false,
+      "armorClass": "cloth"
+    },
+    "HEAD_LEATHER_PROTOTYPE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "leather_helmet",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "ARMOR_LEATHER_PROTOTYPE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "leather_armor",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "SHOES_LEATHER_PROTOTYPE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "leather_shoes",
+      "twoHanded": false,
+      "armorClass": "leather"
+    },
+    "HEAD_PLATE_PROTOTYPE": {
+      "slot": "head",
+      "shop": "head",
+      "sub": "plate_helmet",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "ARMOR_PLATE_PROTOTYPE": {
+      "slot": "armor",
+      "shop": "armors",
+      "sub": "plate_armor",
+      "twoHanded": false,
+      "armorClass": "plate"
+    },
+    "SHOES_PLATE_PROTOTYPE": {
+      "slot": "shoes",
+      "shop": "shoes",
+      "sub": "plate_shoes",
+      "twoHanded": false,
+      "armorClass": "plate"
+    }
+  }
+}

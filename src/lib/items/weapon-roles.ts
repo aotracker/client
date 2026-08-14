@@ -1,8 +1,9 @@
 import { itemFamilyKey } from "@/lib/item-icons";
+import { getItemMeta } from "@/lib/items/item-meta";
 
 /**
- * Coarse combat role inferred from Albion main-hand weapon tree.
- * Hybrids (e.g. Nature DPS) follow the tree's primary identity.
+ * Coarse combat role from dump shop subcategory (itemroles.json party ratings).
+ * Hybrids follow the tree's highest-rated party role.
  */
 export type WeaponRole = "healer" | "tank" | "support" | "dps";
 
@@ -19,43 +20,6 @@ export const WEAPON_ROLE_LABELS: Record<WeaponRole, string> = {
   support: "Support",
   dps: "DPS",
 };
-
-interface WeaponRoleRule {
-  role: WeaponRole;
-  /** Matched against tier-stripped family key, e.g. MAIN_HOLYSTAFF. */
-  pattern: RegExp;
-}
-
-/**
- * Ordered rules — first match wins. Keep healer/tank/support ahead of DPS fallback.
- * Patterns use UniqueName fragments (ao-bin-dumps style).
- */
-const WEAPON_ROLE_RULES: WeaponRoleRule[] = [
-  {
-    role: "healer",
-    // Holy + Nature trees (Divine / Wild artifacts included)
-    pattern: /HOLYSTAFF|DIVINESTAFF|NATURESTAFF|WILDSTAFF/,
-  },
-  {
-    role: "tank",
-    // Mace + Hammer trees (flail, polehammer, duals, keeper ram, etc.)
-    // Black Monk Staff (quarterstaff tank line)
-    pattern:
-      /MACE|HAMMER|FLAIL|POLEHAMMER|RAM_KEEPER|SHAPESHIFTER_KEEPER|ICEGAUNTLETS_HELL|COMBATSTAFF_MORGANA/,
-  },
-  {
-    role: "dps",
-    // Arcane-line exceptions that play as DPS (checked before support)
-    pattern: /ARCANESTAFF_CRYSTAL|ARCANESTAFF_UNDEAD/, // Astral / Witchwork
-  },
-  {
-    role: "support",
-    // Arcane purge/utility + Quarterstaff peel/CC + selected Cursed support lines
-    // (Lifecurse / Rotcaller / Damnation — other Cursed stay DPS)
-    pattern:
-      /ARCANESTAFF|ENIGMATICSTAFF|ENIGMATICORB|ARCANE_RINGPAIR|QUARTERSTAFF|DOUBLEBLADEDSTAFF|IRONCLADEDSTAFF|CURSEDSTAFF_UNDEAD|CURSEDSTAFF_CRYSTAL|CURSEDSTAFF_MORGANA/,
-  },
-];
 
 function isCombatMainHandFamily(family: string): boolean {
   if (family.includes("TOOL_")) return false;
@@ -82,9 +46,9 @@ export function getWeaponRole(
   const family = getCombatWeaponFamily(itemType);
   if (!family) return null;
 
-  for (const rule of WEAPON_ROLE_RULES) {
-    if (rule.pattern.test(family)) return rule.role;
-  }
+  const meta = getItemMeta(itemType);
+  if (meta?.shop && meta.shop !== "weapons") return null;
+  if (meta?.role) return meta.role;
 
   return "dps";
 }

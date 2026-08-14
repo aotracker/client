@@ -7,6 +7,7 @@ import { EquipmentGrid, LootGrid } from "@/components/KillGearPanels";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { StatValue, ItemPowerValue } from "@/components/StatValue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   formatFame,
   formatItemPower,
@@ -23,6 +24,7 @@ export type KillDetailItem = {
   quality: number | null;
   category: string;
   count?: number | null;
+  estSilver?: number | null;
 };
 
 export type KillDetailAssistant = {
@@ -61,7 +63,9 @@ export type KillDetailViewProps = {
   assistants: KillDetailAssistant[];
   killerEstSilver?: number | null;
   victimEstSilver?: number | null;
+  lootEstSilver?: number | null;
   gearSection?: React.ReactNode;
+  lootSection?: React.ReactNode;
 };
 
 export async function KillDetailView(props: KillDetailViewProps) {
@@ -112,18 +116,21 @@ export async function KillDetailView(props: KillDetailViewProps) {
           averageIpLabel={tLabels("averageIp")}
         />
       )}
-      {props.victimLoot.length > 0 && (
-        <LootSection
-          victimLoot={props.victimLoot}
-          title={t("victimLoot")}
-          itemsDropped={t("itemsDropped", {
-            count: props.victimLoot.length,
-          })}
-          lootDescription={t("lootDescription", {
-            victimName: props.victim.name,
-          })}
-        />
-      )}
+      {props.victimLoot.length > 0 &&
+        (props.lootSection ?? (
+          <LootSection
+            victimLoot={props.victimLoot}
+            lootEstSilver={props.lootEstSilver}
+            title={t("victimLoot")}
+            itemsDropped={t("itemsDropped", {
+              count: props.victimLoot.length,
+            })}
+            lootDescription={t("lootDescription", {
+              victimName: props.victim.name,
+            })}
+            estValueLabel={(value) => tLabels("estValue", { value })}
+          />
+        ))}
     </div>
   );
 }
@@ -318,23 +325,35 @@ function GearSection({
   );
 }
 
-function LootSection({
+export function LootSection({
   victimLoot,
   title,
   itemsDropped,
   lootDescription,
-}: Pick<KillDetailViewProps, "victimLoot"> & {
+  lootEstSilver,
+  estValueLabel,
+  loading = false,
+}: Pick<KillDetailViewProps, "victimLoot" | "lootEstSilver"> & {
   title: string;
   itemsDropped: string;
   lootDescription: string;
+  estValueLabel?: (value: string) => string;
+  loading?: boolean;
 }) {
   return (
     <Card className="border-group/30">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between gap-3">
           <span>{title}</span>
-          <span className="text-sm font-normal text-muted-foreground">
-            {itemsDropped}
+          <span className="flex shrink-0 items-center gap-3 text-sm font-normal text-muted-foreground">
+            {loading ? (
+              <Skeleton className="h-4 w-24" />
+            ) : lootEstSilver != null &&
+              lootEstSilver > 0 &&
+              estValueLabel ? (
+              <span>{estValueLabel(formatSilver(lootEstSilver))}</span>
+            ) : null}
+            <span>{itemsDropped}</span>
           </span>
         </CardTitle>
         <p className="text-sm text-muted-foreground">{lootDescription}</p>

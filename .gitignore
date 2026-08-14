@@ -46,6 +46,10 @@ next-env.d.ts
 # Cached Albion item icons (see data/item-icon-manifest.json; sync to CDN separately)
 /public/item-icons/*.png
 
-# Raw ao-bin-dumps download (regenerate via npm run items:catalog)
+# Raw ao-bin-dumps downloads (regenerate via npm run vm:items:catalog)
 /data/ao-items-raw.json
+/data/ao-items.xml
+/data/ao-itemroles.json
+/data/ao-spells.json
+/data/ao-localization.xml
 .env*

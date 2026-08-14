@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { ItemIcon } from "@/components/ItemIcon";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
+import { ArmorClassBadge } from "@/components/ArmorClassBadge";
 import { getCatalogItemName, getItemFamilyDisplayName } from "@/lib/items/catalog";
 import { TOP_BUILD_SLOTS } from "@/lib/albion/types";
 import type { MetaBuildEntry } from "@/lib/db/queries";
@@ -95,6 +96,7 @@ export function BuildMetaCard({
               <WeaponRoleBadge
                 itemType={bySlot.get("MainHand")?.itemType}
               />
+              <ArmorClassBadge items={build.items} />
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {tCommon("stats.players")}: {build.uniquePlayers}

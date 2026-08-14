@@ -162,6 +162,11 @@
         "support": "Soporte",
         "dps": "DPS"
       },
+      "armorClasses": {
+        "plate": "Placas",
+        "leather": "Cuero",
+        "cloth": "Tela"
+      },
       "lifetimeFame": "Fama de por vida",
       "pve": "PvE",
       "gathering": "Recolección",
