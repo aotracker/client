@@ -276,7 +276,7 @@
       "peakLabel": "Más activa",
       "peakMembers": "{members} miembros únicos del gremio",
       "empty": "Aún no hay actividad JcJ con hora en caché",
-      "hoverHint": "Pasa el cursor por una ventana para ver detalles",
+      "hoverHint": "Selecciona una ventana para ver detalles",
       "hover": "{hour} UTC · {members} miembros únicos · {kills} bajas · {deaths} muertes · {fame} fama",
       "legendPeak": "Más activa — este gremio",
       "legendPrime": "Prime Time de la región",

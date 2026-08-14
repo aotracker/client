@@ -276,7 +276,7 @@
       "peakLabel": "Busiest",
       "peakMembers": "{members} unique guild members",
       "empty": "No timed PvP activity cached yet",
-      "hoverHint": "Hover a window for details",
+      "hoverHint": "Select a window for details",
       "hover": "{hour} UTC · {members} unique members · {kills} kills · {deaths} deaths · {fame} fame",
       "legendPeak": "Busiest — this guild",
       "legendPrime": "Region Prime Time",

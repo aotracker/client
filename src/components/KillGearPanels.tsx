@@ -1,5 +1,7 @@
-import { formatItemName, cn } from "@/lib/utils";
+import { getLocale } from "next-intl/server";
+import { cn } from "@/lib/utils";
 import { ItemIcon } from "@/components/ItemIcon";
+import { formatItemTooltip } from "@/lib/items/catalog";
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from "@/lib/albion/types";
 
 export interface GearItem {
@@ -41,10 +43,11 @@ interface EquipmentGridProps {
   emptyMessage?: string;
 }
 
-export function EquipmentGrid({
+export async function EquipmentGrid({
   items,
   emptyMessage = "No equipment data",
 }: EquipmentGridProps) {
+  const locale = await getLocale();
   const equipment = items.filter(
     (i) =>
       i.category === "equipment" ||
@@ -81,7 +84,7 @@ export function EquipmentGrid({
               height: SLOT_SIZE.height,
             }}
           >
-            <ItemDisplay item={item} layout="fill" />
+            <ItemDisplay item={item} layout="fill" locale={locale} />
           </div>
         );
       })}
@@ -94,10 +97,11 @@ interface LootGridProps {
   emptyMessage?: string;
 }
 
-export function LootGrid({
+export async function LootGrid({
   items,
   emptyMessage = "No loot in inventory",
 }: LootGridProps) {
+  const locale = await getLocale();
   const loot = items.filter((i) => i.category === "inventory");
 
   if (loot.length === 0) {
@@ -111,7 +115,7 @@ export function LootGrid({
           key={`${item.itemType}-${i}`}
           className="flex shrink-0 flex-col items-center rounded-lg border border-border bg-muted/20 p-2"
         >
-          <ItemDisplay item={item} layout="icon" />
+          <ItemDisplay item={item} layout="icon" locale={locale} />
         </div>
       ))}
     </div>
@@ -121,20 +125,24 @@ export function LootGrid({
 function ItemDisplay({
   item,
   layout = "stack",
+  locale,
 }: {
   item: GearItem;
   layout?: "stack" | "icon" | "fill";
+  locale: string;
 }) {
   const quality = item.quality ?? 1;
   const dim =
     layout === "fill" ? "h-full w-full" : "h-20 w-20";
+  const name = formatItemTooltip(item.itemType, locale);
 
   const icon = (
     <div className={cn("relative shrink-0", dim)}>
       <ItemIcon
         itemType={item.itemType}
         quality={quality}
-        alt={formatItemName(item.itemType)}
+        alt={name}
+        tooltip={name}
         fill
       />
       {(item.count ?? 1) > 1 && (

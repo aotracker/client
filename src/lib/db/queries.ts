@@ -278,7 +278,7 @@ export interface TopGuildEntry {
   };
 }
 
-export const GUILD_ACTIVITY_LOOKBACK_DAYS = 14;
+export const GUILD_ACTIVITY_LOOKBACK_DAYS = 30;
 
 export interface GuildHourBucket {
   utcHour: number;
@@ -2439,7 +2439,8 @@ async function loadTopGuildsByHour(
     .select({
       region: schema.guildHourStats.region,
       guildAlbionId: schema.guildHourStats.guildAlbionId,
-      guildName: sql<string>`max(${schema.guildHourStats.guildName})`.as(
+      // Ignore ID-as-name fallbacks so MAX() cannot prefer a UUID over a real name.
+      guildName: sql<string>`max(nullif(btrim(${schema.guildHourStats.guildName}), ${schema.guildHourStats.guildAlbionId}))`.as(
         "guild_name"
       ),
       killFame: sql<number>`coalesce(sum(${schema.guildHourStats.fame}), 0)`.as(
@@ -2454,14 +2455,25 @@ async function loadTopGuildsByHour(
     .groupBy(schema.guildHourStats.region, schema.guildHourStats.guildAlbionId)
     .as("guild_hour_agg");
 
+  const guildNamesSq = db
+    .select({
+      region: schema.guilds.region,
+      albionId: schema.guilds.albionId,
+      name: schema.guilds.name,
+    })
+    .from(schema.guilds)
+    .as("guild_names");
+
   const rows = await db
     .select({
       region: membersSq.region,
       guildAlbionId: membersSq.guildAlbionId,
-      guildName: statsSq.guildName,
+      guildName: sql<string>`coalesce(${guildNamesSq.name}, ${statsSq.guildName})`.as(
+        "resolved_guild_name"
+      ),
       uniqueMembers: membersSq.uniqueMembers,
-      killFame: statsSq.killFame,
-      killCount: statsSq.killCount,
+      killFame: sql<number>`${statsSq.killFame}`.as("kill_fame"),
+      killCount: sql<number>`${statsSq.killCount}`.as("kill_count"),
     })
     .from(membersSq)
     .leftJoin(
@@ -2471,7 +2483,17 @@ async function loadTopGuildsByHour(
         eq(membersSq.guildAlbionId, statsSq.guildAlbionId)
       )
     )
-    .orderBy(desc(membersSq.uniqueMembers), desc(statsSq.killFame))
+    .leftJoin(
+      guildNamesSq,
+      and(
+        eq(guildNamesSq.region, membersSq.region),
+        eq(guildNamesSq.albionId, membersSq.guildAlbionId)
+      )
+    )
+    .orderBy(
+      desc(membersSq.uniqueMembers),
+      sql`${statsSq.killFame} DESC NULLS LAST`
+    )
     .limit(limit);
 
   return rows.reduce<TopGuildEntry[]>((acc, row, index) => {
@@ -2555,7 +2577,7 @@ async function loadTopGuildsByKillFame(
 
 const cachedTopGuildsByKillFame = cachedQuery(
   loadTopGuildsByKillFame,
-  ["top-guilds"],
+  ["top-guilds", "hour-names"],
   LEADERBOARD_CACHE_REVALIDATE_SECONDS,
   ["kills", "leaderboards"]
 );

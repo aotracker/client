@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ItemPowerValue } from "@/components/StatValue";
 import { cn, formatFame, formatItemName, formatItemPower, regionLabel } from "@/lib/utils";
+import { parseItemType } from "@/lib/item-icons";
 import { guildPath, playerPath } from "@/lib/seo";
 import { leaderboardKillCardHighlightClassName } from "@/components/leaderboards/leaderboard-rank-styles";
 import { ItemIcon } from "@/components/ItemIcon";
@@ -62,7 +63,10 @@ interface KillCardProps {
 }
 
 function itemDisplayName(item: { itemType: string; displayNames?: Record<string, string> }, locale: string) {
-  return item.displayNames?.[locale] ?? formatItemName(item.itemType);
+  const catalogName = item.displayNames?.[locale];
+  if (!catalogName) return formatItemName(item.itemType);
+  const { tier, enchantment } = parseItemType(item.itemType);
+  return `${catalogName} (${tier}.${enchantment})`;
 }
 
 function itemsForRole(items: KillCardItem[] | undefined, role: "killer" | "victim") {
