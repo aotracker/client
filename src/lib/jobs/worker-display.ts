@@ -1,4 +1,8 @@
-import type { WorkerJobKey, WorkerJobStatus } from "./worker-types";
+import {
+  isSchedulerJobKey,
+  type WorkerJobKey,
+  type WorkerJobStatus,
+} from "./worker-types";
 
 export type WorkerDisplayStatus =
   | "error"
@@ -13,10 +17,13 @@ export interface WorkerConnectivitySnapshot {
   schedulerWorkers: number;
   ingestWorkers: number;
   refreshWorkers: number;
+  discordWorkers?: number;
   processorWorkers: number;
   schedulerJobActive: {
     ingestPoll: boolean;
     healthCheck: boolean;
+    liveEventsPoll?: boolean;
+    discordCatchup?: boolean;
   };
   processorJobsActive: boolean;
   fetchedAt: string;
@@ -43,7 +50,7 @@ export function workersConnectedForJob(
   connectivity: WorkerConnectivitySnapshot | null | undefined
 ): number {
   if (!connectivity) return 0;
-  if (jobKey === "ingest" || jobKey === "health") {
+  if (isSchedulerJobKey(jobKey)) {
     return connectivity.schedulerWorkers;
   }
   return connectivity.processorWorkers;
@@ -56,6 +63,12 @@ export function isJobRunningNow(
   if (!connectivity) return false;
   if (jobKey === "ingest") return connectivity.schedulerJobActive.ingestPoll;
   if (jobKey === "health") return connectivity.schedulerJobActive.healthCheck;
+  if (jobKey === "live-events") {
+    return connectivity.schedulerJobActive.liveEventsPoll ?? false;
+  }
+  if (jobKey === "discord-catchup") {
+    return connectivity.schedulerJobActive.discordCatchup ?? false;
+  }
   return connectivity.processorJobsActive;
 }
 

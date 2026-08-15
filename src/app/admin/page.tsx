@@ -57,16 +57,16 @@ export default async function AdminDashboardPage() {
         />
       )}
 
-      <DiscordBotStatusPanel initial={discordStatus} />
-
-      <RecentOpsEventsPreview events={recentEvents} />
-
       {snapshot && (
         <WorkerQueuesPanel
           initial={snapshot.queues}
           initialCrons={snapshot.crons}
         />
       )}
+
+      <DiscordBotStatusPanel initial={discordStatus} />
+
+      <RecentOpsEventsPreview events={recentEvents} />
     </div>
   );
 }

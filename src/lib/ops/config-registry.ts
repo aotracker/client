@@ -3,8 +3,14 @@ import {
   HEALTH_CHECK_STALE_MINUTES,
 } from "@/lib/health/sync-status";
 import {
-  INGEST_ALIVE_MS,
+  DISCORD_CATCHUP_ALIVE_MS,
+  DISCORD_CATCHUP_INTERVAL_MS,
   HEALTH_ALIVE_MS,
+  HEALTH_CHECK_INTERVAL_MS,
+  INGEST_ALIVE_MS,
+  INGEST_POLL_INTERVAL_MS,
+  LIVE_EVENTS_ALIVE_MS,
+  LIVE_EVENTS_INTERVAL_MS,
   PROCESS_JOBS_ALIVE_MS,
 } from "@/lib/jobs/worker-types";
 import {
@@ -14,9 +20,6 @@ import {
   CIRCUIT_FAILURE_THRESHOLD,
 } from "@/lib/db/api-state";
 import { OPS_EVENTS_RETENTION_DAYS } from "@/lib/ops/events";
-
-export const INGEST_POLL_INTERVAL_MS = 25 * 60 * 1000;
-export const HEALTH_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
 export const API_REQUEST_LOG_RETENTION_DAYS = 7;
 
@@ -38,12 +41,22 @@ export function getConfigRegistry(): ConfigRegistryGroup[] {
         {
           name: "Ingest poll interval",
           value: `${INGEST_POLL_INTERVAL_MS / 60_000} min`,
-          source: "ingest/src/worker.ts",
+          source: "ingest/src/lib/jobs/worker-state.ts",
+        },
+        {
+          name: "Live events poll interval",
+          value: `${LIVE_EVENTS_INTERVAL_MS / 1000}s`,
+          source: "ingest/src/lib/jobs/worker-state.ts",
         },
         {
           name: "Health check interval",
           value: `${HEALTH_CHECK_INTERVAL_MS / 60_000} min`,
-          source: "ingest/src/worker.ts",
+          source: "ingest/src/lib/jobs/worker-state.ts",
+        },
+        {
+          name: "Discord guild catch-up interval",
+          value: `${DISCORD_CATCHUP_INTERVAL_MS / 60_000} min`,
+          source: "ingest/src/lib/jobs/worker-state.ts",
         },
       ],
     },
@@ -62,19 +75,29 @@ export function getConfigRegistry(): ConfigRegistryGroup[] {
           source: "client/src/lib/health/sync-status.ts",
         },
         {
-          name: "Ingest worker alive slack",
+          name: "Ingest poll alive slack",
           value: `${INGEST_ALIVE_MS / 60_000} min`,
-          source: "client/src/lib/jobs/worker-state.ts",
+          source: "client/src/lib/jobs/worker-types.ts",
         },
         {
-          name: "Health worker alive slack",
+          name: "Live events poll alive slack",
+          value: `${LIVE_EVENTS_ALIVE_MS / 60_000} min`,
+          source: "client/src/lib/jobs/worker-types.ts",
+        },
+        {
+          name: "Health check alive slack",
           value: `${HEALTH_ALIVE_MS / 60_000} min`,
-          source: "client/src/lib/jobs/worker-state.ts",
+          source: "client/src/lib/jobs/worker-types.ts",
         },
         {
-          name: "Process jobs alive slack",
+          name: "Discord catch-up alive slack",
+          value: `${DISCORD_CATCHUP_ALIVE_MS / 60_000} min`,
+          source: "client/src/lib/jobs/worker-types.ts",
+        },
+        {
+          name: "Job processors alive slack",
           value: `${PROCESS_JOBS_ALIVE_MS / 1000}s`,
-          source: "client/src/lib/jobs/worker-state.ts",
+          source: "client/src/lib/jobs/worker-types.ts",
         },
       ],
     },

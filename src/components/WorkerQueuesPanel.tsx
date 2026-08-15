@@ -86,6 +86,10 @@ function describeJob(job: QueueJobSummary): {
   const allianceId = asString(job.data.allianceId);
   const eventId = asString(job.data.eventId);
   const battleId = asString(job.data.battleId);
+  const feedId = asString(job.data.feedId);
+  const searchQuery = asString(job.data.searchQuery);
+  const entityType = asString(job.data.entityType);
+  const entityName = asString(job.data.entityName);
 
   const details: JobDetail[] = [];
   if (region) details.push({ label: "Region", value: region });
@@ -127,6 +131,18 @@ function describeJob(job: QueueJobSummary): {
       value: `#${battleId}`,
       href: regionRaw ? `/battle/${regionRaw}/${battleId}` : undefined,
     });
+  }
+  if (feedId) {
+    details.push({ label: "Feed", value: feedId, mono: true });
+  }
+  if (searchQuery) {
+    details.push({ label: "Query", value: searchQuery });
+  }
+  if (entityType) {
+    details.push({ label: "Type", value: entityType });
+  }
+  if (entityName) {
+    details.push({ label: "Name", value: entityName });
   }
 
   switch (job.name) {
@@ -174,6 +190,30 @@ function describeJob(job: QueueJobSummary): {
         summary: battleId
           ? `Battle #${battleId} detail + events`
           : "Battle detail + events",
+        details,
+      };
+    case "notify-discord":
+      return {
+        title: "Discord notify",
+        summary: eventId
+          ? `Post kill #${eventId} to Discord`
+          : "Post kill to Discord",
+        details,
+      };
+    case "live-search":
+      return {
+        title: "Live search",
+        summary: searchQuery
+          ? `Search “${searchQuery}”`
+          : "Search players and guilds",
+        details,
+      };
+    case "entity-resolve":
+      return {
+        title: "Resolve entity",
+        summary: entityName
+          ? `${entityType ?? "entity"} “${entityName}”`
+          : "Look up player or guild by name",
         details,
       };
     default:

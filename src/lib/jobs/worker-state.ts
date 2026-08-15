@@ -4,8 +4,10 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "../db";
 import {
   CRON_JOB_DEFINITIONS,
+  DISCORD_CATCHUP_ALIVE_MS,
   HEALTH_ALIVE_MS,
   INGEST_ALIVE_MS,
+  LIVE_EVENTS_ALIVE_MS,
   PROCESS_JOBS_ALIVE_MS,
   WORKER_JOB_DEFINITIONS,
   type CronJobKey,
@@ -16,8 +18,10 @@ import {
 
 export {
   CRON_JOB_DEFINITIONS,
+  DISCORD_CATCHUP_ALIVE_MS,
   HEALTH_ALIVE_MS,
   INGEST_ALIVE_MS,
+  LIVE_EVENTS_ALIVE_MS,
   PROCESS_JOBS_ALIVE_MS,
   WORKER_JOB_DEFINITIONS,
   type CronJobKey,
@@ -29,6 +33,8 @@ export {
 const ALIVE_MS_BY_JOB_KEY: Record<WorkerJobKey, number> = {
   ingest: INGEST_ALIVE_MS,
   health: HEALTH_ALIVE_MS,
+  "live-events": LIVE_EVENTS_ALIVE_MS,
+  "discord-catchup": DISCORD_CATCHUP_ALIVE_MS,
   "process-jobs": PROCESS_JOBS_ALIVE_MS,
 };
 

@@ -246,10 +246,13 @@ export type WorkerConnectivitySnapshot = {
   schedulerWorkers: number;
   ingestWorkers: number;
   refreshWorkers: number;
+  discordWorkers?: number;
   processorWorkers: number;
   schedulerJobActive: {
     ingestPoll: boolean;
     healthCheck: boolean;
+    liveEventsPoll?: boolean;
+    discordCatchup?: boolean;
   };
   processorJobsActive: boolean;
   fetchedAt: string;
