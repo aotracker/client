@@ -15,11 +15,8 @@ import {
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { InlineAlert } from "@/components/InlineAlert";
 import { Button } from "@/components/ui/button";
-import {
-  SearchAutocomplete,
-  useSearchRegion,
-} from "@/components/SearchAutocomplete";
-import { isRegionEnabled, getDefaultRegion } from "@/lib/albion/types";
+import { SearchAutocomplete } from "@/components/SearchAutocomplete";
+import { isRegionEnabled } from "@/lib/albion/types";
 import { feedNavHref } from "@/lib/region-params";
 import { getStoredPreferredRegion } from "@/lib/region-preference";
 
@@ -33,7 +30,6 @@ export function NotFoundRecovery() {
   const tNav = useTranslations("Nav");
   const tButtons = useTranslations("Common.buttons");
   const tKinds = useTranslations("Common.entityKinds");
-  const [region, setRegion] = useSearchRegion(getDefaultRegion());
   const feedRegion = getStoredPreferredRegion();
 
   const recovery = useMemo(() => {
@@ -152,8 +148,7 @@ export function NotFoundRecovery() {
           {t("searchHeading")}
         </p>
         <SearchAutocomplete
-          region={region}
-          onRegionResolved={setRegion}
+          region={feedRegion ?? "all"}
           showSubmitButton
         />
       </div>

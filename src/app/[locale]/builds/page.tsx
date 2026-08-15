@@ -6,10 +6,8 @@ import { BuildsRegionFilters } from "@/components/builds/BuildsRegionFilters";
 import { PageHeader } from "@/components/PageSection";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import { getMetaBuilds } from "@/lib/db/queries";
-import {
-  feedRegionFilterOptions,
-  parseFeedRegion,
-} from "@/lib/region-params";
+import { feedRegionFilterOptions } from "@/lib/region-params";
+import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 import { regionLabel } from "@/lib/utils";
 import { buildFeedPageMetadata } from "@/lib/seo";
 
@@ -24,7 +22,7 @@ export async function generateMetadata({
 }: BuildsPageProps): Promise<Metadata> {
   const { locale } = await params;
   const search = await searchParams;
-  const region = parseFeedRegion(search.region);
+  const region = await resolveServerFeedRegion(search.region);
   const t = await getTranslations({ locale, namespace: "Builds" });
 
   return buildFeedPageMetadata({
@@ -52,7 +50,7 @@ export default async function BuildsPage({
   const tCommon = await getTranslations("Common");
 
   const search = await searchParams;
-  const region = parseFeedRegion(search.region);
+  const region = await resolveServerFeedRegion(search.region);
   const days = parseDays(search.days);
   const filterRegions = feedRegionFilterOptions();
 
@@ -78,7 +76,7 @@ export default async function BuildsPage({
       />
 
       <Suspense fallback={<FilterChipSkeleton count={4} />}>
-        <BuildsRegionFilters regions={filterRegions} />
+        <BuildsRegionFilters regions={filterRegions} activeRegion={region} />
       </Suspense>
 
       {error ? (

@@ -1,12 +1,15 @@
 import {
   ENABLED_REGIONS,
   isRegionEnabled,
-  type AlbionRegion,
 } from "@/lib/albion/types";
 import { regionLabel } from "@/lib/utils";
-import { setPreferredRegion } from "@/lib/region-preference";
+import {
+  isPreferredRegion,
+  setPreferredRegion,
+  type PreferredRegion,
+} from "@/lib/region-preference";
 
-export type FeedRegion = AlbionRegion | "all";
+export type FeedRegion = PreferredRegion;
 
 export const FEED_PATHS = ["/", "/battles", "/leaderboards", "/builds"] as const;
 
@@ -36,10 +39,12 @@ export function parseFeedRegion(value: string | undefined): FeedRegion {
   return isRegionEnabled(value) ? value : "all";
 }
 
-/** Read active feed region from URL search params. */
+/** Read active feed region from URL, falling back when the param is omitted. */
 export function readFeedRegionParam(
-  searchParams: URLSearchParams
+  searchParams: URLSearchParams,
+  fallback: FeedRegion = "all"
 ): FeedRegion {
+  if (!searchParams.has("region")) return fallback;
   return parseFeedRegion(searchParams.get("region") ?? undefined);
 }
 
@@ -59,9 +64,9 @@ export function applyFeedRegionParam(
   params.delete("region");
 }
 
-/** Persist preference when the user picks a specific region chip. */
+/** Persist the site-wide preference, including "All Regions". */
 export function rememberFeedRegionSelection(region: string): void {
-  if (isRegionEnabled(region)) {
+  if (isPreferredRegion(region)) {
     setPreferredRegion(region);
   }
 }
@@ -112,7 +117,7 @@ export function appendFeedRegionToHref(
 /** Nav link: include stored region when the user has set a preference. */
 export function feedNavHref(
   path: string,
-  storedRegion: AlbionRegion | null,
+  storedRegion: FeedRegion | null,
   extraParams?: Record<string, string>
 ): string {
   if (!storedRegion) {

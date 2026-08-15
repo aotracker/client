@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Search, X } from "lucide-react";
@@ -20,13 +21,14 @@ import { Input } from "@/components/ui/input";
 
 interface BattlesFiltersProps {
   regions: { value: AlbionRegion | "all"; label: string }[];
+  activeRegion?: AlbionRegion | "all";
 }
 
-export function BattlesFilters({ regions }: BattlesFiltersProps) {
+export function BattlesFilters({ regions, activeRegion = "all" }: BattlesFiltersProps) {
   const t = useTranslations("Battle");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const region = readFeedRegionParam(searchParams);
+  const region = readFeedRegionParam(searchParams, activeRegion);
   const qParam = searchParams.get("q") ?? "";
   const minPlayers = parseBattlesMinPlayers(
     searchParams.get(BATTLES_FEED_MIN_PLAYERS_PARAM)

@@ -33,6 +33,7 @@ const TAB_ICONS: Record<LeaderboardTab, LucideIcon> = {
 
 interface LeaderboardFiltersProps {
   regions: { value: AlbionRegion | "all"; label: string }[];
+  activeRegion?: AlbionRegion | "all";
 }
 
 function FilterRow({
@@ -52,7 +53,10 @@ function FilterRow({
   );
 }
 
-export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
+export function LeaderboardFilters({
+  regions,
+  activeRegion = "all",
+}: LeaderboardFiltersProps) {
   const t = useTranslations("Leaderboards");
   const tFilters = useTranslations("Filters");
   const tCommon = useTranslations("Common");
@@ -60,7 +64,7 @@ export function LeaderboardFilters({ regions }: LeaderboardFiltersProps) {
   const { isPending, pendingTab, push } = useLeaderboardNavigation();
 
   const tab = (searchParams.get("tab") as LeaderboardTab) || "killers";
-  const region = readFeedRegionParam(searchParams);
+  const region = readFeedRegionParam(searchParams, activeRegion);
   const days = Number(searchParams.get("days") ?? "7");
   const type = (searchParams.get("type") as ContentTypeFilter) || "all";
   const hour = parseLeaderboardHour(searchParams.get("hour") ?? undefined);

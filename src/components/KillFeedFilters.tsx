@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
 import {
@@ -15,6 +16,7 @@ const CONTENT_FILTERS: ContentTypeFilter[] = ["all", "SOLO", "GROUP", "ZVZ"];
 
 interface KillFeedFiltersProps {
   regions: { value: AlbionRegion | "all"; label: string }[];
+  activeRegion?: AlbionRegion | "all";
   show?: "all" | "regions" | "contentTypes";
 }
 
@@ -24,13 +26,14 @@ function isContentTypeFilter(value: string): value is ContentTypeFilter {
 
 export function KillFeedFilters({
   regions,
+  activeRegion = "all",
   show = "all",
 }: KillFeedFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tRegions = useTranslations("Common.regions");
   const tContent = useTranslations("Common.contentTypes");
-  const region = readFeedRegionParam(searchParams);
+  const region = readFeedRegionParam(searchParams, activeRegion);
   const typeParam = searchParams.get("type") ?? "all";
   const contentType = isContentTypeFilter(typeParam) ? typeParam : "all";
 

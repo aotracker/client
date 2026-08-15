@@ -6,12 +6,7 @@ import {
   ensureLiveSearchQueued,
   getLiveSearchJobInfo,
 } from "@/lib/ingest-api";
-import {
-  ENABLED_REGIONS,
-  getDefaultRegion,
-  isRegionEnabled,
-  type AlbionRegion,
-} from "@/lib/albion/types";
+import { ENABLED_REGIONS } from "@/lib/albion/types";
 import {
   isLiveSearchInProgress,
   resolveLiveSearchRegions,
@@ -24,6 +19,7 @@ import { SearchForm } from "@/components/SearchForm";
 import { SearchLivePoller } from "@/components/SearchLivePoller";
 import { formatFame, regionLabel } from "@/lib/utils";
 import { buildPageMetadata, guildPath, NOINDEX_FOLLOW, playerPath } from "@/lib/seo";
+import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -53,10 +49,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
 
   const search = await searchParams;
   const query = search.q?.trim() ?? "";
-  const requestedRegion = search.region ?? getDefaultRegion();
-  const preferredRegion: AlbionRegion = isRegionEnabled(requestedRegion)
-    ? requestedRegion
-    : getDefaultRegion();
+  const preferredRegion = await resolveServerFeedRegion(search.region);
   const liveRegions = resolveLiveSearchRegions(null);
 
   if (!query) {

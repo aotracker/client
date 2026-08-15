@@ -16,10 +16,7 @@ import {
   Trophy,
   X,
 } from "lucide-react";
-import {
-  SearchAutocomplete,
-  useSearchRegion,
-} from "@/components/SearchAutocomplete";
+import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 import {
   NavbarRegionSelector,
   useActiveFeedRegion,
@@ -34,13 +31,16 @@ import {
   feedNavHref,
   type FeedRegion,
 } from "@/lib/region-params";
-import { getStoredPreferredRegion } from "@/lib/region-preference";
+import {
+  getStoredPreferredRegion,
+  type PreferredRegion,
+} from "@/lib/region-preference";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 interface NavbarProps {
   regions: AlbionRegion[];
-  preferredRegion: AlbionRegion | null;
+  preferredRegion: PreferredRegion | null;
 }
 
 const SERVER_CLOCK_PLACEHOLDER = "--:--:--";
@@ -186,7 +186,7 @@ function NavbarBrandAndDesktopNav({
   preferredRegion,
   pathname,
 }: {
-  preferredRegion: AlbionRegion | null;
+  preferredRegion: PreferredRegion | null;
   pathname: string;
 }) {
   const t = useTranslations("Nav");
@@ -242,7 +242,7 @@ function NavbarMobileFeedLinks({
   preferredRegion,
   onNavigate,
 }: {
-  preferredRegion: AlbionRegion | null;
+  preferredRegion: PreferredRegion | null;
   onNavigate: () => void;
 }) {
   const t = useTranslations("Nav");
@@ -290,7 +290,6 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
   const t = useTranslations("Nav");
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [region, setRegion] = useSearchRegion(regions[0]);
   const [navRegion, setNavRegion] = useState(preferredRegion);
 
   useEffect(() => {
@@ -315,8 +314,7 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
 
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <SearchAutocomplete
-            region={region}
-            onRegionResolved={setRegion}
+            region={navRegion ?? "all"}
             compact
             className="min-w-0 flex-1"
             onNavigate={() => setMenuOpen(false)}
@@ -328,10 +326,7 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
             <NavbarRegionSelector
               regions={regions}
               preferredRegion={navRegion}
-              onRegionChange={(next) => {
-                setRegion(next);
-                setNavRegion(next);
-              }}
+              onRegionChange={setNavRegion}
             />
           </Suspense>
 
@@ -362,10 +357,7 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
                 preferredRegion={navRegion}
                 variant="chips"
                 onSelect={() => setMenuOpen(false)}
-                onRegionChange={(next) => {
-                  setRegion(next);
-                  setNavRegion(next);
-                }}
+                onRegionChange={setNavRegion}
               />
             </Suspense>
 

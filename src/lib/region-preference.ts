@@ -4,6 +4,9 @@ import {
   type AlbionRegion,
 } from "@/lib/albion/types";
 
+/** Site-wide region preference, including "all regions". */
+export type PreferredRegion = AlbionRegion | "all";
+
 /** Cookie read by server components and proxy. */
 export const PREFERRED_REGION_COOKIE = "aotracker_preferred_region";
 
@@ -15,17 +18,23 @@ const LEGACY_SEARCH_REGION_STORAGE_KEY = "aotrackr:search-region";
 
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
+export function isPreferredRegion(value: string): value is PreferredRegion {
+  return value === "all" || isRegionEnabled(value);
+}
+
 function canUseStorage(): boolean {
   return typeof window !== "undefined" && typeof localStorage !== "undefined";
 }
 
-function parseRegionValue(value: string | null | undefined): AlbionRegion | null {
+function parseRegionValue(
+  value: string | null | undefined
+): PreferredRegion | null {
   if (!value) return null;
   const normalized = value.trim().toLowerCase();
-  return isRegionEnabled(normalized) ? normalized : null;
+  return isPreferredRegion(normalized) ? normalized : null;
 }
 
-function readLegacyLocalStorageRegion(): AlbionRegion | null {
+function readLegacyLocalStorageRegion(): PreferredRegion | null {
   if (!canUseStorage()) return null;
   try {
     return parseRegionValue(localStorage.getItem(LEGACY_SEARCH_REGION_STORAGE_KEY));
@@ -34,7 +43,7 @@ function readLegacyLocalStorageRegion(): AlbionRegion | null {
   }
 }
 
-function readLocalStorageRegion(): AlbionRegion | null {
+function readLocalStorageRegion(): PreferredRegion | null {
   if (!canUseStorage()) return null;
   try {
     const current = parseRegionValue(
@@ -47,7 +56,7 @@ function readLocalStorageRegion(): AlbionRegion | null {
   }
 }
 
-function readDocumentCookieRegion(): AlbionRegion | null {
+function readDocumentCookieRegion(): PreferredRegion | null {
   if (typeof document === "undefined") return null;
   const prefix = `${PREFERRED_REGION_COOKIE}=`;
   const match = document.cookie
@@ -58,7 +67,7 @@ function readDocumentCookieRegion(): AlbionRegion | null {
   return parseRegionValue(decodeURIComponent(match.slice(prefix.length)));
 }
 
-function writeLocalStorageRegion(region: AlbionRegion): void {
+function writeLocalStorageRegion(region: PreferredRegion): void {
   if (!canUseStorage()) return;
   try {
     localStorage.setItem(PREFERRED_REGION_STORAGE_KEY, region);
@@ -69,7 +78,7 @@ function writeLocalStorageRegion(region: AlbionRegion): void {
 }
 
 /** Client-only: persist preference to localStorage and a readable cookie. */
-export function writePreferredRegionCookie(region: AlbionRegion): void {
+export function writePreferredRegionCookie(region: PreferredRegion): void {
   if (typeof document === "undefined") return;
   const secure =
     typeof window !== "undefined" && window.location.protocol === "https:"
@@ -78,26 +87,36 @@ export function writePreferredRegionCookie(region: AlbionRegion): void {
   document.cookie = `${PREFERRED_REGION_COOKIE}=${encodeURIComponent(region)}; Path=/; Max-Age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax${secure}`;
 }
 
-/** Client-only: stored preference without falling back to site default. */
-export function getStoredPreferredRegion(): AlbionRegion | null {
+/** Client-only: stored preference without falling back to a default. */
+export function getStoredPreferredRegion(): PreferredRegion | null {
   return readLocalStorageRegion() ?? readDocumentCookieRegion();
 }
 
-/** Client-only: read stored preference, falling back when unset or invalid. */
-export function getPreferredRegion(fallback?: AlbionRegion): AlbionRegion {
-  const resolvedFallback = fallback ?? getDefaultRegion();
+/**
+ * Client-only: read stored preference, falling back when unset or invalid.
+ * Default is "all" — never Americas unless the user chose it.
+ */
+export function getPreferredRegion(
+  fallback: PreferredRegion = "all"
+): PreferredRegion {
   return (
-    readLocalStorageRegion() ??
-    readDocumentCookieRegion() ??
-    resolvedFallback
+    readLocalStorageRegion() ?? readDocumentCookieRegion() ?? fallback
   );
 }
 
 /** Client-only: set the site-wide preferred region (localStorage + cookie). */
-export function setPreferredRegion(region: AlbionRegion): void {
-  if (!isRegionEnabled(region)) return;
+export function setPreferredRegion(region: PreferredRegion): void {
+  if (!isPreferredRegion(region)) return;
   writeLocalStorageRegion(region);
   writePreferredRegionCookie(region);
+}
+
+/** Concrete server for killboard deep-links when preference is "all". */
+export function concreteRegion(
+  pref: PreferredRegion | null | undefined
+): AlbionRegion {
+  if (pref && pref !== "all" && isRegionEnabled(pref)) return pref;
+  return getDefaultRegion();
 }
 
 /**
@@ -132,7 +151,7 @@ export function syncPreferredRegionStores(): void {
 /** Parse `Cookie` header value (server/proxy). */
 export function parsePreferredRegionCookieHeader(
   cookieHeader: string | null | undefined
-): AlbionRegion | null {
+): PreferredRegion | null {
   if (!cookieHeader) return null;
   const prefix = `${PREFERRED_REGION_COOKIE}=`;
   for (const part of cookieHeader.split(";")) {
@@ -145,11 +164,13 @@ export function parsePreferredRegionCookieHeader(
   return null;
 }
 
-export function getStoredSearchRegion(fallback: AlbionRegion): AlbionRegion {
+export function getStoredSearchRegion(
+  fallback: PreferredRegion = "all"
+): PreferredRegion {
   return getPreferredRegion(fallback);
 }
 
 /** @deprecated Use setPreferredRegion */
-export function setStoredSearchRegion(region: AlbionRegion): void {
+export function setStoredSearchRegion(region: PreferredRegion): void {
   setPreferredRegion(region);
 }

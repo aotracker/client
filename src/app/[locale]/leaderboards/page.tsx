@@ -26,10 +26,8 @@ import {
   getTopKillers,
   getTopPlayersByKillFame,
 } from "@/lib/db/queries";
-import {
-  feedRegionFilterOptions,
-  parseFeedRegion,
-} from "@/lib/region-params";
+import { feedRegionFilterOptions } from "@/lib/region-params";
+import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 import { formatUtcHour, isPrimeTimeHourForFilter } from "@/lib/albion/prime-times";
 import { regionLabel } from "@/lib/utils";
 import { buildFeedPageMetadata } from "@/lib/seo";
@@ -51,7 +49,7 @@ export async function generateMetadata({
 }: LeaderboardsPageProps): Promise<Metadata> {
   const { locale } = await params;
   const search = await searchParams;
-  const region = parseFeedRegion(search.region);
+  const region = await resolveServerFeedRegion(search.region);
   const t = await getTranslations({ locale, namespace: "Leaderboards" });
 
   return buildFeedPageMetadata({
@@ -84,7 +82,7 @@ export default async function LeaderboardsPage({
 
   const search = await searchParams;
   const tab = parseLeaderboardTab(search.tab);
-  const region = parseFeedRegion(search.region);
+  const region = await resolveServerFeedRegion(search.region);
   const days = parseLeaderboardDays(search.days);
   const contentType = parseLeaderboardContentType(search.type);
   const parsedHour = parseLeaderboardHour(search.hour);
@@ -145,7 +143,7 @@ export default async function LeaderboardsPage({
 
       <Suspense fallback={<FilterChipSkeleton count={6} />}>
         <LeaderboardNavigationProvider>
-          <LeaderboardFilters regions={filterRegions} />
+          <LeaderboardFilters regions={filterRegions} activeRegion={region} />
 
           <div className="space-y-1">
             <h2 className="text-lg font-semibold">{tabLabel}</h2>

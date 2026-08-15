@@ -1,11 +1,11 @@
-import type { AlbionRegion } from "@/lib/albion/types";
+import type { PreferredRegion } from "@/lib/region-preference";
 
 const RECENT_KEY = "aotrackr:recent-searches";
 const MAX_RECENT = 8;
 
 export type RecentSearch = {
   q: string;
-  region: AlbionRegion;
+  region: PreferredRegion;
   type?: "player" | "guild" | "alliance" | "path" | "query";
   path?: string;
   ts: number;

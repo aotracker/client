@@ -4,9 +4,15 @@ import { useTranslations } from "next-intl";
 import { Activity } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ALBION_REF_URL, SITE_NAME } from "@/lib/site";
+import { feedNavHref } from "@/lib/region-params";
+import type { PreferredRegion } from "@/lib/region-preference";
 import { Link } from "@/i18n/navigation";
 
-export function Footer() {
+export function Footer({
+  preferredRegion = null,
+}: {
+  preferredRegion?: PreferredRegion | null;
+}) {
   const t = useTranslations("Footer");
   const year = new Date().getFullYear();
 
@@ -14,7 +20,11 @@ export function Footer() {
     <footer className="mt-auto border-t border-border bg-background/80">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
-          <BrandLogo size="sm" className="text-foreground" />
+          <BrandLogo
+            href={feedNavHref("/", preferredRegion)}
+            size="sm"
+            className="text-foreground"
+          />
           <p>{t("copyright", { year, siteName: SITE_NAME })}</p>
           <p>{t("disclaimer", { siteName: SITE_NAME })}</p>
         </div>

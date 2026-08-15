@@ -1,20 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Clock, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { AlbionRegion } from "@/lib/albion/types";
-import { getDefaultRegion } from "@/lib/albion/types";
 import { cn, regionLabel } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
 import { parseDeepLink } from "@/lib/search/parse-deep-link";
 import {
+  concreteRegion,
   getPreferredRegion,
   setPreferredRegion,
+  type PreferredRegion,
 } from "@/lib/region-preference";
 import {
   getRecentSearches,
@@ -32,8 +32,7 @@ type SuggestItem = {
 };
 
 interface SearchAutocompleteProps {
-  region: AlbionRegion;
-  onRegionResolved?: (region: AlbionRegion) => void;
+  region: PreferredRegion;
   initialQuery?: string;
   placeholder?: string;
   autoFocus?: boolean;
@@ -48,7 +47,6 @@ const MIN_CHARS = 2;
 
 export function SearchAutocomplete({
   region,
-  onRegionResolved,
   initialQuery = "",
   placeholder,
   autoFocus = false,
@@ -96,7 +94,7 @@ export function SearchAutocomplete({
     typeof window !== "undefined" ? window.location.origin : undefined;
 
   const deepLink = useMemo(
-    () => parseDeepLink(query, region, siteOrigin),
+    () => parseDeepLink(query, concreteRegion(region), siteOrigin),
     [query, region, siteOrigin]
   );
 
@@ -267,13 +265,11 @@ export function SearchAutocomplete({
         pushRecentSearch(recentEntry);
         setRecent(getRecentSearches());
       }
-      setPreferredRegion(region);
-      onRegionResolved?.(region);
       setOpen(false);
       onNavigate?.();
       router.push(href);
     },
-    [onNavigate, onRegionResolved, region, router]
+    [onNavigate, router]
   );
 
   function handleSubmit(e: React.FormEvent) {
@@ -452,12 +448,12 @@ export function SearchAutocomplete({
   );
 }
 
-/** Hook helper for navbar region preference. */
+/** Hook helper for site-wide region preference. */
 export function usePreferredRegion(
-  fallback?: AlbionRegion,
+  fallback?: PreferredRegion,
   options?: { preferStored?: boolean }
-): [AlbionRegion, (region: AlbionRegion) => void] {
-  const defaultRegion = fallback ?? getDefaultRegion();
+): [PreferredRegion, (region: PreferredRegion) => void] {
+  const defaultRegion = fallback ?? "all";
   const preferStored = options?.preferStored ?? true;
   const [region, setRegionState] = useState(defaultRegion);
 
@@ -466,7 +462,7 @@ export function usePreferredRegion(
     setRegionState(getPreferredRegion(defaultRegion));
   }, [defaultRegion, preferStored]);
 
-  const setRegion = useCallback((next: AlbionRegion) => {
+  const setRegion = useCallback((next: PreferredRegion) => {
     setRegionState(next);
     setPreferredRegion(next);
   }, []);

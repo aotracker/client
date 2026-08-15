@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
+import type { PreferredRegion } from "@/lib/region-preference";
 import {
   buildFeedHref,
   isFeedPath,
@@ -17,20 +18,20 @@ import { cn } from "@/lib/utils";
 
 interface NavbarRegionSelectorProps {
   regions: AlbionRegion[];
-  preferredRegion: AlbionRegion | null;
-  onRegionChange?: (region: AlbionRegion) => void;
+  preferredRegion: PreferredRegion | null;
+  onRegionChange?: (region: PreferredRegion) => void;
   onSelect?: () => void;
   variant?: "dropdown" | "chips";
   className?: string;
 }
 
 export function useActiveFeedRegion(
-  preferredRegion: AlbionRegion | null
+  preferredRegion: PreferredRegion | null
 ): FeedRegion {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
 
-  if (isFeedPath(pathname)) {
+  if (isFeedPath(pathname) && searchParams.has("region")) {
     return readFeedRegionParam(searchParams);
   }
 
@@ -95,11 +96,8 @@ export function NavbarRegionSelector({
 
   function selectRegion(next: FeedRegion) {
     setOpen(false);
-
-    if (next !== "all") {
-      rememberFeedRegionSelection(next);
-      onRegionChange?.(next);
-    }
+    rememberFeedRegionSelection(next);
+    onRegionChange?.(next);
 
     if (isFeedPath(pathname)) {
       router.push(
@@ -109,14 +107,7 @@ export function NavbarRegionSelector({
       return;
     }
 
-    if (next === "all") {
-      router.push(buildFeedHref("/", new URLSearchParams(), { region: "all" }));
-      onSelect?.();
-      return;
-    }
-
     router.refresh();
-
     onSelect?.();
   }
 

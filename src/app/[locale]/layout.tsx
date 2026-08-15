@@ -86,7 +86,7 @@ export default async function LocaleLayout({
             <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
               {children}
             </main>
-            <Footer />
+            <Footer preferredRegion={preferredRegion} />
           </ToastProvider>
         </ThemeProvider>
       </NextIntlClientProvider>

@@ -11,10 +11,8 @@ import {
   parseBattlesMinPlayers,
 } from "@/lib/battles-constants";
 import { getCronJobStatuses } from "@/lib/jobs/cron-state";
-import {
-  feedRegionFilterOptions,
-  parseFeedRegion,
-} from "@/lib/region-params";
+import { feedRegionFilterOptions } from "@/lib/region-params";
+import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 import { buildFeedPageMetadata } from "@/lib/seo";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 
@@ -29,7 +27,7 @@ export async function generateMetadata({
 }: BattlesPageProps): Promise<Metadata> {
   const { locale } = await params;
   const search = await searchParams;
-  const region = parseFeedRegion(search.region);
+  const region = await resolveServerFeedRegion(search.region);
   const t = await getTranslations({ locale, namespace: "Battle" });
 
   return buildFeedPageMetadata({
@@ -50,7 +48,7 @@ export default async function BattlesPage({
   const t = await getTranslations("Battle");
 
   const search = await searchParams;
-  const region = parseFeedRegion(search.region);
+  const region = await resolveServerFeedRegion(search.region);
   const q = search.q?.trim() || undefined;
   const minPlayers = parseBattlesMinPlayers(search.minPlayers);
   const filterRegions = feedRegionFilterOptions();
@@ -101,7 +99,7 @@ export default async function BattlesPage({
       />
 
       <Suspense fallback={<FilterChipSkeleton count={4} />}>
-        <BattlesFilters regions={filterRegions} />
+        <BattlesFilters regions={filterRegions} activeRegion={region} />
       </Suspense>
 
       {error ? (

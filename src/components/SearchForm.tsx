@@ -10,14 +10,15 @@ import {
 } from "@/components/SearchAutocomplete";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
-import { regionLabel } from "@/lib/utils";
+import { feedRegionFilterOptions } from "@/lib/region-params";
+import type { PreferredRegion } from "@/lib/region-preference";
 import { getRecentSearches } from "@/lib/search/recent-searches";
 import { Link } from "@/i18n/navigation";
 import type { RecentSearch } from "@/lib/search/recent-searches";
 
 interface SearchFormProps {
   initialQuery?: string;
-  initialRegion?: AlbionRegion;
+  initialRegion?: PreferredRegion;
   /** Pass from a Server Component so region buttons match SSR (avoids client env drift). */
   regions?: AlbionRegion[];
 }
@@ -28,15 +29,14 @@ export function SearchForm({
   regions = ENABLED_REGIONS,
 }: SearchFormProps) {
   const t = useTranslations("Search");
-  const [region, setRegion] = useSearchRegion(
-    initialRegion ?? regions[0] ?? "americas",
-    { preferStored: initialRegion == null }
-  );
+  const tRegions = useTranslations("Common.regions");
+  const [region, setRegion] = useSearchRegion(initialRegion ?? "all", {
+    preferStored: initialRegion == null,
+  });
   const [recent, setRecent] = useState<RecentSearch[]>([]);
-
-  useEffect(() => {
-    if (initialRegion) setRegion(initialRegion);
-  }, [initialRegion, setRegion]);
+  const regionOptions = feedRegionFilterOptions().filter(
+    (option) => option.value === "all" || regions.includes(option.value)
+  );
 
   useEffect(() => {
     setRecent(getRecentSearches());
@@ -46,22 +46,21 @@ export function SearchForm({
     <div className="space-y-3">
       <SearchAutocomplete
         region={region}
-        onRegionResolved={setRegion}
         initialQuery={initialQuery}
         autoFocus={!initialQuery}
         showSubmitButton
       />
       <div className="flex flex-wrap gap-2">
-        {regions.map((r) => (
+        {regionOptions.map((r) => (
           <Button
-            key={r}
+            key={r.value}
             type="button"
             size="sm"
-            variant={region === r ? "default" : "outline"}
-            aria-pressed={region === r}
-            onClick={() => setRegion(r)}
+            variant={region === r.value ? "default" : "outline"}
+            aria-pressed={region === r.value}
+            onClick={() => setRegion(r.value)}
           >
-            {regionLabel(r)}
+            {tRegions.has(r.value) ? tRegions(r.value) : r.label}
           </Button>
         ))}
       </div>
@@ -81,7 +80,7 @@ export function SearchForm({
                     href={href}
                     className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
-                    <Clock className="h-3 w-3 shrink-0" aria-hidden />
+                    <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
                     {item.path ?? item.q}
                   </Link>
                 </li>

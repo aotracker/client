@@ -45,7 +45,7 @@ export default async function RootNotFound() {
                 <NotFoundRecovery />
               </div>
             </main>
-            <Footer />
+            <Footer preferredRegion={preferredRegion} />
           </ToastProvider>
         </ThemeProvider>
       </NextIntlClientProvider>

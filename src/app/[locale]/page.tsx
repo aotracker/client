@@ -14,10 +14,8 @@ import {
   TopFameEarnersSection,
 } from "@/components/home/HomeFeedSections";
 import type { ContentTypeFilter } from "@/lib/db/queries";
-import {
-  feedRegionFilterOptions,
-  parseFeedRegion,
-} from "@/lib/region-params";
+import { feedRegionFilterOptions } from "@/lib/region-params";
+import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 import { JsonLd, websiteJsonLd } from "@/components/JsonLd";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import { buildPageMetadata } from "@/lib/seo";
@@ -35,7 +33,7 @@ export async function generateMetadata({
 }: HomeProps): Promise<Metadata> {
   const { locale } = await params;
   const search = await searchParams;
-  const region = parseFeedRegion(search.region);
+  const region = await resolveServerFeedRegion(search.region);
   const tSeo = await getTranslations({ locale, namespace: "Seo" });
 
   const baseTitle = tSeo("homePageTitle");
@@ -80,7 +78,7 @@ export default async function HomePage({ params, searchParams }: HomeProps) {
   setRequestLocale(locale);
 
   const search = await searchParams;
-  const region = parseFeedRegion(search.region);
+  const region = await resolveServerFeedRegion(search.region);
   const contentType = parseContentType(search.type);
   const filterRegions = feedRegionFilterOptions();
   const t = await getTranslations("Home");
@@ -97,7 +95,11 @@ export default async function HomePage({ params, searchParams }: HomeProps) {
       </h1>
 
       <Suspense fallback={<FilterChipSkeleton count={8} />}>
-        <KillFeedFilters regions={filterRegions} show="all" />
+        <KillFeedFilters
+          regions={filterRegions}
+          activeRegion={region}
+          show="all"
+        />
       </Suspense>
 
       <HomeFeedGrid>
