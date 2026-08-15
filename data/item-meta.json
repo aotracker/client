@@ -1320,7 +1320,7 @@
       "shop": "weapons",
       "sub": "cursestaff",
       "twoHanded": false,
-      "role": "dps"
+      "role": "support"
     },
     "2H_SKULLORB_HELL": {
       "slot": "mainhand",
@@ -2125,7 +2125,7 @@
       "shop": "weapons",
       "sub": "shapeshifterstaff",
       "twoHanded": true,
-      "role": "dps"
+      "role": "tank"
     },
     "2H_SHAPESHIFTER_AVALON": {
       "slot": "mainhand",

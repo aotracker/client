@@ -3,7 +3,8 @@ import { getItemMeta } from "@/lib/items/item-meta";
 
 /**
  * Coarse combat role from dump shop subcategory (itemroles.json party ratings).
- * Hybrids follow the tree's highest-rated party role.
+ * Hybrids follow the tree's highest-rated party role unless overridden
+ * per family in the item catalog (e.g. Earthrune tank, Lifecurse support).
  */
 export type WeaponRole = "healer" | "tank" | "support" | "dps";
 
