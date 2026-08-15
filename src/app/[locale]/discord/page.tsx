@@ -23,6 +23,11 @@ export async function generateMetadata({
   });
 }
 
+const KILL_FEED_PREVIEW_EMBED =
+  "https://cdn.aotracker.net/images/aotracker-kill-discord-notification-2.png";
+const KILL_FEED_PREVIEW =
+  "https://cdn.aotracker.net/images/aotracker-kill-discord-notification.png";
+
 const COMMANDS = [
   { name: "/track", key: "track" },
   { name: "/kills-channel", key: "killsChannel" },
@@ -67,16 +72,54 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
         <p className="text-sm text-muted-foreground">{t("inviteUnavailable")}</p>
       )}
 
-      <section className="space-y-2 text-sm text-muted-foreground">
-        <h2 className="font-display text-lg font-semibold text-foreground">
-          {t("setupTitle")}
-        </h2>
-        <ol className="list-decimal space-y-1.5 pl-5">
-          <li>{t("setup1")}</li>
-          <li>{t("setup2")}</li>
-          <li>{t("setup3")}</li>
-          <li>{t("setup4")}</li>
-        </ol>
+      <figure className="max-w-4xl space-y-2">
+        <div className="flex flex-col items-start gap-3 sm:flex-row">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={KILL_FEED_PREVIEW_EMBED}
+            alt={t("previewAltEmbed")}
+            className="h-auto w-full max-w-sm rounded-lg border border-border bg-card/40"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={KILL_FEED_PREVIEW}
+            alt={t("previewAlt")}
+            className="h-auto w-full max-w-md rounded-lg border border-border bg-card/40"
+          />
+        </div>
+        <figcaption className="text-sm text-muted-foreground">
+          {t("previewCaption")}
+        </figcaption>
+      </figure>
+
+      <section className="space-y-5 text-sm text-muted-foreground">
+        <div className="space-y-2">
+          <h2 className="font-display text-lg font-semibold text-foreground">
+            {t("setupTitle")}
+          </h2>
+          <p>{t("setupIntro")}</p>
+        </div>
+        <div className="space-y-2">
+          <h3 className="font-display text-base font-semibold text-foreground">
+            {t("setupAddTitle")}
+          </h3>
+          <ol className="list-decimal space-y-1.5 pl-5">
+            <li>{t("setupAdd1")}</li>
+            <li>{t("setupAdd2")}</li>
+            <li>{t("setupAdd3")}</li>
+          </ol>
+        </div>
+        <div className="space-y-2">
+          <h3 className="font-display text-base font-semibold text-foreground">
+            {t("setupRegisterTitle")}
+          </h3>
+          <ol className="list-decimal space-y-1.5 pl-5">
+            <li>{t("setupRegister1")}</li>
+            <li>{t("setupRegister2")}</li>
+            <li>{t("setupRegister3")}</li>
+            <li>{t("setupRegister4")}</li>
+          </ol>
+        </div>
         <p>{t("permissionsNote")}</p>
       </section>
 

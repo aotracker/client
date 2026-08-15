@@ -153,7 +153,7 @@ export function workerAlertMessage(job: EnrichedWorkerJobStatus): string {
     case "stale":
       return `${job.label} is overdue — BullMQ workers are connected but the last successful run was too long ago.`;
     case "down":
-      return `No BullMQ workers are connected for ${job.label}. Check that ingest-worker is running on the VM (pm2 status).`;
+      return `No BullMQ workers are connected for ${job.label}. Check that ingest-scheduler and ingest-worker are running on the VM (pm2 status).`;
     default:
       return "";
   }
