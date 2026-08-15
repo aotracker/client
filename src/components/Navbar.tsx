@@ -16,7 +16,7 @@ import {
   Trophy,
   X,
 } from "lucide-react";
-import { SearchAutocomplete } from "@/components/SearchAutocomplete";
+import { SearchAutocompleteLazy } from "@/components/SearchAutocompleteLazy";
 import {
   NavbarRegionSelector,
   useActiveFeedRegion,
@@ -313,7 +313,7 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
         </Suspense>
 
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <SearchAutocomplete
+          <SearchAutocompleteLazy
             region={navRegion ?? "all"}
             compact
             className="min-w-0 flex-1"

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "@/i18n/navigation";
 import { Check, Swords } from "lucide-react";
 import type { AlbionBattleSummary, AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
@@ -28,7 +29,7 @@ function isGuildBattle(
   return "guildMembers" in battle;
 }
 
-export function BattleCard({
+export const BattleCard = memo(function BattleCard({
   battle,
   region,
   showGuildStats = false,
@@ -203,4 +204,4 @@ export function BattleCard({
       </CardContent>
     </Card>
   );
-}
+});

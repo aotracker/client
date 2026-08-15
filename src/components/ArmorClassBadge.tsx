@@ -3,11 +3,7 @@
 import { Shirt } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import {
-  getArmorClass,
-  getBuildArmorClass,
-  type ArmorClass,
-} from "@/lib/items/item-meta";
+import type { ArmorClass } from "@/lib/items/item-meta";
 import { cn } from "@/lib/utils";
 
 const ARMOR_CLASS: Record<ArmorClass, string> = {
@@ -18,18 +14,13 @@ const ARMOR_CLASS: Record<ArmorClass, string> = {
 };
 
 export function ArmorClassBadge({
-  itemType,
-  items,
+  armorClass,
   className,
 }: {
-  itemType?: string | null;
-  items?: { slot?: string | null; itemType: string }[];
+  armorClass?: ArmorClass | null;
   className?: string;
 }) {
   const t = useTranslations("Common.labels.armorClasses");
-  const armorClass = items
-    ? getBuildArmorClass(items)
-    : getArmorClass(itemType);
   if (!armorClass) return null;
 
   const label = t(armorClass);

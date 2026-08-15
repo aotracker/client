@@ -12,8 +12,7 @@ import { BuildMetaCard } from "@/components/builds/BuildMetaCard";
 import { ZVZ_MIN_PLAYERS } from "@/lib/albion/classify";
 import type { ContentType } from "@/lib/albion/types";
 import type { MetaBuildsResult } from "@/lib/db/queries";
-import { getCatalogItemName, getItemFamilyDisplayName } from "@/lib/items/catalog";
-import { getWeaponRole } from "@/lib/items/weapon-roles";
+import { pickLocalizedName } from "@/lib/items/localized-name";
 import { ITEM_QUALITY_EXCELLENT } from "@/lib/item-icons";
 import { cn, formatFame, formatItemName } from "@/lib/utils";
 
@@ -71,11 +70,14 @@ interface BuildsMetaViewProps {
   data: MetaBuildsResult;
 }
 
-function weaponLabel(itemType: string, locale: string): string {
-  return (
-    getItemFamilyDisplayName(itemType, locale) ??
-    getCatalogItemName(itemType, locale) ??
-    formatItemName(itemType)
+function weaponLabel(
+  weapon: MetaBuildsResult["topWeapons"][number],
+  locale: string
+): string {
+  return pickLocalizedName(
+    weapon.familyNames,
+    locale,
+    formatItemName(weapon.itemType)
   );
 }
 
@@ -257,7 +259,7 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
         >
           <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {data.topWeapons.map((weapon, index) => {
-              const role = getWeaponRole(weapon.itemType);
+              const role = weapon.weaponRole;
               const secondaryStat =
                 role === "dps"
                   ? weapon.kills > 0
@@ -283,7 +285,7 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
                     <ItemIcon
                       itemType={weapon.itemType}
                       quality={ITEM_QUALITY_EXCELLENT}
-                      tooltip={weaponLabel(weapon.itemType, locale)}
+                      tooltip={weaponLabel(weapon, locale)}
                       width={52}
                       height={52}
                       className="block object-contain"
@@ -292,9 +294,9 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <p className="truncate text-sm font-medium">
-                        {weaponLabel(weapon.itemType, locale)}
+                        {weaponLabel(weapon, locale)}
                       </p>
-                      <WeaponRoleBadge itemType={weapon.itemType} />
+                      <WeaponRoleBadge role={weapon.weaponRole} />
                     </div>
                     <WeaponUsesMix usesByContentType={weapon.usesByContentType} />
                     <p className="mt-1 text-xs tabular-nums text-muted-foreground">

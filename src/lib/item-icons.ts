@@ -90,15 +90,19 @@ export function itemIconLocalPath(
 }
 
 /**
- * Client-safe icon URL. Prefers the public CDN when configured; otherwise the
- * Albion render API. Does not consult the 23k-key icon manifest — that JSON
- * must stay out of client component bundles.
+ * Client-safe icon URL. Prefers the public CDN when configured; in development
+ * uses `/item-icons/{key}.png` from the local cache; otherwise the Albion
+ * render API. Does not consult the 23k-key icon manifest — that JSON must stay
+ * out of client component bundles.
  */
 export function itemIconUrl(
   type: string,
   quality: number | null | undefined = 1
 ): string {
   if (CDN_BASE) {
+    return itemIconLocalPath(type, quality);
+  }
+  if (process.env.NODE_ENV === "development") {
     return itemIconLocalPath(type, quality);
   }
   return itemIconRemoteUrl(type, quality);

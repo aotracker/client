@@ -25,7 +25,14 @@ export async function GET(request: Request) {
       getBattlesFeed({ region, q, minPlayers, limit, offset }),
       countBattlesFeed({ region, q, minPlayers }),
     ]);
-    return NextResponse.json({ battles, total });
+    return NextResponse.json(
+      { battles, total },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30",
+        },
+      }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to fetch battles" },

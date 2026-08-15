@@ -120,6 +120,13 @@
       "when": 1786800000000,
       "tag": "0020_discord_bot",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1786900000000,
+      "tag": "0021_kill_events_battle_idx",
+      "breakpoints": true
     }
   ]
 }

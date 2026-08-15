@@ -1,3 +1,5 @@
+import "server-only";
+
 import { formatItemTooltip } from "@/lib/items/catalog";
 import { formatSilver } from "@/lib/utils";
 

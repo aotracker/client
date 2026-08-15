@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { cn, formatItemName } from "@/lib/utils";
 import { itemIconRemoteUrl, itemIconUrl } from "@/lib/item-icons";
 
@@ -16,7 +16,7 @@ interface ItemIconProps {
   height?: number;
 }
 
-export function ItemIcon({
+export const ItemIcon = memo(function ItemIcon({
   itemType,
   quality,
   alt,
@@ -57,4 +57,4 @@ export function ItemIcon({
       />
     </span>
   );
-}
+});

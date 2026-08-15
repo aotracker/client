@@ -1,3 +1,5 @@
+import "server-only";
+
 import { itemFamilyKey } from "@/lib/item-icons";
 import { getItemMeta } from "@/lib/items/item-meta";
 

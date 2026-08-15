@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Swords } from "lucide-react";
@@ -73,7 +74,7 @@ function itemsForRole(items: KillCardItem[] | undefined, role: "killer" | "victi
   return items?.filter((i) => i.ownerRole === role && i.category === "equipment") ?? [];
 }
 
-export function KillCard({ event, compact = false, compactSize = "default", fameVariant, rank }: KillCardProps) {
+export const KillCard = memo(function KillCard({ event, compact = false, compactSize = "default", fameVariant, rank }: KillCardProps) {
   const locale = useLocale();
   const t = useTranslations("Kill");
   const tPlayer = useTranslations("Player.killCard");
@@ -255,7 +256,7 @@ export function KillCard({ event, compact = false, compactSize = "default", fame
       </div>
     </Card>
   );
-}
+});
 
 function BuildStrip({
   equipment,

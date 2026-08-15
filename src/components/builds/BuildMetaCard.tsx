@@ -4,9 +4,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { ItemIcon } from "@/components/ItemIcon";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
 import { ArmorClassBadge } from "@/components/ArmorClassBadge";
-import { getCatalogItemName, getItemFamilyDisplayName } from "@/lib/items/catalog";
 import { TOP_BUILD_SLOTS } from "@/lib/albion/types";
 import type { MetaBuildEntry } from "@/lib/db/queries";
+import { pickLocalizedName } from "@/lib/items/localized-name";
 import { cn, formatItemPower, formatItemName } from "@/lib/utils";
 
 interface BuildMetaCardProps {
@@ -26,9 +26,11 @@ export function BuildMetaCard({
   const mainHand = build.items.find((i) => i.slot === "MainHand");
   const title = !mainHand
     ? t("unknownBuild")
-    : getItemFamilyDisplayName(mainHand.itemType, locale) ??
-      getCatalogItemName(mainHand.itemType, locale) ??
-      formatItemName(mainHand.itemType);
+    : pickLocalizedName(
+        build.titleNames,
+        locale,
+        formatItemName(mainHand.itemType)
+      );
 
   const avgIp = formatItemPower(build.avgIp);
 
@@ -93,10 +95,8 @@ export function BuildMetaCard({
               <p className="font-display text-sm font-semibold leading-snug break-words">
                 {title}
               </p>
-              <WeaponRoleBadge
-                itemType={bySlot.get("MainHand")?.itemType}
-              />
-              <ArmorClassBadge items={build.items} />
+              <WeaponRoleBadge role={build.weaponRole} />
+              <ArmorClassBadge armorClass={build.armorClass} />
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {tCommon("stats.players")}: {build.uniquePlayers}
@@ -108,9 +108,11 @@ export function BuildMetaCard({
           {TOP_BUILD_SLOTS.map((slot) => {
             const item = bySlot.get(slot);
             if (!item) return null;
-            const label =
-              getCatalogItemName(item.itemType, locale) ??
-              formatItemName(item.itemType);
+            const label = pickLocalizedName(
+              item.displayNames,
+              locale,
+              formatItemName(item.itemType)
+            );
 
             return (
               <div

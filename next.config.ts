@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+const withAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
   // Inline DISABLED_REGIONS into client bundles so ENABLED_REGIONS matches SSR.
@@ -28,4 +32,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+export default withAnalyzer(withNextIntl(nextConfig));

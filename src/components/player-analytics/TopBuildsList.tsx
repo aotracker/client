@@ -4,10 +4,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { ItemIcon } from "@/components/ItemIcon";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
 import { ArmorClassBadge } from "@/components/ArmorClassBadge";
-import { getCatalogItemName, getItemFamilyDisplayName } from "@/lib/items/catalog";
 import { formatItemName } from "@/lib/utils";
 import { TOP_BUILD_SLOTS } from "@/lib/albion/types";
 import type { PlayerTopBuild } from "@/lib/db/queries";
+import { pickLocalizedName } from "@/lib/items/localized-name";
 
 interface TopBuildsListProps {
   topBuilds: PlayerTopBuild[];
@@ -29,16 +29,6 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
     }
   };
 
-  const buildTitle = (items: PlayerTopBuild["items"]): string => {
-    const mainHand = items.find((i) => i.slot === "MainHand");
-    if (!mainHand) return t("unknownBuild");
-    return (
-      getItemFamilyDisplayName(mainHand.itemType, locale) ??
-      getCatalogItemName(mainHand.itemType, locale) ??
-      formatItemName(mainHand.itemType)
-    );
-  };
-
   if (topBuilds.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-muted-foreground">
@@ -51,7 +41,14 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
     <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {topBuilds.map((build, index) => {
         const bySlot = new Map(build.items.map((item) => [item.slot, item]));
-        const title = buildTitle(build.items);
+        const mainHand = build.items.find((item) => item.slot === "MainHand");
+        const title = !mainHand
+          ? t("unknownBuild")
+          : pickLocalizedName(
+              build.titleNames,
+              locale,
+              formatItemName(mainHand.itemType)
+            );
 
         return (
           <li
@@ -67,8 +64,8 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
                   <p className="text-sm font-medium leading-snug break-words">
                     {title}
                   </p>
-                  <WeaponRoleBadge itemType={bySlot.get("MainHand")?.itemType} />
-                  <ArmorClassBadge items={build.items} />
+                  <WeaponRoleBadge role={build.weaponRole} />
+                  <ArmorClassBadge armorClass={build.armorClass} />
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {build.count} event{build.count === 1 ? "" : "s"}
@@ -80,17 +77,22 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
               {TOP_BUILD_SLOTS.map((slot) => {
                 const item = bySlot.get(slot);
                 if (!item) return null;
+                const label = pickLocalizedName(
+                  item.displayNames,
+                  locale,
+                  formatItemName(item.itemType)
+                );
 
                 return (
                   <div
                     key={slot}
                     className="flex items-center justify-center rounded-md border border-border/50 bg-card/60 p-1 leading-none"
-                    title={`${slotLabel(slot)}: ${getCatalogItemName(item.itemType, locale) ?? formatItemName(item.itemType)}`}
+                    title={`${slotLabel(slot)}: ${label}`}
                   >
                     <ItemIcon
                       itemType={item.itemType}
                       quality={item.quality}
-                      tooltip={`${slotLabel(slot)}: ${getCatalogItemName(item.itemType, locale) ?? formatItemName(item.itemType)}`}
+                      tooltip={`${slotLabel(slot)}: ${label}`}
                       width={48}
                       height={48}
                       className="block object-contain"

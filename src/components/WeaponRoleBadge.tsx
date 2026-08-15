@@ -1,11 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Heart, Shield, Sparkles, Swords } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  getWeaponRole,
-  weaponRoleLabel,
-  type WeaponRole,
-} from "@/lib/items/weapon-roles";
+import type { WeaponRole } from "@/lib/items/weapon-roles";
 import { cn } from "@/lib/utils";
 
 const ROLE_CLASS: Record<WeaponRole, string> = {
@@ -22,17 +18,23 @@ const ROLE_ICON: Record<WeaponRole, LucideIcon> = {
   support: Sparkles,
 };
 
+const ROLE_LABEL: Record<WeaponRole, string> = {
+  healer: "Healer",
+  tank: "Tank",
+  support: "Support",
+  dps: "DPS",
+};
+
 export function WeaponRoleBadge({
-  itemType,
+  role,
   className,
 }: {
-  itemType: string | null | undefined;
+  role?: WeaponRole | null;
   className?: string;
 }) {
-  const role = getWeaponRole(itemType);
   if (!role) return null;
 
-  const label = weaponRoleLabel(role);
+  const label = ROLE_LABEL[role];
   const Icon = ROLE_ICON[role];
 
   return (

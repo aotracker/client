@@ -82,6 +82,16 @@ export function KillFeedList({
   const [freshIds, setFreshIds] = useState<Set<string>>(() => new Set());
   const loadingRef = useRef(false);
   const listTopRef = useRef<HTMLDivElement>(null);
+  const eventsRef = useRef(events);
+  const nearTopRef = useRef(nearTop);
+
+  useEffect(() => {
+    eventsRef.current = events;
+  }, [events]);
+
+  useEffect(() => {
+    nearTopRef.current = nearTop;
+  }, [nearTop]);
 
   useEffect(() => {
     function onScroll() {
@@ -99,7 +109,9 @@ export function KillFeedList({
       return;
     }
 
-    const newest = events[0];
+    const currentEvents = eventsRef.current;
+    const nearTopNow = nearTopRef.current;
+    const newest = currentEvents[0];
     if (!newest) return;
 
     try {
@@ -123,11 +135,11 @@ export function KillFeedList({
       onPollAtChange?.(polledAt);
       if (incoming.length === 0) return;
 
-      const existing = new Set(events.map(eventKey));
+      const existing = new Set(currentEvents.map(eventKey));
       const fresh = incoming.filter((e) => !existing.has(eventKey(e)));
       if (fresh.length === 0) return;
 
-      if (nearTop) {
+      if (nearTopNow) {
         const freshKeys = fresh.map(eventKey);
         setFreshIds(new Set(freshKeys));
         window.setTimeout(() => setFreshIds(new Set()), 400);
@@ -141,7 +153,7 @@ export function KillFeedList({
         setPendingNew((prev) => {
           const keys = new Set([
             ...prev.map(eventKey),
-            ...events.map(eventKey),
+            ...currentEvents.map(eventKey),
           ]);
           const next = [
             ...fresh.filter((e) => !keys.has(eventKey(e))),
@@ -153,7 +165,7 @@ export function KillFeedList({
     } catch {
       // soft-fail polls
     }
-  }, [contentType, events, maxEvents, nearTop, onPollAtChange, region]);
+  }, [contentType, maxEvents, onPollAtChange, region]);
 
   useEffect(() => {
     const id = window.setInterval(() => {

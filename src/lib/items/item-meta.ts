@@ -1,3 +1,5 @@
+import "server-only";
+
 import itemMetaFile from "../../../data/item-meta.json";
 import { itemFamilyKey } from "@/lib/item-icons";
 

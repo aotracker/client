@@ -1,8 +1,15 @@
 # AOTrackr — Vercel (Next.js)
 
-**Production host:** Vercel only. Set Root Directory to `client`.
+**Production host:** Vercel only.
 
-Background workers, Postgres, Redis, and the ingest HTTP API run on the **OVH VM** (`/home/ubuntu/ingest` + Docker Postgres) — see [DEPLOY.md](../DEPLOY.md) and [deploy/vm/README.md](../deploy/vm/README.md).
+| Checkout | Vercel Root Directory |
+|----------|------------------------|
+| Production GitHub repo `aotracker/client` | **empty** (this repo *is* the app) |
+| Local sibling checkout (`aotracker/client/`) | `client` |
+
+Background workers, Postgres, Redis, and the ingest HTTP API run on the **OVH VM** (`/home/ubuntu/ingest` + Docker Postgres) — see [DEPLOY.md](../DEPLOY.md) and [ingest/deploy/vm/README.md](../ingest/deploy/vm/README.md).
+
+Client is the source of truth for **read queries** and Drizzle migrations in `drizzle/`. Ingest owns write-path helpers. Apply production schema from the VM: `npm run db:apply-pending` in `/home/ubuntu/ingest`.
 
 ## What runs here
 
@@ -16,7 +23,7 @@ Workers and the ingest API live in [`../ingest/`](../ingest/) and are **never** 
 
 | Setting | Value |
 |---------|-------|
-| Root Directory | `client` |
+| Root Directory | empty on `aotracker/client`; `client` only for a local monorepo-style checkout |
 | Install Command | `npm install` (default) |
 | Build Command | `npm run build` |
 
@@ -63,13 +70,16 @@ cp .env.example .env
 npm run db:push && npm run dev
 ```
 
-Start workers and API:
+Start workers and API from `ingest/`:
 
 ```bash
-cd ingest && npm run start
+cd ../ingest
+npm run worker
 ```
 
-Or separately: `npm run worker` and `npm run api`.
+Or `npm run start` (API + scheduler + processors) or `npm run worker` and `npm run api` separately.
+
+Local item icons in `public/item-icons/` are used automatically in development. Production uses `NEXT_PUBLIC_ITEM_ICON_CDN`.
 
 ## Scripts
 
@@ -79,6 +89,9 @@ Or separately: `npm run worker` and `npm run api`.
 | `npm run build` | Production build |
 | `npm run start` | Serve production build |
 | `npm run lint` | ESLint |
+| `npm run test` | Vitest unit tests |
+| `npm run check:drift` | Diff watched `src/lib` copies against sibling `ingest/` |
+| `ANALYZE=true npm run analyze` | Client bundle analyzer |
 | `npm run db:push` | Push Drizzle schema to Postgres (local dev only) |
 | `npm run db:migrate` | Apply tracked migrations (local dev only) |
 | `npm run db:generate` | Generate migrations from schema |

@@ -1,6 +1,9 @@
+import "server-only";
+
 import catalogEn from "../../../data/item-names.json";
 import catalogEs from "../../../data/item-names.es.json";
 import { parseItemType, itemIconIdentifier } from "@/lib/item-icons";
+import { formatItemName } from "@/lib/utils";
 import {
   DEFAULT_LOCALE,
   getLocaleDefinition,
@@ -72,18 +75,8 @@ export function formatItemTooltip(
   locale?: string | null
 ): string {
   const { tier, enchantment } = parseItemType(type);
-  const name =
-    getCatalogItemName(type, locale) ?? formatFallbackItemName(type);
+  const name = getCatalogItemName(type, locale) ?? formatItemName(type);
   return `${name} (${tier}.${enchantment})`;
-}
-
-function formatFallbackItemName(type: string): string {
-  const { baseName } = parseItemType(type);
-  return baseName
-    .replace(/^T\d+_/, "")
-    .replace(/_/g, " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function getItemCatalogMeta(locale?: string | null) {

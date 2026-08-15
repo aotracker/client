@@ -33,6 +33,48 @@ const eslintConfig = defineConfig([
       "react-hooks/immutability": "warn",
     },
   },
+  {
+    files: ["src/components/**/*.{ts,tsx}"],
+    ignores: ["src/components/KillGearPanels.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@/lib/albion/client",
+              message:
+                "Do not call the Albion gameinfo API from the Vercel client. Use ingest jobs instead.",
+            },
+            {
+              name: "@/lib/items/catalog",
+              allowTypeImports: true,
+              message:
+                "Do not import item catalogs into client components. Pass precomputed display names from the server.",
+            },
+            {
+              name: "@/lib/items/item-meta",
+              allowTypeImports: true,
+              message:
+                "Do not import item-meta into client components. Pass armor class from the server.",
+            },
+            {
+              name: "@/lib/items/weapon-roles",
+              allowTypeImports: true,
+              message:
+                "Do not import weapon-roles into client components. Pass role from the server.",
+            },
+            {
+              name: "@/lib/items/build-display",
+              allowTypeImports: true,
+              message:
+                "Do not import build-display into client components. Pass precomputed labels from the server.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   globalIgnores([
     ".next/**",
     "out/**",
