@@ -28,7 +28,60 @@
     "disclaimer": "{siteName} no está afiliado, respaldado ni patrocinado por Albion Online ni por Sandbox Interactive GmbH.",
     "systemStatus": "Estado del sistema",
     "privacyPolicy": "Política de privacidad",
+    "discordBot": "Bot de Discord",
     "getAlbion": "Obtener Albion"
+  },
+  "Discord": {
+    "title": "Bot de Discord",
+    "metaDescription": "Añade el bot de Discord de {siteName} para publicar kills y muertes de gremio con instantáneas de equipo.",
+    "description": "Invita el bot de {siteName}, elige un gremio de Albion y publica kills y muertes en canales separados.",
+    "invite": "Añadir a Discord",
+    "inviteUnavailable": "El enlace de invitación aún no está configurado. Vuelve más tarde o pide la invitación al operador del sitio.",
+    "setupTitle": "Configuración",
+    "setup1": "Invita el bot con permiso de Administrar servidor.",
+    "setup2": "Usa /track y elige región y gremio (el gremio debe aparecer ya en AOTracker).",
+    "setup3": "Usa /kills-channel y /deaths-channel.",
+    "setup4": "Las kills y muertes se publican cuando llegan a nuestra base de datos, no desde la API de Albion.",
+    "permissionsNote": "Todos los comandos de configuración excepto /status requieren Administrar servidor en Discord.",
+    "commandsTitle": "Comandos",
+    "commandsIntro": "Escribe / en Discord para abrir el selector y rellena las opciones en los menús.",
+    "usageLabel": "Formato",
+    "exampleLabel": "Ejemplo",
+    "commands": {
+      "track": {
+        "usage": "/track region:Americas|Europe|Asia guild:GuildName",
+        "summary": "Vincula un gremio de Albion a este servidor. Sustituye un /track anterior.",
+        "detail": "Elige primero la región, luego escribe el nombre del gremio y selecciónalo en el autocompletado. El gremio debe aparecer ya en AOTracker. Esto crea el feed de kills y el de muertes; los canales quedan vacíos hasta que uses los comandos de canal.",
+        "example": "/track region:Americas guild:Elevate"
+      },
+      "killsChannel": {
+        "usage": "/kills-channel channel:#canal",
+        "summary": "Canal que recibe publicaciones cuando el gremio seguido consigue una kill.",
+        "detail": "Elige un canal de texto o de anuncios. Ejecuta /track primero. Usa un canal #kills dedicado para no mezclar muertes.",
+        "example": "/kills-channel channel:#kills"
+      },
+      "deathsChannel": {
+        "usage": "/deaths-channel channel:#canal",
+        "summary": "Canal que recibe publicaciones cuando muere un miembro del gremio seguido.",
+        "detail": "Igual que /kills-channel, para muertes. El fuego amigo (mismo gremio en ambos lados) se publica solo aquí.",
+        "example": "/deaths-channel channel:#deaths"
+      },
+      "untrack": {
+        "usage": "/untrack",
+        "summary": "Deja de publicar kills y muertes en este servidor.",
+        "detail": "Quita los feeds del gremio. El bot sigue en el servidor. Vuelve a usar /track para empezar de nuevo. No borra mensajes antiguos de Discord.",
+        "example": "/untrack"
+      },
+      "status": {
+        "usage": "/status",
+        "summary": "Muestra el gremio de Albion vinculado y los canales configurados.",
+        "detail": "Cualquiera en el servidor puede usarlo. Sirve para comprobar la configuración después de /track y los comandos de canal.",
+        "example": "/status"
+      }
+    },
+    "postsTitle": "Qué incluye cada publicación",
+    "postsBody": "Cada kill o muerte válida es un mensaje de Discord: una imagen con el equipo de asesino y víctima, inventario, poder de objeto, fama de kill y plata estimada, más un enlace a la página completa en {siteName}. Se omiten eventos sin fama.",
+    "note": "Cualquiera puede seguir cualquier gremio de Albion. Necesitas Administrar servidor para configurar el bot."
   },
   "Common": {
     "regions": {
@@ -385,6 +438,10 @@
     "pageTitle": "Últimas batallas de Albion Online",
     "pageDescription": "Últimas batallas de Albion Online. Busca por gremio, alianza o jugador. Selecciona varias batallas para combinar estadísticas",
     "searchPlaceholder": "Buscar gremio, alianza o jugador...",
+    "filters": {
+      "minPlayers": "Mín. jugadores",
+      "minPlayersAria": "Mínimo de jugadores, {min} o más"
+    },
     "card": {
       "fame": "Fama",
       "members": "Miembros",

@@ -30,6 +30,7 @@ interface BattlesFeedProps {
   initialTotal: number;
   region: AlbionRegion | "all";
   searchQuery?: string;
+  minPlayers: number;
   pageSize?: number;
 }
 
@@ -38,6 +39,7 @@ export function BattlesFeed({
   initialTotal,
   region,
   searchQuery,
+  minPlayers,
   pageSize = BATTLES_FEED_PAGE_SIZE,
 }: BattlesFeedProps) {
   const t = useTranslations("Battle");
@@ -60,7 +62,7 @@ export function BattlesFeed({
     setTotal(initialTotal);
     setPage(1);
     setError(null);
-  }, [initialBattles, initialTotal, region, searchQuery]);
+  }, [initialBattles, initialTotal, region, searchQuery, minPlayers]);
 
   const loadPage = useCallback(
     async (nextPage: number) => {
@@ -76,6 +78,7 @@ export function BattlesFeed({
         });
         if (region !== "all") params.set("region", region);
         if (searchQuery) params.set("q", searchQuery);
+        params.set("minPlayers", String(minPlayers));
 
         const res = await fetch(`/api/battles?${params.toString()}`, {
           cache: "no-store",
@@ -97,7 +100,7 @@ export function BattlesFeed({
         setLoading(false);
       }
     },
-    [loading, pageSize, region, searchQuery, t]
+    [loading, pageSize, region, searchQuery, minPlayers, t]
   );
 
   const selectedCount = selected.size;

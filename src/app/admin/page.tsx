@@ -1,11 +1,16 @@
 import { PageHeader } from "@/components/PageSection";
 import { AdminRegionCards } from "@/components/admin/AdminRegionCards";
 import { ApiStatsMiniPanel } from "@/components/admin/ApiStatsMiniPanel";
+import { DiscordBotStatusPanel } from "@/components/admin/DiscordBotStatusPanel";
 import { RecentOpsEventsPreview } from "@/components/admin/RecentOpsEventsPreview";
 import { WorkerQueuesPanel } from "@/components/WorkerQueuesPanel";
 import { getRegionEntityCounts } from "@/lib/db/queries";
 import { buildAdminSnapshot } from "@/lib/ops/admin-snapshot";
 import { getRegionApiStatsSince } from "@/lib/ops/api-log-queries";
+import {
+  emptyDiscordBotStatus,
+  getDiscordBotStatus,
+} from "@/lib/ops/discord-bot-status";
 import { getRecentOpsEvents } from "@/lib/ops/queries";
 
 export const dynamic = "force-dynamic";
@@ -23,16 +28,17 @@ export default async function AdminDashboardPage() {
   }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  const [recentEvents, apiStats] = await Promise.all([
+  const [recentEvents, apiStats, discordStatus] = await Promise.all([
     getRecentOpsEvents(10).catch(() => []),
     getRegionApiStatsSince(oneHourAgo).catch(() => []),
+    getDiscordBotStatus().catch(() => emptyDiscordBotStatus()),
   ]);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Dashboard"
-        description="Ingest health, API status, workers, and recent ops events"
+        description="Ingest health, Discord bot, API status, workers, and recent ops events"
       />
 
       {dbError && (
@@ -50,6 +56,8 @@ export default async function AdminDashboardPage() {
           globalStatus={snapshot.globalStatus}
         />
       )}
+
+      <DiscordBotStatusPanel initial={discordStatus} />
 
       <RecentOpsEventsPreview events={recentEvents} />
 

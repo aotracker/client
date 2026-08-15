@@ -40,6 +40,11 @@ export type ServiceStatus = {
   error: string | null;
 };
 
+export type DiscordServiceStatus = ServiceStatus & {
+  tag: string | null;
+  guilds: number | null;
+};
+
 export type SystemInfoSnapshot = {
   fetchedAt: string;
   application: RuntimeSystemInfo & {
@@ -47,6 +52,7 @@ export type SystemInfoSnapshot = {
     vercelRegion: string | null;
   };
   database: ServiceStatus;
+  discord: DiscordServiceStatus;
   ingest: {
     configured: boolean;
     reachable: boolean;

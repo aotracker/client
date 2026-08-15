@@ -273,14 +273,34 @@ export function SystemInfoPanel({ initial }: SystemInfoPanelProps) {
               <StatusBadge status={snapshot.ingest.redis} />
             </div>
           )}
+          <div className="flex items-center justify-between gap-4 rounded-md border border-border/50 px-3 py-2">
+            <span className="text-muted-foreground">
+              Discord bot
+              {snapshot.discord.tag ? (
+                <span className="ml-2 font-mono text-[11px] text-muted-foreground/80">
+                  {snapshot.discord.tag}
+                </span>
+              ) : null}
+            </span>
+            {snapshot.discord.ok || snapshot.discord.error ? (
+              <StatusBadge status={snapshot.discord} />
+            ) : (
+              <Badge variant="outline">Unknown</Badge>
+            )}
+          </div>
         </CardContent>
-        {(snapshot.database.error || snapshot.ingest.error) && (
+        {(snapshot.database.error ||
+          snapshot.ingest.error ||
+          snapshot.discord.error) && (
           <CardContent className="space-y-2 border-t border-border/50 pt-4 text-sm">
             {snapshot.database.error && (
               <p className="text-red-300">Database: {snapshot.database.error}</p>
             )}
             {snapshot.ingest.error && (
               <p className="text-red-300">Ingest: {snapshot.ingest.error}</p>
+            )}
+            {snapshot.discord.error && (
+              <p className="text-red-300">Discord: {snapshot.discord.error}</p>
             )}
           </CardContent>
         )}

@@ -6,7 +6,10 @@ import { BattlesFilters } from "@/components/BattlesFilters";
 import { PageHeader } from "@/components/PageSection";
 import { RelativeTime } from "@/components/RelativeTime";
 import { countBattlesFeed, getBattlesFeed } from "@/lib/db/queries";
-import { BATTLES_FEED_PAGE_SIZE } from "@/lib/battles-constants";
+import {
+  BATTLES_FEED_PAGE_SIZE,
+  parseBattlesMinPlayers,
+} from "@/lib/battles-constants";
 import { getCronJobStatuses } from "@/lib/jobs/cron-state";
 import {
   feedRegionFilterOptions,
@@ -17,7 +20,7 @@ import { FilterChipSkeleton } from "@/components/ui/skeleton";
 
 interface BattlesPageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ region?: string; q?: string }>;
+  searchParams: Promise<{ region?: string; q?: string; minPlayers?: string }>;
 }
 
 export async function generateMetadata({
@@ -49,6 +52,7 @@ export default async function BattlesPage({
   const search = await searchParams;
   const region = parseFeedRegion(search.region);
   const q = search.q?.trim() || undefined;
+  const minPlayers = parseBattlesMinPlayers(search.minPlayers);
   const filterRegions = feedRegionFilterOptions();
 
   let battles: Awaited<ReturnType<typeof getBattlesFeed>> = [];
@@ -57,8 +61,14 @@ export default async function BattlesPage({
 
   const [feedResult, cronStatus] = await Promise.all([
     Promise.all([
-      getBattlesFeed({ region, q, limit: BATTLES_FEED_PAGE_SIZE, offset: 0 }),
-      countBattlesFeed({ region, q }),
+      getBattlesFeed({
+        region,
+        q,
+        minPlayers,
+        limit: BATTLES_FEED_PAGE_SIZE,
+        offset: 0,
+      }),
+      countBattlesFeed({ region, q, minPlayers }),
     ]).catch((e) => {
       error = e instanceof Error ? e.message : t("feed.failedLoad");
       return null;
@@ -100,11 +110,12 @@ export default async function BattlesPage({
         </div>
       ) : (
         <BattlesFeed
-          key={`${region}:${q ?? ""}`}
+          key={`${region}:${q ?? ""}:${minPlayers}`}
           initialBattles={battles}
           initialTotal={total}
           region={region}
           searchQuery={q}
+          minPlayers={minPlayers}
           pageSize={BATTLES_FEED_PAGE_SIZE}
         />
       )}

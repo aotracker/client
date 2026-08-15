@@ -2,8 +2,14 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Search, X } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
+import {
+  BATTLES_FEED_MIN_PLAYERS_PARAM,
+  parseBattlesMinPlayers,
+  RECENT_BATTLES_MIN_PLAYERS,
+} from "@/lib/battles-constants";
 import {
   buildFeedHref,
   readFeedRegionParam,
@@ -17,17 +23,30 @@ interface BattlesFiltersProps {
 }
 
 export function BattlesFilters({ regions }: BattlesFiltersProps) {
+  const t = useTranslations("Battle");
   const router = useRouter();
   const searchParams = useSearchParams();
   const region = readFeedRegionParam(searchParams);
   const qParam = searchParams.get("q") ?? "";
+  const minPlayers = parseBattlesMinPlayers(
+    searchParams.get(BATTLES_FEED_MIN_PLAYERS_PARAM)
+  );
   const [query, setQuery] = useState(qParam);
+  const [minPlayersInput, setMinPlayersInput] = useState(String(minPlayers));
 
   useEffect(() => {
     setQuery(qParam);
   }, [qParam]);
 
-  function pushParams(updates: { region?: string; q?: string | null }) {
+  useEffect(() => {
+    setMinPlayersInput(String(minPlayers));
+  }, [minPlayers]);
+
+  function pushParams(updates: {
+    region?: string;
+    q?: string | null;
+    minPlayers?: string | null;
+  }) {
     if (updates.region) {
       rememberFeedRegionSelection(updates.region);
     }
@@ -39,9 +58,19 @@ export function BattlesFilters({ regions }: BattlesFiltersProps) {
     pushParams({ q: query });
   }
 
+  function commitMinPlayers() {
+    const next = parseBattlesMinPlayers(minPlayersInput);
+    setMinPlayersInput(String(next));
+    if (next === minPlayers) return;
+    pushParams({
+      minPlayers:
+        next === RECENT_BATTLES_MIN_PLAYERS ? null : String(next),
+    });
+  }
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {regions.map((r) => (
           <Button
             key={r.value}
@@ -53,6 +82,30 @@ export function BattlesFilters({ regions }: BattlesFiltersProps) {
             {r.label}
           </Button>
         ))}
+        <label className="ml-0 flex items-center gap-2 sm:ml-2">
+          <span className="whitespace-nowrap text-xs text-muted-foreground">
+            {t("filters.minPlayers")}
+          </span>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={RECENT_BATTLES_MIN_PLAYERS}
+            step={1}
+            value={minPlayersInput}
+            onChange={(e) => setMinPlayersInput(e.target.value)}
+            onBlur={commitMinPlayers}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commitMinPlayers();
+              }
+            }}
+            className="h-8 w-[4.5rem] px-2 text-center"
+            aria-label={t("filters.minPlayersAria", {
+              min: RECENT_BATTLES_MIN_PLAYERS,
+            })}
+          />
+        </label>
       </div>
 
       <form onSubmit={handleSearch} className="flex w-full max-w-md items-center gap-2">
@@ -61,9 +114,9 @@ export function BattlesFilters({ regions }: BattlesFiltersProps) {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search guild, alliance, or player..."
+            placeholder={t("searchPlaceholder")}
             className="pl-9"
-            aria-label="Search battles by guild, alliance, or player"
+            aria-label={t("searchPlaceholder")}
           />
         </div>
         <Button type="submit" size="sm">

@@ -4,7 +4,9 @@ import os from "node:os";
 import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { getIngestSystemInfo } from "@/lib/ingest-api";
+import { getDiscordBotStatus } from "@/lib/ops/discord-bot-status";
 import type {
+  DiscordServiceStatus,
   RuntimeSystemInfo,
   ServiceStatus,
   SystemInfoSnapshot,
@@ -63,11 +65,37 @@ async function pingDatabase(): Promise<ServiceStatus> {
   }
 }
 
+function toDiscordServiceStatus(
+  status: Awaited<ReturnType<typeof getDiscordBotStatus>> | null
+): DiscordServiceStatus {
+  if (!status) {
+    return {
+      ok: false,
+      latencyMs: null,
+      error: "Discord status unavailable",
+      tag: null,
+      guilds: null,
+    };
+  }
+
+  const ping =
+    status.ping != null && status.ping >= 0 ? Math.round(status.ping) : null;
+
+  return {
+    ok: status.displayStatus === "online",
+    latencyMs: ping,
+    error: status.lastErrorMessage,
+    tag: status.tag,
+    guilds: status.gatewayGuilds,
+  };
+}
+
 export async function getSystemInfoSnapshot(): Promise<SystemInfoSnapshot> {
   const ingestConfigured = Boolean(process.env.INGEST_API_URL?.trim());
-  const [database, ingestData] = await Promise.all([
+  const [database, ingestData, discordStatus] = await Promise.all([
     pingDatabase(),
     ingestConfigured ? getIngestSystemInfo() : Promise.resolve(null),
+    getDiscordBotStatus().catch(() => null),
   ]);
 
   return {
@@ -78,6 +106,7 @@ export async function getSystemInfoSnapshot(): Promise<SystemInfoSnapshot> {
       vercelRegion: process.env.VERCEL_REGION?.trim() || null,
     },
     database,
+    discord: toDiscordServiceStatus(discordStatus),
     ingest: {
       configured: ingestConfigured,
       reachable: ingestData != null,

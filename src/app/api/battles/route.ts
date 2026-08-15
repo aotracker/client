@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { countBattlesFeed, getBattlesFeed } from "@/lib/db/queries";
+import { parseBattlesMinPlayers } from "@/lib/battles-constants";
 import { isRegionEnabled, type AlbionRegion } from "@/lib/albion/types";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const regionParam = searchParams.get("region") ?? "all";
   const q = searchParams.get("q")?.trim() || undefined;
+  const minPlayers = parseBattlesMinPlayers(searchParams.get("minPlayers"));
   const limit = Math.min(
     Math.max(parseInt(searchParams.get("limit") ?? "20", 10) || 20, 1),
     50
@@ -20,8 +22,8 @@ export async function GET(request: Request) {
 
   try {
     const [battles, total] = await Promise.all([
-      getBattlesFeed({ region, q, limit, offset }),
-      countBattlesFeed({ region, q }),
+      getBattlesFeed({ region, q, minPlayers, limit, offset }),
+      countBattlesFeed({ region, q, minPlayers }),
     ]);
     return NextResponse.json({ battles, total });
   } catch (error) {

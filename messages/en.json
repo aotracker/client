@@ -28,7 +28,60 @@
     "disclaimer": "{siteName} is not affiliated with, endorsed by, or sponsored by Albion Online or Sandbox Interactive GmbH.",
     "systemStatus": "System status",
     "privacyPolicy": "Privacy Policy",
+    "discordBot": "Discord bot",
     "getAlbion": "Get Albion"
+  },
+  "Discord": {
+    "title": "Discord bot",
+    "metaDescription": "Add the {siteName} Discord bot to post guild kills and deaths with gear snapshots.",
+    "description": "Invite the {siteName} bot, pick an Albion guild, and post kills and deaths into separate channels.",
+    "invite": "Add to Discord",
+    "inviteUnavailable": "The public invite link is not configured yet. Check back soon, or ask the site operator for the bot invite.",
+    "setupTitle": "Setup",
+    "setup1": "Invite the bot with Manage Server permission.",
+    "setup2": "Run /track and choose region plus guild (the guild must already appear on AOTracker).",
+    "setup3": "Run /kills-channel and /deaths-channel.",
+    "setup4": "Kills and deaths post as they land in our database — not from the Albion API directly.",
+    "permissionsNote": "All setup commands except /status require Discord Manage Server.",
+    "commandsTitle": "Commands",
+    "commandsIntro": "Type / in Discord to open the command picker, then fill in the options from the dropdowns.",
+    "usageLabel": "Format",
+    "exampleLabel": "Example",
+    "commands": {
+      "track": {
+        "usage": "/track region:Americas|Europe|Asia guild:GuildName",
+        "summary": "Bind one Albion guild to this Discord server. Replaces a previous /track.",
+        "detail": "Pick the region first, then start typing the guild name and select it from autocomplete. The guild must already appear on AOTracker. This creates both a kills feed and a deaths feed; channels are still unset until you run the channel commands.",
+        "example": "/track region:Americas guild:Elevate"
+      },
+      "killsChannel": {
+        "usage": "/kills-channel channel:#channel",
+        "summary": "Channel that receives posts when the tracked guild gets a kill.",
+        "detail": "Choose a text or announcement channel. Run /track first. Use a dedicated #kills channel so deaths stay separate.",
+        "example": "/kills-channel channel:#kills"
+      },
+      "deathsChannel": {
+        "usage": "/deaths-channel channel:#channel",
+        "summary": "Channel that receives posts when a tracked-guild member dies.",
+        "detail": "Same as /kills-channel, for deaths. Friendly-fire (same guild on both sides) posts here only.",
+        "example": "/deaths-channel channel:#deaths"
+      },
+      "untrack": {
+        "usage": "/untrack",
+        "summary": "Stop posting kills and deaths in this server.",
+        "detail": "Removes the guild feeds. The bot stays in the server. Run /track again to start over. Does not delete old Discord messages.",
+        "example": "/untrack"
+      },
+      "status": {
+        "usage": "/status",
+        "summary": "Show the bound Albion guild and which channels are set.",
+        "detail": "Anyone in the server can run this. Use it to confirm setup after /track and the channel commands.",
+        "example": "/status"
+      }
+    },
+    "postsTitle": "What each post includes",
+    "postsBody": "Each qualifying kill or death is one Discord message: a snapshot image with killer and victim gear, inventory, item power, kill fame, and estimated silver, plus a link to the full kill page on {siteName}. Zero-fame events are skipped.",
+    "note": "Anyone can follow any Albion guild. You need Manage Server to configure the bot."
   },
   "Common": {
     "regions": {
@@ -385,6 +438,10 @@
     "pageTitle": "Latest Albion Online Battles",
     "pageDescription": "Latest Albion Online battles. Search by guild, alliance, or player. Select multiple battles to combine stats",
     "searchPlaceholder": "Search guild, alliance, or player...",
+    "filters": {
+      "minPlayers": "Min players",
+      "minPlayersAria": "Minimum players, {min} or more"
+    },
     "card": {
       "fame": "Fame",
       "members": "Members",

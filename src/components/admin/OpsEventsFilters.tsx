@@ -9,7 +9,7 @@ const SEVERITY_ICONS: Record<(typeof SEVERITIES)[number], LucideIcon> = {
   warning: AlertTriangle,
   info: Info,
 };
-const SOURCES = ["worker", "ingest", "api", "job", "scheduler"] as const;
+const SOURCES = ["worker", "ingest", "api", "job", "scheduler", "discord"] as const;
 const WINDOWS = [
   { value: "", label: "All time" },
   { value: "24h", label: "24 hours" },

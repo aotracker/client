@@ -34,7 +34,12 @@ import {
   parseItemType,
 } from "@/lib/item-icons";
 import { db, schema } from "@/lib/db";
-import { BATTLES_FEED_PREVIEW_LIMIT, RELATED_BATTLE_WINDOW_MS } from "@/lib/battles-constants";
+import {
+  BATTLES_FEED_PREVIEW_LIMIT,
+  parseBattlesMinPlayers,
+  RELATED_BATTLE_WINDOW_MS,
+  RECENT_BATTLES_MIN_PLAYERS,
+} from "@/lib/battles-constants";
 import { scoreRelatedBattles } from "@/lib/battles/related";
 
 /**
@@ -337,6 +342,8 @@ export interface BattlesFeedFilters {
   region?: AlbionRegion | "all";
   /** Case-insensitive name match against guilds, alliances, or players in battle payloads. */
   q?: string;
+  /** Inclusive player floor; values below RECENT_BATTLES_MIN_PLAYERS are clamped. */
+  minPlayers?: number;
   limit?: number;
   offset?: number;
 }
@@ -479,13 +486,18 @@ function battlesRegionCondition(region: AlbionRegion | "all") {
 /** Exclude kill-ingest stubs that never received battle stats. */
 function battlesFeedWhere(
   region: AlbionRegion | "all",
-  q?: string
+  q?: string,
+  minPlayers?: number
 ) {
+  const playerFloor = parseBattlesMinPlayers(
+    minPlayers != null ? String(minPlayers) : undefined
+  );
   const conditions = [
     battlesRegionCondition(region),
     isNotNull(schema.battles.totalFame),
     isNotNull(schema.battles.totalKills),
     isNotNull(schema.battles.totalPlayers),
+    gte(schema.battles.totalPlayers, playerFloor),
   ];
 
   const nameQuery = q?.trim() ?? "";
@@ -1677,8 +1689,8 @@ function extractBattlesFeedParticipants(
 export const getBattlesFeed = cache(async function getBattlesFeed(
   filters: BattlesFeedFilters = {}
 ): Promise<BattlesFeedItem[]> {
-  const { region = "all", q, limit = 20, offset = 0 } = filters;
-  const where = battlesFeedWhere(region, q);
+  const { region = "all", q, minPlayers, limit = 20, offset = 0 } = filters;
+  const where = battlesFeedWhere(region, q, minPlayers);
 
   const rows = await db
     .select({
@@ -1718,10 +1730,10 @@ export const getBattlesFeed = cache(async function getBattlesFeed(
 });
 
 export const countBattlesFeed = cache(async function countBattlesFeed(
-  filters: Pick<BattlesFeedFilters, "region" | "q"> = {}
+  filters: Pick<BattlesFeedFilters, "region" | "q" | "minPlayers"> = {}
 ): Promise<number> {
-  const { region = "all", q } = filters;
-  const where = battlesFeedWhere(region, q);
+  const { region = "all", q, minPlayers } = filters;
+  const where = battlesFeedWhere(region, q, minPlayers);
   const [row] = await db
     .select({ value: count() })
     .from(schema.battles)
@@ -1783,6 +1795,7 @@ export async function getRelatedBattlesFeed(input: {
 
   const windowConditions = [
     eq(schema.battles.region, region),
+    gte(schema.battles.totalPlayers, RECENT_BATTLES_MIN_PLAYERS),
     // Exclude selected ids
     sql`${schema.battles.albionBattleId} NOT IN (${sql.join(
       selectedIds.map((id) => sql`${id}`),
