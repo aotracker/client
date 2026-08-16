@@ -69,6 +69,23 @@ function formatRegionList(regions: AlbionRegion[]): string {
   return regions.map((region) => regionLabel(region)).join(", ");
 }
 
+/** Compact lag for the delayed-API banner: `45m`, `3h 12m`, or `1d 19h`. */
+function formatLatestKillLag(minutes: number): string {
+  const total = Math.max(0, Math.floor(minutes));
+  if (total < 60) return `${total}m`;
+
+  const dayMinutes = 24 * 60;
+  if (total >= dayMinutes) {
+    const days = Math.floor(total / dayMinutes);
+    const hours = Math.floor((total % dayMinutes) / 60);
+    return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+  }
+
+  const hours = Math.floor(total / 60);
+  const mins = total % 60;
+  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+}
+
 export function getRegionApiHealthLabel(
   region: RegionSyncStatus
 ): RegionApiHealthLabel {
@@ -98,7 +115,8 @@ export function buildStatusBannerMessage(status: GlobalSyncStatus): string | nul
         .map((row) => row.latestKillLagMinutes)
         .filter((value): value is number => value != null);
       const maxLag = lag.length > 0 ? Math.max(...lag) : null;
-      const lagText = maxLag != null ? ` (latest kill ${maxLag}m ago)` : "";
+      const lagText =
+        maxLag != null ? ` (latest kill ${formatLatestKillLag(maxLag)} ago)` : "";
       return regions.length > 0
         ? `Albion API delayed for ${formatRegionList(regions)}${lagText} — kill data may be outdated.`
         : `Albion API delayed${lagText} — kill data may be outdated.`;
