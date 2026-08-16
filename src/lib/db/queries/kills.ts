@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, desc, eq, gt, or } from "drizzle-orm";
+import { and, desc, eq, gt, gte, inArray, or, sql } from "drizzle-orm";
 import { LOCALE_CODES } from "@/i18n/locales";
 import { albionEventToKillCard } from "@/lib/albion/player-history";
 import {
@@ -19,6 +19,12 @@ import {
   regionCondition,
 } from "./shared";
 
+export interface KillFeedWatchResolved {
+  playerIds?: string[];
+  guildNamesLower?: string[];
+  alliances?: { region: AlbionRegion; albionId: string }[];
+}
+
 export interface KillFeedFilters {
   region?: AlbionRegion | "all";
   contentType?: ContentTypeFilter;
@@ -28,6 +34,10 @@ export interface KillFeedFilters {
   after?: Date | string;
   /** Optional tie-break when multiple kills share `after` timestamp. */
   afterEventId?: number;
+  /** Minimum victim kill fame (inclusive). */
+  minFame?: number;
+  /** Pre-resolved watchlist matchers. Skips the shared cache. */
+  watch?: KillFeedWatchResolved;
 }
 
 export interface JuicyKillsFilters extends RegionFilters {
@@ -105,6 +115,46 @@ export function mapKillEventToCard(event: KillEventWithRelations) {
   };
 }
 
+function watchlistCondition(watch: KillFeedWatchResolved) {
+  const parts = [];
+  if (watch.playerIds && watch.playerIds.length > 0) {
+    parts.push(
+      or(
+        inArray(schema.killEvents.killerId, watch.playerIds),
+        inArray(schema.killEvents.victimId, watch.playerIds)
+      )
+    );
+  }
+  if (watch.guildNamesLower && watch.guildNamesLower.length > 0) {
+    parts.push(
+      sql`exists (
+        select 1 from kill_participants kp
+        where kp.event_id = ${schema.killEvents.id}
+          and kp.role in ('killer', 'victim')
+          and lower(trim(kp.guild_name)) in (${sql.join(
+            watch.guildNamesLower.map((name) => sql`${name}`),
+            sql`, `
+          )})
+      )`
+    );
+  }
+  if (watch.alliances && watch.alliances.length > 0) {
+    const allianceParts = watch.alliances.map((alliance) =>
+      and(
+        eq(schema.killEvents.region, alliance.region),
+        or(
+          sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${alliance.albionId}`,
+          sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${alliance.albionId}`
+        )
+      )
+    );
+    const allianceOr = or(...allianceParts);
+    if (allianceOr) parts.push(allianceOr);
+  }
+  if (parts.length === 0) return sql`false`;
+  return or(...parts);
+}
+
 async function loadKillFeed(filters: {
   region: AlbionRegion | "all";
   contentType: ContentTypeFilter;
@@ -112,14 +162,32 @@ async function loadKillFeed(filters: {
   offset: number;
   after?: string;
   afterEventId?: number;
+  minFame?: number;
+  watch?: KillFeedWatchResolved;
 }) {
-  const { region, contentType, limit, offset, after, afterEventId } = filters;
+  const {
+    region,
+    contentType,
+    limit,
+    offset,
+    after,
+    afterEventId,
+    minFame,
+    watch,
+  } = filters;
 
   const conditions = [killFamePositiveCondition()];
   const regionFilter = regionCondition(region);
   if (regionFilter) conditions.push(regionFilter);
   if (contentType !== "all") {
     conditions.push(eq(schema.killEvents.contentType, contentType));
+  }
+  if (minFame != null && minFame > 0) {
+    conditions.push(gte(schema.killEvents.totalVictimKillFame, minFame));
+  }
+  if (watch) {
+    const watchCond = watchlistCondition(watch);
+    if (watchCond) conditions.push(watchCond);
   }
   if (after) {
     const afterDate = new Date(after);
@@ -160,8 +228,9 @@ const cachedKillFeed = cachedQuery(
     region: AlbionRegion | "all",
     contentType: ContentTypeFilter,
     limit: number,
-    offset: number
-  ) => loadKillFeed({ region, contentType, limit, offset }),
+    offset: number,
+    minFame: number
+  ) => loadKillFeed({ region, contentType, limit, offset, minFame }),
   ["kill-feed"],
   HOME_CACHE_REVALIDATE_SECONDS,
   ["kills"]
@@ -177,21 +246,29 @@ export const getKillFeed = cache(async function getKillFeed(
     offset = 0,
     after,
     afterEventId,
+    minFame = 0,
+    watch,
   } = filters;
 
-  if (after) {
-    const afterIso = after instanceof Date ? after.toISOString() : after;
+  if (after || watch) {
+    const afterIso = after
+      ? after instanceof Date
+        ? after.toISOString()
+        : after
+      : undefined;
     return loadKillFeed({
       region,
       contentType,
       limit,
-      offset: 0,
+      offset: after ? 0 : offset,
       after: afterIso,
       afterEventId,
+      minFame,
+      watch,
     });
   }
 
-  return cachedKillFeed(region, contentType, limit, offset);
+  return cachedKillFeed(region, contentType, limit, offset, minFame);
 });
 
 async function loadRecentJuicyKills(

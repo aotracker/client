@@ -21,8 +21,38 @@ import { RelativeTime } from "@/components/RelativeTime";
 
 export { BATTLES_FEED_PAGE_SIZE, MAX_COMBINED_BATTLES };
 
+const BATTLE_SELECTION_KEY = "aotrackr-battle-combine-v1";
+const BATTLES_POLL_MS = 30_000;
+
 function selectionKey(region: AlbionRegion, id: number): string {
   return `${region}:${id}`;
+}
+
+function readStoredSelection(): Map<string, BattlesFeedItem> {
+  if (typeof window === "undefined") return new Map();
+  try {
+    const raw = localStorage.getItem(BATTLE_SELECTION_KEY);
+    if (!raw) return new Map();
+    const parsed = JSON.parse(raw) as { items?: BattlesFeedItem[] };
+    const map = new Map<string, BattlesFeedItem>();
+    for (const item of parsed.items ?? []) {
+      if (!item?.region || !item.id) continue;
+      map.set(selectionKey(item.region, item.id), item);
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
+function writeStoredSelection(selected: Map<string, BattlesFeedItem>) {
+  if (typeof window === "undefined") return;
+  const items = Array.from(selected.values());
+  if (items.length === 0) {
+    localStorage.removeItem(BATTLE_SELECTION_KEY);
+    return;
+  }
+  localStorage.setItem(BATTLE_SELECTION_KEY, JSON.stringify({ items }));
 }
 
 interface BattlesFeedProps {
@@ -54,6 +84,7 @@ export function BattlesFeed({
     () => new Map()
   );
   const [apiSuggestions, setApiSuggestions] = useState<ScoredBattle[]>([]);
+  const [selectionReady, setSelectionReady] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -64,10 +95,20 @@ export function BattlesFeed({
     setError(null);
   }, [initialBattles, initialTotal, region, searchQuery, minPlayers]);
 
+  useEffect(() => {
+    setSelected(readStoredSelection());
+    setSelectionReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!selectionReady) return;
+    writeStoredSelection(selected);
+  }, [selected, selectionReady]);
+
   const loadPage = useCallback(
-    async (nextPage: number) => {
-      if (loading) return;
-      setLoading(true);
+    async (nextPage: number, options?: { silent?: boolean }) => {
+      if (loading && !options?.silent) return;
+      if (!options?.silent) setLoading(true);
       setError(null);
 
       try {
@@ -97,11 +138,20 @@ export function BattlesFeed({
       } catch (e) {
         setError(e instanceof Error ? e.message : t("feed.failedLoad"));
       } finally {
-        setLoading(false);
+        if (!options?.silent) setLoading(false);
       }
     },
     [loading, pageSize, region, searchQuery, minPlayers, t]
   );
+
+  useEffect(() => {
+    if (page !== 1) return;
+    const id = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      void loadPage(1, { silent: true });
+    }, BATTLES_POLL_MS);
+    return () => window.clearInterval(id);
+  }, [loadPage, page]);
 
   const selectedCount = selected.size;
   const atLimit = selectedCount >= MAX_COMBINED_BATTLES;
@@ -113,7 +163,7 @@ export function BattlesFeed({
 
   const localSuggestions = useMemo(() => {
     if (selectedList.length === 0) return [];
-    return scoreRelatedBattles(selectedList, battles, { limit: 3 });
+    return scoreRelatedBattles(selectedList, battles, { limit: 5 });
   }, [battles, selectedList]);
 
   useEffect(() => {
@@ -129,7 +179,7 @@ export function BattlesFeed({
         const params = new URLSearchParams({
           region: selectedRegion,
           ids,
-          limit: "5",
+          limit: "8",
         });
         const res = await fetch(`/api/battles/related?${params}`, {
           cache: "no-store",
@@ -158,7 +208,7 @@ export function BattlesFeed({
     }
     return Array.from(byKey.values())
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .slice(0, 5);
   }, [apiSuggestions, localSuggestions, selected]);
 
   function toggleSelect(battle: BattlesFeedItem, next: boolean) {

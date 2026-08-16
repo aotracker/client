@@ -30,9 +30,12 @@ export type KillDetailItem = {
 export type KillDetailAssistant = {
   key: string;
   name: string;
+  role?: string;
   guildName?: string | null;
   guildHref?: string;
   profileHref?: string;
+  healingDone?: number | null;
+  averageItemPower?: string | null;
 };
 
 export type KillDetailViewProps = {
@@ -61,6 +64,8 @@ export type KillDetailViewProps = {
   victimEquipment: KillDetailItem[];
   victimLoot: KillDetailItem[];
   assistants: KillDetailAssistant[];
+  killerHealingDone?: number | null;
+  victimHealingDone?: number | null;
   killerEstSilver?: number | null;
   victimEstSilver?: number | null;
   lootEstSilver?: number | null;
@@ -97,6 +102,7 @@ export async function KillDetailView(props: KillDetailViewProps) {
           killerLabel={t("killer")}
           victimLabel={t("victim")}
           killFameLabel={t("killFame")}
+          healingLabel={t("healing")}
           regionLabelText={
             tRegions.has(props.region) ? tRegions(props.region) : props.region
           }
@@ -105,7 +111,10 @@ export async function KillDetailView(props: KillDetailViewProps) {
 
       <AssistsSection
         assistants={props.assistants}
-        title={t("assists", { count: props.assistants.length })}
+        title={t("participants", { count: props.assistants.length })}
+        healingLabel={t("healing")}
+        groupMemberLabel={t("roleGroupMember")}
+        participantLabel={t("roleParticipant")}
       />
       {props.gearSection ?? (
         <GearSection
@@ -139,12 +148,14 @@ function KillSummaryCard({
   killerLabel,
   victimLabel,
   killFameLabel,
+  healingLabel,
   regionLabelText,
   ...props
 }: KillDetailViewProps & {
   killerLabel: string;
   victimLabel: string;
   killFameLabel: string;
+  healingLabel: string;
   regionLabelText: string;
 }) {
   return (
@@ -166,6 +177,8 @@ function KillSummaryCard({
                 : undefined
             }
             itemPower={props.killerIp}
+            healingDone={props.killerHealingDone}
+            healingLabel={healingLabel}
             variant="killer"
           />
           <div className="flex flex-col items-center justify-center border-y border-border bg-muted/10 px-6 py-6 sm:border-x sm:border-y-0">
@@ -199,6 +212,8 @@ function KillSummaryCard({
                 : undefined
             }
             itemPower={props.victimIp}
+            healingDone={props.victimHealingDone}
+            healingLabel={healingLabel}
             variant="victim"
           />
         </div>
@@ -210,9 +225,15 @@ function KillSummaryCard({
 function AssistsSection({
   assistants,
   title,
+  healingLabel,
+  groupMemberLabel,
+  participantLabel,
 }: {
   assistants: KillDetailAssistant[];
   title: string;
+  healingLabel: string;
+  groupMemberLabel: string;
+  participantLabel: string;
 }) {
   if (assistants.length === 0) return null;
   return (
@@ -220,7 +241,7 @@ function AssistsSection({
       <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
         {title}
       </p>
-      <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
+      <ul className="grid gap-2 sm:grid-cols-2">
         {assistants.map((assistant) => (
           <li key={assistant.key} className="text-sm text-muted-foreground">
             {assistant.profileHref ? (
@@ -246,6 +267,17 @@ function AssistsSection({
                 ) : (
                   assistant.guildName
                 )}
+              </span>
+            )}
+            <span className="ml-1 text-xs text-muted-foreground/70">
+              ·{" "}
+              {assistant.role === "group_member"
+                ? groupMemberLabel
+                : participantLabel}
+            </span>
+            {assistant.healingDone != null && assistant.healingDone > 0 && (
+              <span className="ml-1 text-xs text-stat-fame">
+                · {healingLabel} {assistant.healingDone.toLocaleString()}
               </span>
             )}
           </li>
@@ -372,6 +404,8 @@ function PlayerSummary({
   guildHref,
   profileHref,
   itemPower,
+  healingDone,
+  healingLabel,
   variant,
 }: {
   label: string;
@@ -380,6 +414,8 @@ function PlayerSummary({
   guildHref?: string;
   profileHref?: string;
   itemPower?: string | null;
+  healingDone?: number | null;
+  healingLabel?: string;
   variant: "killer" | "victim";
 }) {
   const nameEl = profileHref ? (
@@ -417,6 +453,11 @@ function PlayerSummary({
       {formatItemPower(itemPower) && (
         <p className="mt-2 text-xs text-muted-foreground">
           <ItemPowerValue value={itemPower} />
+        </p>
+      )}
+      {healingDone != null && healingDone > 0 && healingLabel && (
+        <p className="mt-1 text-xs text-stat-fame">
+          {healingLabel} {healingDone.toLocaleString()}
         </p>
       )}
     </div>

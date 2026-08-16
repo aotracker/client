@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { KillFeedList, type KillFeedEvent } from "@/components/KillFeedList";
 import { PageSection } from "@/components/PageSection";
 import type { AlbionRegion } from "@/lib/albion/types";
@@ -15,6 +16,7 @@ interface RecentKillsFeedSectionProps {
   region: AlbionRegion | "all";
   contentType: ContentTypeFilter;
   pageSize: number;
+  viewAllHref: string;
 }
 
 export function RecentKillsFeedSection({
@@ -24,17 +26,28 @@ export function RecentKillsFeedSection({
   region,
   contentType,
   pageSize,
+  viewAllHref,
 }: RecentKillsFeedSectionProps) {
   const t = useTranslations("Home");
+  const tCommon = useTranslations("Common");
   const [lastPollAt, setLastPollAt] = useState<Date | null>(null);
+  const [paused, setPaused] = useState(false);
 
   return (
     <PageSection
       title={title}
       description={description}
+      actions={
+        <Link
+          href={viewAllHref}
+          className="text-sm text-primary hover:underline"
+        >
+          {tCommon("buttons.viewAll")}
+        </Link>
+      }
       descriptionActions={
         <>
-          {t("autoUpdates")}
+          {paused ? t("paused") : t("autoUpdates")}
           {lastPollAt
             ? t("checkedAt", { relative: formatRelativeTime(lastPollAt) })
             : ""}
@@ -49,6 +62,7 @@ export function RecentKillsFeedSection({
         pageSize={pageSize}
         preview
         onPollAtChange={setLastPollAt}
+        onPausedChange={setPaused}
       />
     </PageSection>
   );

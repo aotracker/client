@@ -10,6 +10,7 @@ import {
   Monitor,
   Moon,
   Search,
+  Skull,
   Star,
   Sun,
   Swords,
@@ -168,6 +169,7 @@ function NavbarPrefsCluster({ className }: { className?: string }) {
 
 interface FeedNavHrefs {
   home: string;
+  kills: string;
   battles: string;
   leaderboards: string;
   builds: string;
@@ -176,6 +178,7 @@ interface FeedNavHrefs {
 function buildFeedNavHrefs(activeRegion: FeedRegion): FeedNavHrefs {
   return {
     home: appendFeedRegionToHref("/", activeRegion),
+    kills: appendFeedRegionToHref("/kills", activeRegion),
     battles: appendFeedRegionToHref("/battles", activeRegion),
     leaderboards: appendFeedRegionToHref("/leaderboards", activeRegion),
     builds: appendFeedRegionToHref("/builds", activeRegion),
@@ -208,6 +211,18 @@ function NavbarBrandAndDesktopNav({
         >
           <Trophy className="h-4 w-4 shrink-0" aria-hidden />
           {t("leaderboards")}
+        </Link>
+        <Link
+          href={hrefs.kills}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            pathname.startsWith("/kills")
+              ? "text-foreground"
+              : "text-muted-foreground"
+          )}
+        >
+          <Skull className="h-4 w-4 shrink-0" aria-hidden />
+          {t("kills")}
         </Link>
         <Link
           href={hrefs.battles}
@@ -265,6 +280,14 @@ function NavbarMobileFeedLinks({
       >
         <Trophy className="h-4 w-4 shrink-0" aria-hidden />
         {t("leaderboards")}
+      </Link>
+      <Link
+        href={hrefs.kills}
+        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        onClick={onNavigate}
+      >
+        <Skull className="h-4 w-4 shrink-0" aria-hidden />
+        {t("kills")}
       </Link>
       <Link
         href={hrefs.battles}

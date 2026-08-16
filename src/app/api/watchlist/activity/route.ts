@@ -7,6 +7,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       players?: { region: string; albionId: string }[];
       guilds?: { region: string; albionId: string }[];
+      alliances?: { region: string; albionId: string }[];
     };
 
     const players = (body.players ?? []).filter(
@@ -17,7 +18,14 @@ export async function POST(request: Request) {
       (g) => isRegionEnabled(g.region) && g.albionId
     ) as { region: AlbionRegion; albionId: string }[];
 
-    const events = await getWatchlistActivity({ players, guilds }, 15);
+    const alliances = (body.alliances ?? []).filter(
+      (a) => isRegionEnabled(a.region) && a.albionId
+    ) as { region: AlbionRegion; albionId: string }[];
+
+    const events = await getWatchlistActivity(
+      { players, guilds, alliances },
+      15
+    );
 
     return NextResponse.json({ events });
   } catch (error) {

@@ -81,6 +81,7 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
   const now = new Date();
   const paths: { path: string; changeFrequency: "hourly" | "daily"; priority: number }[] = [
     { path: "/", changeFrequency: "hourly", priority: 1 },
+    { path: "/kills", changeFrequency: "hourly", priority: 0.95 },
     { path: "/battles", changeFrequency: "hourly", priority: 0.9 },
     { path: "/leaderboards", changeFrequency: "hourly", priority: 0.9 },
     { path: "/builds", changeFrequency: "daily", priority: 0.8 },

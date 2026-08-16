@@ -17,11 +17,13 @@ import {
   type LeaderboardTab,
 } from "@/lib/leaderboards/params";
 import { TopFameList } from "@/components/leaderboards/TopFameList";
+import { TopAlliancesList } from "@/components/leaderboards/TopAlliancesList";
 import { TopGuildsList } from "@/components/leaderboards/TopGuildsList";
 import { PageHeader } from "@/components/PageSection";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import {
   getRecentJuicyKills,
+  getTopAlliancesByKillFame,
   getTopGuildsByKillFame,
   getTopKillers,
   getTopPlayersByKillFame,
@@ -120,6 +122,7 @@ export default async function LeaderboardsPage({
   let error: string | null = null;
   let killers: Awaited<ReturnType<typeof getTopKillers>> = [];
   let guilds: Awaited<ReturnType<typeof getTopGuildsByKillFame>> = [];
+  let alliances: Awaited<ReturnType<typeof getTopAlliancesByKillFame>> = [];
   let kills: Awaited<ReturnType<typeof getRecentJuicyKills>> = [];
   let fame: Awaited<ReturnType<typeof getTopPlayersByKillFame>> = [];
 
@@ -128,6 +131,8 @@ export default async function LeaderboardsPage({
       killers = await getTopKillers(filters);
     } else if (tab === "guilds") {
       guilds = await getTopGuildsByKillFame(filters);
+    } else if (tab === "alliances") {
+      alliances = await getTopAlliancesByKillFame(filters);
     } else if (tab === "kills") {
       kills = await getRecentJuicyKills({ ...filters, limit: 25 });
     } else {
@@ -176,6 +181,8 @@ export default async function LeaderboardsPage({
                 layout="wide"
                 byHour={utcHour != null}
               />
+            ) : tab === "alliances" ? (
+              <TopAlliancesList alliances={alliances} layout="wide" />
             ) : tab === "kills" ? (
               <LeaderboardKillsList kills={kills} />
             ) : (

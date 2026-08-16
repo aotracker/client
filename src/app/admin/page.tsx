@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/PageSection";
 import { AdminRegionCards } from "@/components/admin/AdminRegionCards";
 import { ApiStatsMiniPanel } from "@/components/admin/ApiStatsMiniPanel";
 import { DiscordBotStatusPanel } from "@/components/admin/DiscordBotStatusPanel";
+import { DiscordFeedsPanel } from "@/components/admin/DiscordFeedsPanel";
 import { RecentOpsEventsPreview } from "@/components/admin/RecentOpsEventsPreview";
 import { WorkerQueuesPanel } from "@/components/WorkerQueuesPanel";
 import { getRegionEntityCounts } from "@/lib/db/queries";
@@ -65,6 +66,7 @@ export default async function AdminDashboardPage() {
       )}
 
       <DiscordBotStatusPanel initial={discordStatus} />
+      <DiscordFeedsPanel />
 
       <RecentOpsEventsPreview events={recentEvents} />
     </div>

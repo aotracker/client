@@ -1,12 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowDown, ChevronsDown, FilterX } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { ArrowDown, ChevronsDown, FilterX, Pause, Play } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { KillCard } from "@/components/KillCard";
 import { Button } from "@/components/ui/button";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
+import {
+  serializeWatchlistRefs,
+  watchlistRefsByType,
+} from "@/lib/kills-feed-params";
+import { useWatchlist } from "@/components/watchlist/useWatchlist";
 
 export type KillFeedEvent = {
   eventId: number;
@@ -45,9 +51,12 @@ interface KillFeedListProps {
   region: AlbionRegion | "all";
   contentType: ContentTypeFilter;
   pageSize: number;
-  /** Home preview: no load-more, capped to initial page size */
+  /** Home preview: no load-more, capped to initial page size, always buffers new kills */
   preview?: boolean;
+  minFame?: number;
+  watchlistOnly?: boolean;
   onPollAtChange?: (at: Date) => void;
+  onPausedChange?: (paused: boolean) => void;
 }
 
 const POLL_MS = 20_000;
@@ -67,8 +76,13 @@ export function KillFeedList({
   contentType,
   pageSize,
   preview = false,
+  minFame = 0,
+  watchlistOnly = false,
   onPollAtChange,
+  onPausedChange,
 }: KillFeedListProps) {
+  const t = useTranslations("Kill.feed");
+  const { entries, ready } = useWatchlist();
   const maxEvents = preview ? pageSize : MAX_EVENTS;
   const [events, setEvents] = useState(initialEvents);
   const [offset, setOffset] = useState(initialEvents.length);
@@ -80,10 +94,15 @@ export function KillFeedList({
   const [pendingNew, setPendingNew] = useState<KillFeedEvent[]>([]);
   const [nearTop, setNearTop] = useState(true);
   const [freshIds, setFreshIds] = useState<Set<string>>(() => new Set());
+  const [paused, setPaused] = useState(false);
+  const [hovering, setHovering] = useState(false);
   const loadingRef = useRef(false);
   const listTopRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef(events);
   const nearTopRef = useRef(nearTop);
+  const pausedRef = useRef(paused);
+  const hoveringRef = useRef(hovering);
+  const watchlistReady = !watchlistOnly || ready;
 
   useEffect(() => {
     eventsRef.current = events;
@@ -92,6 +111,15 @@ export function KillFeedList({
   useEffect(() => {
     nearTopRef.current = nearTop;
   }, [nearTop]);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+    onPausedChange?.(paused);
+  }, [onPausedChange, paused]);
+
+  useEffect(() => {
+    hoveringRef.current = hovering;
+  }, [hovering]);
 
   useEffect(() => {
     function onScroll() {
@@ -103,14 +131,30 @@ export function KillFeedList({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const appendFeedParams = useCallback(
+    (params: URLSearchParams) => {
+      if (region !== "all") params.set("region", region);
+      if (contentType !== "all") params.set("type", contentType);
+      if (minFame > 0) params.set("minFame", String(minFame));
+      if (watchlistOnly) {
+        const refs = watchlistRefsByType(entries);
+        params.set("players", serializeWatchlistRefs(refs.players));
+        params.set("guilds", serializeWatchlistRefs(refs.guilds));
+        params.set("alliances", serializeWatchlistRefs(refs.alliances));
+      }
+    },
+    [contentType, entries, minFame, region, watchlistOnly]
+  );
+
   const pollNew = useCallback(async () => {
     if (loadingRef.current) return;
+    if (pausedRef.current) return;
+    if (!watchlistReady) return;
     if (typeof document !== "undefined" && document.visibilityState !== "visible") {
       return;
     }
 
     const currentEvents = eventsRef.current;
-    const nearTopNow = nearTopRef.current;
     const newest = currentEvents[0];
     if (!newest) return;
 
@@ -121,8 +165,7 @@ export function KillFeedList({
         after: occurredAt.toISOString(),
         afterEventId: String(newest.eventId),
       });
-      if (region !== "all") params.set("region", region);
-      if (contentType !== "all") params.set("type", contentType);
+      appendFeedParams(params);
 
       const res = await fetch(`/api/kills?${params.toString()}`, {
         cache: "no-store",
@@ -139,7 +182,10 @@ export function KillFeedList({
       const fresh = incoming.filter((e) => !existing.has(eventKey(e)));
       if (fresh.length === 0) return;
 
-      if (nearTopNow) {
+      const shouldBuffer =
+        preview || hoveringRef.current || !nearTopRef.current;
+
+      if (!shouldBuffer) {
         const freshKeys = fresh.map(eventKey);
         setFreshIds(new Set(freshKeys));
         window.setTimeout(() => setFreshIds(new Set()), 400);
@@ -165,7 +211,7 @@ export function KillFeedList({
     } catch {
       // soft-fail polls
     }
-  }, [contentType, maxEvents, onPollAtChange, region]);
+  }, [appendFeedParams, maxEvents, onPollAtChange, preview, watchlistReady]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -173,6 +219,51 @@ export function KillFeedList({
     }, POLL_MS);
     return () => window.clearInterval(id);
   }, [pollNew]);
+
+  useEffect(() => {
+    if (!watchlistOnly || !ready) return;
+    let cancelled = false;
+
+    async function reloadWatchlist() {
+      loadingRef.current = true;
+      setLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams({
+          limit: String(pageSize),
+          offset: "0",
+        });
+        appendFeedParams(params);
+        const res = await fetch(`/api/kills?${params.toString()}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(t("failedLoadMore"));
+        const data = (await res.json()) as { events?: KillFeedEvent[] };
+        if (cancelled) return;
+        const next = data.events ?? [];
+        setEvents(next);
+        setOffset(next.length);
+        setHasMore(!preview && next.length >= pageSize);
+        setPendingNew([]);
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error ? err.message : t("failedLoadMore")
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          loadingRef.current = false;
+        }
+      }
+    }
+
+    void reloadWatchlist();
+    return () => {
+      cancelled = true;
+    };
+  }, [appendFeedParams, pageSize, preview, ready, t, watchlistOnly]);
 
   function revealPending() {
     if (pendingNew.length === 0) return;
@@ -188,7 +279,9 @@ export function KillFeedList({
       return merged.slice(0, maxEvents);
     });
     setPendingNew([]);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (!preview) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   async function loadMore() {
@@ -202,12 +295,11 @@ export function KillFeedList({
         limit: String(pageSize),
         offset: String(offset),
       });
-      if (region !== "all") params.set("region", region);
-      if (contentType !== "all") params.set("type", contentType);
+      appendFeedParams(params);
 
       const res = await fetch(`/api/kills?${params.toString()}`);
       if (!res.ok) {
-        throw new Error("Failed to load more kills");
+        throw new Error(t("failedLoadMore"));
       }
 
       const data = (await res.json()) as { events?: KillFeedEvent[] };
@@ -216,31 +308,49 @@ export function KillFeedList({
       setOffset((prev) => prev + next.length);
       setHasMore(next.length >= pageSize);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load more kills");
+      setError(err instanceof Error ? err.message : t("failedLoadMore"));
     } finally {
       setLoading(false);
       loadingRef.current = false;
     }
   }
 
-  if (events.length === 0) {
+  if (events.length === 0 && pendingNew.length === 0) {
     return (
-      <EmptyState icon={FilterX}>No kills match these filters</EmptyState>
+      <EmptyState icon={FilterX}>{t("empty")}</EmptyState>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div
+      className="space-y-3"
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+    >
       <div ref={listTopRef} />
 
-      {pendingNew.length > 0 && (
-        <div className="flex justify-center">
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {pendingNew.length > 0 && (
           <Button type="button" size="sm" variant="outline" onClick={revealPending}>
             <ArrowDown className="h-3.5 w-3.5" aria-hidden />
-            {pendingNew.length} new kill{pendingNew.length === 1 ? "" : "s"} — show
+            {t("showNew", { count: pendingNew.length })}
           </Button>
-        </div>
-      )}
+        )}
+        <Button
+          type="button"
+          size="sm"
+          variant={paused ? "default" : "outline"}
+          onClick={() => setPaused((value) => !value)}
+          aria-pressed={paused}
+        >
+          {paused ? (
+            <Play className="h-3.5 w-3.5" aria-hidden />
+          ) : (
+            <Pause className="h-3.5 w-3.5" aria-hidden />
+          )}
+          {paused ? t("resume") : t("pause")}
+        </Button>
+      </div>
 
       <div className="space-y-2 stagger-children">
         {events.map((event) => {
@@ -275,7 +385,7 @@ export function KillFeedList({
             disabled={loading}
           >
             <ChevronsDown className="h-3.5 w-3.5" aria-hidden />
-            {loading ? "Loading…" : "Load more"}
+            {loading ? t("loading") : t("loadMore")}
           </Button>
         </div>
       )}

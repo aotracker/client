@@ -1,4 +1,8 @@
-import { getAllianceByAlbionId } from "@/lib/db/queries";
+import {
+  getAllianceBattleParticipationByAlbionIds,
+  getAllianceByAlbionId,
+  type AllianceBattleHydration,
+} from "@/lib/db/queries";
 import {
   guildBattleListNeedsRefresh,
   hasBattleKillFame,
@@ -37,7 +41,49 @@ function parseBattles(payload: unknown): GuildBattleSummary[] {
       guildKillFame: item.guildKillFame ?? null,
       guildKills: item.guildKills ?? null,
       guildDeaths: item.guildDeaths ?? null,
+      alliances: Array.isArray(item.alliances) ? item.alliances : [],
+      allianceCount:
+        typeof item.allianceCount === "number"
+          ? item.allianceCount
+          : Array.isArray(item.alliances)
+            ? item.alliances.length
+            : 0,
     }));
+}
+
+function applyAllianceParticipation(
+  battles: GuildBattleSummary[],
+  known: Map<number, AllianceBattleHydration>
+): GuildBattleSummary[] {
+  return battles.map((battle) => {
+    const participation = known.get(battle.id);
+    if (!participation) return battle;
+    return {
+      ...battle,
+      guildKillFame:
+        battle.guildKillFame != null && battle.guildKillFame > 0
+          ? battle.guildKillFame
+          : (participation.killFame ?? battle.guildKillFame),
+      guildKills:
+        battle.guildKills != null && battle.guildKills > 0
+          ? battle.guildKills
+          : (participation.kills ?? battle.guildKills),
+      guildDeaths:
+        battle.guildDeaths != null && battle.guildDeaths > 0
+          ? battle.guildDeaths
+          : (participation.deaths ?? battle.guildDeaths),
+      guildMembers:
+        battle.guildMembers > 0 ? battle.guildMembers : participation.members,
+      alliances:
+        battle.alliances && battle.alliances.length > 0
+          ? battle.alliances
+          : participation.alliances,
+      allianceCount:
+        battle.allianceCount && battle.allianceCount > 0
+          ? battle.allianceCount
+          : participation.allianceCount,
+    };
+  });
 }
 
 export async function AllianceBattlesSections({
@@ -51,25 +97,38 @@ export async function AllianceBattlesSections({
   const recentBattles = parseBattles(
     unwrapGuildBattleListCache(alliance?.recentBattlesPayload)
   );
+  const knownParticipation = await getAllianceBattleParticipationByAlbionIds(
+    region,
+    allianceId,
+    [
+      ...topBattles.map((battle) => battle.id),
+      ...recentBattles.map((battle) => battle.id),
+    ]
+  );
 
   const needRecentSync = guildBattleListNeedsRefresh(
     alliance?.recentBattlesPayload,
     alliance?.topBattlesPayload,
-    alliance?.battlesLastSyncedAt
+    alliance?.battlesLastSyncedAt,
+    { requireAlliancePreview: true }
   );
   const needTopSync = guildBattleListNeedsRefresh(
     alliance?.topBattlesPayload,
     alliance?.recentBattlesPayload,
-    alliance?.battlesLastSyncedAt
+    alliance?.battlesLastSyncedAt,
+    { requireAlliancePreview: true }
   );
 
   return (
     <EntityBattlesTabs
       region={region}
-      recentBattles={recentBattles}
-      topBattles={topBattles}
+      recentBattles={applyAllianceParticipation(
+        recentBattles,
+        knownParticipation
+      )}
+      topBattles={applyAllianceParticipation(topBattles, knownParticipation)}
       recentDescription="Most recent battles with alliance participation in the past 7 days"
-      topDescription="Highest fame battles with alliance participation in the past 7 days"
+      topDescription="Highest kill fame battles with alliance participation in the past 7 days"
       recentLoadingLabel={
         needRecentSync && recentBattles.length === 0
           ? "Loading battles from Albion Online…"
@@ -82,6 +141,7 @@ export async function AllianceBattlesSections({
       }
       recentEmptyLabel="No recent battles this week"
       topEmptyLabel="No top battles this week"
+      showGuildStats
     />
   );
 }

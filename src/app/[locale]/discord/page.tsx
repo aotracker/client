@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { DiscordFeedFiltersBuilder } from "@/components/discord/DiscordFeedFiltersBuilder";
 import { PageHeader } from "@/components/PageSection";
 import { discordInviteUrl } from "@/lib/discord-invite";
 import { buildPageMetadata } from "@/lib/seo";
@@ -34,6 +35,7 @@ const COMMANDS = [
   { name: "/deaths-channel", key: "deathsChannel" },
   { name: "/untrack", key: "untrack" },
   { name: "/status", key: "status" },
+  { name: "/feed-filters", key: "feedFilters" },
 ] as const;
 
 interface CommandCopy {
@@ -122,6 +124,8 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
         </div>
         <p>{t("permissionsNote")}</p>
       </section>
+
+      <DiscordFeedFiltersBuilder />
 
       <section className="space-y-4 text-sm text-muted-foreground">
         <div className="space-y-1">

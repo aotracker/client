@@ -17,6 +17,17 @@ import {
   leaderboardConditions,
 } from "./shared";
 
+export interface TopAllianceEntry {
+  rank: number;
+  killFame: number;
+  killCount: number;
+  alliance: {
+    albionId: string;
+    name: string;
+    region: AlbionRegion;
+  };
+}
+
 export interface TopGuildEntry {
   rank: number;
   killFame: number;
@@ -433,6 +444,73 @@ const cachedTopGuildsByKillFame = cachedQuery(
   ["top-guilds", "hour-names"],
   LEADERBOARD_CACHE_REVALIDATE_SECONDS,
   ["kills", "leaderboards"]
+);
+
+async function loadTopAlliancesByKillFame(
+  region: AlbionRegion | "all",
+  limit: number,
+  days: number,
+  contentType: ContentTypeFilter
+) {
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+  const conditions = [
+    ...leaderboardConditions({ region, days, contentType, limit }, cutoff),
+    isNotNull(schema.killEvents.killerId),
+    sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' IS NOT NULL`,
+    sql`trim(${schema.killEvents.rawPayload}->'Killer'->>'AllianceId') <> ''`,
+    sql`trim(${schema.killEvents.rawPayload}->'Killer'->>'AllianceName') <> ''`,
+  ];
+
+  const allianceAlbionId = sql<string>`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId'`;
+  const allianceName = sql<string>`${schema.killEvents.rawPayload}->'Killer'->>'AllianceName'`;
+
+  const rows = await db
+    .select({
+      region: schema.killEvents.region,
+      allianceAlbionId,
+      allianceName,
+      killFame: sum(schema.killEvents.totalVictimKillFame),
+      killCount: count(),
+    })
+    .from(schema.killEvents)
+    .where(and(...conditions))
+    .groupBy(schema.killEvents.region, allianceAlbionId, allianceName)
+    .orderBy(desc(sum(schema.killEvents.totalVictimKillFame)))
+    .limit(limit);
+
+  return rows.reduce<TopAllianceEntry[]>((acc, row, index) => {
+    const albionId = row.allianceAlbionId?.trim();
+    const name = row.allianceName?.trim();
+    if (!albionId || !name) return acc;
+
+    acc.push({
+      rank: index + 1,
+      killFame: Number(row.killFame ?? 0),
+      killCount: row.killCount,
+      alliance: {
+        albionId,
+        name,
+        region: row.region,
+      },
+    });
+    return acc;
+  }, []);
+}
+
+const cachedTopAlliancesByKillFame = cachedQuery(
+  loadTopAlliancesByKillFame,
+  ["top-alliances"],
+  LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  ["kills", "leaderboards"]
+);
+
+export const getTopAlliancesByKillFame = cache(
+  async function getTopAlliancesByKillFame(filters: LeaderboardFilters = {}) {
+    const { region = "all", limit = 50, days = 7, contentType = "all" } =
+      filters;
+    return cachedTopAlliancesByKillFame(region, limit, days, contentType);
+  }
 );
 
 export const getTopGuildsByKillFame = cache(async function getTopGuildsByKillFame(

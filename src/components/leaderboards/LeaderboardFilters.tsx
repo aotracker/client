@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { LucideIcon } from "lucide-react";
-import { Flame, Loader2, Shield, Skull, Swords } from "lucide-react";
+import { Flame, Loader2, Shield, Skull, Swords, Users } from "lucide-react";
 import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
 import {
@@ -28,6 +28,7 @@ const TAB_ICONS: Record<LeaderboardTab, LucideIcon> = {
   killers: Swords,
   fame: Flame,
   guilds: Shield,
+  alliances: Users,
   kills: Skull,
 };
 

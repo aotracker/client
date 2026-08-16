@@ -8,6 +8,7 @@ import {
   Home,
   RefreshCw,
   Search,
+  Skull,
   Star,
   Swords,
   Trophy,
@@ -105,6 +106,13 @@ export function NotFoundRecovery() {
         >
           <Home className="h-3.5 w-3.5" aria-hidden />
           {tButtons("home")}
+        </Link>
+        <Link
+          href={feedNavHref("/kills", feedRegion)}
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+        >
+          <Skull className="h-3.5 w-3.5" aria-hidden />
+          {tNav("kills")}
         </Link>
         <Link
           href={feedNavHref("/leaderboards", feedRegion)}

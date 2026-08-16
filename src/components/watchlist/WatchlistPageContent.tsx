@@ -23,12 +23,15 @@ export function WatchlistPageContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadActivity = useCallback(async (list: WatchlistEntry[]) => {
+  const loadActivity = useCallback(async (
+    list: WatchlistEntry[],
+    options?: { silent?: boolean }
+  ) => {
     if (list.length === 0) {
       setActivity([]);
       return;
     }
-    setLoading(true);
+    if (!options?.silent) setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/watchlist/activity", {
@@ -40,6 +43,9 @@ export function WatchlistPageContent() {
             .map((e) => ({ region: e.region, albionId: e.albionId })),
           guilds: list
             .filter((e) => e.type === "guild")
+            .map((e) => ({ region: e.region, albionId: e.albionId })),
+          alliances: list
+            .filter((e) => e.type === "alliance")
             .map((e) => ({ region: e.region, albionId: e.albionId })),
         }),
       });
@@ -56,7 +62,12 @@ export function WatchlistPageContent() {
 
   useEffect(() => {
     if (!ready) return;
-    loadActivity(entries);
+    void loadActivity(entries);
+    const id = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      void loadActivity(entries, { silent: true });
+    }, 20_000);
+    return () => window.clearInterval(id);
   }, [ready, entries, loadActivity]);
 
   if (!ready) {
@@ -101,7 +112,12 @@ export function WatchlistPageContent() {
                   {entry.name}
                 </Link>
                 <p className="text-xs text-muted-foreground">
-                  {entry.type === "player" ? t("typePlayer") : t("typeGuild")} ·{" "}
+                  {entry.type === "player"
+                    ? t("typePlayer")
+                    : entry.type === "guild"
+                      ? t("typeGuild")
+                      : t("typeAlliance")}{" "}
+                  ·{" "}
                   {regionLabel(entry.region)}
                 </p>
               </div>

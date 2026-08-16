@@ -1,6 +1,7 @@
 {
   "Nav": {
     "home": "Home",
+    "kills": "Kills",
     "leaderboards": "Leaderboards",
     "battles": "Battles",
     "builds": "Builds",
@@ -86,7 +87,23 @@
         "summary": "Show the bound Albion guild and which channels are set.",
         "detail": "Anyone in the server can run this. Use it to confirm setup after /track and the channel commands.",
         "example": "/status"
+      },
+      "feedFilters": {
+        "usage": "/feed-filters min-fame:10000 min-silver:500000 content:SOLO,GROUP paused:false",
+        "summary": "Limit which kills and deaths the bot posts.",
+        "detail": "Applies to both the kills and deaths feeds for this server. Use 0 fame/silver for any, and omit content or use all for every fight size. Manage Server required.",
+        "example": "/feed-filters min-fame:25000 content:SOLO,GROUP"
       }
+    },
+    "filters": {
+      "title": "Build a filter command",
+      "description": "Pick thresholds here, then paste the slash command into Discord. You need Manage Server.",
+      "minFame": "Min fame",
+      "minSilver": "Min silver",
+      "content": "Content types",
+      "paused": "Pause posts",
+      "copy": "Copy command",
+      "copied": "Copied"
     },
     "postsTitle": "What each post includes",
     "postsBody": "Each qualifying kill or death is one Discord message: a snapshot image with killer and victim gear, inventory, item power, kill fame, and estimated silver, plus a link to the full kill page on {siteName}. Zero-fame events are skipped.",
@@ -249,6 +266,9 @@
     "contentType": "Content type",
     "utcHour": "UTC hour",
     "anyHour": "Any hour",
+    "minFame": "Min fame",
+    "anyFame": "Any fame",
+    "watchlistOnly": "Watchlist only",
     "primeTime": "Prime Time",
     "lastDays": "Last {days} days"
   },
@@ -265,6 +285,7 @@
       "topFameDescription": "Highest kill fame earned in the last 7 days"
     },
     "autoUpdates": "Auto-updates every 20s",
+    "paused": "Paused",
     "checkedAt": " · checked {relative}",
     "emptyRecentTitle": "No kills to show yet",
     "emptyRecentBody": "Fresh Albion kills will appear here as they are ingested. Check back soon, or <searchLink>search for a player or guild</searchLink>.",
@@ -418,6 +439,10 @@
     "killed": "killed",
     "killFame": "Kill Fame",
     "assists": "Assists ({count})",
+    "participants": "Participants ({count})",
+    "healing": "Healing",
+    "roleGroupMember": "Group",
+    "roleParticipant": "Assist",
     "killerEquipment": "Killer's Equipment",
     "victimEquipment": "Victim's Equipment",
     "victimLoot": "Victim's Inventory Loot",
@@ -433,8 +458,17 @@
     "feed": {
       "loadMore": "Load more",
       "loading": "Loading…",
-      "failedLoadMore": "Failed to load more kills"
+      "failedLoadMore": "Failed to load more kills",
+      "empty": "No kills match these filters",
+      "showNew": "{count} new kills — show",
+      "pause": "Pause",
+      "resume": "Resume"
     }
+  },
+  "Kills": {
+    "pageTitle": "Recent Kills",
+    "pageDescription": "Live chronological kill feed from tracked Albion Online PvP. Filter by region, fight size, fame, or your watchlist.",
+    "failedLoad": "Failed to load kills"
   },
   "Battle": {
     "title": "Albion Battle #{id}",
@@ -551,6 +585,10 @@
         "description": "Guilds ranked by total kill fame",
         "descriptionHour": "Guilds ranked by unique members in PvP events at this UTC hour"
       },
+      "alliances": {
+        "label": "Top Alliances",
+        "description": "Alliances ranked by total kill fame"
+      },
       "kills": {
         "label": "Top Kills",
         "description": "Highest fame individual kills"
@@ -569,6 +607,7 @@
     },
     "emptyGuilds": "No guild kill fame in this period",
     "emptyGuildsHour": "No guild activity in this UTC hour",
+    "emptyAlliances": "No alliance kill fame in this period",
     "failedLoad": "Failed to load leaderboards"
   },
   "Builds": {
@@ -635,15 +674,16 @@
   },
   "Watchlist": {
     "title": "Watchlist",
-    "description": "Pinned players and guilds stored in your browser. No account required.",
-    "metaDescription": "Your pinned Albion Online players and guilds. Recent kill activity from your local watchlist.",
-    "empty": "No watched players or guilds yet. Use the Watch button on a player or guild profile to pin them here.",
+    "description": "Pinned players, guilds, and alliances stored in your browser. No account required.",
+    "metaDescription": "Your pinned Albion Online players, guilds, and alliances. Recent kill activity from your local watchlist.",
+    "empty": "No watched players, guilds, or alliances yet. Use the Watch button on a profile to pin them here.",
     "pinned": "Pinned ({count})",
     "recentActivity": "Recent activity",
     "noActivity": "No recent kills involving your watchlist",
     "failedActivity": "Failed to load activity",
     "typePlayer": "Player",
-    "typeGuild": "Guild"
+    "typeGuild": "Guild",
+    "typeAlliance": "Alliance"
   },
   "Status": {
     "title": "System Status",

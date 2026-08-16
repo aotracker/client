@@ -62,12 +62,14 @@ const loadAllianceProfile = cache(async function loadAllianceProfile(
     guildBattleListNeedsRefresh(
       alliance.recentBattlesPayload,
       alliance.topBattlesPayload,
-      alliance.battlesLastSyncedAt
+      alliance.battlesLastSyncedAt,
+      { requireAlliancePreview: true }
     ) ||
     guildBattleListNeedsRefresh(
       alliance.topBattlesPayload,
       alliance.recentBattlesPayload,
-      alliance.battlesLastSyncedAt
+      alliance.battlesLastSyncedAt,
+      { requireAlliancePreview: true }
     );
 
   if (shouldRefreshProfile) {

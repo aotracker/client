@@ -1,9 +1,15 @@
 import { cache } from "react";
 import { and, count, desc, eq, gte, inArray, isNotNull, lte, sql } from "drizzle-orm";
+import {
+  allianceBattleParticipation,
+  battleAlliancePreview,
+  type BattleEntityParticipation,
+} from "@/lib/albion/battles";
 import type {
   AlbionBattle,
   AlbionBattleAllianceStats,
   AlbionBattleGuildStats,
+  AlbionBattlePlayer,
   AlbionRegion,
 } from "@/lib/albion/types";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
@@ -328,4 +334,97 @@ export async function getRelatedBattlesFeed(input: {
   });
 
   return scoreRelatedBattles(selected, candidates, { limit });
+}
+
+export type AllianceBattleHydration = BattleEntityParticipation & {
+  alliances: { id: string; name: string }[];
+  allianceCount: number;
+};
+
+function allianceParticipationFromPayloads(
+  allianceId: string,
+  rawPayload: unknown,
+  detailPayload: unknown
+): AllianceBattleHydration | null {
+  const detail =
+    detailPayload && typeof detailPayload === "object"
+      ? (detailPayload as {
+          alliances?: AlbionBattleAllianceStats[];
+          guilds?: AlbionBattleGuildStats[];
+          players?: AlbionBattlePlayer[];
+        })
+      : null;
+  const raw =
+    rawPayload && typeof rawPayload === "object"
+      ? (rawPayload as AlbionBattle)
+      : null;
+
+  const fromDetail = detail
+    ? allianceBattleParticipation(
+        {
+          alliances: detail.alliances,
+          guilds: detail.guilds,
+          players: detail.players,
+        },
+        allianceId
+      )
+    : null;
+  const fromRaw = raw ? allianceBattleParticipation(raw, allianceId) : null;
+  if (!fromDetail && !fromRaw) return null;
+
+  const fromDetailAlliances = detail
+    ? battleAlliancePreview({ alliances: detail.alliances })
+    : { alliances: [], allianceCount: 0 };
+  const fromRawAlliances = raw
+    ? battleAlliancePreview(raw)
+    : { alliances: [], allianceCount: 0 };
+  const alliancePreview =
+    fromDetailAlliances.allianceCount > 0
+      ? fromDetailAlliances
+      : fromRawAlliances;
+
+  return {
+    killFame: fromDetail?.killFame ?? fromRaw?.killFame ?? null,
+    kills: fromDetail?.kills ?? fromRaw?.kills ?? null,
+    deaths: fromDetail?.deaths ?? fromRaw?.deaths ?? null,
+    members: Math.max(fromDetail?.members ?? 0, fromRaw?.members ?? 0),
+    ...alliancePreview,
+  };
+}
+
+/** Alliance participation in ingested battles, keyed by Albion battle id. */
+export async function getAllianceBattleParticipationByAlbionIds(
+  region: AlbionRegion,
+  allianceId: string,
+  albionIds: number[]
+): Promise<Map<number, AllianceBattleHydration>> {
+  const unique = [
+    ...new Set(albionIds.filter((id) => Number.isFinite(id) && id > 0)),
+  ];
+  if (unique.length === 0) return new Map();
+
+  const rows = await db
+    .select({
+      id: schema.battles.albionBattleId,
+      rawPayload: schema.battles.rawPayload,
+      detailPayload: schema.battles.detailPayload,
+    })
+    .from(schema.battles)
+    .where(
+      and(
+        eq(schema.battles.region, region),
+        inArray(schema.battles.albionBattleId, unique)
+      )
+    );
+
+  return new Map(
+    rows.flatMap((row) => {
+      const participation = allianceParticipationFromPayloads(
+        allianceId,
+        row.rawPayload,
+        row.detailPayload
+      );
+      return participation ? [[row.id, participation] as const] : [];
+    })
+  );
 }

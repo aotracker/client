@@ -21,6 +21,10 @@ import {
   KillGuildFeud,
   KillGuildFeudFallback,
 } from "@/components/KillGuildFeud";
+import {
+  KillAllianceFeud,
+  KillAllianceFeudFallback,
+} from "@/components/KillAllianceFeud";
 import { formatFame, regionLabel } from "@/lib/utils";
 import { JsonLd, killJsonLd } from "@/components/JsonLd";
 import {
@@ -131,6 +135,17 @@ export default async function KillDetailPage({ params }: PageProps) {
     Boolean(feudGuildA) &&
     Boolean(feudGuildB) &&
     feudGuildA.toLowerCase() !== feudGuildB.toLowerCase();
+  const payload = event.rawPayload as AlbionEvent;
+  const killerAllianceId = payload.Killer?.AllianceId?.trim() ?? "";
+  const victimAllianceId = payload.Victim?.AllianceId?.trim() ?? "";
+  const killerAllianceName =
+    payload.Killer?.AllianceName?.trim() || killerAllianceId;
+  const victimAllianceName =
+    payload.Victim?.AllianceName?.trim() || victimAllianceId;
+  const showAllianceFeud =
+    Boolean(killerAllianceId) &&
+    Boolean(victimAllianceId) &&
+    killerAllianceId !== victimAllianceId;
 
   const killHeadline = `${event.killer?.name ?? "?"} killed ${event.victim?.name ?? "?"}`;
   const killDescription = `${formatFame(event.totalVictimKillFame)} fame · ${event.contentType} · ${regionLabel(event.region)}`;
@@ -224,6 +239,16 @@ export default async function KillDetailPage({ params }: PageProps) {
           victimEquipment={victimEquipment}
           victimLoot={victimLoot}
           assistants={assistants}
+          killerHealingDone={
+            killerParticipant?.supportHealingDone != null
+              ? Number(killerParticipant.supportHealingDone)
+              : null
+          }
+          victimHealingDone={
+            victimParticipant?.supportHealingDone != null
+              ? Number(victimParticipant.supportHealingDone)
+              : null
+          }
           gearSection={gearSection}
           lootSection={lootSection}
         />
@@ -241,6 +266,27 @@ export default async function KillDetailPage({ params }: PageProps) {
                 region={albionRegion}
                 guildA={feudGuildA}
                 guildB={feudGuildB}
+                excludeEventId={event.eventId}
+              />
+            </Suspense>
+          </section>
+        )}
+        {showAllianceFeud && (
+          <section>
+            <Suspense
+              fallback={
+                <KillAllianceFeudFallback
+                  allianceAName={killerAllianceName}
+                  allianceBName={victimAllianceName}
+                />
+              }
+            >
+              <KillAllianceFeud
+                region={albionRegion}
+                allianceAId={killerAllianceId}
+                allianceBId={victimAllianceId}
+                allianceAName={killerAllianceName}
+                allianceBName={victimAllianceName}
                 excludeEventId={event.eventId}
               />
             </Suspense>
@@ -287,9 +333,12 @@ function getAssistants(
   const assistants: {
     key: string;
     name: string;
+    role?: string;
     guildName?: string | null;
     guildHref?: string;
     profileHref?: string;
+    healingDone?: number | null;
+    averageItemPower?: string | null;
   }[] = [];
 
   for (const p of participants) {
@@ -311,13 +360,21 @@ function getAssistants(
     assistants.push({
       key: dedupeKey,
       name: playerName ?? "Unknown",
+      role: p.role,
       guildName: guildAtKill?.name,
       guildHref: guildAtKill?.name
         ? guildPath(region, guildAtKill.name)
         : undefined,
       profileHref: playerName ? playerPath(region, playerName) : undefined,
+      healingDone:
+        p.supportHealingDone != null ? Number(p.supportHealingDone) : null,
+      averageItemPower: p.averageItemPower,
     });
   }
 
-  return assistants.sort((a, b) => a.name.localeCompare(b.name));
+  return assistants.sort((a, b) => {
+    const healDiff = (b.healingDone ?? 0) - (a.healingDone ?? 0);
+    if (healDiff !== 0) return healDiff;
+    return a.name.localeCompare(b.name);
+  });
 }

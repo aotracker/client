@@ -22,7 +22,7 @@ export interface EntityBattlesTabsProps {
   topLoadingLabel: string | null;
   recentEmptyLabel: string;
   topEmptyLabel: string;
-  /** When true, BattleCard shows per-guild kill/death/fame stats. */
+  /** When true, BattleCard shows this guild/alliance's fame, members, and kills. */
   showGuildStats?: boolean;
 }
 
@@ -99,6 +99,8 @@ export function EntityBattlesTabs({
               battle={battle}
               region={region}
               showGuildStats={showGuildStats}
+              alliances={battle.alliances ?? []}
+              allianceCount={battle.allianceCount ?? 0}
               guilds={battle.guilds}
               guildCount={battle.guildCount}
             />

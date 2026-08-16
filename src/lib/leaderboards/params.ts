@@ -3,6 +3,7 @@ import type { ContentTypeFilter } from "@/lib/db/queries";
 export const LEADERBOARD_TABS = [
   "killers",
   "guilds",
+  "alliances",
   "kills",
   "fame",
 ] as const;
@@ -20,6 +21,10 @@ export const LEADERBOARD_TAB_META: Record<
   guilds: {
     label: "Top Guilds",
     description: "Guilds ranked by total kill fame",
+  },
+  alliances: {
+    label: "Top Alliances",
+    description: "Alliances ranked by total kill fame",
   },
   kills: {
     label: "Top Kills",

@@ -80,7 +80,11 @@ export const BattleCard = memo(function BattleCard({
       />
       <StatValue
         label="Total Players"
-        value={battle.totalPlayers?.toLocaleString() ?? "—"}
+        value={
+          battle.totalPlayers != null && battle.totalPlayers > 0
+            ? battle.totalPlayers.toLocaleString()
+            : "—"
+        }
         variant="neutral"
       />
     </>

@@ -222,11 +222,24 @@ export async function RecentKillsSection({
     error = e instanceof Error ? e.message : t("errorRecent");
   }
 
+  const viewAllHref = appendFeedRegionToHref("/kills", region, {
+    ...(contentType !== "all" ? { type: contentType } : {}),
+  });
+  const tCommon = await getTranslations("Common");
+
   if (error) {
     return (
       <PageSection
         title={t("sections.recentKillsTitle")}
         description={t("sections.recentKillsDescription")}
+        actions={
+          <Link
+            href={viewAllHref}
+            className="text-sm text-primary hover:underline"
+          >
+            {tCommon("buttons.viewAll")}
+          </Link>
+        }
       >
         <InlineAlert>{t("errorRecent")}</InlineAlert>
       </PageSection>
@@ -238,6 +251,14 @@ export async function RecentKillsSection({
       <PageSection
         title={t("sections.recentKillsTitle")}
         description={t("sections.recentKillsDescription")}
+        actions={
+          <Link
+            href={viewAllHref}
+            className="text-sm text-primary hover:underline"
+          >
+            {tCommon("buttons.viewAll")}
+          </Link>
+        }
       >
         <EmptyState icon={Swords} title={t("emptyRecentTitle")} className="p-8">
           {t.rich("emptyRecentBody", {
@@ -263,6 +284,7 @@ export async function RecentKillsSection({
       region={region}
       contentType={contentType}
       pageSize={HOME_RECENT_LIMIT}
+      viewAllHref={viewAllHref}
     />
   );
 }

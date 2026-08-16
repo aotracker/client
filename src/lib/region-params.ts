@@ -11,7 +11,7 @@ import {
 
 export type FeedRegion = PreferredRegion;
 
-export const FEED_PATHS = ["/", "/battles", "/leaderboards", "/builds"] as const;
+export const FEED_PATHS = ["/", "/kills", "/battles", "/leaderboards", "/builds"] as const;
 
 export type FeedPath = (typeof FEED_PATHS)[number];
 
@@ -128,7 +128,7 @@ export function feedNavHref(
   return appendFeedRegionToHref(path, storedRegion, extraParams);
 }
 
-const FEED_SUBPATHS = ["battles", "leaderboards", "builds"] as const;
+const FEED_SUBPATHS = ["kills", "battles", "leaderboards", "builds"] as const;
 
 export type FeedSubpath = (typeof FEED_SUBPATHS)[number];
 

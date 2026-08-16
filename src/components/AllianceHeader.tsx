@@ -7,6 +7,7 @@ import {
 } from "@/lib/utils";
 import { EntityHeader } from "@/components/EntityHeader";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
+import { WatchlistButton } from "@/components/watchlist/WatchlistButton";
 import { CardContent } from "@/components/ui/card";
 import { guildPath, playerPath } from "@/lib/seo";
 
@@ -77,7 +78,21 @@ export function AllianceHeader({
       title={alliance.name}
       kind="Alliance"
       affiliations={affiliations}
-      actions={sharePath ? <ShareLinkButton path={sharePath} /> : undefined}
+      actions={
+        alliance.albionId ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <WatchlistButton
+              type="alliance"
+              region={alliance.region}
+              albionId={alliance.albionId}
+              name={alliance.name}
+            />
+            {sharePath ? <ShareLinkButton path={sharePath} /> : null}
+          </div>
+        ) : sharePath ? (
+          <ShareLinkButton path={sharePath} />
+        ) : undefined
+      }
       stats={[
         {
           label: "Kill Fame",

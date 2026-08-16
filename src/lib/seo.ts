@@ -37,6 +37,18 @@ export function guildPath(region: string, name: string): string {
   return `/guild/${region}/${encodeURIComponent(name)}`;
 }
 
+export function alliancePath(region: string, allianceId: string): string {
+  return `/alliance/${region}/${encodeURIComponent(allianceId)}`;
+}
+
+export function allianceFeudPath(
+  region: string,
+  allianceAId: string,
+  allianceBId: string
+): string {
+  return `/alliance-feud/${region}/${encodeURIComponent(allianceAId)}/${encodeURIComponent(allianceBId)}`;
+}
+
 export function feudPath(
   region: string,
   guildA: string,

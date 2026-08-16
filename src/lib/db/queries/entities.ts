@@ -311,7 +311,8 @@ export async function cacheAllianceBattleLists(
 
   const cacheComplete = isGuildBattleCacheComplete(
     recentBattlesPayload,
-    topBattlesPayload
+    topBattlesPayload,
+    { requireAlliancePreview: true }
   );
 
   await db
@@ -755,6 +756,115 @@ export async function getAllianceProfileFromDb(
   };
 }
 
+export async function getAllianceFeudKillsFromDb(
+  region: AlbionRegion,
+  allianceIdA: string,
+  allianceIdB: string,
+  options: { limit?: number; excludeEventId?: number } = {}
+) {
+  const { limit = 10, excludeEventId } = options;
+  const idA = allianceIdA.trim();
+  const idB = allianceIdB.trim();
+  if (!idA || !idB || idA === idB) return [];
+
+  const rows = await db
+    .select({ id: schema.killEvents.id })
+    .from(schema.killEvents)
+    .where(
+      and(
+        eq(schema.killEvents.region, region),
+        killFamePositiveCondition(),
+        excludeEventId != null
+          ? ne(schema.killEvents.eventId, excludeEventId)
+          : undefined,
+        or(
+          and(
+            sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${idA}`,
+            sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idB}`
+          ),
+          and(
+            sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${idB}`,
+            sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idA}`
+          )
+        )
+      )
+    )
+    .orderBy(desc(schema.killEvents.occurredAt))
+    .limit(limit);
+
+  const ids = rows.map((row) => row.id);
+  if (ids.length === 0) return [];
+
+  const events = await db.query.killEvents.findMany({
+    where: inArray(schema.killEvents.id, ids),
+    with: {
+      killer: { with: { guild: true } },
+      victim: { with: { guild: true } },
+    },
+  });
+
+  const byId = new Map(events.map((event) => [event.id, event]));
+  return ids
+    .map((id) => byId.get(id))
+    .filter((event): event is NonNullable<typeof event> => event != null)
+    .map(mapKillEventToCard);
+}
+
+export async function getAllianceFeudStats(
+  region: AlbionRegion,
+  allianceIdA: string,
+  allianceIdB: string
+): Promise<GuildFeudStats> {
+  const empty: GuildFeudStats = {
+    aKillsB: 0,
+    bKillsA: 0,
+    aFameOnB: 0,
+    bFameOnA: 0,
+  };
+
+  const idA = allianceIdA.trim();
+  const idB = allianceIdB.trim();
+  if (!idA || !idB || idA === idB) return empty;
+
+  const [aKillsBRow, bKillsARow] = await Promise.all([
+    db
+      .select({
+        count: count(),
+        fame: sum(schema.killEvents.totalVictimKillFame),
+      })
+      .from(schema.killEvents)
+      .where(
+        and(
+          eq(schema.killEvents.region, region),
+          killFamePositiveCondition(),
+          sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${idA}`,
+          sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idB}`
+        )
+      ),
+    db
+      .select({
+        count: count(),
+        fame: sum(schema.killEvents.totalVictimKillFame),
+      })
+      .from(schema.killEvents)
+      .where(
+        and(
+          eq(schema.killEvents.region, region),
+          killFamePositiveCondition(),
+          sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${idB}`,
+          sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idA}`
+        )
+      ),
+  ]);
+
+  return {
+    aKillsB: aKillsBRow[0]?.count ?? 0,
+    bKillsA: bKillsARow[0]?.count ?? 0,
+    aFameOnB: Number(aKillsBRow[0]?.fame ?? 0),
+    bFameOnA: Number(bKillsARow[0]?.fame ?? 0),
+  };
+}
+
 export async function getGuildFeudStats(
   region: AlbionRegion,
   guildNameA: string,
@@ -914,27 +1024,53 @@ export async function getPlayerAssociations(
   return { allies };
 }
 
-export async function getWatchlistActivity(
-  entries: {
-    players: { region: AlbionRegion; albionId: string }[];
-    guilds: { region: AlbionRegion; albionId: string }[];
-  },
-  limit = 10
-) {
-  const playerUuids: string[] = [];
-  for (const entry of entries.players) {
+export async function resolveWatchlistKillFeed(entries: {
+  players?: { region: AlbionRegion; albionId: string }[];
+  guilds?: { region: AlbionRegion; albionId: string }[];
+  alliances?: { region: AlbionRegion; albionId: string }[];
+}): Promise<{
+  playerIds: string[];
+  guildNamesLower: string[];
+  alliances: { region: AlbionRegion; albionId: string }[];
+}> {
+  const playerIds: string[] = [];
+  for (const entry of entries.players ?? []) {
     const player = await getPlayerByAlbionId(entry.region, entry.albionId);
-    if (player) playerUuids.push(player.id);
+    if (player) playerIds.push(player.id);
   }
 
   const guildRecords = await Promise.all(
-    entries.guilds.map((g) => getGuildByAlbionId(g.region, g.albionId))
+    (entries.guilds ?? []).map((g) => getGuildByAlbionId(g.region, g.albionId))
   );
   const guildNamesLower = guildRecords
     .map((g) => g?.name?.trim().toLowerCase())
     .filter((name): name is string => Boolean(name));
 
-  if (playerUuids.length === 0 && guildNamesLower.length === 0) {
+  const alliances = (entries.alliances ?? []).filter(
+    (a) => a.albionId.trim().length > 0
+  );
+
+  return { playerIds, guildNamesLower, alliances };
+}
+
+export async function getWatchlistActivity(
+  entries: {
+    players: { region: AlbionRegion; albionId: string }[];
+    guilds: { region: AlbionRegion; albionId: string }[];
+    alliances?: { region: AlbionRegion; albionId: string }[];
+  },
+  limit = 10
+) {
+  const resolved = await resolveWatchlistKillFeed(entries);
+  const playerUuids = resolved.playerIds;
+  const guildNamesLower = resolved.guildNamesLower;
+  const alliances = resolved.alliances;
+
+  if (
+    playerUuids.length === 0 &&
+    guildNamesLower.length === 0 &&
+    alliances.length === 0
+  ) {
     return [];
   }
 
@@ -1004,6 +1140,33 @@ export async function getWatchlistActivity(
         .limit(limit);
 
       for (const row of victimRows) {
+        eventIdScores.set(row.id, row.occurredAt);
+      }
+    }
+  }
+
+  if (alliances.length > 0) {
+    for (const alliance of alliances) {
+      const allianceRows = await db
+        .select({
+          id: schema.killEvents.id,
+          occurredAt: schema.killEvents.occurredAt,
+        })
+        .from(schema.killEvents)
+        .where(
+          and(
+            eq(schema.killEvents.region, alliance.region),
+            killFamePositiveCondition(),
+            or(
+              sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${alliance.albionId}`,
+              sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${alliance.albionId}`
+            )
+          )
+        )
+        .orderBy(desc(schema.killEvents.occurredAt))
+        .limit(limit);
+
+      for (const row of allianceRows) {
         eventIdScores.set(row.id, row.occurredAt);
       }
     }

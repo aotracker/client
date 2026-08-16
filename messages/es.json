@@ -1,6 +1,7 @@
 {
   "Nav": {
     "home": "Inicio",
+    "kills": "Bajas",
     "leaderboards": "Clasificaciones",
     "battles": "Batallas",
     "builds": "Builds",
@@ -86,7 +87,23 @@
         "summary": "Muestra el gremio de Albion vinculado y los canales configurados.",
         "detail": "Cualquiera en el servidor puede usarlo. Sirve para comprobar la configuración después de /track y los comandos de canal.",
         "example": "/status"
+      },
+      "feedFilters": {
+        "usage": "/feed-filters min-fame:10000 min-silver:500000 content:SOLO,GROUP paused:false",
+        "summary": "Limita qué kills y muertes publica el bot.",
+        "detail": "Se aplica a los feeds de kills y muertes de este servidor. Usa 0 en fama/plata para cualquiera, y omite content o usa all para todos los tamaños. Requiere Administrar servidor.",
+        "example": "/feed-filters min-fame:25000 content:SOLO,GROUP"
       }
+    },
+    "filters": {
+      "title": "Crear un comando de filtros",
+      "description": "Elige umbrales aquí y pega el comando en Discord. Necesitas Administrar servidor.",
+      "minFame": "Fama mínima",
+      "minSilver": "Plata mínima",
+      "content": "Tipos de contenido",
+      "paused": "Pausar publicaciones",
+      "copy": "Copiar comando",
+      "copied": "Copiado"
     },
     "postsTitle": "Qué incluye cada publicación",
     "postsBody": "Cada kill o muerte válida es un mensaje de Discord: una imagen con el equipo de asesino y víctima, inventario, poder de objeto, fama de kill y plata estimada, más un enlace a la página completa en {siteName}. Se omiten eventos sin fama.",
@@ -249,6 +266,9 @@
     "contentType": "Tipo de contenido",
     "utcHour": "Hora UTC",
     "anyHour": "Cualquier hora",
+    "minFame": "Fama mínima",
+    "anyFame": "Cualquier fama",
+    "watchlistOnly": "Solo lista de seguimiento",
     "primeTime": "Prime Time",
     "lastDays": "Últimos {days} días"
   },
@@ -265,6 +285,7 @@
       "topFameDescription": "Mayor fama de kills obtenida en los últimos 7 días"
     },
     "autoUpdates": "Actualización automática cada 20 s",
+    "paused": "En pausa",
     "checkedAt": " · comprobado {relative}",
     "emptyRecentTitle": "Aún no hay bajas que mostrar",
     "emptyRecentBody": "Las bajas frescas de Albion aparecerán aquí conforme se ingieran. Vuelve pronto o <searchLink>busca un jugador o gremio</searchLink>.",
@@ -418,6 +439,10 @@
     "killed": "mató a",
     "killFame": "Fama de kills",
     "assists": "Asistencias ({count})",
+    "participants": "Participantes ({count})",
+    "healing": "Sanación",
+    "roleGroupMember": "Grupo",
+    "roleParticipant": "Asistencia",
     "killerEquipment": "Equipamiento del asesino",
     "victimEquipment": "Equipamiento de la víctima",
     "victimLoot": "Botín del inventario de la víctima",
@@ -433,8 +458,17 @@
     "feed": {
       "loadMore": "Cargar más",
       "loading": "Cargando…",
-      "failedLoadMore": "Error al cargar más bajas"
+      "failedLoadMore": "Error al cargar más bajas",
+      "empty": "Ninguna baja coincide con estos filtros",
+      "showNew": "{count} bajas nuevas — mostrar",
+      "pause": "Pausar",
+      "resume": "Reanudar"
     }
+  },
+  "Kills": {
+    "pageTitle": "Bajas recientes",
+    "pageDescription": "Feed cronológico en vivo de bajas JcJ de Albion Online. Filtra por región, tamaño de pelea, fama o tu lista de seguimiento.",
+    "failedLoad": "Error al cargar las bajas"
   },
   "Battle": {
     "title": "Batalla de Albion #{id}",
@@ -551,6 +585,10 @@
         "description": "Gremios clasificados por fama de kills total",
         "descriptionHour": "Gremios clasificados por miembros únicos en eventos JcJ a esta hora UTC"
       },
+      "alliances": {
+        "label": "Mejores alianzas",
+        "description": "Alianzas clasificadas por fama de kills total"
+      },
       "kills": {
         "label": "Mejores bajas",
         "description": "Bajas individuales con más fama"
@@ -569,6 +607,7 @@
     },
     "emptyGuilds": "No hay fama de kills de gremios en este periodo",
     "emptyGuildsHour": "No hay actividad de gremios en esta hora UTC",
+    "emptyAlliances": "No hay fama de kills de alianzas en este periodo",
     "failedLoad": "Error al cargar las clasificaciones"
   },
   "Builds": {
@@ -635,15 +674,16 @@
   },
   "Watchlist": {
     "title": "Lista de seguimiento",
-    "description": "Jugadores y gremios fijados guardados en tu navegador. No hace falta una cuenta.",
-    "metaDescription": "Tus jugadores y gremios de Albion Online fijados. Actividad reciente de bajas de tu lista de seguimiento local.",
-    "empty": "Aún no hay jugadores ni gremios en seguimiento. Usa el botón Seguir en el perfil de un jugador o gremio para fijarlos aquí.",
+    "description": "Jugadores, gremios y alianzas fijados guardados en tu navegador. No hace falta una cuenta.",
+    "metaDescription": "Tus jugadores, gremios y alianzas de Albion Online fijados. Actividad reciente de bajas de tu lista de seguimiento local.",
+    "empty": "Aún no hay jugadores, gremios ni alianzas en seguimiento. Usa el botón Seguir en un perfil para fijarlos aquí.",
     "pinned": "Fijados ({count})",
     "recentActivity": "Actividad reciente",
     "noActivity": "No hay bajas recientes relacionadas con tu lista de seguimiento",
     "failedActivity": "Error al cargar la actividad",
     "typePlayer": "Jugador",
-    "typeGuild": "Gremio"
+    "typeGuild": "Gremio",
+    "typeAlliance": "Alianza"
   },
   "Status": {
     "title": "Estado del sistema",
