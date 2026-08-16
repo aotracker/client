@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { after } from "next/server";
 import type { Metadata } from "next";
 import { getPlayerProfile } from "@/lib/db/queries";
-import { isSyncStale } from "@/lib/db/sync";
+import { isSyncStale, HISTORY_SYNC_STALE_MS } from "@/lib/db/sync";
 import {
   ensurePlayerSyncQueued,
   getPlayerSyncJobState,
@@ -63,7 +63,7 @@ function needsPlayerSync(player: {
     !player.lastSyncedAt ||
     isSyncStale(player.lastSyncedAt) ||
     !player.historyLastSyncedAt ||
-    isSyncStale(player.historyLastSyncedAt)
+    isSyncStale(player.historyLastSyncedAt, HISTORY_SYNC_STALE_MS)
   );
 }
 

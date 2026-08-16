@@ -71,6 +71,7 @@ export type KillDetailViewProps = {
   lootEstSilver?: number | null;
   gearSection?: React.ReactNode;
   lootSection?: React.ReactNode;
+  compacted?: boolean;
 };
 
 export async function KillDetailView(props: KillDetailViewProps) {
@@ -96,6 +97,12 @@ export async function KillDetailView(props: KillDetailViewProps) {
         </div>
       </div>
 
+      {props.compacted && (
+        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+          {t("compacted.body")}
+        </p>
+      )}
+
       <div className="lg:sticky lg:top-[57px] lg:z-30">
         <KillSummaryCard
           {...props}
@@ -109,6 +116,7 @@ export async function KillDetailView(props: KillDetailViewProps) {
         />
       </div>
 
+      {!props.compacted && (
       <AssistsSection
         assistants={props.assistants}
         title={t("participants", { count: props.assistants.length })}
@@ -116,7 +124,9 @@ export async function KillDetailView(props: KillDetailViewProps) {
         groupMemberLabel={t("roleGroupMember")}
         participantLabel={t("roleParticipant")}
       />
-      {props.gearSection ?? (
+      )}
+      {!props.compacted &&
+        (props.gearSection ?? (
         <GearSection
           {...props}
           killerEquipmentTitle={t("killerEquipment")}
@@ -124,8 +134,9 @@ export async function KillDetailView(props: KillDetailViewProps) {
           estValueLabel={(value) => tLabels("estValue", { value })}
           averageIpLabel={tLabels("averageIp")}
         />
-      )}
-      {props.victimLoot.length > 0 &&
+      ))}
+      {!props.compacted &&
+        props.victimLoot.length > 0 &&
         (props.lootSection ?? (
           <LootSection
             victimLoot={props.victimLoot}

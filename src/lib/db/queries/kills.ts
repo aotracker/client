@@ -11,6 +11,7 @@ import { getCatalogItemName } from "@/lib/items/catalog";
 import { formatItemName } from "@/lib/utils";
 import type { AlbionEvent, AlbionRegion } from "@/lib/albion/types";
 import { db, schema } from "@/lib/db";
+import { uiLookbackCutoff } from "@/lib/db/retention";
 import {
   type ContentTypeFilter,
   type RegionFilters,
@@ -58,6 +59,44 @@ type KillEventWithRelations = Awaited<
 >[number];
 
 export function mapKillEventToCard(event: KillEventWithRelations) {
+  if (!event.rawPayload || event.detailEvictedAt) {
+    return {
+      eventId: event.eventId,
+      region: event.region,
+      occurredAt: event.occurredAt,
+      contentType: event.contentType,
+      totalVictimKillFame: event.totalVictimKillFame,
+      killer: event.killer
+        ? {
+            albionId: event.killer.albionId,
+            name: event.killer.name,
+            guild: event.killer.guild
+              ? {
+                  name: event.killer.guild.name,
+                  albionId: event.killer.guild.albionId,
+                }
+              : null,
+            allianceTag: null,
+          }
+        : null,
+      victim: event.victim
+        ? {
+            albionId: event.victim.albionId,
+            name: event.victim.name,
+            guild: event.victim.guild
+              ? {
+                  name: event.victim.guild.name,
+                  albionId: event.victim.guild.albionId,
+                }
+              : null,
+            allianceTag: null,
+          }
+        : null,
+      items: undefined,
+      participants: undefined,
+    };
+  }
+
   const payload = event.rawPayload as AlbionEvent;
   const extras = albionEventToKillCard(event.region, payload);
   const killerGuild =
@@ -177,6 +216,7 @@ async function loadKillFeed(filters: {
   } = filters;
 
   const conditions = [killFamePositiveCondition()];
+  conditions.push(gte(schema.killEvents.occurredAt, uiLookbackCutoff()));
   const regionFilter = regionCondition(region);
   if (regionFilter) conditions.push(regionFilter);
   if (contentType !== "all") {

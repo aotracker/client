@@ -2,7 +2,7 @@ import { Suspense, cache } from "react";
 import { after } from "next/server";
 import type { Metadata } from "next";
 import { getGuildByAlbionId } from "@/lib/db/queries";
-import { isSyncStale } from "@/lib/db/sync";
+import { isSyncStale, HISTORY_SYNC_STALE_MS } from "@/lib/db/sync";
 import {
   ensureAllianceRefreshQueued,
   ensureGuildSyncQueued,
@@ -110,7 +110,7 @@ function needsGuildSync(guild: {
     guild.memberCount == null ||
     isSyncStale(guild.lastSyncedAt) ||
     !guild.historyLastSyncedAt ||
-    isSyncStale(guild.historyLastSyncedAt) ||
+    isSyncStale(guild.historyLastSyncedAt, HISTORY_SYNC_STALE_MS) ||
     guildBattleListNeedsRefresh(
       guild.recentBattlesPayload,
       guild.topBattlesPayload,

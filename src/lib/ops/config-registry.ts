@@ -20,6 +20,11 @@ import {
   CIRCUIT_FAILURE_THRESHOLD,
 } from "@/lib/db/api-state";
 import { OPS_EVENTS_RETENTION_DAYS } from "@/lib/ops/events";
+import {
+  KILL_STUB_TTL_DAYS,
+  RETAIN_FULL_DAYS,
+  UI_LOOKBACK_DAYS,
+} from "@/lib/db/retention";
 
 export const API_REQUEST_LOG_RETENTION_DAYS = 7;
 
@@ -135,6 +140,29 @@ export function getConfigRegistry(): ConfigRegistryGroup[] {
     {
       title: "Retention",
       items: [
+        {
+          name: "UI lookback",
+          value: `${UI_LOOKBACK_DAYS} days`,
+          source: "client/src/lib/db/retention.ts",
+          note: "Leaderboards, builds, analytics, guild activity",
+        },
+        {
+          name: "Full kill/battle/hour retain",
+          value: `${RETAIN_FULL_DAYS} days`,
+          source: "client/src/lib/db/retention.ts",
+          note: "Weekly db-retain compact/purge; buffer past the UI window",
+        },
+        {
+          name: "Kill stub TTL",
+          value: `${KILL_STUB_TTL_DAYS} days`,
+          source: "client/src/lib/db/retention.ts",
+        },
+        {
+          name: "Battle JSON eviction",
+          value: `${RETAIN_FULL_DAYS} days`,
+          source: "client/src/lib/db/battle-cache.ts",
+          note: "BATTLE_DETAIL_EVICT_AFTER_DAYS = RETAIN_FULL_DAYS",
+        },
         {
           name: "API request logs",
           value: `${API_REQUEST_LOG_RETENTION_DAYS} days`,

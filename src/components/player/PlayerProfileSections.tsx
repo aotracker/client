@@ -1,5 +1,5 @@
 import { getPlayerHistoryFromDb, getPlayerAnalytics } from "@/lib/db/queries";
-import { isSyncStale } from "@/lib/db/sync";
+import { isSyncStale, HISTORY_SYNC_STALE_MS } from "@/lib/db/sync";
 import { getPlayerSyncJobState } from "@/lib/jobs/queue";
 import { isPlayerDataIngesting } from "@/lib/ingest-status";
 import type { AlbionRegion } from "@/lib/albion/types";
@@ -80,7 +80,7 @@ export async function PlayerHistorySection({
 }: PlayerSectionProps & { historyLastSyncedAt: Date | null }) {
   const { kills, deaths } = await getPlayerHistoryFromDb(region, playerId);
   const shouldSyncHistory =
-    !historyLastSyncedAt || isSyncStale(historyLastSyncedAt);
+    !historyLastSyncedAt || isSyncStale(historyLastSyncedAt, HISTORY_SYNC_STALE_MS);
 
   return (
     <PlayerRecentActivity

@@ -113,36 +113,51 @@ export default async function KillDetailPage({ params }: PageProps) {
   const event = result.event;
   if (!event) notFound();
 
-  const killerItems = event.items.filter((i) => i.ownerRole === "killer");
-  const victimItems = event.items.filter((i) => i.ownerRole === "victim");
-  const killerEquipment = killerItems.filter((i) => i.category === "equipment");
-  const victimEquipment = victimItems.filter((i) => i.category === "equipment");
-  const victimLoot = victimItems.filter((i) => i.category === "inventory");
+  const compacted =
+    event.detailEvictedAt != null || event.rawPayload == null;
+  const items = event.items ?? [];
+  const participants = event.participants ?? [];
 
-  const killerParticipant = event.participants.find((p) => p.role === "killer");
-  const victimParticipant = event.participants.find((p) => p.role === "victim");
+  const killerItems = items.filter((i) => i.ownerRole === "killer");
+  const victimItems = items.filter((i) => i.ownerRole === "victim");
+  const killerEquipment = compacted
+    ? []
+    : killerItems.filter((i) => i.category === "equipment");
+  const victimEquipment = compacted
+    ? []
+    : victimItems.filter((i) => i.category === "equipment");
+  const victimLoot = compacted
+    ? []
+    : victimItems.filter((i) => i.category === "inventory");
+
+  const killerParticipant = participants.find((p) => p.role === "killer");
+  const victimParticipant = participants.find((p) => p.role === "victim");
   const { killer: killerGuild, victim: victimGuild } = guildsAtKill(event);
-  const assistants = getAssistants(
-    event.participants,
-    event.killerId,
-    event.victimId,
-    event.region
-  );
+  const assistants = compacted
+    ? []
+    : getAssistants(
+        participants,
+        event.killerId,
+        event.victimId,
+        event.region
+      );
 
   const feudGuildA = killerGuild?.name?.trim() ?? "";
   const feudGuildB = victimGuild?.name?.trim() ?? "";
   const showGuildFeud =
+    !compacted &&
     Boolean(feudGuildA) &&
     Boolean(feudGuildB) &&
     feudGuildA.toLowerCase() !== feudGuildB.toLowerCase();
-  const payload = event.rawPayload as AlbionEvent;
-  const killerAllianceId = payload.Killer?.AllianceId?.trim() ?? "";
-  const victimAllianceId = payload.Victim?.AllianceId?.trim() ?? "";
+  const payload = compacted ? null : (event.rawPayload as AlbionEvent);
+  const killerAllianceId = payload?.Killer?.AllianceId?.trim() ?? "";
+  const victimAllianceId = payload?.Victim?.AllianceId?.trim() ?? "";
   const killerAllianceName =
-    payload.Killer?.AllianceName?.trim() || killerAllianceId;
+    payload?.Killer?.AllianceName?.trim() || killerAllianceId;
   const victimAllianceName =
-    payload.Victim?.AllianceName?.trim() || victimAllianceId;
+    payload?.Victim?.AllianceName?.trim() || victimAllianceId;
   const showAllianceFeud =
+    !compacted &&
     Boolean(killerAllianceId) &&
     Boolean(victimAllianceId) &&
     killerAllianceId !== victimAllianceId;
@@ -151,7 +166,7 @@ export default async function KillDetailPage({ params }: PageProps) {
   const killDescription = `${formatFame(event.totalVictimKillFame)} fame · ${event.contentType} · ${regionLabel(event.region)}`;
   const sharePath = entityPath("kill", event.region, event.eventId);
 
-  const gearSection = (
+  const gearSection = compacted ? undefined : (
     <Suspense
       fallback={
         <KillGearFallback
@@ -174,7 +189,7 @@ export default async function KillDetailPage({ params }: PageProps) {
 
   const tKill = await getTranslations("Kill");
   const lootSection =
-    victimLoot.length > 0 ? (
+    compacted || victimLoot.length === 0 ? undefined : (
       <Suspense
         fallback={
           <KillLootFallback
@@ -193,7 +208,7 @@ export default async function KillDetailPage({ params }: PageProps) {
           victimName={event.victim?.name ?? "Unknown"}
         />
       </Suspense>
-    ) : undefined;
+    );
 
   return (
     <>
@@ -251,6 +266,7 @@ export default async function KillDetailPage({ params }: PageProps) {
           }
           gearSection={gearSection}
           lootSection={lootSection}
+          compacted={compacted}
         />
         {showGuildFeud && (
           <section>
@@ -300,18 +316,18 @@ export default async function KillDetailPage({ params }: PageProps) {
 type KillEvent = NonNullable<Awaited<ReturnType<typeof getKillEvent>>>;
 
 function guildsAtKill(event: KillEvent) {
-  const payload = event.rawPayload as AlbionEvent;
+  const payload = (event.rawPayload as AlbionEvent | null) ?? null;
   const killerParticipant = event.participants.find((p) => p.role === "killer");
   const victimParticipant = event.participants.find((p) => p.role === "victim");
 
   return {
     killer: resolveGuildAtKill(
-      payload.Killer,
+      payload?.Killer,
       killerParticipant?.guildName,
       event.killer?.guild ?? null
     ),
     victim: resolveGuildAtKill(
-      payload.Victim,
+      payload?.Victim,
       victimParticipant?.guildName,
       event.victim?.guild ?? null
     ),

@@ -455,6 +455,9 @@
       "body": "This kill is being fetched from Albion Online and will be available shortly. This page refreshes automatically every few seconds.",
       "meta": "{region} · Kill ID #{eventId}"
     },
+    "compacted": {
+      "body": "Full gear and loot are kept for 30 days. This is a summary of the kill."
+    },
     "feed": {
       "loadMore": "Load more",
       "loading": "Loading…",

@@ -1,5 +1,5 @@
 import { getGuildTopKillsFromDb } from "@/lib/db/queries";
-import { isSyncStale } from "@/lib/db/sync";
+import { isSyncStale, HISTORY_SYNC_STALE_MS } from "@/lib/db/sync";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { KillCard } from "@/components/KillCard";
 import { PageSection } from "@/components/PageSection";
@@ -19,7 +19,7 @@ export async function GuildTopKillsSection({
   const t = await getTranslations("Guild.topKills");
   const topKills = await getGuildTopKillsFromDb(region, guildId);
   const shouldSyncHistory =
-    !historyLastSyncedAt || isSyncStale(historyLastSyncedAt);
+    !historyLastSyncedAt || isSyncStale(historyLastSyncedAt, HISTORY_SYNC_STALE_MS);
 
   return (
     <PageSection

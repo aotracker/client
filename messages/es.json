@@ -455,6 +455,9 @@
       "body": "Esta baja se está obteniendo de Albion Online y estará disponible en breve. Esta página se actualiza automáticamente cada pocos segundos.",
       "meta": "{region} · ID de baja #{eventId}"
     },
+    "compacted": {
+      "body": "El equipo y el botín se conservan 30 días. Este registro es un resumen de la baja."
+    },
     "feed": {
       "loadMore": "Cargar más",
       "loading": "Cargando…",
