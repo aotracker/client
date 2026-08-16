@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getGuildByAlbionId } from "@/lib/db/queries";
 import { isSyncStale } from "@/lib/db/sync";
 import {
+  ensureAllianceRefreshQueued,
   ensureGuildSyncQueued,
   getGuildSyncJobState,
 } from "@/lib/jobs/queue";
@@ -98,6 +99,7 @@ async function enrichAllianceInfo(
 
 function needsGuildSync(guild: {
   lastSyncedAt: Date | null;
+  memberCount: number | null;
   historyLastSyncedAt: Date | null;
   battlesLastSyncedAt: Date | null;
   recentBattlesPayload: unknown;
@@ -105,6 +107,7 @@ function needsGuildSync(guild: {
 }): boolean {
   return (
     !guild.lastSyncedAt ||
+    guild.memberCount == null ||
     isSyncStale(guild.lastSyncedAt) ||
     !guild.historyLastSyncedAt ||
     isSyncStale(guild.historyLastSyncedAt) ||
@@ -133,10 +136,19 @@ const loadGuildProfile = cache(async function loadGuildProfile(
 
   const shouldSync = needsGuildSync(dbGuild);
   if (shouldSync) {
-    after(() => ensureGuildSyncQueued(region, albionId));
+    const profileIncomplete = dbGuild.memberCount == null;
+    after(() =>
+      ensureGuildSyncQueued(region, albionId, {
+        immediate: profileIncomplete,
+        force: profileIncomplete,
+      })
+    );
   }
 
   const header = await enrichAllianceInfo(region, guildHeaderFromDb(dbGuild));
+  if (header.allianceId && !header.allianceName) {
+    after(() => ensureAllianceRefreshQueued(region, header.allianceId!));
+  }
 
   return {
     header,
@@ -242,6 +254,7 @@ export default async function GuildProfilePage({ params }: PageProps) {
     lastSyncedAt,
     historyLastSyncedAt,
     battlesLastSyncedAt,
+    memberCount: header.memberCount,
     syncJobState,
   });
   const canonicalPath = entityPath("guild", albionRegion, header.name);

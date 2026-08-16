@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowDown, ChevronsDown, FilterX, Pause, Play } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
@@ -57,6 +57,8 @@ interface KillFeedListProps {
   watchlistOnly?: boolean;
   onPollAtChange?: (at: Date) => void;
   onPausedChange?: (paused: boolean) => void;
+  /** When set, shown on the left of the pause control (full /kills feed). */
+  liveStatus?: ReactNode;
 }
 
 const POLL_MS = 20_000;
@@ -80,6 +82,7 @@ export function KillFeedList({
   watchlistOnly = false,
   onPollAtChange,
   onPausedChange,
+  liveStatus,
 }: KillFeedListProps) {
   const t = useTranslations("Kill.feed");
   const { entries, ready } = useWatchlist();
@@ -329,27 +332,38 @@ export function KillFeedList({
     >
       <div ref={listTopRef} />
 
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        {pendingNew.length > 0 && (
-          <Button type="button" size="sm" variant="outline" onClick={revealPending}>
-            <ArrowDown className="h-3.5 w-3.5" aria-hidden />
-            {t("showNew", { count: pendingNew.length })}
-          </Button>
-        )}
-        <Button
-          type="button"
-          size="sm"
-          variant={paused ? "default" : "outline"}
-          onClick={() => setPaused((value) => !value)}
-          aria-pressed={paused}
-        >
-          {paused ? (
-            <Play className="h-3.5 w-3.5" aria-hidden />
-          ) : (
-            <Pause className="h-3.5 w-3.5" aria-hidden />
+      <div
+        className={
+          liveStatus
+            ? "flex flex-wrap items-center justify-between gap-2"
+            : "flex flex-wrap items-center justify-center gap-2"
+        }
+      >
+        {liveStatus ? (
+          <p className="min-w-0 text-xs text-muted-foreground">{liveStatus}</p>
+        ) : null}
+        <div className={`flex flex-wrap items-center gap-2${liveStatus ? " ms-auto" : ""}`}>
+          {pendingNew.length > 0 && (
+            <Button type="button" size="sm" variant="outline" onClick={revealPending}>
+              <ArrowDown className="h-3.5 w-3.5" aria-hidden />
+              {t("showNew", { count: pendingNew.length })}
+            </Button>
           )}
-          {paused ? t("resume") : t("pause")}
-        </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={paused ? "default" : "outline"}
+            onClick={() => setPaused((value) => !value)}
+            aria-pressed={paused}
+          >
+            {paused ? (
+              <Play className="h-3.5 w-3.5" aria-hidden />
+            ) : (
+              <Pause className="h-3.5 w-3.5" aria-hidden />
+            )}
+            {paused ? t("resume") : t("pause")}
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-2 stagger-children">

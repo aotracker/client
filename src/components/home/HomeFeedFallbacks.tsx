@@ -103,16 +103,21 @@ export function RecentKillsFallback() {
     <PageSection
       title={t("sections.recentKillsTitle")}
       description={t("sections.recentKillsDescription")}
-      descriptionActions={t("autoUpdates")}
     >
       <div
-        className="space-y-2"
+        className="space-y-3"
         aria-busy="true"
         aria-label={tCommon("a11y.loadingRecentKills")}
       >
-        {Array.from({ length: HOME_RECENT_LIMIT }).map((_, i) => (
-          <KillCardSkeleton key={i} compactSize="default" />
-        ))}
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">{t("autoUpdates")}</p>
+          <Skeleton className="h-8 w-[4.75rem]" />
+        </div>
+        <div className="space-y-2">
+          {Array.from({ length: HOME_RECENT_LIMIT }).map((_, i) => (
+            <KillCardSkeleton key={i} compactSize="default" />
+          ))}
+        </div>
       </div>
     </PageSection>
   );

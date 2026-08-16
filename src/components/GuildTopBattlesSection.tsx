@@ -33,6 +33,10 @@ function parseBattles(payload: unknown): GuildBattleSummary[] {
           : Array.isArray(item.guilds)
             ? item.guilds.length
             : 0,
+      guildMembers: typeof item.guildMembers === "number" ? item.guildMembers : 0,
+      guildKillFame: item.guildKillFame ?? null,
+      guildKills: item.guildKills ?? null,
+      guildDeaths: item.guildDeaths ?? null,
     }));
 }
 

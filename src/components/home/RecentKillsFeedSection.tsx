@@ -45,14 +45,6 @@ export function RecentKillsFeedSection({
           {tCommon("buttons.viewAll")}
         </Link>
       }
-      descriptionActions={
-        <>
-          {paused ? t("paused") : t("autoUpdates")}
-          {lastPollAt
-            ? t("checkedAt", { relative: formatRelativeTime(lastPollAt) })
-            : ""}
-        </>
-      }
     >
       <KillFeedList
         key={`${region}-${contentType}`}
@@ -63,6 +55,14 @@ export function RecentKillsFeedSection({
         preview
         onPollAtChange={setLastPollAt}
         onPausedChange={setPaused}
+        liveStatus={
+          <>
+            {paused ? t("paused") : t("autoUpdates")}
+            {lastPollAt
+              ? t("checkedAt", { relative: formatRelativeTime(lastPollAt) })
+              : ""}
+          </>
+        }
       />
     </PageSection>
   );

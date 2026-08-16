@@ -31,9 +31,12 @@ interface GuildHeaderProps {
 
 export function GuildHeader({ guild, sharePath }: GuildHeaderProps) {
   const hasAlliance = Boolean(guild.allianceId?.trim());
-  const allianceLabel = guild.allianceName
-    ? formatAllianceTag(guild.allianceName, guild.allianceTag)
-    : null;
+  const allianceName = guild.allianceName?.trim() || "";
+  const allianceTag = guild.allianceTag?.trim() || "";
+  const allianceLabel =
+    allianceName || allianceTag
+      ? formatAllianceTag(allianceName || allianceTag, allianceTag || null)
+      : null;
 
   const affiliations = [
     { key: "region", label: regionLabel(guild.region) },

@@ -29,23 +29,23 @@ export function KillsFeedSection({
   const [paused, setPaused] = useState(false);
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">
-        {paused ? t("paused") : t("autoUpdates")}
-        {lastPollAt
-          ? t("checkedAt", { relative: formatRelativeTime(lastPollAt) })
-          : ""}
-      </p>
-      <KillFeedList
-        initialEvents={initialEvents}
-        region={region}
-        contentType={contentType}
-        pageSize={pageSize}
-        minFame={minFame}
-        watchlistOnly={watchlistOnly}
-        onPollAtChange={setLastPollAt}
-        onPausedChange={setPaused}
-      />
-    </div>
+    <KillFeedList
+      initialEvents={initialEvents}
+      region={region}
+      contentType={contentType}
+      pageSize={pageSize}
+      minFame={minFame}
+      watchlistOnly={watchlistOnly}
+      onPollAtChange={setLastPollAt}
+      onPausedChange={setPaused}
+      liveStatus={
+        <>
+          {paused ? t("paused") : t("autoUpdates")}
+          {lastPollAt
+            ? t("checkedAt", { relative: formatRelativeTime(lastPollAt) })
+            : ""}
+        </>
+      }
+    />
   );
 }

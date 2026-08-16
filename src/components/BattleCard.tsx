@@ -69,6 +69,11 @@ export const BattleCard = memo(function BattleCard({
         value={guildBattle.guildKills?.toLocaleString() ?? "—"}
         variant="kill"
       />
+      <StatValue
+        label="Deaths"
+        value={guildBattle.guildDeaths?.toLocaleString() ?? "—"}
+        variant="death"
+      />
     </>
   ) : (
     <>
@@ -154,7 +159,14 @@ export const BattleCard = memo(function BattleCard({
   const body = (
     <div className="flex w-full min-w-0 flex-col gap-3 overflow-hidden sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="flex min-w-0 flex-1 items-start gap-3">{identity}</div>
-      <div className="grid w-full max-w-[18rem] grid-cols-3 gap-2 border-t border-border/40 pt-3 text-center sm:w-auto sm:max-w-none sm:shrink-0 sm:gap-5 sm:border-0 sm:pt-0 sm:text-right">
+      <div
+        className={cn(
+          "grid w-full gap-2 border-t border-border/40 pt-3 text-center sm:w-auto sm:max-w-none sm:shrink-0 sm:gap-5 sm:border-0 sm:pt-0 sm:text-right",
+          displayGuildStats
+            ? "max-w-[22rem] grid-cols-4"
+            : "max-w-[18rem] grid-cols-3"
+        )}
+      >
         {stats}
       </div>
     </div>

@@ -22,7 +22,7 @@ export interface EntityBattlesTabsProps {
   topLoadingLabel: string | null;
   recentEmptyLabel: string;
   topEmptyLabel: string;
-  /** When true, BattleCard shows this guild/alliance's fame, members, and kills. */
+  /** When true, BattleCard shows this guild/alliance's fame, members, kills, and deaths. */
   showGuildStats?: boolean;
 }
 

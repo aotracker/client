@@ -20,12 +20,14 @@ export function isGuildDataIngesting(input: {
   lastSyncedAt: Date | null;
   historyLastSyncedAt: Date | null;
   battlesLastSyncedAt?: Date | null;
+  memberCount?: number | null;
   syncJobState: string | null;
 }): boolean {
   if (!input.lastSyncedAt || isJobInProgress(input.syncJobState)) {
     return true;
   }
 
+  if (input.memberCount === null) return true;
   if (!input.historyLastSyncedAt) return true;
   if (input.battlesLastSyncedAt === undefined) return false;
   return !input.battlesLastSyncedAt;
