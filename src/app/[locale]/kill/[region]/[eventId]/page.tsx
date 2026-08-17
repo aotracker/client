@@ -389,6 +389,9 @@ function getAssistants(
   }
 
   return assistants.sort((a, b) => {
+    const aParty = a.role === "group_member" ? 0 : 1;
+    const bParty = b.role === "group_member" ? 0 : 1;
+    if (aParty !== bParty) return aParty - bParty;
     const healDiff = (b.healingDone ?? 0) - (a.healingDone ?? 0);
     if (healDiff !== 0) return healDiff;
     return a.name.localeCompare(b.name);

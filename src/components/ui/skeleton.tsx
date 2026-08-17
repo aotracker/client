@@ -117,3 +117,53 @@ export function EntityHeaderSkeleton() {
     </div>
   );
 }
+
+export function BuildMetaCardSkeleton({
+  accentClassName,
+}: {
+  accentClassName?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-lg border border-border/70 bg-card/80 p-4"
+      )}
+    >
+      {accentClassName ? (
+        <div
+          className={cn("absolute inset-y-0 left-0 w-1", accentClassName)}
+          aria-hidden
+        />
+      ) : null}
+
+      <div className="flex flex-col gap-3 pl-2">
+        <div className="flex items-start gap-3">
+          <Skeleton className="size-8 shrink-0 rounded-md" />
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Skeleton className="h-4 w-36 max-w-full" />
+              <Skeleton className="h-5 w-12 rounded-full" />
+              <Skeleton className="h-5 w-14 rounded-full" />
+            </div>
+            <Skeleton className="h-3 w-24" />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="size-16 rounded-md" />
+          ))}
+        </div>
+
+        <div className="grid grid-cols-5 divide-x divide-border/60 rounded-md border border-border/50 bg-muted/20">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="px-1 py-2 sm:px-2">
+              <Skeleton className="mx-auto h-2.5 w-8" />
+              <Skeleton className="mx-auto mt-1.5 h-4 w-10" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -248,53 +248,59 @@ function AssistsSection({
 }) {
   if (assistants.length === 0) return null;
   return (
-    <div className="rounded-lg border border-border/40 bg-muted/5 px-4 py-3">
-      <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+    <section className="rounded-lg border border-border/40 bg-muted/5 px-4 py-3">
+      <h2 className="mb-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
         {title}
-      </p>
-      <ul className="grid gap-2 sm:grid-cols-2">
+      </h2>
+      <ul className="grid gap-x-4 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
         {assistants.map((assistant) => (
-          <li key={assistant.key} className="text-sm text-muted-foreground">
-            {assistant.profileHref ? (
-              <Link
-                href={assistant.profileHref}
-                className="text-muted-foreground hover:text-foreground hover:underline"
-              >
-                {assistant.name}
-              </Link>
-            ) : (
-              <span>{assistant.name}</span>
-            )}
-            {assistant.guildName && (
-              <span className="ml-1 text-xs text-muted-foreground/70">
-                ·{" "}
-                {assistant.guildHref ? (
-                  <Link
-                    href={assistant.guildHref}
-                    className="hover:text-foreground hover:underline"
-                  >
-                    {assistant.guildName}
-                  </Link>
-                ) : (
-                  assistant.guildName
+          <li
+            key={assistant.key}
+            className="flex min-w-0 items-baseline text-sm"
+          >
+            <span className="min-w-0 truncate">
+              {assistant.profileHref ? (
+                <Link
+                  href={assistant.profileHref}
+                  className="font-medium hover:text-primary hover:underline"
+                >
+                  {assistant.name}
+                </Link>
+              ) : (
+                <span className="font-medium">{assistant.name}</span>
+              )}
+              <span className="text-xs text-muted-foreground">
+                {assistant.guildName && (
+                  <>
+                    {" "}
+                    {assistant.guildHref ? (
+                      <Link
+                        href={assistant.guildHref}
+                        className="hover:text-foreground hover:underline"
+                      >
+                        {assistant.guildName}
+                      </Link>
+                    ) : (
+                      assistant.guildName
+                    )}
+                  </>
                 )}
+                {" · "}
+                {assistant.role === "group_member"
+                  ? groupMemberLabel
+                  : participantLabel}
               </span>
-            )}
-            <span className="ml-1 text-xs text-muted-foreground/70">
-              ·{" "}
-              {assistant.role === "group_member"
-                ? groupMemberLabel
-                : participantLabel}
             </span>
             {assistant.healingDone != null && assistant.healingDone > 0 && (
-              <span className="ml-1 text-xs text-stat-fame">
-                · {healingLabel} {assistant.healingDone.toLocaleString()}
+              <span className="shrink-0 text-xs tabular-nums text-foreground/70">
+                <span className="text-muted-foreground/50"> · </span>
+                {healingLabel} {assistant.healingDone.toLocaleString()}
               </span>
             )}
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
 
@@ -467,7 +473,7 @@ function PlayerSummary({
         </p>
       )}
       {healingDone != null && healingDone > 0 && healingLabel && (
-        <p className="mt-1 text-xs text-stat-fame">
+        <p className="mt-1 text-xs text-muted-foreground">
           {healingLabel} {healingDone.toLocaleString()}
         </p>
       )}
