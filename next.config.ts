@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
         hostname: "render.albiononline.com",
         pathname: "/v1/item/**",
       },
+      {
+        protocol: "https",
+        hostname: "render.albiononline.com",
+        pathname: "/v1/spell/**",
+      },
     ],
   },
   async rewrites() {

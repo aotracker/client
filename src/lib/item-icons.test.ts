@@ -17,4 +17,10 @@ describe("item icon URLs", () => {
       "render.albiononline.com/v1/item/T8_MAIN_SWORD%401.png"
     );
   });
+
+  it("uses the spell render endpoint for siege banners", () => {
+    expect(itemIconRemoteUrl("T7_SIEGE_BANNER")).toContain(
+      "render.albiononline.com/v1/spell/T7_RAID_BANNER_ITEM_SPELL.png"
+    );
+  });
 });

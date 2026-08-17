@@ -1,4 +1,5 @@
-const RENDER_BASE = "https://render.albiononline.com/v1/item";
+const RENDER_ITEM_BASE = "https://render.albiononline.com/v1/item";
+const RENDER_SPELL_BASE = "https://render.albiononline.com/v1/spell";
 const LOCAL_ICON_PREFIX = "/item-icons";
 const CDN_BASE = process.env.NEXT_PUBLIC_ITEM_ICON_CDN?.replace(/\/$/, "");
 
@@ -62,19 +63,34 @@ export function itemIconIdentifier(type: string): string {
   return enchantment > 0 ? `${baseName}@${enchantment}` : baseName;
 }
 
+/**
+ * Siege banners have no 3D item render (`/v1/item/...` 404s). Game data points
+ * them at `T{n}_RAID_BANNER_ITEM_SPELL`, which the spell render endpoint serves.
+ */
+function spellIconIdentifier(type: string): string | null {
+  const match = itemIconIdentifier(type).match(/^(T\d+)_SIEGE_BANNER$/);
+  return match ? `${match[1]}_RAID_BANNER_ITEM_SPELL` : null;
+}
+
 /** Albion render service URL (enchantment in path, quality as query param). */
 export function itemIconRemoteUrl(
   type: string,
   quality: number | null | undefined = 1,
   size = 128
 ): string {
+  const spellId = spellIconIdentifier(type);
+  if (spellId) {
+    const params = new URLSearchParams({ size: String(size) });
+    return `${RENDER_SPELL_BASE}/${encodeURIComponent(spellId)}.png?${params.toString()}`;
+  }
+
   const identifier = itemIconIdentifier(type);
   const q = normalizeItemQuality(quality);
   const params = new URLSearchParams({
     quality: String(q),
     size: String(size),
   });
-  return `${RENDER_BASE}/${encodeURIComponent(identifier)}.png?${params.toString()}`;
+  return `${RENDER_ITEM_BASE}/${encodeURIComponent(identifier)}.png?${params.toString()}`;
 }
 
 export function itemIconLocalPath(
