@@ -29,32 +29,36 @@ export const ItemIcon = memo(function ItemIcon({
   const label = tooltip ?? alt ?? formatItemName(itemType);
   const primary = itemIconUrl(itemType, quality);
   const fallback = itemIconRemoteUrl(itemType, quality);
-  const [src, setSrc] = useState(primary);
-  const optimizeRemote = src.startsWith("https://render.albiononline.com/");
+  const [src, setSrc] = useState<string | null>(primary);
+  const [failed, setFailed] = useState(!primary);
+  const showImage = !failed && Boolean(src);
 
   return (
     <span
       title={label}
-      className={cn(
-        "relative",
-        fill ? "block size-full" : "block"
-      )}
+      className={cn("relative", fill ? "block size-full" : "block")}
       style={!fill && width && height ? { width, height } : undefined}
     >
-      <Image
-        src={src}
-        alt={alt ?? label}
-        title={label}
-        fill={fill}
-        width={fill ? undefined : width}
-        height={fill ? undefined : height}
-        sizes={fill ? "64px" : undefined}
-        className={cn("block", className)}
-        unoptimized={!optimizeRemote}
-        onError={() => {
-          if (src !== fallback) setSrc(fallback);
-        }}
-      />
+      {showImage && src ? (
+        <Image
+          src={src}
+          alt={alt ?? label}
+          title={label}
+          fill={fill}
+          width={fill ? undefined : width}
+          height={fill ? undefined : height}
+          sizes={fill ? "64px" : undefined}
+          className={cn("block", className)}
+          unoptimized
+          onError={() => {
+            if (fallback && src !== fallback) {
+              setSrc(fallback);
+              return;
+            }
+            setFailed(true);
+          }}
+        />
+      ) : null}
     </span>
   );
 });

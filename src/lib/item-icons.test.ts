@@ -23,4 +23,8 @@ describe("item icon URLs", () => {
       "render.albiononline.com/v1/spell/T7_RAID_BANNER_ITEM_SPELL.png"
     );
   });
+
+  it("skips the item renderer for smuggler coins (Albion 404s)", () => {
+    expect(itemIconRemoteUrl("QUESTITEM_TOKEN_SMUGGLER")).toBeNull();
+  });
 });

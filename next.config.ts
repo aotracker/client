@@ -8,6 +8,9 @@ const withAnalyzer = withBundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  // Vercel already gzip/brotli at the edge. Next's gzip of streamed RSC
+  // attaches many drain listeners to one Gzip stream (MaxListenersExceededWarning).
+  compress: false,
   // Inline DISABLED_REGIONS into client bundles so ENABLED_REGIONS matches SSR.
   env: {
     DISABLED_REGIONS: process.env.DISABLED_REGIONS ?? "",

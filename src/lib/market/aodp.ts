@@ -99,7 +99,6 @@ async function fetchPriceBatch(
       signal: controller.signal,
       headers: {
         Accept: "application/json",
-        "Accept-Encoding": "gzip",
       },
       cache: "no-store",
     });

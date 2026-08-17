@@ -64,33 +64,43 @@ export function itemIconIdentifier(type: string): string {
 }
 
 /**
- * Siege banners have no 3D item render (`/v1/item/...` 404s). Game data points
- * them at `T{n}_RAID_BANNER_ITEM_SPELL`, which the spell render endpoint serves.
+ * Albion `/v1/item/{id}` 404s for some 2D-only items. Use a spell sprite when
+ * game data has one; otherwise skip the remote URL so Next.js does not proxy a 404.
  */
-function spellIconIdentifier(type: string): string | null {
-  const match = itemIconIdentifier(type).match(/^(T\d+)_SIEGE_BANNER$/);
-  return match ? `${match[1]}_RAID_BANNER_ITEM_SPELL` : null;
+function remoteIconTarget(
+  type: string
+): { kind: "item" | "spell"; id: string } | null {
+  const identifier = itemIconIdentifier(type);
+  const siege = identifier.match(/^(T\d+)_SIEGE_BANNER$/);
+  if (siege) {
+    return { kind: "spell", id: `${siege[1]}_RAID_BANNER_ITEM_SPELL` };
+  }
+  if (identifier === "QUESTITEM_TOKEN_SMUGGLER") {
+    return null;
+  }
+  return { kind: "item", id: identifier };
 }
 
-/** Albion render service URL (enchantment in path, quality as query param). */
+/** Albion render service URL, or null when no public render exists. */
 export function itemIconRemoteUrl(
   type: string,
   quality: number | null | undefined = 1,
   size = 128
-): string {
-  const spellId = spellIconIdentifier(type);
-  if (spellId) {
+): string | null {
+  const target = remoteIconTarget(type);
+  if (!target) return null;
+
+  if (target.kind === "spell") {
     const params = new URLSearchParams({ size: String(size) });
-    return `${RENDER_SPELL_BASE}/${encodeURIComponent(spellId)}.png?${params.toString()}`;
+    return `${RENDER_SPELL_BASE}/${encodeURIComponent(target.id)}.png?${params.toString()}`;
   }
 
-  const identifier = itemIconIdentifier(type);
   const q = normalizeItemQuality(quality);
   const params = new URLSearchParams({
     quality: String(q),
     size: String(size),
   });
-  return `${RENDER_ITEM_BASE}/${encodeURIComponent(identifier)}.png?${params.toString()}`;
+  return `${RENDER_ITEM_BASE}/${encodeURIComponent(target.id)}.png?${params.toString()}`;
 }
 
 export function itemIconLocalPath(
@@ -121,5 +131,5 @@ export function itemIconUrl(
   if (process.env.NODE_ENV === "development") {
     return itemIconLocalPath(type, quality);
   }
-  return itemIconRemoteUrl(type, quality);
+  return itemIconRemoteUrl(type, quality) ?? itemIconLocalPath(type, quality);
 }
