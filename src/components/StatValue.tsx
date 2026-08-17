@@ -33,10 +33,7 @@ export function ItemPowerValue({
   className?: string;
   withSuffix?: boolean;
 }) {
-  const formatted =
-    typeof value === "string"
-      ? value.trim() || null
-      : formatItemPower(value);
+  const formatted = formatItemPower(value);
   if (!formatted) return null;
 
   return (

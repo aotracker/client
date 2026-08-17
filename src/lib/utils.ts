@@ -19,6 +19,7 @@ export function formatSilver(value: number | null | undefined): string {
   return formatFame(value);
 }
 
+/** Display item power as a whole number (no decimals). */
 export function formatItemPower(
   value: number | string | null | undefined
 ): string | null {
