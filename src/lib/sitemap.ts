@@ -13,6 +13,10 @@ import {
 } from "@/lib/db/queries";
 import { absoluteUrl, entityPath, type EntityType } from "@/lib/seo";
 import { LOCALE_DEFINITIONS, withLocalePrefix } from "@/i18n/locales";
+import {
+  LEADERBOARD_TABS,
+  leaderboardCanonicalPath,
+} from "@/lib/leaderboards/params";
 
 export const URLS_PER_SITEMAP = 10_000;
 
@@ -83,7 +87,11 @@ export function staticSitemapEntries(): MetadataRoute.Sitemap {
     { path: "/", changeFrequency: "hourly", priority: 1 },
     { path: "/kills", changeFrequency: "hourly", priority: 0.95 },
     { path: "/battles", changeFrequency: "hourly", priority: 0.9 },
-    { path: "/leaderboards", changeFrequency: "hourly", priority: 0.9 },
+    ...LEADERBOARD_TABS.map((tab) => ({
+      path: leaderboardCanonicalPath(tab),
+      changeFrequency: "hourly" as const,
+      priority: 0.9,
+    })),
     { path: "/builds", changeFrequency: "daily", priority: 0.8 },
     { path: "/watchlist", changeFrequency: "daily", priority: 0.6 },
     { path: "/discord", changeFrequency: "daily", priority: 0.5 },

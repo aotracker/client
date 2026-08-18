@@ -353,8 +353,8 @@ export function buildFeedPageMetadata(options: {
 }
 
 export function openGraphImagePath(canonicalPath: string): string {
-  const normalized =
-    canonicalPath.endsWith("/") ? canonicalPath.slice(0, -1) : canonicalPath;
+  const pathname = canonicalPath.split("?")[0] ?? canonicalPath;
+  const normalized = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
   return `${normalized}/opengraph-image`;
 }
 

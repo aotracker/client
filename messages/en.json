@@ -574,31 +574,39 @@
   "Leaderboards": {
     "pageTitle": "PvP Leaderboards",
     "pageDescription": "Top performers from cached Albion kill data. Pick a leaderboard, then narrow by region, period, and content type.",
-    "metaTitle": "Albion Online PvP Leaderboards",
-    "metaDescription": "Top killers, guilds, and highest fame kills from tracked Albion Online PvP data. Filter by region, content type, and time period.",
     "summaryLine": "{tabDescription} · {region} · Last {days} days · {content}",
     "summaryLineHour": "{tabDescription} · {region} · Last {days} days · {content} · {hour} UTC",
     "tabs": {
       "killers": {
         "label": "Top Killers",
-        "description": "Players ranked by number of kills"
+        "description": "Players ranked by number of kills",
+        "metaTitle": "Albion Online Top Killers Leaderboard",
+        "metaDescription": "Players ranked by kill count from tracked Albion Online PvP data. Filter by region, content type, and time period."
       },
       "guilds": {
         "label": "Top Guilds",
         "description": "Guilds ranked by total kill fame",
-        "descriptionHour": "Guilds ranked by unique members in PvP events at this UTC hour"
+        "descriptionHour": "Guilds ranked by unique members in PvP events at this UTC hour",
+        "metaTitle": "Albion Online Top Guilds Leaderboard",
+        "metaDescription": "Guilds ranked by kill fame from tracked Albion Online PvP data. Filter by region, content type, and time period."
       },
       "alliances": {
         "label": "Top Alliances",
-        "description": "Alliances ranked by total kill fame"
+        "description": "Alliances ranked by total kill fame",
+        "metaTitle": "Albion Online Top Alliances Leaderboard",
+        "metaDescription": "Alliances ranked by kill fame from tracked Albion Online PvP data. Filter by region, content type, and time period."
       },
       "kills": {
         "label": "Top Kills",
-        "description": "Highest fame individual kills"
+        "description": "Highest fame individual kills",
+        "metaTitle": "Albion Online Highest Fame Kills",
+        "metaDescription": "Highest fame individual kills from tracked Albion Online PvP data. Filter by region, content type, and time period."
       },
       "fame": {
         "label": "Top Fame",
-        "description": "Players ranked by kill fame earned"
+        "description": "Players ranked by kill fame earned",
+        "metaTitle": "Albion Online Top Fame Leaderboard",
+        "metaDescription": "Players ranked by kill fame from tracked Albion Online PvP data. Filter by region, content type, and time period."
       }
     },
     "columns": {

@@ -43,6 +43,12 @@ export function parseLeaderboardTab(value: string | undefined): LeaderboardTab {
   return "killers";
 }
 
+/** Indexable URL for a tab. Other filters (region, days, type, hour) stay off the canonical. */
+export function leaderboardCanonicalPath(tab: LeaderboardTab): string {
+  if (tab === "killers") return "/leaderboards";
+  return `/leaderboards?tab=${tab}`;
+}
+
 export function parseLeaderboardDays(value: string | undefined): number {
   const parsed = Number(value);
   if (parsed === 14 || parsed === 30) return parsed;

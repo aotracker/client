@@ -8,6 +8,7 @@ import {
   LeaderboardResultsFallback,
 } from "@/components/leaderboards/LeaderboardResults";
 import {
+  leaderboardCanonicalPath,
   parseLeaderboardContentType,
   parseLeaderboardDays,
   parseLeaderboardHour,
@@ -39,13 +40,15 @@ export async function generateMetadata({
 }: LeaderboardsPageProps): Promise<Metadata> {
   const { locale } = await params;
   const search = await searchParams;
+  const tab = parseLeaderboardTab(search.tab);
   const region = await resolveServerFeedRegion(search.region);
   const t = await getTranslations({ locale, namespace: "Leaderboards" });
+  const keys = tabMetaKey(tab);
 
   return buildFeedPageMetadata({
-    title: t("metaTitle"),
-    description: t("metaDescription"),
-    canonicalPath: "/leaderboards",
+    title: t(keys.metaTitle as "tabs.killers.metaTitle"),
+    description: t(keys.metaDescription as "tabs.killers.metaDescription"),
+    canonicalPath: leaderboardCanonicalPath(tab),
     region,
     locale,
   });
@@ -54,10 +57,14 @@ export async function generateMetadata({
 function tabMetaKey(tab: LeaderboardTab): {
   label: string;
   description: string;
+  metaTitle: string;
+  metaDescription: string;
 } {
   return {
     label: `tabs.${tab}.label`,
     description: `tabs.${tab}.description`,
+    metaTitle: `tabs.${tab}.metaTitle`,
+    metaDescription: `tabs.${tab}.metaDescription`,
   };
 }
 

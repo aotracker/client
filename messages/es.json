@@ -574,31 +574,39 @@
   "Leaderboards": {
     "pageTitle": "Clasificaciones JcJ",
     "pageDescription": "Mejores resultados a partir de datos de bajas de Albion en caché. Elige una clasificación y filtra por región, periodo y tipo de contenido.",
-    "metaTitle": "Clasificaciones JcJ de Albion Online",
-    "metaDescription": "Mejores asesinos, gremios y bajas con más fama a partir de datos JcJ rastreados de Albion Online. Filtra por región, tipo de contenido y periodo.",
     "summaryLine": "{tabDescription} · {region} · Últimos {days} días · {content}",
     "summaryLineHour": "{tabDescription} · {region} · Últimos {days} días · {content} · {hour} UTC",
     "tabs": {
       "killers": {
         "label": "Mejores asesinos",
-        "description": "Jugadores clasificados por número de bajas"
+        "description": "Jugadores clasificados por número de bajas",
+        "metaTitle": "Clasificación de mejores asesinos de Albion Online",
+        "metaDescription": "Jugadores clasificados por número de bajas a partir de datos JcJ rastreados de Albion Online. Filtra por región, tipo de contenido y periodo."
       },
       "guilds": {
         "label": "Mejores gremios",
         "description": "Gremios clasificados por fama de kills total",
-        "descriptionHour": "Gremios clasificados por miembros únicos en eventos JcJ a esta hora UTC"
+        "descriptionHour": "Gremios clasificados por miembros únicos en eventos JcJ a esta hora UTC",
+        "metaTitle": "Clasificación de mejores gremios de Albion Online",
+        "metaDescription": "Gremios clasificados por fama de kills a partir de datos JcJ rastreados de Albion Online. Filtra por región, tipo de contenido y periodo."
       },
       "alliances": {
         "label": "Mejores alianzas",
-        "description": "Alianzas clasificadas por fama de kills total"
+        "description": "Alianzas clasificadas por fama de kills total",
+        "metaTitle": "Clasificación de mejores alianzas de Albion Online",
+        "metaDescription": "Alianzas clasificadas por fama de kills a partir de datos JcJ rastreados de Albion Online. Filtra por región, tipo de contenido y periodo."
       },
       "kills": {
         "label": "Mejores bajas",
-        "description": "Bajas individuales con más fama"
+        "description": "Bajas individuales con más fama",
+        "metaTitle": "Bajas con más fama de Albion Online",
+        "metaDescription": "Bajas individuales con más fama a partir de datos JcJ rastreados de Albion Online. Filtra por región, tipo de contenido y periodo."
       },
       "fame": {
         "label": "Más fama",
-        "description": "Jugadores clasificados por fama de kills obtenida"
+        "description": "Jugadores clasificados por fama de kills obtenida",
+        "metaTitle": "Clasificación de fama de Albion Online",
+        "metaDescription": "Jugadores clasificados por fama de kills a partir de datos JcJ rastreados de Albion Online. Filtra por región, tipo de contenido y periodo."
       }
     },
     "columns": {
