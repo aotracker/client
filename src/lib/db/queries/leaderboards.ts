@@ -5,7 +5,7 @@ import {
   LEADERBOARD_CACHE_REVALIDATE_SECONDS,
   cachedQuery,
 } from "@/lib/cache";
-import { ALL_REGIONS, ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
+import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { primeTimeHours } from "@/lib/albion/prime-times";
 import { db, schema } from "@/lib/db";
 import {
@@ -379,36 +379,6 @@ async function loadTopGuildsByHour(
   }, []);
 }
 
-/**
- * Prefer time-leading covering indexes (`kill_events_lb_guild_idx`) over
- * `kill_events_region_occurred_fame_idx`. Skip a redundant region IN when
- * every Albion region is enabled; do not filter killer_id (not in INCLUDE).
- */
-function coveringLeaderboardConditions(
-  filters: {
-    region: AlbionRegion | "all";
-    contentType: ContentTypeFilter;
-  },
-  cutoff: Date
-) {
-  const { region, contentType } = filters;
-  const conditions = [
-    killFamePositiveCondition(),
-    gte(schema.killEvents.occurredAt, cutoff),
-  ];
-  if (region !== "all") {
-    conditions.push(eq(schema.killEvents.region, region));
-  } else if (ENABLED_REGIONS.length === 0) {
-    conditions.push(sql`false`);
-  } else if (ENABLED_REGIONS.length < ALL_REGIONS.length) {
-    conditions.push(inArray(schema.killEvents.region, ENABLED_REGIONS));
-  }
-  if (contentType !== "all") {
-    conditions.push(eq(schema.killEvents.contentType, contentType));
-  }
-  return conditions;
-}
-
 async function loadTopGuildsByKillFame(
   region: AlbionRegion | "all",
   limit: number,
@@ -422,7 +392,7 @@ async function loadTopGuildsByKillFame(
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = [
-    ...coveringLeaderboardConditions({ region, contentType }, cutoff),
+    ...leaderboardConditions({ region, contentType }, cutoff),
     isNotNull(schema.killEvents.killerGuildAlbionId),
   ];
 
@@ -480,7 +450,7 @@ async function loadTopAlliancesByKillFame(
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = [
-    ...coveringLeaderboardConditions({ region, contentType }, cutoff),
+    ...leaderboardConditions({ region, contentType }, cutoff),
     isNotNull(schema.killEvents.killerAllianceAlbionId),
   ];
 

@@ -15,9 +15,9 @@ import { uiLookbackCutoff } from "@/lib/db/retention";
 import {
   type ContentTypeFilter,
   type RegionFilters,
+  coveringRegionCondition,
   killFamePositiveCondition,
   leaderboardConditions,
-  regionCondition,
 } from "./shared";
 
 export interface KillFeedWatchResolved {
@@ -47,74 +47,110 @@ export interface JuicyKillsFilters extends RegionFilters {
   contentType?: ContentTypeFilter;
 }
 
-type KillEventWithRelations = Awaited<
-  ReturnType<
-    typeof db.query.killEvents.findMany<{
-      with: {
-        killer: { with: { guild: true } };
-        victim: { with: { guild: true } };
-      };
-    }>
-  >
->[number];
+type KillCardGuild = {
+  albionId: string;
+  name: string;
+  allianceTag?: string | null;
+} | null;
 
-export function mapKillEventToCard(event: KillEventWithRelations) {
-  if (!event.rawPayload || event.detailEvictedAt) {
+type KillCardItemSource = {
+  ownerRole: string;
+  slot: string | null;
+  itemType: string;
+  quality: number | null;
+  category: string;
+};
+
+type KillEventCardSource = {
+  eventId: number;
+  region: AlbionRegion;
+  occurredAt: Date;
+  contentType: string;
+  totalVictimKillFame: number | null;
+  detailEvictedAt?: Date | null;
+  killerGuildAlbionId?: string | null;
+  killerGuildName?: string | null;
+  rawPayload?: unknown | null;
+  killer?: {
+    albionId: string;
+    name: string;
+    guild?: KillCardGuild;
+  } | null;
+  victim?: {
+    albionId: string;
+    name: string;
+    guild?: KillCardGuild;
+  } | null;
+  items?: KillCardItemSource[];
+  participants?: {
+    role: string;
+    averageItemPower: string | null;
+  }[];
+};
+
+function withItemDisplayNames(items: KillCardItemSource[]) {
+  return items.map((item) => ({
+    ...item,
+    displayNames: Object.fromEntries(
+      LOCALE_CODES.map((locale) => [
+        locale,
+        getCatalogItemName(item.itemType, locale) ??
+          formatItemName(item.itemType),
+      ])
+    ),
+  }));
+}
+
+function currentGuildRef(guild: KillCardGuild) {
+  return guild
+    ? { name: guild.name, albionId: guild.albionId }
+    : null;
+}
+
+export function mapKillEventToCard(event: KillEventCardSource) {
+  if (event.rawPayload && !event.detailEvictedAt) {
+    const payload = event.rawPayload as AlbionEvent;
+    const extras = albionEventToKillCard(event.region, payload);
+    const killerGuild =
+      extras.killer?.guild ?? currentGuildRef(event.killer?.guild ?? null);
+    const victimGuild =
+      extras.victim?.guild ?? currentGuildRef(event.victim?.guild ?? null);
+
     return {
       eventId: event.eventId,
       region: event.region,
       occurredAt: event.occurredAt,
       contentType: event.contentType,
       totalVictimKillFame: event.totalVictimKillFame,
-      killer: event.killer
-        ? {
-            albionId: event.killer.albionId,
-            name: event.killer.name,
-            guild: event.killer.guild
-              ? {
-                  name: event.killer.guild.name,
-                  albionId: event.killer.guild.albionId,
-                }
-              : null,
-            allianceTag: null,
-          }
-        : null,
-      victim: event.victim
-        ? {
-            albionId: event.victim.albionId,
-            name: event.victim.name,
-            guild: event.victim.guild
-              ? {
-                  name: event.victim.guild.name,
-                  albionId: event.victim.guild.albionId,
-                }
-              : null,
-            allianceTag: null,
-          }
-        : null,
-      items: undefined,
-      participants: undefined,
+      killer:
+        event.killer || extras.killer
+          ? {
+              albionId: event.killer?.albionId ?? extras.killer!.albionId,
+              name: event.killer?.name ?? extras.killer?.name ?? "Unknown",
+              guild: killerGuild,
+              allianceTag: extras.killer?.allianceTag ?? null,
+            }
+          : null,
+      victim:
+        event.victim || extras.victim
+          ? {
+              albionId: event.victim?.albionId ?? extras.victim!.albionId,
+              name: event.victim?.name ?? extras.victim?.name ?? "Unknown",
+              guild: victimGuild,
+              allianceTag: extras.victim?.allianceTag ?? null,
+            }
+          : null,
+      items: extras.items ? withItemDisplayNames(extras.items) : undefined,
+      participants: extras.participants,
     };
   }
 
-  const payload = event.rawPayload as AlbionEvent;
-  const extras = albionEventToKillCard(event.region, payload);
-  const killerGuild =
-    extras.killer?.guild ??
-    (event.killer?.guild
-      ? {
-          name: event.killer.guild.name,
-          albionId: event.killer.guild.albionId,
-        }
-      : null);
-  const victimGuild =
-    extras.victim?.guild ??
-    (event.victim?.guild
-      ? {
-          name: event.victim.guild.name,
-          albionId: event.victim.guild.albionId,
-        }
-      : null);
+  const killerGuild = event.killerGuildName
+    ? {
+        name: event.killerGuildName,
+        albionId: event.killerGuildAlbionId ?? undefined,
+      }
+    : currentGuildRef(event.killer?.guild ?? null);
 
   return {
     eventId: event.eventId,
@@ -122,36 +158,88 @@ export function mapKillEventToCard(event: KillEventWithRelations) {
     occurredAt: event.occurredAt,
     contentType: event.contentType,
     totalVictimKillFame: event.totalVictimKillFame,
-    killer:
-      event.killer || extras.killer
-        ? {
-            albionId: event.killer?.albionId ?? extras.killer!.albionId,
-            name: event.killer?.name ?? extras.killer?.name ?? "Unknown",
-            guild: killerGuild,
-            allianceTag: extras.killer?.allianceTag ?? null,
-          }
-        : null,
-    victim:
-      event.victim || extras.victim
-        ? {
-            albionId: event.victim?.albionId ?? extras.victim!.albionId,
-            name: event.victim?.name ?? extras.victim?.name ?? "Unknown",
-            guild: victimGuild,
-            allianceTag: extras.victim?.allianceTag ?? null,
-          }
-        : null,
-    items: extras.items?.map((item) => ({
-      ...item,
-      displayNames: Object.fromEntries(
-        LOCALE_CODES.map((locale) => [
-          locale,
-          getCatalogItemName(item.itemType, locale) ??
-            formatItemName(item.itemType),
-        ])
-      ),
-    })),
-    participants: extras.participants,
+    killer: event.killer
+      ? {
+          albionId: event.killer.albionId,
+          name: event.killer.name,
+          guild: killerGuild,
+          allianceTag: event.killer.guild?.allianceTag ?? null,
+        }
+      : null,
+    victim: event.victim
+      ? {
+          albionId: event.victim.albionId,
+          name: event.victim.name,
+          guild: currentGuildRef(event.victim.guild ?? null),
+          allianceTag: event.victim.guild?.allianceTag ?? null,
+        }
+      : null,
+    items: event.items ? withItemDisplayNames(event.items) : undefined,
+    participants: event.participants,
   };
+}
+
+const KILL_CARD_SIDES = ["killer", "victim"] as const;
+
+/** Load list-card fields for already-ranked kill IDs. Never selects JSONB. */
+export async function hydrateKillCardsByIds(ids: string[]) {
+  if (ids.length === 0) return [];
+
+  const events = await db.query.killEvents.findMany({
+    where: inArray(schema.killEvents.id, ids),
+    columns: {
+      id: true,
+      eventId: true,
+      region: true,
+      occurredAt: true,
+      contentType: true,
+      totalVictimKillFame: true,
+      detailEvictedAt: true,
+      killerGuildAlbionId: true,
+      killerGuildName: true,
+    },
+    with: {
+      killer: {
+        columns: { albionId: true, name: true },
+        with: {
+          guild: {
+            columns: { albionId: true, name: true, allianceTag: true },
+          },
+        },
+      },
+      victim: {
+        columns: { albionId: true, name: true },
+        with: {
+          guild: {
+            columns: { albionId: true, name: true, allianceTag: true },
+          },
+        },
+      },
+      items: {
+        columns: {
+          ownerRole: true,
+          slot: true,
+          itemType: true,
+          quality: true,
+          category: true,
+        },
+        where: inArray(schema.killItems.ownerRole, KILL_CARD_SIDES),
+      },
+      participants: {
+        columns: {
+          role: true,
+          averageItemPower: true,
+        },
+        where: inArray(schema.killParticipants.role, KILL_CARD_SIDES),
+      },
+    },
+  });
+
+  const byId = new Map(events.map((event) => [event.id, event]));
+  return ids
+    .map((id) => byId.get(id))
+    .filter((event): event is NonNullable<typeof event> => event != null)
+    .map(mapKillEventToCard);
 }
 
 function watchlistCondition(watch: KillFeedWatchResolved) {
@@ -217,7 +305,7 @@ async function loadKillFeed(filters: {
 
   const conditions = [killFamePositiveCondition()];
   conditions.push(gte(schema.killEvents.occurredAt, uiLookbackCutoff()));
-  const regionFilter = regionCondition(region);
+  const regionFilter = coveringRegionCondition(region);
   if (regionFilter) conditions.push(regionFilter);
   if (contentType !== "all") {
     conditions.push(eq(schema.killEvents.contentType, contentType));
@@ -249,18 +337,18 @@ async function loadKillFeed(filters: {
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const events = await db.query.killEvents.findMany({
-    where,
-    orderBy: [desc(schema.killEvents.occurredAt)],
-    limit,
-    offset: after ? 0 : offset,
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
+  const idRows = await db
+    .select({ id: schema.killEvents.id })
+    .from(schema.killEvents)
+    .where(where)
+    .orderBy(
+      desc(schema.killEvents.occurredAt),
+      desc(schema.killEvents.eventId)
+    )
+    .limit(limit)
+    .offset(after ? 0 : offset);
 
-  return events.map(mapKillEventToCard);
+  return hydrateKillCardsByIds(idRows.map((row) => row.id));
 }
 
 const cachedKillFeed = cachedQuery(
@@ -324,17 +412,14 @@ async function loadRecentJuicyKills(
     cutoff
   );
 
-  const events = await db.query.killEvents.findMany({
-    where: and(...conditions),
-    orderBy: [desc(schema.killEvents.totalVictimKillFame)],
-    limit,
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
+  const idRows = await db
+    .select({ id: schema.killEvents.id })
+    .from(schema.killEvents)
+    .where(and(...conditions))
+    .orderBy(desc(schema.killEvents.totalVictimKillFame))
+    .limit(limit);
 
-  return events.map(mapKillEventToCard);
+  return hydrateKillCardsByIds(idRows.map((row) => row.id));
 }
 
 const cachedRecentJuicyKills = cachedQuery(

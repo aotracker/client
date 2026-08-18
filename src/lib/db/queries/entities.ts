@@ -13,7 +13,7 @@ import type {
 import { wrapGuildBattleListCache, isGuildBattleCacheComplete } from "@/lib/albion/battles";
 import { itemFamilyKey } from "@/lib/item-icons";
 import { db, schema } from "@/lib/db";
-import { mapKillEventToCard } from "./kills";
+import { hydrateKillCardsByIds } from "./kills";
 import {
   type PlayerBuildItem,
   type PlayerContentMixEntry,
@@ -342,40 +342,38 @@ export async function getPlayerKillHistoryFromDb(
   playerUuid: string,
   limit = 10
 ) {
-  const events = await db.query.killEvents.findMany({
-    where: and(
-      eq(schema.killEvents.killerId, playerUuid),
-      killFamePositiveCondition()
-    ),
-    orderBy: [desc(schema.killEvents.occurredAt)],
-    limit,
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
+  const idRows = await db
+    .select({ id: schema.killEvents.id })
+    .from(schema.killEvents)
+    .where(
+      and(
+        eq(schema.killEvents.killerId, playerUuid),
+        killFamePositiveCondition()
+      )
+    )
+    .orderBy(desc(schema.killEvents.occurredAt))
+    .limit(limit);
 
-  return events.map(mapKillEventToCard);
+  return hydrateKillCardsByIds(idRows.map((row) => row.id));
 }
 
 export async function getPlayerDeathHistoryFromDb(
   playerUuid: string,
   limit = 10
 ) {
-  const events = await db.query.killEvents.findMany({
-    where: and(
-      eq(schema.killEvents.victimId, playerUuid),
-      killFamePositiveCondition()
-    ),
-    orderBy: [desc(schema.killEvents.occurredAt)],
-    limit,
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
+  const idRows = await db
+    .select({ id: schema.killEvents.id })
+    .from(schema.killEvents)
+    .where(
+      and(
+        eq(schema.killEvents.victimId, playerUuid),
+        killFamePositiveCondition()
+      )
+    )
+    .orderBy(desc(schema.killEvents.occurredAt))
+    .limit(limit);
 
-  return events.map(mapKillEventToCard);
+  return hydrateKillCardsByIds(idRows.map((row) => row.id));
 }
 
 export async function getPlayerHistoryFromDb(
@@ -566,21 +564,20 @@ export async function getGuildTopKillsFromDb(
   const playerIds = guildPlayers.map((p) => p.id);
   if (playerIds.length === 0) return [];
 
-  const events = await db.query.killEvents.findMany({
-    where: and(
-      eq(schema.killEvents.region, region),
-      inArray(schema.killEvents.killerId, playerIds),
-      killFamePositiveCondition()
-    ),
-    orderBy: [desc(schema.killEvents.totalVictimKillFame)],
-    limit,
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
+  const idRows = await db
+    .select({ id: schema.killEvents.id })
+    .from(schema.killEvents)
+    .where(
+      and(
+        eq(schema.killEvents.region, region),
+        inArray(schema.killEvents.killerId, playerIds),
+        killFamePositiveCondition()
+      )
+    )
+    .orderBy(desc(schema.killEvents.totalVictimKillFame))
+    .limit(limit);
 
-  return events.map(mapKillEventToCard);
+  return hydrateKillCardsByIds(idRows.map((row) => row.id));
 }
 
 export async function getAllianceTopKillsFromDb(
@@ -607,21 +604,20 @@ export async function getAllianceTopKillsFromDb(
   const playerIds = guildPlayers.map((p) => p.id);
   if (playerIds.length === 0) return [];
 
-  const events = await db.query.killEvents.findMany({
-    where: and(
-      eq(schema.killEvents.region, region),
-      inArray(schema.killEvents.killerId, playerIds),
-      killFamePositiveCondition()
-    ),
-    orderBy: [desc(schema.killEvents.totalVictimKillFame)],
-    limit,
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
+  const idRows = await db
+    .select({ id: schema.killEvents.id })
+    .from(schema.killEvents)
+    .where(
+      and(
+        eq(schema.killEvents.region, region),
+        inArray(schema.killEvents.killerId, playerIds),
+        killFamePositiveCondition()
+      )
+    )
+    .orderBy(desc(schema.killEvents.totalVictimKillFame))
+    .limit(limit);
 
-  return events.map(mapKillEventToCard);
+  return hydrateKillCardsByIds(idRows.map((row) => row.id));
 }
 
 /** Sum kill/death fame from current member guilds (membership-now). */
@@ -708,19 +704,7 @@ export async function getGuildFeudKillsFromDb(
   const ids = rows.map((row) => row.id);
   if (ids.length === 0) return [];
 
-  const events = await db.query.killEvents.findMany({
-    where: inArray(schema.killEvents.id, ids),
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
-
-  const byId = new Map(events.map((event) => [event.id, event]));
-  return ids
-    .map((id) => byId.get(id))
-    .filter((event): event is NonNullable<typeof event> => event != null)
-    .map(mapKillEventToCard);
+  return hydrateKillCardsByIds(ids);
 }
 
 export async function getAllianceProfileFromDb(
@@ -795,19 +779,7 @@ export async function getAllianceFeudKillsFromDb(
   const ids = rows.map((row) => row.id);
   if (ids.length === 0) return [];
 
-  const events = await db.query.killEvents.findMany({
-    where: inArray(schema.killEvents.id, ids),
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
-
-  const byId = new Map(events.map((event) => [event.id, event]));
-  return ids
-    .map((id) => byId.get(id))
-    .filter((event): event is NonNullable<typeof event> => event != null)
-    .map(mapKillEventToCard);
+  return hydrateKillCardsByIds(ids);
 }
 
 export async function getAllianceFeudStats(
@@ -1179,17 +1151,5 @@ export async function getWatchlistActivity(
 
   if (sortedIds.length === 0) return [];
 
-  const events = await db.query.killEvents.findMany({
-    where: inArray(schema.killEvents.id, sortedIds),
-    with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-    },
-  });
-
-  const byId = new Map(events.map((event) => [event.id, event]));
-  return sortedIds
-    .map((id) => byId.get(id))
-    .filter((event): event is NonNullable<typeof event> => event != null)
-    .map(mapKillEventToCard);
+  return hydrateKillCardsByIds(sortedIds);
 }

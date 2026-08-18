@@ -1,6 +1,6 @@
 import { eq, gt, gte, inArray, sql } from "drizzle-orm";
 import type { AlbionPlayerRef, AlbionRegion, ContentType } from "@/lib/albion/types";
-import { ENABLED_REGIONS, TOP_BUILD_SLOTS } from "@/lib/albion/types";
+import { ALL_REGIONS, ENABLED_REGIONS, TOP_BUILD_SLOTS } from "@/lib/albion/types";
 import {
   canonicalizeItemType,
   itemFamilyKey,
@@ -59,6 +59,23 @@ export function regionCondition(region: AlbionRegion | "all") {
   return inArray(schema.killEvents.region, ENABLED_REGIONS);
 }
 
+/**
+ * Same as `regionCondition`, but omits a redundant `region IN (...)` when every
+ * Albion region is enabled so time/fame covering indexes stay usable.
+ */
+export function coveringRegionCondition(region: AlbionRegion | "all") {
+  if (region !== "all") {
+    return eq(schema.killEvents.region, region);
+  }
+  if (ENABLED_REGIONS.length === 0) {
+    return sql`false`;
+  }
+  if (ENABLED_REGIONS.length < ALL_REGIONS.length) {
+    return inArray(schema.killEvents.region, ENABLED_REGIONS);
+  }
+  return undefined;
+}
+
 export function leaderboardConditions(
   filters: LeaderboardFilters,
   cutoff: Date
@@ -68,7 +85,7 @@ export function leaderboardConditions(
     killFamePositiveCondition(),
     gte(schema.killEvents.occurredAt, cutoff),
   ];
-  const regionFilter = regionCondition(region);
+  const regionFilter = coveringRegionCondition(region);
   if (regionFilter) conditions.push(regionFilter);
   if (contentType !== "all") {
     conditions.push(eq(schema.killEvents.contentType, contentType));
