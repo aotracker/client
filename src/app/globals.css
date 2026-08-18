@@ -95,6 +95,11 @@
 }
 
 @layer utilities {
+  /* Native `title` tooltips use the help cursor (arrow + ?) site-wide. */
+  [title] {
+    cursor: help;
+  }
+
   .font-display {
     font-family: var(--font-sora), system-ui, sans-serif;
   }

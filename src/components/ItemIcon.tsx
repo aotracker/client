@@ -16,6 +16,36 @@ interface ItemIconProps {
   height?: number;
 }
 
+function GenericItemPlaceholder({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={cn("size-full text-muted-foreground/50", className)}
+      aria-hidden
+      focusable="false"
+    >
+      <rect
+        x="2.75"
+        y="2.75"
+        width="18.5"
+        height="18.5"
+        rx="3"
+        fill="currentColor"
+        fillOpacity="0.12"
+        stroke="currentColor"
+        strokeWidth="1.25"
+      />
+      <path
+        d="M12 7.25 16.75 12 12 16.75 7.25 12 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export const ItemIcon = memo(function ItemIcon({
   itemType,
   quality,
@@ -58,7 +88,9 @@ export const ItemIcon = memo(function ItemIcon({
             setFailed(true);
           }}
         />
-      ) : null}
+      ) : (
+        <GenericItemPlaceholder />
+      )}
     </span>
   );
 });

@@ -10,10 +10,6 @@ import { resolveGuildAtKill } from "@/lib/albion/player-history";
 import { KillDetailPending } from "@/components/KillDetailPending";
 import { KillDetailView } from "@/components/KillDetailView";
 import {
-  KillGearFallback,
-  KillGearWithEstimates,
-} from "@/components/KillGearWithEstimates";
-import {
   KillLootFallback,
   KillLootWithEstimates,
 } from "@/components/KillLootWithEstimates";
@@ -166,27 +162,6 @@ export default async function KillDetailPage({ params }: PageProps) {
   const killDescription = `${formatFame(event.totalVictimKillFame)} fame · ${event.contentType} · ${regionLabel(event.region)}`;
   const sharePath = entityPath("kill", event.region, event.eventId);
 
-  const gearSection = compacted ? undefined : (
-    <Suspense
-      fallback={
-        <KillGearFallback
-          killerEquipment={killerEquipment}
-          victimEquipment={victimEquipment}
-          killerIp={killerParticipant?.averageItemPower ?? null}
-          victimIp={victimParticipant?.averageItemPower ?? null}
-        />
-      }
-    >
-      <KillGearWithEstimates
-        region={albionRegion}
-        killerEquipment={killerEquipment}
-        victimEquipment={victimEquipment}
-        killerIp={killerParticipant?.averageItemPower ?? null}
-        victimIp={victimParticipant?.averageItemPower ?? null}
-      />
-    </Suspense>
-  );
-
   const tKill = await getTranslations("Kill");
   const lootSection =
     compacted || victimLoot.length === 0 ? undefined : (
@@ -264,7 +239,6 @@ export default async function KillDetailPage({ params }: PageProps) {
               ? Number(victimParticipant.supportHealingDone)
               : null
           }
-          gearSection={gearSection}
           lootSection={lootSection}
           compacted={compacted}
         />

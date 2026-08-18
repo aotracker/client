@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { cn, formatSilver } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { ItemIcon } from "@/components/ItemIcon";
+import { SilverValue } from "@/components/SilverValue";
 import { formatItemTooltip } from "@/lib/items/catalog";
 import { formatKillItemTooltip } from "@/lib/items/tooltips";
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from "@/lib/albion/types";
@@ -43,11 +44,13 @@ const PAPER_DOLL_SLOTS = Object.keys(SLOT_POSITIONS) as EquipmentSlot[];
 interface EquipmentGridProps {
   items: GearItem[];
   emptyMessage?: string;
+  className?: string;
 }
 
 export async function EquipmentGrid({
   items,
   emptyMessage = "No equipment data",
+  className,
 }: EquipmentGridProps) {
   const locale = await getLocale();
   const tLabels = await getTranslations("Common.labels");
@@ -65,7 +68,12 @@ export async function EquipmentGrid({
   }
 
   return (
-    <div className="relative mx-auto aspect-[480/520] w-full max-w-[280px] sm:max-w-[320px]">
+    <div
+      className={cn(
+        "relative mx-auto aspect-[480/520] w-full max-w-[280px] sm:max-w-[320px]",
+        className
+      )}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element -- local static template */}
       <img
         src="/gear.png"
@@ -120,11 +128,11 @@ export async function LootGrid({
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5">
       {loot.map((item, i) => (
         <div
           key={`${item.itemType}-${i}`}
-          className="flex shrink-0 flex-col items-center rounded-lg border border-border bg-muted/20 p-2"
+          className="flex w-14 shrink-0 flex-col items-center rounded-md border border-border bg-muted/20 p-1"
         >
           <ItemDisplay
             item={item}
@@ -150,7 +158,7 @@ function ItemDisplay({
   estValueLabel: (value: string) => string;
 }) {
   const quality = item.quality ?? 1;
-  const dim = layout === "fill" ? "h-full w-full" : "h-20 w-20";
+  const dim = layout === "fill" ? "h-full w-full" : "size-12";
   const tooltip = formatKillItemTooltip({
     itemType: item.itemType,
     locale,
@@ -169,7 +177,7 @@ function ItemDisplay({
         fill
       />
       {(item.count ?? 1) > 1 && (
-        <span className="absolute bottom-0.5 right-0.5 rounded bg-background/90 px-1 text-[10px] font-bold">
+        <span className="absolute bottom-0 right-0 rounded bg-background/90 px-0.5 text-[9px] font-bold leading-tight">
           {item.count}
         </span>
       )}
@@ -182,12 +190,14 @@ function ItemDisplay({
 
   if (layout === "icon") {
     return (
-      <div className="flex flex-col items-center gap-1">
+      <div className="flex flex-col items-center gap-0.5">
         {icon}
         {item.estSilver != null && item.estSilver > 0 && (
-          <span className="text-[10px] tabular-nums text-muted-foreground">
-            {formatSilver(item.estSilver)}
-          </span>
+          <SilverValue
+            amount={item.estSilver}
+            className="text-[10px] text-muted-foreground"
+            iconClassName="size-2.5"
+          />
         )}
       </div>
     );

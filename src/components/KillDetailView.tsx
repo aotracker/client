@@ -1,18 +1,20 @@
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Swords } from "lucide-react";
+import { AlbionKillboardIcon } from "@/components/AlbionKillboardIcon";
 import { BackLink } from "@/components/BackLink";
 import { ContentBadge } from "@/components/ContentBadge";
 import { EquipmentGrid, LootGrid } from "@/components/KillGearPanels";
+import {
+  KillEquipmentValue,
+  KillEquipmentValueFallback,
+} from "@/components/KillGearWithEstimates";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { StatValue, ItemPowerValue } from "@/components/StatValue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SilverValue } from "@/components/SilverValue";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  formatFame,
-  formatItemPower,
-  formatSilver,
-} from "@/lib/utils";
+import { formatFame, formatItemPower } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
 import { RelativeTime } from "@/components/RelativeTime";
 import type { AlbionRegion } from "@/lib/albion/types";
@@ -66,10 +68,7 @@ export type KillDetailViewProps = {
   assistants: KillDetailAssistant[];
   killerHealingDone?: number | null;
   victimHealingDone?: number | null;
-  killerEstSilver?: number | null;
-  victimEstSilver?: number | null;
   lootEstSilver?: number | null;
-  gearSection?: React.ReactNode;
   lootSection?: React.ReactNode;
   compacted?: boolean;
 };
@@ -103,38 +102,27 @@ export async function KillDetailView(props: KillDetailViewProps) {
         </p>
       )}
 
-      <div className="lg:sticky lg:top-[57px] lg:z-30">
-        <KillSummaryCard
-          {...props}
-          killerLabel={t("killer")}
-          victimLabel={t("victim")}
-          killFameLabel={t("killFame")}
-          healingLabel={t("healing")}
-          regionLabelText={
-            tRegions.has(props.region) ? tRegions(props.region) : props.region
-          }
-        />
-      </div>
+      <KillMatchCard
+        {...props}
+        killerLabel={t("killer")}
+        victimLabel={t("victim")}
+        killedLabel={t("killedHeading")}
+        killFameLabel={t("killFame")}
+        healingLabel={t("healing")}
+        regionLabelText={
+          tRegions.has(props.region) ? tRegions(props.region) : props.region
+        }
+      />
 
       {!props.compacted && (
-      <AssistsSection
-        assistants={props.assistants}
-        title={t("participants", { count: props.assistants.length })}
-        healingLabel={t("healing")}
-        groupMemberLabel={t("roleGroupMember")}
-        participantLabel={t("roleParticipant")}
-      />
-      )}
-      {!props.compacted &&
-        (props.gearSection ?? (
-        <GearSection
-          {...props}
-          killerEquipmentTitle={t("killerEquipment")}
-          victimEquipmentTitle={t("victimEquipment")}
-          estValueLabel={(value) => tLabels("estValue", { value })}
-          averageIpLabel={tLabels("averageIp")}
+        <AssistsSection
+          assistants={props.assistants}
+          title={t("participants", { count: props.assistants.length })}
+          healingLabel={t("healing")}
+          groupMemberLabel={t("roleGroupMember")}
+          participantLabel={t("roleParticipant")}
         />
-      ))}
+      )}
       {!props.compacted &&
         props.victimLoot.length > 0 &&
         (props.lootSection ?? (
@@ -155,9 +143,10 @@ export async function KillDetailView(props: KillDetailViewProps) {
   );
 }
 
-function KillSummaryCard({
+function KillMatchCard({
   killerLabel,
   victimLabel,
+  killedLabel,
   killFameLabel,
   healingLabel,
   regionLabelText,
@@ -165,15 +154,18 @@ function KillSummaryCard({
 }: KillDetailViewProps & {
   killerLabel: string;
   victimLabel: string;
+  killedLabel: string;
   killFameLabel: string;
   healingLabel: string;
   regionLabelText: string;
 }) {
+  const showEquipment = !props.compacted;
+
   return (
-    <Card className="overflow-hidden border-border/80 bg-card/95 backdrop-blur">
+    <Card className="overflow-hidden border-border/80 bg-card">
       <CardContent className="p-0">
-        <div className="flex flex-col items-stretch sm:flex-row">
-          <PlayerSummary
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+          <PlayerColumn
             label={killerLabel}
             name={props.killer.name}
             guild={props.killer.guildName}
@@ -191,24 +183,19 @@ function KillSummaryCard({
             healingDone={props.killerHealingDone}
             healingLabel={healingLabel}
             variant="killer"
+            region={props.region}
+            equipment={props.killerEquipment}
+            showEquipment={showEquipment}
           />
-          <div className="flex flex-col items-center justify-center border-y border-border bg-muted/10 px-6 py-6 sm:border-x sm:border-y-0">
-            <Swords className="mb-2 h-8 w-8 text-muted-foreground" />
-            <StatValue
-              label={killFameLabel}
-              value={formatFame(props.totalVictimKillFame)}
-              variant="fame"
-              size="header"
-            />
-            <div className="mt-3 flex flex-wrap justify-center gap-2">
-              <ContentBadge type={props.contentType} />
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {regionLabelText} ·{" "}
-              <RelativeTime date={new Date(props.occurredAt)} />
-            </p>
-          </div>
-          <PlayerSummary
+          <MatchMeta
+            killedLabel={killedLabel}
+            killFameLabel={killFameLabel}
+            fame={props.totalVictimKillFame}
+            contentType={props.contentType}
+            regionLabelText={regionLabelText}
+            occurredAt={props.occurredAt}
+          />
+          <PlayerColumn
             label={victimLabel}
             name={props.victim.name}
             guild={props.victim.guildName}
@@ -226,10 +213,60 @@ function KillSummaryCard({
             healingDone={props.victimHealingDone}
             healingLabel={healingLabel}
             variant="victim"
+            region={props.region}
+            equipment={props.victimEquipment}
+            showEquipment={showEquipment}
           />
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function MatchMeta({
+  killedLabel,
+  killFameLabel,
+  fame,
+  contentType,
+  regionLabelText,
+  occurredAt,
+}: {
+  killedLabel: string;
+  killFameLabel: string;
+  fame: number | null;
+  contentType: string;
+  regionLabelText: string;
+  occurredAt: string;
+}) {
+  return (
+    <div className="flex flex-col items-center border-y border-border bg-muted/10 px-5 py-5 lg:min-w-[12.5rem] lg:border-x lg:border-y-0 lg:px-6">
+      <div className="flex flex-col items-center">
+        <div className="flex items-center gap-2">
+          <AlbionKillboardIcon icon="skull" className="size-7" />
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
+            {killedLabel}
+          </p>
+        </div>
+        <p className="mt-1.5 text-center text-sm text-muted-foreground">
+          <RelativeTime date={new Date(occurredAt)} />
+        </p>
+      </div>
+      <div className="mt-6 flex flex-1 flex-col items-center justify-center lg:mt-8">
+        <AlbionKillboardIcon icon="fame" className="mb-1.5 size-7" />
+        <StatValue
+          label={killFameLabel}
+          value={formatFame(fame)}
+          variant="fame"
+          size="header"
+        />
+        <div className="mt-3 flex flex-wrap justify-center gap-2">
+          <ContentBadge type={contentType} />
+        </div>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          {regionLabelText}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -304,76 +341,6 @@ function AssistsSection({
   );
 }
 
-function GearSection({
-  killerEquipment,
-  victimEquipment,
-  killerIp,
-  victimIp,
-  killerEstSilver,
-  victimEstSilver,
-  killerEquipmentTitle,
-  victimEquipmentTitle,
-  estValueLabel,
-  averageIpLabel,
-}: KillDetailViewProps & {
-  killerEquipmentTitle: string;
-  victimEquipmentTitle: string;
-  estValueLabel: (value: string) => string;
-  averageIpLabel: string;
-}) {
-  return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <CardTitle className="text-base text-stat-kill">
-              {killerEquipmentTitle}
-            </CardTitle>
-            {killerEstSilver != null && killerEstSilver > 0 && (
-              <p className="shrink-0 text-sm text-muted-foreground">
-                {estValueLabel(formatSilver(killerEstSilver))}
-              </p>
-            )}
-          </div>
-          {formatItemPower(killerIp) && (
-            <p className="text-sm text-muted-foreground">
-              {averageIpLabel}{" "}
-              <ItemPowerValue value={killerIp} withSuffix={false} />
-            </p>
-          )}
-        </CardHeader>
-        <CardContent>
-          <EquipmentGrid items={killerEquipment} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <CardTitle className="text-base text-stat-death">
-              {victimEquipmentTitle}
-            </CardTitle>
-            {victimEstSilver != null && victimEstSilver > 0 && (
-              <p className="shrink-0 text-sm text-muted-foreground">
-                {estValueLabel(formatSilver(victimEstSilver))}
-              </p>
-            )}
-          </div>
-          {formatItemPower(victimIp) && (
-            <p className="text-sm text-muted-foreground">
-              {averageIpLabel}{" "}
-              <ItemPowerValue value={victimIp} withSuffix={false} />
-            </p>
-          )}
-        </CardHeader>
-        <CardContent>
-          <EquipmentGrid items={victimEquipment} />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
 export function LootSection({
   victimLoot,
   title,
@@ -400,7 +367,10 @@ export function LootSection({
             ) : lootEstSilver != null &&
               lootEstSilver > 0 &&
               estValueLabel ? (
-              <span>{estValueLabel(formatSilver(lootEstSilver))}</span>
+              <SilverValue
+                amount={lootEstSilver}
+                prefix={estValueLabel("").trim()}
+              />
             ) : null}
             <span>{itemsDropped}</span>
           </span>
@@ -414,7 +384,7 @@ export function LootSection({
   );
 }
 
-function PlayerSummary({
+function PlayerColumn({
   label,
   name,
   guild,
@@ -424,6 +394,9 @@ function PlayerSummary({
   healingDone,
   healingLabel,
   variant,
+  region,
+  equipment,
+  showEquipment,
 }: {
   label: string;
   name: string;
@@ -434,30 +407,53 @@ function PlayerSummary({
   healingDone?: number | null;
   healingLabel?: string;
   variant: "killer" | "victim";
+  region: AlbionRegion;
+  equipment: KillDetailItem[];
+  showEquipment: boolean;
 }) {
   const nameEl = profileHref ? (
-    <Link href={profileHref} className="text-xl font-bold hover:underline">
+    <Link
+      href={profileHref}
+      className="block max-w-full truncate text-lg font-bold hover:underline sm:text-xl"
+    >
       {name}
     </Link>
   ) : (
-    <span className="text-xl font-bold">{name}</span>
+    <span className="block max-w-full truncate text-lg font-bold sm:text-xl">
+      {name}
+    </span>
   );
 
   const guildEl = guild ? (
     guildHref ? (
       <Link
         href={guildHref}
-        className="mt-1 text-sm text-muted-foreground hover:text-primary hover:underline"
+        className="mt-0.5 block max-w-full truncate text-sm text-muted-foreground hover:text-primary hover:underline"
       >
         {guild}
       </Link>
     ) : (
-      <p className="mt-1 text-sm text-muted-foreground">{guild}</p>
+      <p className="mt-0.5 max-w-full truncate text-sm text-muted-foreground">
+        {guild}
+      </p>
     )
   ) : null;
 
+  const ipEl = formatItemPower(itemPower) ? (
+    <span className="inline-flex items-center gap-1">
+      <AlbionKillboardIcon icon="shield" className="size-4" />
+      <ItemPowerValue value={itemPower} className="text-sm" />
+    </span>
+  ) : null;
+
+  const valueEl = showEquipment ? (
+    <Suspense fallback={<KillEquipmentValueFallback />}>
+      <KillEquipmentValue region={region} items={equipment} />
+    </Suspense>
+  ) : null;
+
   return (
-    <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
+    <div className="flex flex-col items-center px-4 py-5 text-center sm:px-5">
       <p
         className={`text-xs font-medium uppercase tracking-wide ${
           variant === "killer" ? "text-stat-kill" : "text-stat-death"
@@ -465,17 +461,26 @@ function PlayerSummary({
       >
         {label}
       </p>
-      <div className="mt-1">{nameEl}</div>
+      <div className="mt-1 w-full min-w-0">{nameEl}</div>
       {guildEl}
-      {formatItemPower(itemPower) && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          <ItemPowerValue value={itemPower} />
-        </p>
+      {(ipEl || valueEl) && (
+        <div className="mt-1.5 flex items-center justify-center gap-3">
+          {ipEl}
+          {valueEl}
+        </div>
       )}
       {healingDone != null && healingDone > 0 && healingLabel && (
         <p className="mt-1 text-xs text-muted-foreground">
           {healingLabel} {healingDone.toLocaleString()}
         </p>
+      )}
+      {showEquipment && (
+        <div className="mt-3 w-full">
+          <EquipmentGrid
+            items={equipment}
+            className="max-w-[240px] sm:max-w-[280px]"
+          />
+        </div>
       )}
     </div>
   );
