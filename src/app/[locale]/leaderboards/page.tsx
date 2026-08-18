@@ -1,14 +1,12 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { InlineAlert } from "@/components/InlineAlert";
-import { TopKillersList } from "@/components/TopKillersList";
 import { LeaderboardFilters } from "@/components/leaderboards/LeaderboardFilters";
-import { LeaderboardKillsList } from "@/components/leaderboards/LeaderboardKillsList";
+import { LeaderboardNavigationProvider } from "@/components/leaderboards/LeaderboardNavigation";
 import {
-  LeaderboardNavigationProvider,
-  LeaderboardResultsPending,
-} from "@/components/leaderboards/LeaderboardNavigation";
+  LeaderboardResults,
+  LeaderboardResultsFallback,
+} from "@/components/leaderboards/LeaderboardResults";
 import {
   parseLeaderboardContentType,
   parseLeaderboardDays,
@@ -16,18 +14,8 @@ import {
   parseLeaderboardTab,
   type LeaderboardTab,
 } from "@/lib/leaderboards/params";
-import { TopFameList } from "@/components/leaderboards/TopFameList";
-import { TopAlliancesList } from "@/components/leaderboards/TopAlliancesList";
-import { TopGuildsList } from "@/components/leaderboards/TopGuildsList";
 import { PageHeader } from "@/components/PageSection";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
-import {
-  getRecentJuicyKills,
-  getTopAlliancesByKillFame,
-  getTopGuildsByKillFame,
-  getTopKillers,
-  getTopPlayersByKillFame,
-} from "@/lib/db/queries";
 import { feedRegionFilterOptions } from "@/lib/region-params";
 import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 import { formatUtcHour, isPrimeTimeHourForFilter } from "@/lib/albion/prime-times";
@@ -94,14 +82,6 @@ export default async function LeaderboardsPage({
       : undefined;
   const filterRegions = feedRegionFilterOptions();
 
-  const filters = {
-    region,
-    days,
-    contentType,
-    limit: 50,
-    utcHour,
-  };
-
   const keys = tabMetaKey(tab);
   const tabLabel = t(keys.label as "tabs.killers.label");
   const tabDescription =
@@ -118,29 +98,6 @@ export default async function LeaderboardsPage({
         : contentType === "GROUP"
           ? tCommon("contentTypes.GROUP")
           : tCommon("contentTypes.ZVZ");
-
-  let error: string | null = null;
-  let killers: Awaited<ReturnType<typeof getTopKillers>> = [];
-  let guilds: Awaited<ReturnType<typeof getTopGuildsByKillFame>> = [];
-  let alliances: Awaited<ReturnType<typeof getTopAlliancesByKillFame>> = [];
-  let kills: Awaited<ReturnType<typeof getRecentJuicyKills>> = [];
-  let fame: Awaited<ReturnType<typeof getTopPlayersByKillFame>> = [];
-
-  try {
-    if (tab === "killers") {
-      killers = await getTopKillers(filters);
-    } else if (tab === "guilds") {
-      guilds = await getTopGuildsByKillFame(filters);
-    } else if (tab === "alliances") {
-      alliances = await getTopAlliancesByKillFame(filters);
-    } else if (tab === "kills") {
-      kills = await getRecentJuicyKills({ ...filters, limit: 25 });
-    } else {
-      fame = await getTopPlayersByKillFame(filters);
-    }
-  } catch (e) {
-    error = e instanceof Error ? e.message : t("failedLoad");
-  }
 
   return (
     <div className="space-y-6">
@@ -170,25 +127,15 @@ export default async function LeaderboardsPage({
             </p>
           </div>
 
-          <LeaderboardResultsPending>
-            {error ? (
-              <InlineAlert>{error}</InlineAlert>
-            ) : tab === "killers" ? (
-              <TopKillersList killers={killers} layout="wide" />
-            ) : tab === "guilds" ? (
-              <TopGuildsList
-                guilds={guilds}
-                layout="wide"
-                byHour={utcHour != null}
-              />
-            ) : tab === "alliances" ? (
-              <TopAlliancesList alliances={alliances} layout="wide" />
-            ) : tab === "kills" ? (
-              <LeaderboardKillsList kills={kills} />
-            ) : (
-              <TopFameList entries={fame} layout="wide" />
-            )}
-          </LeaderboardResultsPending>
+          <Suspense fallback={<LeaderboardResultsFallback />}>
+            <LeaderboardResults
+              tab={tab}
+              region={region}
+              days={days}
+              contentType={contentType}
+              utcHour={utcHour}
+            />
+          </Suspense>
         </LeaderboardNavigationProvider>
       </Suspense>
     </div>

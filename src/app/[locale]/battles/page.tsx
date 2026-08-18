@@ -1,15 +1,14 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { BattlesFeed } from "@/components/BattlesFeed";
+import {
+  BattlesFeedFallback,
+  BattlesFeedSection,
+} from "@/components/BattlesFeedSection";
 import { BattlesFilters } from "@/components/BattlesFilters";
 import { PageHeader } from "@/components/PageSection";
 import { RelativeTime } from "@/components/RelativeTime";
-import { countBattlesFeed, getBattlesFeed } from "@/lib/db/queries";
-import {
-  BATTLES_FEED_PAGE_SIZE,
-  parseBattlesMinPlayers,
-} from "@/lib/battles-constants";
+import { parseBattlesMinPlayers } from "@/lib/battles-constants";
 import { getCronJobStatuses } from "@/lib/jobs/cron-state";
 import { feedRegionFilterOptions } from "@/lib/region-params";
 import { resolveServerFeedRegion } from "@/lib/region-preference-server";
@@ -39,6 +38,21 @@ export async function generateMetadata({
   });
 }
 
+async function BattlesListUpdatedLabel() {
+  const t = await getTranslations("Battle");
+  const cronStatus = await getCronJobStatuses().catch(() => null);
+  const lastListUpdatedAt =
+    cronStatus?.jobs.find((job) => job.jobKey === "ingest")?.lastSuccessAt ??
+    null;
+  if (!lastListUpdatedAt) return null;
+  return (
+    <p className="text-xs text-muted-foreground sm:pt-1 sm:text-right">
+      {t("listUpdated", { time: "" }).trimEnd()}{" "}
+      <RelativeTime date={lastListUpdatedAt} />
+    </p>
+  );
+}
+
 export default async function BattlesPage({
   params,
   searchParams,
@@ -53,48 +67,15 @@ export default async function BattlesPage({
   const minPlayers = parseBattlesMinPlayers(search.minPlayers);
   const filterRegions = feedRegionFilterOptions();
 
-  let battles: Awaited<ReturnType<typeof getBattlesFeed>> = [];
-  let total = 0;
-  let error: string | null = null;
-
-  const [feedResult, cronStatus] = await Promise.all([
-    Promise.all([
-      getBattlesFeed({
-        region,
-        q,
-        minPlayers,
-        limit: BATTLES_FEED_PAGE_SIZE,
-        offset: 0,
-      }),
-      countBattlesFeed({ region, q, minPlayers }),
-    ]).catch((e) => {
-      error = e instanceof Error ? e.message : t("feed.failedLoad");
-      return null;
-    }),
-    getCronJobStatuses().catch(() => null),
-  ]);
-
-  if (feedResult) {
-    battles = feedResult[0];
-    total = feedResult[1];
-  }
-
-  const lastListUpdatedAt =
-    cronStatus?.jobs.find((job) => job.jobKey === "ingest")?.lastSuccessAt ??
-    null;
-
   return (
     <div className="space-y-6">
       <PageHeader
         title={t("pageTitle")}
         description={t("pageDescription")}
         actions={
-          lastListUpdatedAt ? (
-            <p className="text-xs text-muted-foreground sm:pt-1 sm:text-right">
-              {t("listUpdated", { time: "" }).trimEnd()}{" "}
-              <RelativeTime date={lastListUpdatedAt} />
-            </p>
-          ) : null
+          <Suspense fallback={null}>
+            <BattlesListUpdatedLabel />
+          </Suspense>
         }
       />
 
@@ -102,21 +83,9 @@ export default async function BattlesPage({
         <BattlesFilters regions={filterRegions} activeRegion={region} />
       </Suspense>
 
-      {error ? (
-        <div className="rounded-md border border-border bg-card p-8 text-center text-muted-foreground">
-          {error}
-        </div>
-      ) : (
-        <BattlesFeed
-          key={`${region}:${q ?? ""}:${minPlayers}`}
-          initialBattles={battles}
-          initialTotal={total}
-          region={region}
-          searchQuery={q}
-          minPlayers={minPlayers}
-          pageSize={BATTLES_FEED_PAGE_SIZE}
-        />
-      )}
+      <Suspense fallback={<BattlesFeedFallback />}>
+        <BattlesFeedSection region={region} q={q} minPlayers={minPlayers} />
+      </Suspense>
     </div>
   );
 }

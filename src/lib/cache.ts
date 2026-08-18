@@ -6,6 +6,9 @@ export const HOME_CACHE_REVALIDATE_SECONDS = 15;
 /** Cross-request TTL for leaderboard aggregations and home sidebar stats. */
 export const LEADERBOARD_CACHE_REVALIDATE_SECONDS = 30;
 
+/** Cross-request TTL for the public battles list (scalars + feed_preview). */
+export const BATTLES_CACHE_REVALIDATE_SECONDS = 15;
+
 /** Cross-request TTL for meta builds (expensive participant aggregation). */
 export const BUILDS_CACHE_REVALIDATE_SECONDS = 60;
 

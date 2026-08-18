@@ -57,7 +57,8 @@ function writeStoredSelection(selected: Map<string, BattlesFeedItem>) {
 
 interface BattlesFeedProps {
   initialBattles: BattlesFeedItem[];
-  initialTotal: number;
+  /** Null when SSR skipped COUNT(*) so first paint is not blocked. */
+  initialTotal: number | null;
   region: AlbionRegion | "all";
   searchQuery?: string;
   minPlayers: number;
@@ -76,7 +77,7 @@ export function BattlesFeed({
   const tCommon = useTranslations("Common");
   const router = useRouter();
   const [battles, setBattles] = useState(initialBattles);
-  const [total, setTotal] = useState(initialTotal);
+  const [total, setTotal] = useState<number | null>(initialTotal);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,7 +87,10 @@ export function BattlesFeed({
   const [apiSuggestions, setApiSuggestions] = useState<ScoredBattle[]>([]);
   const [selectionReady, setSelectionReady] = useState(false);
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const totalPages =
+    total != null ? Math.max(1, Math.ceil(total / pageSize)) : page;
+  const hasMore =
+    total != null ? page * pageSize < total : battles.length >= pageSize;
 
   useEffect(() => {
     setBattles(initialBattles);
@@ -133,7 +137,7 @@ export function BattlesFeed({
           total?: number;
         };
         setBattles(data.battles ?? []);
-        setTotal(data.total ?? 0);
+        if (typeof data.total === "number") setTotal(data.total);
         setPage(nextPage);
       } catch (e) {
         setError(e instanceof Error ? e.message : t("feed.failedLoad"));
@@ -152,6 +156,12 @@ export function BattlesFeed({
     }, BATTLES_POLL_MS);
     return () => window.clearInterval(id);
   }, [loadPage, page]);
+
+  useEffect(() => {
+    if (initialTotal != null) return;
+    void loadPage(1, { silent: true });
+    // Parent remounts this feed via key when filters change.
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedCount = selected.size;
   const atLimit = selectedCount >= MAX_COMBINED_BATTLES;
@@ -385,6 +395,7 @@ export function BattlesFeed({
         page={page}
         totalPages={totalPages}
         totalItems={total}
+        hasMore={hasMore}
         pageSize={pageSize}
         onPageChange={(next) => {
           void loadPage(next);

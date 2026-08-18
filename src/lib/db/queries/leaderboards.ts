@@ -395,18 +395,15 @@ async function loadTopGuildsByKillFame(
   const conditions = [
     ...leaderboardConditions({ region, days, contentType, limit }, cutoff),
     isNotNull(schema.killEvents.killerId),
-    sql`${schema.killEvents.rawPayload}->'Killer'->>'GuildId' IS NOT NULL`,
-    sql`trim(${schema.killEvents.rawPayload}->'Killer'->>'GuildName') <> ''`,
+    isNotNull(schema.killEvents.killerGuildAlbionId),
+    sql`trim(${schema.killEvents.killerGuildName}) <> ''`,
   ];
-
-  const guildAlbionId = sql<string>`${schema.killEvents.rawPayload}->'Killer'->>'GuildId'`;
-  const guildName = sql<string>`${schema.killEvents.rawPayload}->'Killer'->>'GuildName'`;
 
   const rows = await db
     .select({
       region: schema.killEvents.region,
-      guildAlbionId,
-      guildName,
+      guildAlbionId: schema.killEvents.killerGuildAlbionId,
+      guildName: schema.killEvents.killerGuildName,
       killFame: sum(schema.killEvents.totalVictimKillFame),
       killCount: count(),
     })
@@ -414,8 +411,8 @@ async function loadTopGuildsByKillFame(
     .where(and(...conditions))
     .groupBy(
       schema.killEvents.region,
-      guildAlbionId,
-      guildName
+      schema.killEvents.killerGuildAlbionId,
+      schema.killEvents.killerGuildName
     )
     .orderBy(desc(sum(schema.killEvents.totalVictimKillFame)))
     .limit(limit);
@@ -457,25 +454,26 @@ async function loadTopAlliancesByKillFame(
   const conditions = [
     ...leaderboardConditions({ region, days, contentType, limit }, cutoff),
     isNotNull(schema.killEvents.killerId),
-    sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' IS NOT NULL`,
-    sql`trim(${schema.killEvents.rawPayload}->'Killer'->>'AllianceId') <> ''`,
-    sql`trim(${schema.killEvents.rawPayload}->'Killer'->>'AllianceName') <> ''`,
+    isNotNull(schema.killEvents.killerAllianceAlbionId),
+    sql`trim(${schema.killEvents.killerAllianceAlbionId}) <> ''`,
+    sql`trim(${schema.killEvents.killerAllianceName}) <> ''`,
   ];
-
-  const allianceAlbionId = sql<string>`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId'`;
-  const allianceName = sql<string>`${schema.killEvents.rawPayload}->'Killer'->>'AllianceName'`;
 
   const rows = await db
     .select({
       region: schema.killEvents.region,
-      allianceAlbionId,
-      allianceName,
+      allianceAlbionId: schema.killEvents.killerAllianceAlbionId,
+      allianceName: schema.killEvents.killerAllianceName,
       killFame: sum(schema.killEvents.totalVictimKillFame),
       killCount: count(),
     })
     .from(schema.killEvents)
     .where(and(...conditions))
-    .groupBy(schema.killEvents.region, allianceAlbionId, allianceName)
+    .groupBy(
+      schema.killEvents.region,
+      schema.killEvents.killerAllianceAlbionId,
+      schema.killEvents.killerAllianceName
+    )
     .orderBy(desc(sum(schema.killEvents.totalVictimKillFame)))
     .limit(limit);
 

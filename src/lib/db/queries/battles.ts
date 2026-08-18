@@ -13,9 +13,13 @@ import type {
   AlbionRegion,
 } from "@/lib/albion/types";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
-import { db, schema } from "@/lib/db";
 import {
-  BATTLES_FEED_PREVIEW_LIMIT,
+  BATTLES_CACHE_REVALIDATE_SECONDS,
+  cachedQuery,
+} from "@/lib/cache";
+import { db, schema } from "@/lib/db";
+import { parseBattlesFeedPreview } from "@/lib/db/battle-cache";
+import {
   parseBattlesMinPlayers,
   RELATED_BATTLE_WINDOW_MS,
   RECENT_BATTLES_MIN_PLAYERS,
@@ -123,75 +127,46 @@ function battlesFeedWhere(
   return and(...conditions);
 }
 
-function sortParticipantsByFame<T extends { killFame: number; kills: number }>(
-  items: T[]
-): T[] {
-  return [...items].sort(
-    (a, b) => b.killFame - a.killFame || b.kills - a.kills
-  );
-}
+const battlesFeedSelect = {
+  id: schema.battles.albionBattleId,
+  region: schema.battles.region,
+  startTime: schema.battles.startTime,
+  totalFame: schema.battles.totalFame,
+  totalKills: schema.battles.totalKills,
+  totalPlayers: schema.battles.totalPlayers,
+  feedPreview: schema.battles.feedPreview,
+};
 
-function extractBattlesFeedParticipants(
-  rawPayload: unknown,
-  detailPayload: unknown
-): Pick<
-  BattlesFeedItem,
-  "alliances" | "guilds" | "allianceCount" | "guildCount"
-> {
-  const detail =
-    detailPayload && typeof detailPayload === "object"
-      ? (detailPayload as {
-          alliances?: AlbionBattleAllianceStats[];
-          guilds?: AlbionBattleGuildStats[];
-        })
-      : null;
-
-  let alliances: AlbionBattleAllianceStats[] = [];
-  let guilds: AlbionBattleGuildStats[] = [];
-
-  if (Array.isArray(detail?.alliances) && Array.isArray(detail?.guilds)) {
-    alliances = detail.alliances;
-    guilds = detail.guilds;
-  } else if (rawPayload && typeof rawPayload === "object") {
-    const battle = rawPayload as AlbionBattle;
-    alliances = battle.alliances ? Object.values(battle.alliances) : [];
-    guilds = battle.guilds ? Object.values(battle.guilds) : [];
-  }
-
-  const sortedAlliances = sortParticipantsByFame(alliances);
-  const sortedGuilds = sortParticipantsByFame(guilds);
-
+function mapBattlesFeedRow(row: {
+  id: number;
+  region: AlbionRegion;
+  startTime: Date | null;
+  totalFame: number | null;
+  totalKills: number | null;
+  totalPlayers: number | null;
+  feedPreview: unknown;
+}): BattlesFeedItem {
   return {
-    alliances: sortedAlliances.slice(0, BATTLES_FEED_PREVIEW_LIMIT).map((a) => ({
-      id: a.id,
-      name: a.name,
-    })),
-    guilds: sortedGuilds.slice(0, BATTLES_FEED_PREVIEW_LIMIT).map((g) => ({
-      id: g.id,
-      name: g.name,
-    })),
-    allianceCount: sortedAlliances.length,
-    guildCount: sortedGuilds.length,
+    id: row.id,
+    region: row.region,
+    startTime: row.startTime ? row.startTime.toISOString() : null,
+    totalFame: row.totalFame,
+    totalKills: row.totalKills,
+    totalPlayers: row.totalPlayers,
+    ...parseBattlesFeedPreview(row.feedPreview),
   };
 }
 
-export const getBattlesFeed = cache(async function getBattlesFeed(
-  filters: BattlesFeedFilters = {}
+async function loadBattlesFeed(
+  region: AlbionRegion | "all",
+  q: string,
+  minPlayers: number,
+  limit: number,
+  offset: number
 ): Promise<BattlesFeedItem[]> {
-  const { region = "all", q, minPlayers, limit = 20, offset = 0 } = filters;
-  const where = battlesFeedWhere(region, q, minPlayers);
-
+  const where = battlesFeedWhere(region, q || undefined, minPlayers);
   const rows = await db
-    .select({
-      id: schema.battles.albionBattleId,
-      region: schema.battles.region,
-      startTime: schema.battles.startTime,
-      totalFame: schema.battles.totalFame,
-      totalKills: schema.battles.totalKills,
-      totalPlayers: schema.battles.totalPlayers,
-      rawPayload: schema.battles.rawPayload,
-      detailPayload: schema.battles.detailPayload,
-    })
+    .select(battlesFeedSelect)
     .from(schema.battles)
     .where(where)
     .orderBy(
@@ -201,33 +176,54 @@ export const getBattlesFeed = cache(async function getBattlesFeed(
     .offset(offset)
     .limit(limit);
 
-  return rows.map((row) => {
-    const participants = extractBattlesFeedParticipants(
-      row.rawPayload,
-      row.detailPayload
-    );
-    return {
-      id: row.id,
-      region: row.region,
-      startTime: row.startTime ? row.startTime.toISOString() : null,
-      totalFame: row.totalFame,
-      totalKills: row.totalKills,
-      totalPlayers: row.totalPlayers,
-      ...participants,
-    };
-  });
+  return rows.map(mapBattlesFeedRow);
+}
+
+const cachedBattlesFeed = cachedQuery(
+  loadBattlesFeed,
+  ["battles-feed"],
+  BATTLES_CACHE_REVALIDATE_SECONDS,
+  ["battles"]
+);
+
+export const getBattlesFeed = cache(async function getBattlesFeed(
+  filters: BattlesFeedFilters = {}
+): Promise<BattlesFeedItem[]> {
+  const { region = "all", q, minPlayers, limit = 20, offset = 0 } = filters;
+  const playerFloor = parseBattlesMinPlayers(
+    minPlayers != null ? String(minPlayers) : undefined
+  );
+  return cachedBattlesFeed(region, q?.trim() ?? "", playerFloor, limit, offset);
 });
 
-export const countBattlesFeed = cache(async function countBattlesFeed(
-  filters: Pick<BattlesFeedFilters, "region" | "q" | "minPlayers"> = {}
+async function loadBattlesFeedCount(
+  region: AlbionRegion | "all",
+  q: string,
+  minPlayers: number
 ): Promise<number> {
-  const { region = "all", q, minPlayers } = filters;
-  const where = battlesFeedWhere(region, q, minPlayers);
+  const where = battlesFeedWhere(region, q || undefined, minPlayers);
   const [row] = await db
     .select({ value: count() })
     .from(schema.battles)
     .where(where);
   return row?.value ?? 0;
+}
+
+const cachedBattlesFeedCount = cachedQuery(
+  loadBattlesFeedCount,
+  ["battles-feed-count"],
+  BATTLES_CACHE_REVALIDATE_SECONDS,
+  ["battles"]
+);
+
+export const countBattlesFeed = cache(async function countBattlesFeed(
+  filters: Pick<BattlesFeedFilters, "region" | "q" | "minPlayers"> = {}
+): Promise<number> {
+  const { region = "all", q, minPlayers } = filters;
+  const playerFloor = parseBattlesMinPlayers(
+    minPlayers != null ? String(minPlayers) : undefined
+  );
+  return cachedBattlesFeedCount(region, q?.trim() ?? "", playerFloor);
 });
 
 /**
@@ -242,16 +238,7 @@ export async function getRelatedBattlesFeed(input: {
   if (selectedIds.length === 0) return [];
 
   const selectedRows = await db
-    .select({
-      id: schema.battles.albionBattleId,
-      region: schema.battles.region,
-      startTime: schema.battles.startTime,
-      totalFame: schema.battles.totalFame,
-      totalKills: schema.battles.totalKills,
-      totalPlayers: schema.battles.totalPlayers,
-      rawPayload: schema.battles.rawPayload,
-      detailPayload: schema.battles.detailPayload,
-    })
+    .select(battlesFeedSelect)
     .from(schema.battles)
     .where(
       and(
@@ -262,21 +249,7 @@ export async function getRelatedBattlesFeed(input: {
 
   if (selectedRows.length === 0) return [];
 
-  const selected: BattlesFeedItem[] = selectedRows.map((row) => {
-    const participants = extractBattlesFeedParticipants(
-      row.rawPayload,
-      row.detailPayload
-    );
-    return {
-      id: row.id,
-      region: row.region,
-      startTime: row.startTime ? row.startTime.toISOString() : null,
-      totalFame: row.totalFame,
-      totalKills: row.totalKills,
-      totalPlayers: row.totalPlayers,
-      ...participants,
-    };
-  });
+  const selected: BattlesFeedItem[] = selectedRows.map(mapBattlesFeedRow);
 
   const times = selected
     .map((b) => (b.startTime ? new Date(b.startTime).getTime() : null))
@@ -302,36 +275,13 @@ export async function getRelatedBattlesFeed(input: {
   }
 
   const candidateRows = await db
-    .select({
-      id: schema.battles.albionBattleId,
-      region: schema.battles.region,
-      startTime: schema.battles.startTime,
-      totalFame: schema.battles.totalFame,
-      totalKills: schema.battles.totalKills,
-      totalPlayers: schema.battles.totalPlayers,
-      rawPayload: schema.battles.rawPayload,
-      detailPayload: schema.battles.detailPayload,
-    })
+    .select(battlesFeedSelect)
     .from(schema.battles)
     .where(and(...windowConditions))
     .orderBy(desc(schema.battles.totalFame))
     .limit(40);
 
-  const candidates: BattlesFeedItem[] = candidateRows.map((row) => {
-    const participants = extractBattlesFeedParticipants(
-      row.rawPayload,
-      row.detailPayload
-    );
-    return {
-      id: row.id,
-      region: row.region,
-      startTime: row.startTime ? row.startTime.toISOString() : null,
-      totalFame: row.totalFame,
-      totalKills: row.totalKills,
-      totalPlayers: row.totalPlayers,
-      ...participants,
-    };
-  });
+  const candidates: BattlesFeedItem[] = candidateRows.map(mapBattlesFeedRow);
 
   return scoreRelatedBattles(selected, candidates, { limit });
 }
