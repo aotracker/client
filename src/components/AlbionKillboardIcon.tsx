@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Frames in `public/albion/killboard-icons.png` (1540×100, 14 icons). */
+/** Frames in the killboard sprite (1540×100, 14 icons). */
 export const KILLBOARD_ICON = {
   fame: 0,
   swords: 1,
@@ -21,7 +21,7 @@ export const KILLBOARD_ICON = {
 export type KillboardIconName = keyof typeof KILLBOARD_ICON;
 
 const FRAME_COUNT = 14;
-const SPRITE_SRC = "/albion/killboard-icons.png";
+const SPRITE_SRC = "https://cdn.aotracker.net/albion/killboard-icons.png";
 
 /**
  * Official Albion killboard sprite icon.
