@@ -5,8 +5,7 @@ import {
   LEADERBOARD_CACHE_REVALIDATE_SECONDS,
   cachedQuery,
 } from "@/lib/cache";
-import type { AlbionRegion } from "@/lib/albion/types";
-import { ENABLED_REGIONS } from "@/lib/albion/types";
+import { ALL_REGIONS, ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { primeTimeHours } from "@/lib/albion/prime-times";
 import { db, schema } from "@/lib/db";
 import {
@@ -380,6 +379,36 @@ async function loadTopGuildsByHour(
   }, []);
 }
 
+/**
+ * Prefer time-leading covering indexes (`kill_events_lb_guild_idx`) over
+ * `kill_events_region_occurred_fame_idx`. Skip a redundant region IN when
+ * every Albion region is enabled; do not filter killer_id (not in INCLUDE).
+ */
+function coveringLeaderboardConditions(
+  filters: {
+    region: AlbionRegion | "all";
+    contentType: ContentTypeFilter;
+  },
+  cutoff: Date
+) {
+  const { region, contentType } = filters;
+  const conditions = [
+    killFamePositiveCondition(),
+    gte(schema.killEvents.occurredAt, cutoff),
+  ];
+  if (region !== "all") {
+    conditions.push(eq(schema.killEvents.region, region));
+  } else if (ENABLED_REGIONS.length === 0) {
+    conditions.push(sql`false`);
+  } else if (ENABLED_REGIONS.length < ALL_REGIONS.length) {
+    conditions.push(inArray(schema.killEvents.region, ENABLED_REGIONS));
+  }
+  if (contentType !== "all") {
+    conditions.push(eq(schema.killEvents.contentType, contentType));
+  }
+  return conditions;
+}
+
 async function loadTopGuildsByKillFame(
   region: AlbionRegion | "all",
   limit: number,
@@ -393,17 +422,17 @@ async function loadTopGuildsByKillFame(
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = [
-    ...leaderboardConditions({ region, days, contentType, limit }, cutoff),
-    isNotNull(schema.killEvents.killerId),
+    ...coveringLeaderboardConditions({ region, contentType }, cutoff),
     isNotNull(schema.killEvents.killerGuildAlbionId),
-    sql`trim(${schema.killEvents.killerGuildName}) <> ''`,
   ];
 
   const rows = await db
     .select({
       region: schema.killEvents.region,
       guildAlbionId: schema.killEvents.killerGuildAlbionId,
-      guildName: schema.killEvents.killerGuildName,
+      guildName: sql<string>`max(${schema.killEvents.killerGuildName})`.as(
+        "guild_name"
+      ),
       killFame: sum(schema.killEvents.totalVictimKillFame),
       killCount: count(),
     })
@@ -411,8 +440,7 @@ async function loadTopGuildsByKillFame(
     .where(and(...conditions))
     .groupBy(
       schema.killEvents.region,
-      schema.killEvents.killerGuildAlbionId,
-      schema.killEvents.killerGuildName
+      schema.killEvents.killerGuildAlbionId
     )
     .orderBy(desc(sum(schema.killEvents.totalVictimKillFame)))
     .limit(limit);
@@ -452,18 +480,17 @@ async function loadTopAlliancesByKillFame(
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const conditions = [
-    ...leaderboardConditions({ region, days, contentType, limit }, cutoff),
-    isNotNull(schema.killEvents.killerId),
+    ...coveringLeaderboardConditions({ region, contentType }, cutoff),
     isNotNull(schema.killEvents.killerAllianceAlbionId),
-    sql`trim(${schema.killEvents.killerAllianceAlbionId}) <> ''`,
-    sql`trim(${schema.killEvents.killerAllianceName}) <> ''`,
   ];
 
   const rows = await db
     .select({
       region: schema.killEvents.region,
       allianceAlbionId: schema.killEvents.killerAllianceAlbionId,
-      allianceName: schema.killEvents.killerAllianceName,
+      allianceName: sql<string>`max(${schema.killEvents.killerAllianceName})`.as(
+        "alliance_name"
+      ),
       killFame: sum(schema.killEvents.totalVictimKillFame),
       killCount: count(),
     })
@@ -471,8 +498,7 @@ async function loadTopAlliancesByKillFame(
     .where(and(...conditions))
     .groupBy(
       schema.killEvents.region,
-      schema.killEvents.killerAllianceAlbionId,
-      schema.killEvents.killerAllianceName
+      schema.killEvents.killerAllianceAlbionId
     )
     .orderBy(desc(sum(schema.killEvents.totalVictimKillFame)))
     .limit(limit);

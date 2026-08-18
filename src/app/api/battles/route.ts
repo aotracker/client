@@ -21,10 +21,17 @@ export async function GET(request: Request) {
   const region = regionParam as AlbionRegion | "all";
 
   try {
-    const [battles, total] = await Promise.all([
-      getBattlesFeed({ region, q, minPlayers, limit, offset }),
-      countBattlesFeed({ region, q, minPlayers }),
-    ]);
+    const includeTotal = searchParams.get("includeTotal") === "1";
+    const battles = await getBattlesFeed({
+      region,
+      q,
+      minPlayers,
+      limit,
+      offset,
+    });
+    const total = includeTotal
+      ? await countBattlesFeed({ region, q, minPlayers })
+      : null;
     return NextResponse.json(
       { battles, total },
       {

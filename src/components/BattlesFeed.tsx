@@ -157,12 +157,6 @@ export function BattlesFeed({
     return () => window.clearInterval(id);
   }, [loadPage, page]);
 
-  useEffect(() => {
-    if (initialTotal != null) return;
-    void loadPage(1, { silent: true });
-    // Parent remounts this feed via key when filters change.
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   const selectedCount = selected.size;
   const atLimit = selectedCount >= MAX_COMBINED_BATTLES;
   const selectedList = useMemo(
