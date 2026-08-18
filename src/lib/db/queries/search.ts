@@ -21,11 +21,29 @@ export async function searchLocal(query: string, limit = 20) {
     db.query.players.findMany({
       where: and(ilike(schema.players.name, pattern), regionFilter),
       limit,
-      with: { guild: true },
+      columns: {
+        id: true,
+        albionId: true,
+        name: true,
+        region: true,
+        killFame: true,
+      },
+      with: {
+        guild: {
+          columns: { albionId: true, name: true },
+        },
+      },
     }),
     db.query.guilds.findMany({
       where: and(ilike(schema.guilds.name, pattern), guildRegionFilter),
       limit,
+      columns: {
+        id: true,
+        albionId: true,
+        name: true,
+        region: true,
+        killFame: true,
+      },
     }),
     db.query.alliances.findMany({
       where: and(
@@ -36,6 +54,14 @@ export async function searchLocal(query: string, limit = 20) {
         )
       ),
       limit,
+      columns: {
+        id: true,
+        albionId: true,
+        name: true,
+        tag: true,
+        region: true,
+        memberCount: true,
+      },
     }),
   ]);
 

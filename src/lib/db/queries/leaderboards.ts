@@ -14,6 +14,7 @@ import {
   type TopKillerFilters,
   killFamePositiveCondition,
   leaderboardConditions,
+  loadPlayersWithGuildNames,
 } from "./shared";
 
 export interface TopAllianceEntry {
@@ -115,11 +116,7 @@ async function loadTopKillers(
 
   if (killerIds.length === 0) return [];
 
-  const players = await db.query.players.findMany({
-    where: inArray(schema.players.id, killerIds),
-    with: { guild: true },
-  });
-
+  const players = await loadPlayersWithGuildNames(killerIds);
   const playerById = new Map(players.map((p) => [p.id, p]));
 
   return rows.reduce<TopKillerEntry[]>((acc, row, index) => {
@@ -193,10 +190,7 @@ async function loadTopPlayersByKillFame(
 
   if (killerIds.length === 0) return [];
 
-  const players = await db.query.players.findMany({
-    where: inArray(schema.players.id, killerIds),
-    with: { guild: true },
-  });
+  const players = await loadPlayersWithGuildNames(killerIds);
   const playerById = new Map(players.map((p) => [p.id, p]));
 
   return rows.reduce<TopFameEntry[]>((acc, row, index) => {

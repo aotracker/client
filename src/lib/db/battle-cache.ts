@@ -172,15 +172,20 @@ interface BattleDetailPayload {
   players: AlbionBattlePlayer[];
 }
 
+function battleLookupWhere(region: AlbionRegion, albionBattleId: number) {
+  return and(
+    eq(schema.battles.albionBattleId, albionBattleId),
+    eq(schema.battles.region, region)
+  );
+}
+
 export async function getBattleByAlbionId(
   region: AlbionRegion,
   albionBattleId: number
 ) {
   return db.query.battles.findFirst({
-    where: and(
-      eq(schema.battles.albionBattleId, albionBattleId),
-      eq(schema.battles.region, region)
-    ),
+    where: battleLookupWhere(region, albionBattleId),
+    columns: { eventsPayload: false },
   });
 }
 
@@ -188,7 +193,18 @@ export async function getCachedBattle(
   region: AlbionRegion,
   albionBattleId: number
 ): Promise<AlbionBattle | null> {
-  const row = await getBattleByAlbionId(region, albionBattleId);
+  const row = await db.query.battles.findFirst({
+    where: battleLookupWhere(region, albionBattleId),
+    columns: {
+      albionBattleId: true,
+      startTime: true,
+      endTime: true,
+      totalFame: true,
+      totalKills: true,
+      totalPlayers: true,
+      rawPayload: true,
+    },
+  });
   if (!row) return null;
 
   if (row.rawPayload && typeof row.rawPayload === "object") {
@@ -219,7 +235,14 @@ export async function getCachedBattleDetail(
   region: AlbionRegion,
   albionBattleId: number
 ): Promise<CachedBattleDetail | null> {
-  const row = await getBattleByAlbionId(region, albionBattleId);
+  const row = await db.query.battles.findFirst({
+    where: battleLookupWhere(region, albionBattleId),
+    columns: {
+      detailSyncedAt: true,
+      rawPayload: true,
+      detailPayload: true,
+    },
+  });
   if (!row?.detailSyncedAt || !row.detailPayload || !row.rawPayload) return null;
 
   const detail = row.detailPayload as BattleDetailPayload;
@@ -327,7 +350,10 @@ export async function isBattleDetailSyncUnavailable(
   region: AlbionRegion,
   albionBattleId: number
 ): Promise<boolean> {
-  const row = await getBattleByAlbionId(region, albionBattleId);
+  const row = await db.query.battles.findFirst({
+    where: battleLookupWhere(region, albionBattleId),
+    columns: { detailSyncUnavailable: true },
+  });
   return (row?.detailSyncUnavailable ?? 0) === 1;
 }
 
@@ -555,6 +581,9 @@ export async function isBattleDetailEvicted(
   region: AlbionRegion,
   albionBattleId: number
 ): Promise<boolean> {
-  const row = await getBattleByAlbionId(region, albionBattleId);
+  const row = await db.query.battles.findFirst({
+    where: battleLookupWhere(region, albionBattleId),
+    columns: { detailEvictedAt: true },
+  });
   return row?.detailEvictedAt != null;
 }

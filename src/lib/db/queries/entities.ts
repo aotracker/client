@@ -23,6 +23,7 @@ import {
   getMainHandItem,
   isSparseBuild,
   killFamePositiveCondition,
+  loadPlayersWithGuildNames,
   preferBuildItems,
 } from "./shared";
 
@@ -974,10 +975,7 @@ export async function getPlayerAssociations(
     return { allies: [] };
   }
 
-  const relatedPlayers = await db.query.players.findMany({
-    where: inArray(schema.players.id, allyPlayerIds),
-    with: { guild: true },
-  });
+  const relatedPlayers = await loadPlayersWithGuildNames(allyPlayerIds);
   const playerById = new Map(relatedPlayers.map((p) => [p.id, p]));
 
   const allies = allyRows.reduce<PlayerAssociationEntry[]>((acc, row) => {

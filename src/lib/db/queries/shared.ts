@@ -7,7 +7,7 @@ import {
   ITEM_QUALITY_EXCELLENT,
   parseItemType,
 } from "@/lib/item-icons";
-import { schema } from "@/lib/db";
+import { db, schema } from "@/lib/db";
 
 /**
  * SQL filter matching `hasKillFame`: positive victim kill fame only.
@@ -159,4 +159,23 @@ export function preferBuildItems(
   return buildPowerScore(candidate) > buildPowerScore(current)
     ? candidate
     : current;
+}
+
+/** Player + guild names only — never lifetime_stats or guild battle JSON. */
+export async function loadPlayersWithGuildNames(playerIds: string[]) {
+  if (playerIds.length === 0) return [];
+  return db.query.players.findMany({
+    where: inArray(schema.players.id, playerIds),
+    columns: {
+      id: true,
+      albionId: true,
+      name: true,
+      region: true,
+    },
+    with: {
+      guild: {
+        columns: { albionId: true, name: true },
+      },
+    },
+  });
 }
