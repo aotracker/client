@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getKillEvent } from "@/lib/db/queries";
 import { ensureKillEventQueued } from "@/lib/jobs/queue";
-import type { AlbionEvent, AlbionPlayerRef, AlbionRegion } from "@/lib/albion/types";
+import type { AlbionEvent, AlbionRegion } from "@/lib/albion/types";
 import { isRegionEnabled } from "@/lib/albion/types";
 import { resolveGuildAtKill } from "@/lib/albion/player-history";
 import { KillDetailPending } from "@/components/KillDetailPending";
@@ -368,7 +368,7 @@ function getAssistants(
     seen.add(dedupeKey);
 
     const guildAtKill = resolveGuildAtKill(
-      p.rawPayload as AlbionPlayerRef | undefined,
+      undefined,
       p.guildName,
       p.player?.guild ?? null
     );

@@ -270,7 +270,10 @@ function watchlistCondition(watch: KillFeedWatchResolved) {
       and(
         eq(schema.killEvents.region, alliance.region),
         or(
-          sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${alliance.albionId}`,
+          eq(
+            schema.killEvents.killerAllianceAlbionId,
+            alliance.albionId
+          ),
           sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${alliance.albionId}`
         )
       )
@@ -443,13 +446,54 @@ export async function getKillEvent(region: AlbionRegion, eventId: number) {
       eq(schema.killEvents.eventId, eventId)
     ),
     with: {
-      killer: { with: { guild: true } },
-      victim: { with: { guild: true } },
-      battle: true,
-      participants: {
-        with: { player: { with: { guild: true } }, items: true },
+      killer: {
+        columns: { albionId: true, name: true },
+        with: {
+          guild: {
+            columns: { albionId: true, name: true, allianceTag: true },
+          },
+        },
       },
-      items: true,
+      victim: {
+        columns: { albionId: true, name: true },
+        with: {
+          guild: {
+            columns: { albionId: true, name: true, allianceTag: true },
+          },
+        },
+      },
+      battle: {
+        columns: { totalPlayers: true },
+      },
+      participants: {
+        columns: {
+          id: true,
+          playerId: true,
+          role: true,
+          name: true,
+          guildName: true,
+          averageItemPower: true,
+          supportHealingDone: true,
+        },
+        with: {
+          player: {
+            columns: { albionId: true, name: true },
+            with: {
+              guild: { columns: { albionId: true, name: true } },
+            },
+          },
+        },
+      },
+      items: {
+        columns: {
+          ownerRole: true,
+          category: true,
+          slot: true,
+          itemType: true,
+          quality: true,
+          count: true,
+        },
+      },
     },
   });
 }

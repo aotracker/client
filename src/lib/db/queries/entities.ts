@@ -740,6 +740,19 @@ export async function getAllianceProfileFromDb(
   };
 }
 
+function alliancePairCondition(idA: string, idB: string) {
+  return or(
+    and(
+      eq(schema.killEvents.killerAllianceAlbionId, idA),
+      sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idB}`
+    ),
+    and(
+      eq(schema.killEvents.killerAllianceAlbionId, idB),
+      sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idA}`
+    )
+  );
+}
+
 export async function getAllianceFeudKillsFromDb(
   region: AlbionRegion,
   allianceIdA: string,
@@ -761,16 +774,7 @@ export async function getAllianceFeudKillsFromDb(
         excludeEventId != null
           ? ne(schema.killEvents.eventId, excludeEventId)
           : undefined,
-        or(
-          and(
-            sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${idA}`,
-            sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idB}`
-          ),
-          and(
-            sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${idB}`,
-            sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idA}`
-          )
-        )
+        alliancePairCondition(idA, idB)
       )
     )
     .orderBy(desc(schema.killEvents.occurredAt))
@@ -809,7 +813,7 @@ export async function getAllianceFeudStats(
         and(
           eq(schema.killEvents.region, region),
           killFamePositiveCondition(),
-          sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${idA}`,
+          eq(schema.killEvents.killerAllianceAlbionId, idA),
           sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idB}`
         )
       ),
@@ -823,7 +827,7 @@ export async function getAllianceFeudStats(
         and(
           eq(schema.killEvents.region, region),
           killFamePositiveCondition(),
-          sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${idB}`,
+          eq(schema.killEvents.killerAllianceAlbionId, idB),
           sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idA}`
         )
       ),
@@ -1130,7 +1134,10 @@ export async function getWatchlistActivity(
             eq(schema.killEvents.region, alliance.region),
             killFamePositiveCondition(),
             or(
-              sql`${schema.killEvents.rawPayload}->'Killer'->>'AllianceId' = ${alliance.albionId}`,
+              eq(
+                schema.killEvents.killerAllianceAlbionId,
+                alliance.albionId
+              ),
               sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${alliance.albionId}`
             )
           )
