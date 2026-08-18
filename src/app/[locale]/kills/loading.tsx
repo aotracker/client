@@ -13,19 +13,7 @@ export default function KillsLoading() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <FilterChipSkeleton count={4} />
-          <FilterChipSkeleton count={4} />
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
-            <Skeleton className="h-3 w-16" />
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-8 w-20 rounded-md" />
-            ))}
-          </div>
-          <Skeleton className="h-8 w-28 rounded-md" />
-        </div>
+        <FilterChipSkeleton count={4} />
       </div>
 
       <div className="space-y-3">

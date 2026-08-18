@@ -13,11 +13,14 @@ export function Skeleton({
   );
 }
 
-export function FilterChipSkeleton({ count = 4 }: { count?: number }) {
+export function FilterChipSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <div className="flex flex-wrap gap-2" aria-hidden>
+    <div className="flex flex-wrap items-end gap-3" aria-hidden>
       {Array.from({ length: count }).map((_, i) => (
-        <Skeleton key={i} className="h-8 w-20 rounded-md" />
+        <div key={i} className="min-w-[9.5rem] space-y-1.5">
+          <Skeleton className="h-3 w-14" />
+          <Skeleton className="h-8 w-full rounded-md" />
+        </div>
       ))}
     </div>
   );

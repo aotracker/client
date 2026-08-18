@@ -5,9 +5,8 @@ import { useTranslations } from "next-intl";
 import { List, Skull, Swords } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { KillCard } from "@/components/KillCard";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { FilterSelect } from "@/components/ui/filter-select";
 import type { KillCardEvent } from "@/lib/albion/player-history";
 
 type ActivityFilter = "all" | "kills" | "deaths";
@@ -71,57 +70,33 @@ export function PlayerRecentActivity({
             {t("subtitle", { kills: kills.length, deaths: deaths.length })}
           </p>
         </div>
-        <div
-          className="flex flex-wrap gap-1"
-          role="group"
+        <FilterSelect
+          className="w-[11.5rem] sm:ml-auto"
+          align="end"
           aria-label={tA11y("filterRecentActivity")}
-        >
-          {(
-            [
-              {
-                id: "all" as const,
-                label: t("filterAll"),
-                count: activity.length,
-                icon: List,
-              },
-              {
-                id: "kills" as const,
-                label: t("filterKills"),
-                count: kills.length,
-                icon: Swords,
-              },
-              {
-                id: "deaths" as const,
-                label: t("filterDeaths"),
-                count: deaths.length,
-                icon: Skull,
-              },
-            ] as const
-          ).map((option) => (
-            <Button
-              key={option.id}
-              type="button"
-              size="sm"
-              variant={filter === option.id ? "default" : "outline"}
-              aria-pressed={filter === option.id}
-              onClick={() => setFilter(option.id)}
-              className={cn(
-                filter === option.id &&
-                  option.id === "kills" &&
-                  "border-stat-kill/40 bg-stat-kill/20 text-stat-kill hover:bg-stat-kill/30",
-                filter === option.id &&
-                  option.id === "deaths" &&
-                  "border-stat-death/40 bg-stat-death/20 text-stat-death hover:bg-stat-death/30"
-              )}
-            >
-              <option.icon className="h-3.5 w-3.5" aria-hidden />
-              {option.label}
-              <span className="ml-1 tabular-nums opacity-80">
-                {option.count}
-              </span>
-            </Button>
-          ))}
-        </div>
+          value={filter}
+          options={[
+            {
+              value: "all",
+              label: t("filterAll"),
+              icon: List,
+              suffix: activity.length,
+            },
+            {
+              value: "kills",
+              label: t("filterKills"),
+              icon: Swords,
+              suffix: kills.length,
+            },
+            {
+              value: "deaths",
+              label: t("filterDeaths"),
+              icon: Skull,
+              suffix: deaths.length,
+            },
+          ]}
+          onChange={setFilter}
+        />
       </div>
 
       <div className="space-y-3">

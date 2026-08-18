@@ -110,7 +110,7 @@ export default async function LeaderboardsPage({
     <div className="space-y-6">
       <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
 
-      <Suspense fallback={<FilterChipSkeleton count={6} />}>
+      <Suspense fallback={<FilterChipSkeleton count={3} />}>
         <LeaderboardNavigationProvider>
           <LeaderboardFilters regions={filterRegions} activeRegion={region} />
 

@@ -17,6 +17,7 @@ import {
   rememberFeedRegionSelection,
 } from "@/lib/region-params";
 import { Button } from "@/components/ui/button";
+import { FilterBar, FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 
 interface BattlesFiltersProps {
@@ -26,6 +27,7 @@ interface BattlesFiltersProps {
 
 export function BattlesFilters({ regions, activeRegion = "all" }: BattlesFiltersProps) {
   const t = useTranslations("Battle");
+  const tFilters = useTranslations("Filters");
   const router = useRouter();
   const searchParams = useSearchParams();
   const region = readFeedRegionParam(searchParams, activeRegion);
@@ -71,21 +73,19 @@ export function BattlesFilters({ regions, activeRegion = "all" }: BattlesFilters
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-      <div className="flex flex-wrap items-center gap-2">
-        {regions.map((r) => (
-          <Button
-            key={r.value}
-            variant={region === r.value ? "default" : "outline"}
-            size="sm"
-            aria-pressed={region === r.value}
-            onClick={() => pushParams({ region: r.value })}
-          >
-            {r.label}
-          </Button>
-        ))}
-        <label className="ml-0 flex items-center gap-2 sm:ml-2">
-          <span className="whitespace-nowrap text-xs text-muted-foreground">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+      <FilterBar>
+        <FilterSelect
+          label={tFilters("region")}
+          value={region}
+          options={regions.map((r) => ({
+            value: r.value,
+            label: r.label,
+          }))}
+          onChange={(next) => pushParams({ region: next })}
+        />
+        <label className="flex min-w-[8rem] flex-col gap-1.5">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {t("filters.minPlayers")}
           </span>
           <Input
@@ -108,7 +108,7 @@ export function BattlesFilters({ regions, activeRegion = "all" }: BattlesFilters
             })}
           />
         </label>
-      </div>
+      </FilterBar>
 
       <form onSubmit={handleSearch} className="flex w-full max-w-md items-center gap-2">
         <div className="relative w-full">

@@ -14,15 +14,11 @@ export default function LeaderboardsLoading() {
             <Skeleton key={i} className="h-8 w-24" />
           ))}
         </div>
-        <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-wrap items-end gap-3 p-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="space-y-2">
+            <div key={i} className="min-w-[9.5rem] space-y-1.5">
               <Skeleton className="h-3 w-16" />
-              <div className="flex flex-wrap gap-2">
-                <Skeleton className="h-8 w-20" />
-                <Skeleton className="h-8 w-20" />
-                <Skeleton className="h-8 w-20" />
-              </div>
+              <Skeleton className="h-8 w-full rounded-md" />
             </div>
           ))}
         </div>

@@ -17,6 +17,7 @@ import {
 } from "@/lib/region-params";
 import { formatFame } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { FilterBar, FilterSelect } from "@/components/ui/filter-select";
 
 const CONTENT_FILTERS: ContentTypeFilter[] = ["all", "SOLO", "GROUP", "ZVZ"];
 
@@ -76,84 +77,53 @@ export function KillFeedFilters({
   const showContentTypes = show === "all" || show === "contentTypes";
 
   return (
-    <div className="flex flex-col gap-3">
-      <div
-        className={
-          show === "all"
-            ? "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
-            : "flex flex-wrap gap-2"
-        }
-      >
-        {showRegions && (
-          <div className="flex flex-wrap gap-2">
-            {regions.map((r) => (
-              <Button
-                key={r.value}
-                variant={region === r.value ? "default" : "outline"}
-                size="sm"
-                aria-pressed={region === r.value}
-                onClick={() => update({ region: r.value })}
-              >
-                {tRegions.has(r.value) ? tRegions(r.value) : r.label}
-              </Button>
-            ))}
-          </div>
-        )}
-        {showContentTypes && (
-          <div className="flex flex-wrap gap-2">
-            {CONTENT_FILTERS.map((filter) => (
-              <Button
-                key={filter}
-                variant={contentType === filter ? "default" : "outline"}
-                size="sm"
-                aria-pressed={contentType === filter}
-                onClick={() => update({ type: filter })}
-              >
-                {tContent(filter)}
-              </Button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {(showMinFame || showWatchlist) && (
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          {showMinFame && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {tFilters("minFame")}
-              </span>
-              {MIN_FAME_OPTIONS.map((value) => (
-                <Button
-                  key={value}
-                  variant={minFame === value ? "default" : "outline"}
-                  size="sm"
-                  aria-pressed={minFame === value}
-                  onClick={() =>
-                    update({ minFame: value > 0 ? String(value) : null })
-                  }
-                >
-                  {value === 0
-                    ? tFilters("anyFame")
-                    : `${formatFame(value)}+`}
-                </Button>
-              ))}
-            </div>
-          )}
-          {showWatchlist && (
-            <Button
-              variant={watchlistOnly ? "default" : "outline"}
-              size="sm"
-              aria-pressed={watchlistOnly}
-              onClick={() =>
-                update({ watchlist: watchlistOnly ? null : "1" })
-              }
-            >
-              {tFilters("watchlistOnly")}
-            </Button>
-          )}
-        </div>
+    <FilterBar>
+      {showRegions && (
+        <FilterSelect
+          label={tFilters("region")}
+          value={region}
+          options={regions.map((r) => ({
+            value: r.value,
+            label: tRegions.has(r.value) ? tRegions(r.value) : r.label,
+          }))}
+          onChange={(next) => update({ region: next })}
+        />
       )}
-    </div>
+      {showContentTypes && (
+        <FilterSelect
+          label={tFilters("contentType")}
+          value={contentType}
+          options={CONTENT_FILTERS.map((filter) => ({
+            value: filter,
+            label: tContent(filter),
+          }))}
+          onChange={(next) => update({ type: next })}
+        />
+      )}
+      {showMinFame && (
+        <FilterSelect
+          label={tFilters("minFame")}
+          value={String(minFame)}
+          options={MIN_FAME_OPTIONS.map((value) => ({
+            value: String(value),
+            label:
+              value === 0 ? tFilters("anyFame") : `${formatFame(value)}+`,
+          }))}
+          onChange={(next) =>
+            update({ minFame: Number(next) > 0 ? next : null })
+          }
+        />
+      )}
+      {showWatchlist && (
+        <Button
+          variant={watchlistOnly ? "default" : "outline"}
+          size="sm"
+          aria-pressed={watchlistOnly}
+          onClick={() => update({ watchlist: watchlistOnly ? null : "1" })}
+        >
+          {tFilters("watchlistOnly")}
+        </Button>
+      )}
+    </FilterBar>
   );
 }

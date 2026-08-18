@@ -1,7 +1,10 @@
-import Link from "next/link";
+"use client";
+
+import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import { Check, CircleDashed, X } from "lucide-react";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
+import { FilterBar, FilterSelect } from "@/components/ui/filter-select";
 
 const STATUSES = ["success", "error", "miss"] as const;
 const STATUS_ICONS: Record<(typeof STATUSES)[number], LucideIcon> = {
@@ -25,6 +28,8 @@ export function ApiLogsFilters({
     endpoint?: string;
   };
 }) {
+  const router = useRouter();
+
   function href(patch: Record<string, string | undefined>) {
     const params = new URLSearchParams();
     const merged = { ...current, ...patch };
@@ -36,91 +41,40 @@ export function ApiLogsFilters({
     return q ? `/admin/api-logs?${q}` : "/admin/api-logs";
   }
 
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-2 text-sm">
-        <FilterGroup label="Status">
-          <FilterLink href={href({ status: undefined })} active={!current.status}>
-            All
-          </FilterLink>
-          {STATUSES.map((s) => {
-            const Icon = STATUS_ICONS[s];
-            return (
-              <FilterLink
-                key={s}
-                href={href({ status: s })}
-                active={current.status === s}
-              >
-                <Icon className="h-3 w-3 shrink-0" aria-hidden />
-                {s}
-              </FilterLink>
-            );
-          })}
-        </FilterGroup>
-        <FilterGroup label="Region">
-          <FilterLink href={href({ region: undefined })} active={!current.region}>
-            All
-          </FilterLink>
-          {ENABLED_REGIONS.map((r) => (
-            <FilterLink
-              key={r}
-              href={href({ region: r })}
-              active={current.region === r}
-            >
-              {r}
-            </FilterLink>
-          ))}
-        </FilterGroup>
-        <FilterGroup label="Window">
-          {WINDOWS.map((w) => (
-            <FilterLink
-              key={w.value}
-              href={href({ window: w.value })}
-              active={(current.window ?? "1h") === w.value}
-            >
-              {w.label}
-            </FilterLink>
-          ))}
-        </FilterGroup>
-      </div>
-    </div>
-  );
-}
+  function navigate(patch: Record<string, string | undefined>) {
+    router.push(href(patch));
+  }
 
-function FilterGroup({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
   return (
-    <div className="flex flex-wrap items-center gap-1 rounded-md border border-border/50 px-2 py-1">
-      <span className="text-xs text-muted-foreground">{label}:</span>
-      {children}
-    </div>
-  );
-}
-
-function FilterLink({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={
-        active
-          ? "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium bg-primary/15 text-primary"
-          : "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground"
-      }
-    >
-      {children}
-    </Link>
+    <FilterBar>
+      <FilterSelect
+        label="Status"
+        value={current.status ?? ""}
+        options={[
+          { value: "", label: "All" },
+          ...STATUSES.map((s) => ({
+            value: s,
+            label: s,
+            icon: STATUS_ICONS[s],
+          })),
+        ]}
+        onChange={(next) => navigate({ status: next || undefined })}
+      />
+      <FilterSelect
+        label="Region"
+        value={current.region ?? ""}
+        options={[
+          { value: "", label: "All" },
+          ...ENABLED_REGIONS.map((r) => ({ value: r, label: r })),
+        ]}
+        onChange={(next) => navigate({ region: next || undefined })}
+      />
+      <FilterSelect
+        label="Window"
+        value={current.window ?? "1h"}
+        options={WINDOWS.map((w) => ({ value: w.value, label: w.label }))}
+        onChange={(next) => navigate({ window: next })}
+      />
+    </FilterBar>
   );
 }

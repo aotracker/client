@@ -45,7 +45,7 @@ export default function BuildsLoading() {
         <Skeleton className="h-4 w-full max-w-xl" />
       </div>
 
-      <FilterChipSkeleton count={4} />
+      <FilterChipSkeleton count={1} />
 
       <div className="space-y-8">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

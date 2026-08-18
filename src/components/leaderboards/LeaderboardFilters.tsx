@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { LucideIcon } from "lucide-react";
@@ -18,7 +17,7 @@ import {
   primeTimeHoursForFilter,
 } from "@/lib/albion/prime-times";
 import { useLeaderboardNavigation } from "@/components/leaderboards/LeaderboardNavigation";
-import { Button } from "@/components/ui/button";
+import { FilterBar, FilterSelect } from "@/components/ui/filter-select";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -35,23 +34,6 @@ const TAB_ICONS: Record<LeaderboardTab, LucideIcon> = {
 interface LeaderboardFiltersProps {
   regions: { value: AlbionRegion | "all"; label: string }[];
   activeRegion?: AlbionRegion | "all";
-}
-
-function FilterRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </p>
-      <div className="flex flex-wrap gap-2">{children}</div>
-    </div>
-  );
 }
 
 export function LeaderboardFilters({
@@ -90,7 +72,7 @@ export function LeaderboardFilters({
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card>
       <nav
         className="flex flex-wrap gap-1 border-b border-border bg-muted/20 px-3 pt-2 sm:px-4"
         aria-label={tCommon("a11y.leaderboardType")}
@@ -127,80 +109,58 @@ export function LeaderboardFilters({
         })}
       </nav>
 
-      <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-        <FilterRow label={tFilters("region")}>
-          {regions.map((r) => (
-            <Button
-              key={r.value}
-              size="sm"
-              variant={region === r.value ? "default" : "outline"}
-              aria-pressed={region === r.value}
-              onClick={() => {
-                const nextHours = primeTimeHoursForFilter(r.value);
-                const keepHour =
-                  hour != null && nextHours.includes(hour)
-                    ? String(hour)
-                    : "";
-                push({ region: r.value, hour: keepHour });
-              }}
-            >
-              {regionLabel(r.value)}
-            </Button>
-          ))}
-        </FilterRow>
+      <FilterBar className="p-4">
+        <FilterSelect
+          label={tFilters("region")}
+          value={region}
+          disabled={isPending}
+          options={regions.map((r) => ({
+            value: r.value,
+            label: regionLabel(r.value),
+          }))}
+          onChange={(next) => {
+            const nextHours = primeTimeHoursForFilter(next);
+            const keepHour =
+              hour != null && nextHours.includes(hour) ? String(hour) : "";
+            push({ region: next, hour: keepHour });
+          }}
+        />
 
-        <FilterRow label={tFilters("period")}>
-          {DAYS.map((d) => (
-            <Button
-              key={d}
-              size="sm"
-              variant={days === d ? "default" : "outline"}
-              aria-pressed={days === d}
-              onClick={() => push({ days: String(d) })}
-            >
-              {tFilters("lastDays", { days: d })}
-            </Button>
-          ))}
-        </FilterRow>
+        <FilterSelect
+          label={tFilters("period")}
+          value={String(days as (typeof DAYS)[number])}
+          disabled={isPending}
+          options={DAYS.map((d) => ({
+            value: String(d),
+            label: tFilters("lastDays", { days: d }),
+          }))}
+          onChange={(next) => push({ days: next })}
+        />
 
-        <FilterRow label={tFilters("contentType")}>
-          {contentTypes.map((item) => (
-            <Button
-              key={item.value}
-              size="sm"
-              variant={type === item.value ? "default" : "outline"}
-              aria-pressed={type === item.value}
-              onClick={() => push({ type: item.value })}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </FilterRow>
+        <FilterSelect
+          label={tFilters("contentType")}
+          value={type}
+          disabled={isPending}
+          options={contentTypes}
+          onChange={(next) => push({ type: next })}
+        />
 
         {showPrimeTime ? (
-          <FilterRow label={tFilters("primeTime")}>
-            <Button
-              size="sm"
-              variant={selectedPtHour == null ? "default" : "outline"}
-              aria-pressed={selectedPtHour == null}
-              onClick={() => push({ hour: "" })}
-            >
-              {tFilters("contentAll")}
-            </Button>
-            {ptHours.map((slot) => (
-              <Button
-                key={slot}
-                size="sm"
-                variant={selectedPtHour === slot ? "default" : "outline"}
-                aria-pressed={selectedPtHour === slot}
-                onClick={() => push({ hour: String(slot) })}
-              >
-                {formatUtcHour(slot)}
-              </Button>
-            ))}
-          </FilterRow>
+          <FilterSelect
+            label={tFilters("primeTime")}
+            value={selectedPtHour == null ? "" : String(selectedPtHour)}
+            disabled={isPending}
+            options={[
+              { value: "", label: tFilters("contentAll") },
+              ...ptHours.map((slot) => ({
+                value: String(slot),
+                label: formatUtcHour(slot),
+              })),
+            ]}
+            onChange={(next) => push({ hour: next })}
+          />
         ) : null}
-      </div>
+      </FilterBar>
     </Card>
   );
 }

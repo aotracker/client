@@ -14,6 +14,7 @@ import {
   type FeedRegion,
 } from "@/lib/region-params";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { cn } from "@/lib/utils";
 
 interface NavbarRegionSelectorProps {
@@ -113,29 +114,13 @@ export function NavbarRegionSelector({
 
   if (variant === "chips") {
     return (
-      <div className={cn("space-y-2", className)}>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {tNav("region")}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={cn(
-                "inline-flex h-8 items-center rounded-md border px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                activeRegion === option.value
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground"
-              )}
-              aria-pressed={activeRegion === option.value}
-              onClick={() => selectRegion(option.value)}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <FilterSelect
+        className={cn("w-full", className)}
+        label={tNav("region")}
+        value={activeRegion}
+        options={options}
+        onChange={selectRegion}
+      />
     );
   }
 

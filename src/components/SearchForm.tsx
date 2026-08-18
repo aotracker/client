@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import {
   SearchAutocomplete,
   useSearchRegion,
@@ -19,7 +19,7 @@ import type { RecentSearch } from "@/lib/search/recent-searches";
 interface SearchFormProps {
   initialQuery?: string;
   initialRegion?: PreferredRegion;
-  /** Pass from a Server Component so region buttons match SSR (avoids client env drift). */
+  /** Pass from a Server Component so region options match SSR (avoids client env drift). */
   regions?: AlbionRegion[];
 }
 
@@ -30,6 +30,7 @@ export function SearchForm({
 }: SearchFormProps) {
   const t = useTranslations("Search");
   const tRegions = useTranslations("Common.regions");
+  const tFilters = useTranslations("Filters");
   const [region, setRegion] = useSearchRegion(initialRegion ?? "all", {
     preferStored: initialRegion == null,
   });
@@ -50,20 +51,15 @@ export function SearchForm({
         autoFocus={!initialQuery}
         showSubmitButton
       />
-      <div className="flex flex-wrap gap-2">
-        {regionOptions.map((r) => (
-          <Button
-            key={r.value}
-            type="button"
-            size="sm"
-            variant={region === r.value ? "default" : "outline"}
-            aria-pressed={region === r.value}
-            onClick={() => setRegion(r.value)}
-          >
-            {tRegions.has(r.value) ? tRegions(r.value) : r.label}
-          </Button>
-        ))}
-      </div>
+      <FilterSelect
+        label={tFilters("region")}
+        value={region}
+        options={regionOptions.map((r) => ({
+          value: r.value,
+          label: tRegions.has(r.value) ? tRegions(r.value) : r.label,
+        }))}
+        onChange={setRegion}
+      />
       {!initialQuery && recent.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

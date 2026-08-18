@@ -79,7 +79,7 @@ export default async function BattlesPage({
         }
       />
 
-      <Suspense fallback={<FilterChipSkeleton count={4} />}>
+      <Suspense fallback={<FilterChipSkeleton count={2} />}>
         <BattlesFilters regions={filterRegions} activeRegion={region} />
       </Suspense>
 

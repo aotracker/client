@@ -86,7 +86,7 @@ export default async function KillsPage({
     <div className="space-y-6">
       <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
 
-      <Suspense fallback={<FilterChipSkeleton count={8} />}>
+      <Suspense fallback={<FilterChipSkeleton count={4} />}>
         <KillFeedFilters
           regions={filterRegions}
           activeRegion={region}

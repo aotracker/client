@@ -1,7 +1,10 @@
-import Link from "next/link";
+"use client";
+
+import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import { AlertTriangle, CircleX, Info } from "lucide-react";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
+import { FilterBar, FilterSelect } from "@/components/ui/filter-select";
 
 const SEVERITIES = ["error", "warning", "info"] as const;
 const SEVERITY_ICONS: Record<(typeof SEVERITIES)[number], LucideIcon> = {
@@ -27,6 +30,8 @@ export function OpsEventsFilters({
     window?: string;
   };
 }) {
+  const router = useRouter();
+
   function href(patch: Record<string, string | undefined>) {
     const params = new URLSearchParams();
     const merged = { ...current, ...patch };
@@ -38,103 +43,49 @@ export function OpsEventsFilters({
     return q ? `/admin/errors?${q}` : "/admin/errors";
   }
 
-  return (
-    <div className="flex flex-wrap gap-2 text-sm">
-      <FilterGroup label="Severity">
-        <FilterLink href={href({ severity: undefined })} active={!current.severity}>
-          All
-        </FilterLink>
-        {SEVERITIES.map((s) => {
-          const Icon = SEVERITY_ICONS[s];
-          return (
-            <FilterLink
-              key={s}
-              href={href({ severity: s })}
-              active={current.severity === s}
-            >
-              <Icon className="h-3 w-3 shrink-0" aria-hidden />
-              {s}
-            </FilterLink>
-          );
-        })}
-      </FilterGroup>
-      <FilterGroup label="Source">
-        <FilterLink href={href({ source: undefined })} active={!current.source}>
-          All
-        </FilterLink>
-        {SOURCES.map((s) => (
-          <FilterLink
-            key={s}
-            href={href({ source: s })}
-            active={current.source === s}
-          >
-            {s}
-          </FilterLink>
-        ))}
-      </FilterGroup>
-      <FilterGroup label="Region">
-        <FilterLink href={href({ region: undefined })} active={!current.region}>
-          All
-        </FilterLink>
-        {ENABLED_REGIONS.map((r) => (
-          <FilterLink
-            key={r}
-            href={href({ region: r })}
-            active={current.region === r}
-          >
-            {r}
-          </FilterLink>
-        ))}
-      </FilterGroup>
-      <FilterGroup label="Window">
-        {WINDOWS.map((w) => (
-          <FilterLink
-            key={w.value || "all"}
-            href={href({ window: w.value || undefined })}
-            active={(current.window ?? "") === w.value}
-          >
-            {w.label}
-          </FilterLink>
-        ))}
-      </FilterGroup>
-    </div>
-  );
-}
+  function navigate(patch: Record<string, string | undefined>) {
+    router.push(href(patch));
+  }
 
-function FilterGroup({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
   return (
-    <div className="flex flex-wrap items-center gap-1 rounded-md border border-border/50 px-2 py-1">
-      <span className="text-xs text-muted-foreground">{label}:</span>
-      {children}
-    </div>
-  );
-}
-
-function FilterLink({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={
-        active
-          ? "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium bg-primary/15 text-primary"
-          : "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground"
-      }
-    >
-      {children}
-    </Link>
+    <FilterBar>
+      <FilterSelect
+        label="Severity"
+        value={current.severity ?? ""}
+        options={[
+          { value: "", label: "All" },
+          ...SEVERITIES.map((s) => ({
+            value: s,
+            label: s,
+            icon: SEVERITY_ICONS[s],
+          })),
+        ]}
+        onChange={(next) => navigate({ severity: next || undefined })}
+      />
+      <FilterSelect
+        label="Source"
+        value={current.source ?? ""}
+        options={[
+          { value: "", label: "All" },
+          ...SOURCES.map((s) => ({ value: s, label: s })),
+        ]}
+        onChange={(next) => navigate({ source: next || undefined })}
+      />
+      <FilterSelect
+        label="Region"
+        value={current.region ?? ""}
+        options={[
+          { value: "", label: "All" },
+          ...ENABLED_REGIONS.map((r) => ({ value: r, label: r })),
+        ]}
+        onChange={(next) => navigate({ region: next || undefined })}
+      />
+      <FilterSelect
+        label="Window"
+        value={current.window ?? ""}
+        options={WINDOWS.map((w) => ({ value: w.value, label: w.label }))}
+        onChange={(next) => navigate({ window: next || undefined })}
+      />
+    </FilterBar>
   );
 }

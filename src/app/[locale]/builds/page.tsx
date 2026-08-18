@@ -75,7 +75,7 @@ export default async function BuildsPage({
         description={t("pageDescription", { days, region: regionSuffix })}
       />
 
-      <Suspense fallback={<FilterChipSkeleton count={4} />}>
+      <Suspense fallback={<FilterChipSkeleton count={1} />}>
         <BuildsRegionFilters regions={filterRegions} activeRegion={region} />
       </Suspense>
 

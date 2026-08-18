@@ -6,8 +6,8 @@ import { Search, Swords } from "lucide-react";
 import type { AlbionBattlePlayer, AlbionRegion } from "@/lib/albion/types";
 import { ItemIcon } from "@/components/ItemIcon";
 import { StatValue } from "@/components/StatValue";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import { formatFame, formatItemPower } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
@@ -88,19 +88,14 @@ export function BattlePlayersList({ region, players }: BattlePlayersListProps) {
               />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted-foreground">Sort by</span>
-            {PLAYER_SORT_OPTIONS.map((option) => (
-              <Button
-                key={option.value}
-                variant={sortBy === option.value ? "default" : "outline"}
-                size="sm"
-                aria-pressed={sortBy === option.value}
-                onClick={() => setSortBy(option.value)}
-              >
-                {option.label}
-              </Button>
-            ))}
+          <div className="flex flex-wrap items-end gap-2">
+            <FilterSelect
+              className="w-[9.5rem]"
+              label="Sort by"
+              value={sortBy}
+              options={PLAYER_SORT_OPTIONS}
+              onChange={setSortBy}
+            />
           </div>
         </CardHeader>
         <CardContent className="space-y-2">

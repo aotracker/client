@@ -10,7 +10,7 @@ export default function SearchLoading() {
       </div>
       <div className="space-y-3">
         <Skeleton className="h-10 w-full max-w-xl" />
-        <FilterChipSkeleton count={3} />
+        <FilterChipSkeleton count={1} />
       </div>
       <div className="space-y-3">
         <Skeleton className="h-5 w-24" />

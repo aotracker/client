@@ -94,7 +94,7 @@ export default async function HomePage({ params, searchParams }: HomeProps) {
         })}
       </h1>
 
-      <Suspense fallback={<FilterChipSkeleton count={8} />}>
+      <Suspense fallback={<FilterChipSkeleton count={2} />}>
         <KillFeedFilters
           regions={filterRegions}
           activeRegion={region}
