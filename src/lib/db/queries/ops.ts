@@ -1,6 +1,7 @@
 import { count, inArray } from "drizzle-orm";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
+import { HEALTH_CACHE_REVALIDATE_SECONDS, cachedQuery } from "@/lib/cache";
 import { db, schema } from "@/lib/db";
 
 export async function getApiSyncState() {
@@ -18,7 +19,7 @@ export interface RegionEntityCounts {
   battles: number;
 }
 
-export async function getRegionEntityCounts(): Promise<RegionEntityCounts[]> {
+async function loadRegionEntityCounts(): Promise<RegionEntityCounts[]> {
   if (ENABLED_REGIONS.length === 0) return [];
 
   const [playerRows, guildRows, killRows, battleRows] = await Promise.all([
@@ -72,6 +73,17 @@ export async function getRegionEntityCounts(): Promise<RegionEntityCounts[]> {
     kills: killsByRegion.get(region) ?? 0,
     battles: battlesByRegion.get(region) ?? 0,
   }));
+}
+
+const cachedRegionEntityCounts = cachedQuery(
+  async (_regionsKey: string) => loadRegionEntityCounts(),
+  ["region-entity-counts"],
+  HEALTH_CACHE_REVALIDATE_SECONDS,
+  ["health"]
+);
+
+export async function getRegionEntityCounts(): Promise<RegionEntityCounts[]> {
+  return cachedRegionEntityCounts(ENABLED_REGIONS.join(","));
 }
 
 export { getGlobalSyncStatus, getLatestKillAtByRegion } from "@/lib/health/sync-status";

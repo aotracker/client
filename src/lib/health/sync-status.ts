@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { max, inArray } from "drizzle-orm";
+import { HEALTH_CACHE_REVALIDATE_SECONDS, cachedQuery } from "@/lib/cache";
 import { db, schema } from "@/lib/db";
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { regionLabel } from "@/lib/utils";
@@ -213,9 +214,27 @@ export async function getLatestKillAtByRegion(): Promise<
   );
 }
 
-export const getGlobalSyncStatus = cache(async function getGlobalSyncStatus(): Promise<
-  GlobalSyncStatus
-> {
+function asDate(value: Date | string | null | undefined): Date | null {
+  if (value == null || value === "") return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** `unstable_cache` JSON-serializes Dates; restore them for callers. */
+function reviveGlobalSyncStatus(status: GlobalSyncStatus): GlobalSyncStatus {
+  return {
+    ...status,
+    lastSyncAt: asDate(status.lastSyncAt),
+    regions: status.regions.map((row) => ({
+      ...row,
+      lastIngestAt: asDate(row.lastIngestAt),
+      lastHealthCheckAt: asDate(row.lastHealthCheckAt),
+      latestKillAt: asDate(row.latestKillAt),
+    })),
+  };
+}
+
+async function loadGlobalSyncStatus(): Promise<GlobalSyncStatus> {
   const nowMs = Date.now();
 
   const [syncRows, latestKills] = await Promise.all([
@@ -292,4 +311,19 @@ export const getGlobalSyncStatus = cache(async function getGlobalSyncStatus(): P
 
   status.message = buildStatusBannerMessage(status);
   return status;
+}
+
+const cachedGlobalSyncStatus = cachedQuery(
+  async (_regionsKey: string) => loadGlobalSyncStatus(),
+  ["global-sync-status"],
+  HEALTH_CACHE_REVALIDATE_SECONDS,
+  ["health"]
+);
+
+export const getGlobalSyncStatus = cache(async function getGlobalSyncStatus(): Promise<
+  GlobalSyncStatus
+> {
+  return reviveGlobalSyncStatus(
+    await cachedGlobalSyncStatus(ENABLED_REGIONS.join(","))
+  );
 });

@@ -9,6 +9,9 @@ export const LEADERBOARD_CACHE_REVALIDATE_SECONDS = 30;
 /** Cross-request TTL for meta builds (expensive participant aggregation). */
 export const BUILDS_CACHE_REVALIDATE_SECONDS = 60;
 
+/** Cross-request TTL for /health counts, sync banner, and latest-kill lag. */
+export const HEALTH_CACHE_REVALIDATE_SECONDS = 30;
+
 /**
  * Request-scoped memoization stub — Next.js wraps with `react` cache at the
  * app layer when needed. Prefer `cachedQuery` for cross-request page data.

@@ -1,3 +1,4 @@
+import { HEALTH_CACHE_REVALIDATE_SECONDS } from "@/lib/cache";
 import {
   LATEST_KILL_STALE_MINUTES,
   HEALTH_CHECK_STALE_MINUTES,
@@ -78,6 +79,12 @@ export function getConfigRegistry(): ConfigRegistryGroup[] {
           name: "Health check stale",
           value: `${HEALTH_CHECK_STALE_MINUTES} min`,
           source: "client/src/lib/health/sync-status.ts",
+        },
+        {
+          name: "Health page / sync status cache",
+          value: `${HEALTH_CACHE_REVALIDATE_SECONDS}s`,
+          source: "client/src/lib/cache.ts",
+          note: "Entity counts and latest-kill lag are cached across requests",
         },
         {
           name: "Ingest poll alive slack",

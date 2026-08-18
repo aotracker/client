@@ -16,7 +16,8 @@ import {
   type RegionSyncStatus,
 } from "@/lib/health/sync-status";
 
-export const dynamic = "force-dynamic";
+/** Matches HEALTH_CACHE_REVALIDATE_SECONDS in cache.ts. */
+export const revalidate = 30;
 
 const HEALTH_ICONS: Record<RegionApiHealthLabel, LucideIcon> = {
   healthy: CheckCircle2,
