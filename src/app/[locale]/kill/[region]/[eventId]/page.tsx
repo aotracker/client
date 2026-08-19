@@ -298,12 +298,18 @@ function guildsAtKill(event: KillEvent) {
     killer: resolveGuildAtKill(
       payload?.Killer,
       killerParticipant?.guildName,
-      event.killer?.guild ?? null
+      {
+        name: event.killerGuildName,
+        albionId: event.killerGuildAlbionId,
+      }
     ),
     victim: resolveGuildAtKill(
       payload?.Victim,
       victimParticipant?.guildName,
-      event.victim?.guild ?? null
+      {
+        name: event.victimGuildName,
+        albionId: event.victimGuildAlbionId,
+      }
     ),
   };
 }
@@ -341,11 +347,7 @@ function getAssistants(
     if (seen.has(dedupeKey)) continue;
     seen.add(dedupeKey);
 
-    const guildAtKill = resolveGuildAtKill(
-      undefined,
-      p.guildName,
-      p.player?.guild ?? null
-    );
+    const guildAtKill = resolveGuildAtKill(undefined, p.guildName);
 
     assistants.push({
       key: dedupeKey,

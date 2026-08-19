@@ -1,7 +1,10 @@
 import { cache } from "react";
 import { and, desc, eq, gt, gte, inArray, or, sql } from "drizzle-orm";
 import { LOCALE_CODES } from "@/i18n/locales";
-import { albionEventToKillCard } from "@/lib/albion/player-history";
+import {
+  mapKillEventToCard as mapKillEventFields,
+  type KillCardItemSource,
+} from "@/lib/albion/kill-card-map";
 import {
   HOME_CACHE_REVALIDATE_SECONDS,
   LEADERBOARD_CACHE_REVALIDATE_SECONDS,
@@ -9,7 +12,7 @@ import {
 } from "@/lib/cache";
 import { getCatalogItemName } from "@/lib/items/catalog";
 import { formatItemName } from "@/lib/utils";
-import type { AlbionEvent, AlbionRegion } from "@/lib/albion/types";
+import type { AlbionRegion } from "@/lib/albion/types";
 import { db, schema } from "@/lib/db";
 import { uiLookbackCutoff } from "@/lib/db/retention";
 import {
@@ -47,47 +50,6 @@ export interface JuicyKillsFilters extends RegionFilters {
   contentType?: ContentTypeFilter;
 }
 
-type KillCardGuild = {
-  albionId: string;
-  name: string;
-  allianceTag?: string | null;
-} | null;
-
-type KillCardItemSource = {
-  ownerRole: string;
-  slot: string | null;
-  itemType: string;
-  quality: number | null;
-  category: string;
-};
-
-type KillEventCardSource = {
-  eventId: number;
-  region: AlbionRegion;
-  occurredAt: Date;
-  contentType: string;
-  totalVictimKillFame: number | null;
-  detailEvictedAt?: Date | null;
-  killerGuildAlbionId?: string | null;
-  killerGuildName?: string | null;
-  rawPayload?: unknown | null;
-  killer?: {
-    albionId: string;
-    name: string;
-    guild?: KillCardGuild;
-  } | null;
-  victim?: {
-    albionId: string;
-    name: string;
-    guild?: KillCardGuild;
-  } | null;
-  items?: KillCardItemSource[];
-  participants?: {
-    role: string;
-    averageItemPower: string | null;
-  }[];
-};
-
 function withItemDisplayNames(items: KillCardItemSource[]) {
   return items.map((item) => ({
     ...item,
@@ -101,81 +63,13 @@ function withItemDisplayNames(items: KillCardItemSource[]) {
   }));
 }
 
-function currentGuildRef(guild: KillCardGuild) {
-  return guild
-    ? { name: guild.name, albionId: guild.albionId }
-    : null;
-}
-
-export function mapKillEventToCard(event: KillEventCardSource) {
-  if (event.rawPayload && !event.detailEvictedAt) {
-    const payload = event.rawPayload as AlbionEvent;
-    const extras = albionEventToKillCard(event.region, payload);
-    const killerGuild =
-      extras.killer?.guild ?? currentGuildRef(event.killer?.guild ?? null);
-    const victimGuild =
-      extras.victim?.guild ?? currentGuildRef(event.victim?.guild ?? null);
-
-    return {
-      eventId: event.eventId,
-      region: event.region,
-      occurredAt: event.occurredAt,
-      contentType: event.contentType,
-      totalVictimKillFame: event.totalVictimKillFame,
-      killer:
-        event.killer || extras.killer
-          ? {
-              albionId: event.killer?.albionId ?? extras.killer!.albionId,
-              name: event.killer?.name ?? extras.killer?.name ?? "Unknown",
-              guild: killerGuild,
-              allianceTag: extras.killer?.allianceTag ?? null,
-            }
-          : null,
-      victim:
-        event.victim || extras.victim
-          ? {
-              albionId: event.victim?.albionId ?? extras.victim!.albionId,
-              name: event.victim?.name ?? extras.victim?.name ?? "Unknown",
-              guild: victimGuild,
-              allianceTag: extras.victim?.allianceTag ?? null,
-            }
-          : null,
-      items: extras.items ? withItemDisplayNames(extras.items) : undefined,
-      participants: extras.participants,
-    };
-  }
-
-  const killerGuild = event.killerGuildName
-    ? {
-        name: event.killerGuildName,
-        albionId: event.killerGuildAlbionId ?? undefined,
-      }
-    : currentGuildRef(event.killer?.guild ?? null);
-
+export function mapKillEventToCard(
+  event: Parameters<typeof mapKillEventFields>[0]
+) {
+  const card = mapKillEventFields(event);
   return {
-    eventId: event.eventId,
-    region: event.region,
-    occurredAt: event.occurredAt,
-    contentType: event.contentType,
-    totalVictimKillFame: event.totalVictimKillFame,
-    killer: event.killer
-      ? {
-          albionId: event.killer.albionId,
-          name: event.killer.name,
-          guild: killerGuild,
-          allianceTag: event.killer.guild?.allianceTag ?? null,
-        }
-      : null,
-    victim: event.victim
-      ? {
-          albionId: event.victim.albionId,
-          name: event.victim.name,
-          guild: currentGuildRef(event.victim.guild ?? null),
-          allianceTag: event.victim.guild?.allianceTag ?? null,
-        }
-      : null,
-    items: event.items ? withItemDisplayNames(event.items) : undefined,
-    participants: event.participants,
+    ...card,
+    items: card.items ? withItemDisplayNames(card.items) : undefined,
   };
 }
 
@@ -197,23 +91,15 @@ export async function hydrateKillCardsByIds(ids: string[]) {
       detailEvictedAt: true,
       killerGuildAlbionId: true,
       killerGuildName: true,
+      victimGuildAlbionId: true,
+      victimGuildName: true,
     },
     with: {
       killer: {
         columns: { albionId: true, name: true },
-        with: {
-          guild: {
-            columns: { albionId: true, name: true, allianceTag: true },
-          },
-        },
       },
       victim: {
         columns: { albionId: true, name: true },
-        with: {
-          guild: {
-            columns: { albionId: true, name: true, allianceTag: true },
-          },
-        },
       },
       items: {
         columns: {
@@ -228,6 +114,7 @@ export async function hydrateKillCardsByIds(ids: string[]) {
       participants: {
         columns: {
           role: true,
+          guildName: true,
           averageItemPower: true,
         },
         where: inArray(schema.killParticipants.role, KILL_CARD_SIDES),

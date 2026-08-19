@@ -6,9 +6,11 @@ import {
 } from "@/lib/utils";
 import { createKillOgImage, createOgImage, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og";
 import { getKillEvent } from "@/lib/db/queries";
+import { resolveGuildAtKill } from "@/lib/albion/player-history";
 import {
   contentTypeLabel,
   isRegionEnabled,
+  type AlbionEvent,
   type AlbionRegion,
 } from "@/lib/albion/types";
 
@@ -41,17 +43,20 @@ export default async function Image({ params }: Props) {
     });
   }
 
+  const payload = (event.rawPayload as AlbionEvent | null) ?? null;
   const killerParticipant = event.participants.find((p) => p.role === "killer");
   const victimParticipant = event.participants.find((p) => p.role === "victim");
 
   const killerGuild =
-    killerParticipant?.guildName?.trim() ||
-    event.killer?.guild?.name?.trim() ||
-    null;
+    resolveGuildAtKill(payload?.Killer, killerParticipant?.guildName, {
+      name: event.killerGuildName,
+      albionId: event.killerGuildAlbionId,
+    })?.name ?? null;
   const victimGuild =
-    victimParticipant?.guildName?.trim() ||
-    event.victim?.guild?.name?.trim() ||
-    null;
+    resolveGuildAtKill(payload?.Victim, victimParticipant?.guildName, {
+      name: event.victimGuildName,
+      albionId: event.victimGuildAlbionId,
+    })?.name ?? null;
 
   return createKillOgImage({
     killer: {
