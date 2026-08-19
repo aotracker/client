@@ -2,18 +2,33 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BuildsMetaView } from "@/components/builds/BuildsMetaView";
-import { BuildsRegionFilters } from "@/components/builds/BuildsRegionFilters";
+import { BuildsFilters } from "@/components/builds/BuildsFilters";
 import { PageHeader } from "@/components/PageSection";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import { getMetaBuilds } from "@/lib/db/queries";
+import {
+  parseBuildDays,
+  parseMetaBuildArmor,
+  parseMetaBuildRole,
+  parseMetaBuildSort,
+} from "@/lib/builds/params";
+import { resolveMetaWeapon } from "@/lib/builds/resolve-weapon";
+import { pickLocalizedName } from "@/lib/items/localized-name";
 import { feedRegionFilterOptions } from "@/lib/region-params";
 import { resolveServerFeedRegion } from "@/lib/region-preference-server";
-import { regionLabel } from "@/lib/utils";
+import { formatItemName, regionLabel } from "@/lib/utils";
 import { buildFeedPageMetadata } from "@/lib/seo";
 
 interface BuildsPageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ region?: string; days?: string }>;
+  searchParams: Promise<{
+    region?: string;
+    days?: string;
+    role?: string;
+    armor?: string;
+    sort?: string;
+    weapon?: string;
+  }>;
 }
 
 export async function generateMetadata({
@@ -34,12 +49,6 @@ export async function generateMetadata({
   });
 }
 
-function parseDays(value: string | undefined): number {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return 30;
-  return Math.min(Math.max(Math.round(parsed), 1), 30);
-}
-
 export default async function BuildsPage({
   params,
   searchParams,
@@ -51,14 +60,18 @@ export default async function BuildsPage({
 
   const search = await searchParams;
   const region = await resolveServerFeedRegion(search.region);
-  const days = parseDays(search.days);
+  const days = parseBuildDays(search.days);
+  const role = parseMetaBuildRole(search.role);
+  const armor = parseMetaBuildArmor(search.armor);
+  const sort = parseMetaBuildSort(search.sort);
+  const weapon = resolveMetaWeapon(search.weapon);
   const filterRegions = feedRegionFilterOptions();
 
   let data: Awaited<ReturnType<typeof getMetaBuilds>> | null = null;
   let error: string | null = null;
 
   try {
-    data = await getMetaBuilds({ region, days });
+    data = await getMetaBuilds({ region, days, role, armor, sort, weapon });
   } catch (e) {
     error = e instanceof Error ? e.message : t("failedLoad");
   }
@@ -75,8 +88,21 @@ export default async function BuildsPage({
         description={t("pageDescription", { days, region: regionSuffix })}
       />
 
-      <Suspense fallback={<FilterChipSkeleton count={1} />}>
-        <BuildsRegionFilters regions={filterRegions} activeRegion={region} />
+      <Suspense fallback={<FilterChipSkeleton count={3} />}>
+        <BuildsFilters
+          regions={filterRegions}
+          activeRegion={region}
+          activeWeaponLabel={
+            weapon
+              ? pickLocalizedName(
+                  data?.topWeapons.find((entry) => entry.familyKey === weapon)
+                    ?.familyNames,
+                  locale,
+                  formatItemName(`T8_${weapon}`)
+                )
+              : null
+          }
+        />
       </Suspense>
 
       {error ? (
@@ -84,7 +110,7 @@ export default async function BuildsPage({
           {error}
         </div>
       ) : data ? (
-        <BuildsMetaView data={data} />
+        <BuildsMetaView data={data} sort={sort} weapon={weapon} />
       ) : null}
     </div>
   );

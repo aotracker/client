@@ -202,7 +202,8 @@
       "players": "Players",
       "uses": "Uses",
       "assists": "Assists",
-      "avgIp": "Avg IP"
+      "avgIp": "Avg IP",
+      "avgFame": "Avg fame"
     },
     "labels": {
       "lastUpdated": "Last updated: {datetime}",
@@ -213,6 +214,9 @@
       "emDash": "—",
       "mainHand": "Main hand",
       "offHand": "Off hand",
+      "head": "Head",
+      "armor": "Armor",
+      "shoes": "Shoes",
       "albionId": "Albion ID",
       "albionPlayerId": "Albion player ID",
       "albionGuildId": "Albion guild ID",
@@ -635,15 +639,46 @@
       "buildsRanked": "Builds ranked",
       "buildsHint": "Across 1v1, group & ZvZ",
       "loadoutsSampled": "Loadouts sampled",
-      "loadoutsHint": "Killers, victims & assists"
+      "loadoutsHint": "Killers, victims & assists",
+      "avgFame": "Avg fame",
+      "usageShare": "{pct}% of sample",
+      "usageTooltip": "Kills + deaths + assists. Healers, tanks, and supports count when they appear in a fight."
     },
     "pvpEventsCount": "{count} PvP events",
+    "jumpNav": {
+      "aria": "Jump to 1v1, group, or ZvZ builds",
+      "title": "Jump to builds",
+      "hint": "Click a fight size to scroll to that meta",
+      "cta": "Jump to {section}"
+    },
     "hottestWeapons": {
       "title": "Hottest weapons",
-      "description": "Top main-hands within each fight size — one row per weapon, with a split showing where it shows up most.",
+      "description": "Top main-hands within each fight size — one row per weapon, with a split showing where it shows up most. Click a weapon to filter builds.",
       "uses": "{count} uses",
+      "share": " · {pct}%",
       "killsSuffix": " · {count} kills",
       "assistsSuffix": " · {count} assists"
+    },
+    "filters": {
+      "role": "Role",
+      "armor": "Armor",
+      "sort": "Sort",
+      "weapon": "Weapon",
+      "allRoles": "All roles",
+      "allArmor": "All armor",
+      "allWeapons": "All weapons",
+      "lastDay": "Last 24 hours",
+      "clearWeapon": "Clear {weapon} filter"
+    },
+    "sort": {
+      "usage": "Usage",
+      "kd": "K/D",
+      "kills": "Kills",
+      "fame": "Fame"
+    },
+    "mix": {
+      "roles": "Role mix",
+      "armor": "Armor mix"
     },
     "sections": {
       "soloTitle": "1v1 Meta",
@@ -653,8 +688,14 @@
       "zvzTitle": "ZvZ Meta",
       "zvzBlurb": "Top builds from {minPlayers}+ player battles.",
       "topByUsage": "Top {count} · by usage",
+      "topBySort": "Top {count} · <usageHint>{sort}</usageHint>",
       "empty": "No {contentType} build data in the last {days} days yet."
     },
+    "methodology": "Ranked by usage across killers, victims, and assists (supports, tanks, healers included). Same weapons and gear count together across tiers, enchantments, and quality. Icons show the T8 Excellent version of each piece. Assist-only weapon sightings merge into full loadouts when possible.",
+    "sampleCapped": "Showing the most recent {limit} loadouts per fight size, not every fight in the window.",
+    "emptySlot": "Empty {slot}",
+    "kdInfinite": "∞",
+    "kdUnreliable": "Not enough uses for a stable K/D",
     "unknownBuild": "Unknown build",
     "failedLoad": "Failed to load builds"
   },

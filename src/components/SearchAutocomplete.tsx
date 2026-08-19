@@ -327,14 +327,8 @@ export function SearchAutocomplete({
 
   return (
     <div ref={rootRef} className={cn("relative w-full", className)}>
-      <form
-        onSubmit={handleSubmit}
-        className={cn(
-          "flex items-center gap-2",
-          compact ? "w-full" : "w-full"
-        )}
-      >
-        <div className={cn("relative min-w-0 flex-1", compact && "max-w-56")}>
+      <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+        <div className={cn("relative min-w-0 flex-1", compact && "sm:max-w-56")}>
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={resolvedPlaceholder}
@@ -378,7 +372,10 @@ export function SearchAutocomplete({
         <div
           id={listId}
           role="listbox"
-          className="absolute z-50 mt-1 max-h-80 w-full overflow-auto rounded-md border border-border bg-card shadow-lg"
+          className={cn(
+            "absolute z-50 mt-1 max-h-80 min-w-0 overflow-x-hidden overflow-y-auto rounded-md border border-border bg-card shadow-lg",
+            "w-full max-sm:left-[calc(50%-50vw+1rem)] max-sm:w-[calc(100vw-2rem)]"
+          )}
         >
           {loading && suggestions.length === 0 && !deepLink && query.trim() && (
             <p className="px-3 py-2 text-xs text-muted-foreground">
@@ -397,7 +394,7 @@ export function SearchAutocomplete({
               role="option"
               aria-selected={index === activeIndex}
               className={cn(
-                "flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent/50",
+                "flex w-full min-w-0 items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent/50",
                 index === activeIndex && "bg-accent/50"
               )}
               onMouseEnter={() => setActiveIndex(index)}

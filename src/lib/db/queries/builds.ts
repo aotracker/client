@@ -4,26 +4,40 @@ import {
   cachedQuery,
 } from "@/lib/cache";
 import {
-  buildPresentation,
-  decorateBuildItem,
-  itemDisplayNames,
-  itemFamilyNames,
-} from "@/lib/items/build-display";
-import type { ArmorClass } from "@/lib/items/item-meta";
-import type { WeaponRole } from "@/lib/items/weapon-roles";
-import type { AlbionRegion, ContentType } from "@/lib/albion/types";
-import { canonicalizeItemType, itemFamilyKey } from "@/lib/item-icons";
-import { db, schema } from "@/lib/db";
+  compareMetaBuilds,
+  matchesMetaBuildFilters,
+  metaBuildKdOrNull,
+  selectMetaBuildsForCache,
+  usageShare,
+} from "@/lib/builds/meta";
+import type {
+  MetaBuildArmorFilter,
+  MetaBuildRoleFilter,
+  MetaBuildSort,
+} from "@/lib/builds/params";
 import {
-  type PlayerBuildItem,
-  type PlayerContentMixEntry,
   buildFingerprint,
   canonicalizeBuildItems,
   extractBuildItemsFromParticipantPayload,
   getMainHandItem,
   isSparseBuild,
-  killFamePositiveCondition,
   preferBuildItems,
+  type PlayerBuildItem,
+} from "@/lib/builds/fingerprint";
+import {
+  buildPresentation,
+  decorateBuildItem,
+  itemDisplayNames,
+  itemFamilyNames,
+} from "@/lib/items/build-display";
+import { getBuildArmorClass, type ArmorClass } from "@/lib/items/item-meta";
+import { getWeaponRole, type WeaponRole } from "@/lib/items/weapon-roles";
+import type { AlbionRegion, ContentType } from "@/lib/albion/types";
+import { canonicalizeItemType, itemFamilyKey } from "@/lib/item-icons";
+import { db, schema } from "@/lib/db";
+import {
+  type PlayerContentMixEntry,
+  killFamePositiveCondition,
   regionCondition,
 } from "./shared";
 
@@ -46,6 +60,8 @@ export interface MetaBuildEntry {
   avgIp: number;
   uniquePlayers: number;
   avgParticipantCount: number;
+  kd: number | null;
+  usageShare: number;
   items: MetaBuildItem[];
   titleNames: Record<string, string>;
   weaponRole: WeaponRole | null;
@@ -54,13 +70,25 @@ export interface MetaBuildEntry {
 
 export interface MetaWeaponEntry {
   itemType: string;
+  familyKey: string;
   appearances: number;
   kills: number;
   assists: number;
+  usageShare: number;
   usesByContentType: Record<ContentType, number>;
   displayNames: Record<string, string>;
   familyNames: Record<string, string>;
   weaponRole: WeaponRole | null;
+}
+
+export interface MetaRoleMixEntry {
+  role: WeaponRole;
+  count: number;
+}
+
+export interface MetaArmorMixEntry {
+  armorClass: ArmorClass;
+  count: number;
 }
 
 export interface MetaBuildsResult {
@@ -69,7 +97,13 @@ export interface MetaBuildsResult {
   totalAppearances: number;
   totalFame: number;
   uniqueBuilds: number;
+  matchingBuilds: number;
+  sampleLimit: number;
   contentMix: PlayerContentMixEntry[];
+  roleMix: MetaRoleMixEntry[];
+  armorMix: MetaArmorMixEntry[];
+  cappedByContentType: Record<ContentType, boolean>;
+  sampleAppearancesByContentType: Record<ContentType, number>;
   byContentType: Record<ContentType, MetaBuildEntry[]>;
   topWeapons: MetaWeaponEntry[];
 }
@@ -100,8 +134,10 @@ interface MetaBuildAccumulator {
 
 const META_BUILD_CONTENT_TYPES: ContentType[] = ["SOLO", "GROUP", "ZVZ"];
 /** Higher than killer/victim-only sampling — ZvZ assists multiply rows per event. */
-const META_BUILD_SAMPLE_PER_TYPE = 12_000;
-const META_BUILDS_PER_TYPE = 12;
+export const META_BUILD_SAMPLE_PER_TYPE = 12_000;
+export const META_BUILDS_PER_TYPE = 18;
+/** Extra usage ranks kept in the region/days cache so in-memory filters stay useful. */
+const META_CACHE_KEEP_USAGE = 48;
 const META_TOP_WEAPONS = 8;
 /** Top weapons considered per content type before merging duplicates. */
 const META_TOP_WEAPONS_PER_TYPE = 4;
@@ -111,6 +147,18 @@ const META_ROLE_PRIORITY: Record<MetaBuildRole, number> = {
   victim: 2,
   assist: 1,
 };
+
+const emptyContentCounts = (): Record<ContentType, number> => ({
+  SOLO: 0,
+  GROUP: 0,
+  ZVZ: 0,
+});
+
+const emptyCapped = (): Record<ContentType, boolean> => ({
+  SOLO: false,
+  GROUP: false,
+  ZVZ: false,
+});
 
 function normalizeMetaBuildRole(
   role: "killer" | "victim" | "group_member" | "participant"
@@ -142,10 +190,69 @@ function emptyMetaBuildAccumulator(items: PlayerBuildItem[]): MetaBuildAccumulat
   };
 }
 
+interface CachedMetaBuild {
+  kills: number;
+  deaths: number;
+  assists: number;
+  appearances: number;
+  totalFame: number;
+  avgFame: number;
+  avgIp: number;
+  uniquePlayers: number;
+  avgParticipantCount: number;
+  kd: number | null;
+  usageShare: number;
+  items: PlayerBuildItem[];
+  weaponRole: WeaponRole | null;
+  armorClass: ArmorClass | null;
+}
+
+function toCachedBuild(
+  acc: MetaBuildAccumulator,
+  sampleTotal: number
+): CachedMetaBuild {
+  const appearances = acc.kills + acc.deaths + acc.assists;
+  const items = canonicalizeBuildItems(acc.items);
+  const { weaponRole, armorClass } = buildPresentation(items);
+  return {
+    kills: acc.kills,
+    deaths: acc.deaths,
+    assists: acc.assists,
+    appearances,
+    totalFame: acc.totalFame,
+    avgFame: acc.kills > 0 ? acc.totalFame / acc.kills : 0,
+    avgIp: acc.ipSamples > 0 ? acc.ipSum / acc.ipSamples : 0,
+    uniquePlayers: acc.players.size,
+    avgParticipantCount: appearances > 0 ? acc.participantSum / appearances : 0,
+    kd: metaBuildKdOrNull(acc.kills, acc.deaths, appearances),
+    usageShare: usageShare(appearances, sampleTotal),
+    items,
+    weaponRole,
+    armorClass,
+  };
+}
+
+function decorateCachedBuild(
+  entry: CachedMetaBuild,
+  rank: number
+): MetaBuildEntry {
+  const items = entry.items.map(decorateBuildItem);
+  return {
+    ...entry,
+    rank,
+    items,
+    ...buildPresentation(items),
+  };
+}
+
+/**
+ * All fingerprints for a content type (unsorted, unranked). Filter/sort/slice
+ * happens after the region/days cache so extra UI filters stay in-memory.
+ */
 function aggregateMetaBuilds(
   samples: MetaBuildSample[],
-  limit: number
-): MetaBuildEntry[] {
+  sampleTotal: number
+): CachedMetaBuild[] {
   const fullByWeapon = new Map<string, PlayerBuildItem[]>();
 
   for (const sample of samples) {
@@ -198,40 +305,28 @@ function aggregateMetaBuilds(
     }
   }
 
-  return [...byFingerprint.values()]
-    .map((acc) => {
-      const appearances = acc.kills + acc.deaths + acc.assists;
-      return {
-        kills: acc.kills,
-        deaths: acc.deaths,
-        assists: acc.assists,
-        appearances,
-        totalFame: acc.totalFame,
-        avgFame: acc.kills > 0 ? acc.totalFame / acc.kills : 0,
-        avgIp: acc.ipSamples > 0 ? acc.ipSum / acc.ipSamples : 0,
-        uniquePlayers: acc.players.size,
-        avgParticipantCount:
-          appearances > 0 ? acc.participantSum / appearances : 0,
-        items: canonicalizeBuildItems(acc.items),
-      };
-    })
-    .sort(
-      (a, b) =>
-        b.appearances - a.appearances ||
-        b.uniquePlayers - a.uniquePlayers ||
-        b.kills - a.kills ||
-        b.totalFame - a.totalFame
-    )
-    .slice(0, limit)
-    .map((entry, index) => {
-      const items = entry.items.map(decorateBuildItem);
-      return {
-        ...entry,
-        rank: index + 1,
-        items,
-        ...buildPresentation(items),
-      };
-    });
+  return [...byFingerprint.values()].map((acc) =>
+    toCachedBuild(acc, sampleTotal)
+  );
+}
+
+interface MetaBuildsCachePayload {
+  windowDays: number;
+  totalEvents: number;
+  totalAppearances: number;
+  totalFame: number;
+  uniqueBuilds: number;
+  contentMix: PlayerContentMixEntry[];
+  roleMix: MetaRoleMixEntry[];
+  armorMix: MetaArmorMixEntry[];
+  cappedByContentType: Record<ContentType, boolean>;
+  sampleAppearancesByContentType: Record<ContentType, number>;
+  allByContentType: Record<ContentType, CachedMetaBuild[]>;
+  topWeaponFamilies: string[];
+  topWeapons: Omit<
+    MetaWeaponEntry,
+    "displayNames" | "familyNames" | "weaponRole"
+  >[];
 }
 
 /**
@@ -242,9 +337,8 @@ function aggregateMetaBuilds(
  */
 async function loadMetaBuilds(
   region: AlbionRegion | "all",
-  days: number,
-  limitPerType: number
-): Promise<MetaBuildsResult> {
+  days: number
+): Promise<MetaBuildsCachePayload> {
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const [contentMixRows, ...sampleRowGroups] = await Promise.all([
@@ -299,11 +393,13 @@ async function loadMetaBuilds(
     ),
   ]);
 
-  const byContentType = {
-    SOLO: [] as MetaBuildEntry[],
-    GROUP: [] as MetaBuildEntry[],
-    ZVZ: [] as MetaBuildEntry[],
+  const allByContentType: MetaBuildsCachePayload["allByContentType"] = {
+    SOLO: [],
+    GROUP: [],
+    ZVZ: [],
   };
+  const cappedByContentType = emptyCapped();
+  const sampleAppearancesByContentType = emptyContentCounts();
   const weaponCounts = new Map<
     string,
     {
@@ -314,12 +410,24 @@ async function loadMetaBuilds(
       contentType: ContentType;
     }
   >();
+  const roleCounts: Record<WeaponRole, number> = {
+    dps: 0,
+    healer: 0,
+    tank: 0,
+    support: 0,
+  };
+  const armorCounts: Record<ArmorClass, number> = {
+    plate: 0,
+    leather: 0,
+    cloth: 0,
+  };
   let uniqueBuilds = 0;
   let totalAppearances = 0;
 
   for (let i = 0; i < META_BUILD_CONTENT_TYPES.length; i++) {
     const contentType = META_BUILD_CONTENT_TYPES[i];
     const rows = sampleRowGroups[i] ?? [];
+    cappedByContentType[contentType] = rows.length >= META_BUILD_SAMPLE_PER_TYPE;
     /** One loadout per player per event (killer/victim/assist overlap). */
     const byPlayerEvent = new Map<string, MetaBuildSample>();
 
@@ -364,9 +472,15 @@ async function loadMetaBuilds(
 
     const samples = [...byPlayerEvent.values()];
     totalAppearances += samples.length;
+    sampleAppearancesByContentType[contentType] = samples.length;
 
     for (const sample of samples) {
       const mainHand = getMainHandItem(sample.items);
+      const weaponRole = getWeaponRole(mainHand?.itemType);
+      if (weaponRole) roleCounts[weaponRole] += 1;
+      const armorClass = getBuildArmorClass(sample.items);
+      if (armorClass) armorCounts[armorClass] += 1;
+
       if (!mainHand) continue;
       const family = itemFamilyKey(mainHand.itemType);
       const weaponKey = `${contentType}:${family}`;
@@ -386,8 +500,8 @@ async function loadMetaBuilds(
       }
     }
 
-    const builds = aggregateMetaBuilds(samples, limitPerType);
-    byContentType[contentType] = builds;
+    const builds = aggregateMetaBuilds(samples, samples.length);
+    allByContentType[contentType] = builds;
     uniqueBuilds += builds.length;
   }
 
@@ -445,11 +559,7 @@ async function loadMetaBuilds(
   for (const contentType of contentTypeOrder) {
     const inType = [...weaponCounts.values()]
       .filter((entry) => entry.contentType === contentType)
-      .sort(
-        (a, b) =>
-          b.appearances - a.appearances ||
-          b.kills - a.kills
-      )
+      .sort((a, b) => b.appearances - a.appearances || b.kills - a.kills)
       .slice(0, META_TOP_WEAPONS_PER_TYPE);
 
     for (const entry of inType) {
@@ -460,18 +570,16 @@ async function loadMetaBuilds(
   const maxUsesInAnyType = (uses: Record<ContentType, number>) =>
     Math.max(uses.SOLO, uses.GROUP, uses.ZVZ);
 
-  const topWeapons: MetaWeaponEntry[] = [...mergedWeapons.entries()]
+  const topWeapons = [...mergedWeapons.entries()]
     .filter(([family]) => candidateFamilies.has(family))
     .map(([, entry]) => ({
       itemType: entry.itemType,
+      familyKey: itemFamilyKey(entry.itemType),
       appearances: entry.appearances,
       kills: entry.kills,
       assists: entry.assists,
+      usageShare: usageShare(entry.appearances, totalAppearances),
       usesByContentType: entry.usesByContentType,
-      displayNames: itemDisplayNames(entry.itemType),
-      familyNames: itemFamilyNames(entry.itemType),
-      weaponRole: buildPresentation([{ slot: "MainHand", itemType: entry.itemType }])
-        .weaponRole,
     }))
     .sort(
       (a, b) =>
@@ -482,6 +590,28 @@ async function loadMetaBuilds(
     )
     .slice(0, META_TOP_WEAPONS);
 
+  const topWeaponFamilies = topWeapons.map((weapon) => weapon.familyKey);
+  for (const contentType of META_BUILD_CONTENT_TYPES) {
+    allByContentType[contentType] = selectMetaBuildsForCache(
+      allByContentType[contentType],
+      {
+        keepUsage: META_CACHE_KEEP_USAGE,
+        keepPerFacet: META_BUILDS_PER_TYPE,
+        weaponFamilies: topWeaponFamilies,
+      }
+    );
+  }
+
+  const roleMix: MetaRoleMixEntry[] = (
+    ["dps", "healer", "tank", "support"] as const
+  )
+    .filter((role) => roleCounts[role] > 0)
+    .map((role) => ({ role, count: roleCounts[role] }));
+
+  const armorMix: MetaArmorMixEntry[] = (["plate", "leather", "cloth"] as const)
+    .filter((armorClass) => armorCounts[armorClass] > 0)
+    .map((armorClass) => ({ armorClass, count: armorCounts[armorClass] }));
+
   return {
     windowDays: days,
     totalEvents,
@@ -489,25 +619,113 @@ async function loadMetaBuilds(
     totalFame,
     uniqueBuilds,
     contentMix,
-    byContentType,
+    roleMix,
+    armorMix,
+    cappedByContentType,
+    sampleAppearancesByContentType,
+    allByContentType,
+    topWeaponFamilies,
     topWeapons,
   };
 }
 
 const cachedMetaBuilds = cachedQuery(
   loadMetaBuilds,
-  ["meta-builds"],
+  ["meta-builds-v2"],
   BUILDS_CACHE_REVALIDATE_SECONDS,
   ["builds"]
 );
 
+function applyMetaBuildView(
+  payload: MetaBuildsCachePayload,
+  options: {
+    role: MetaBuildRoleFilter;
+    armor: MetaBuildArmorFilter;
+    sort: MetaBuildSort;
+    weapon: string | null;
+    limitPerType: number;
+  }
+): MetaBuildsResult {
+  const byContentType: MetaBuildsResult["byContentType"] = {
+    SOLO: [],
+    GROUP: [],
+    ZVZ: [],
+  };
+  let matchingBuilds = 0;
+
+  for (const contentType of META_BUILD_CONTENT_TYPES) {
+    const matching = payload.allByContentType[contentType].filter((entry) =>
+      matchesMetaBuildFilters(entry, {
+        role: options.role,
+        armor: options.armor,
+        weapon: options.weapon,
+      })
+    );
+    matchingBuilds += matching.length;
+    byContentType[contentType] = matching
+      .sort((a, b) => compareMetaBuilds(a, b, options.sort))
+      .slice(0, options.limitPerType)
+      .map((entry, index) => decorateCachedBuild(entry, index + 1));
+  }
+
+  const decoratedWeapons: MetaWeaponEntry[] = payload.topWeapons.map((entry) => ({
+    ...entry,
+    displayNames: itemDisplayNames(entry.itemType),
+    familyNames: itemFamilyNames(entry.itemType),
+    weaponRole: buildPresentation([{ slot: "MainHand", itemType: entry.itemType }])
+      .weaponRole,
+  }));
+  let topWeapons = decoratedWeapons;
+  if (options.role !== "all") {
+    topWeapons = topWeapons.filter(
+      (weapon) => weapon.weaponRole === options.role
+    );
+  }
+  if (options.weapon) {
+    const selected = decoratedWeapons.find(
+      (weapon) => weapon.familyKey === options.weapon
+    );
+    if (selected && !topWeapons.some((weapon) => weapon.familyKey === options.weapon)) {
+      topWeapons = [selected, ...topWeapons].slice(0, META_TOP_WEAPONS);
+    }
+  }
+
+  return {
+    windowDays: payload.windowDays,
+    totalEvents: payload.totalEvents,
+    totalAppearances: payload.totalAppearances,
+    totalFame: payload.totalFame,
+    uniqueBuilds: payload.uniqueBuilds,
+    matchingBuilds,
+    sampleLimit: META_BUILD_SAMPLE_PER_TYPE,
+    contentMix: payload.contentMix,
+    roleMix: payload.roleMix,
+    armorMix: payload.armorMix,
+    cappedByContentType: payload.cappedByContentType,
+    sampleAppearancesByContentType: payload.sampleAppearancesByContentType,
+    byContentType,
+    topWeapons,
+  };
+}
+
 export async function getMetaBuilds(options?: {
   region?: AlbionRegion | "all";
   days?: number;
+  role?: MetaBuildRoleFilter;
+  armor?: MetaBuildArmorFilter;
+  sort?: MetaBuildSort;
+  weapon?: string | null;
   limitPerType?: number;
 }): Promise<MetaBuildsResult> {
   const region = options?.region ?? "all";
   const days = Math.min(Math.max(options?.days ?? 30, 1), 30);
   const limitPerType = options?.limitPerType ?? META_BUILDS_PER_TYPE;
-  return cachedMetaBuilds(region, days, limitPerType);
+  const payload = await cachedMetaBuilds(region, days);
+  return applyMetaBuildView(payload, {
+    role: options?.role ?? "all",
+    armor: options?.armor ?? "all",
+    sort: options?.sort ?? "usage",
+    weapon: options?.weapon ?? null,
+    limitPerType,
+  });
 }

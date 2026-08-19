@@ -158,8 +158,8 @@ export function BuildMetaCardSkeleton({
           ))}
         </div>
 
-        <div className="grid grid-cols-5 divide-x divide-border/60 rounded-md border border-border/50 bg-muted/20">
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div className="grid grid-cols-3 divide-x divide-y divide-border/60 rounded-md border border-border/50 bg-muted/20 sm:grid-cols-6 sm:divide-y-0">
+          {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="px-1 py-2 sm:px-2">
               <Skeleton className="mx-auto h-2.5 w-8" />
               <Skeleton className="mx-auto mt-1.5 h-4 w-10" />

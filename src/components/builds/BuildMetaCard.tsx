@@ -1,22 +1,25 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { ItemIcon } from "@/components/ItemIcon";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
 import { ArmorClassBadge } from "@/components/ArmorClassBadge";
 import { TOP_BUILD_SLOTS } from "@/lib/albion/types";
 import type { MetaBuildEntry } from "@/lib/db/queries";
 import { pickLocalizedName } from "@/lib/items/localized-name";
-import { cn, formatItemPower, formatItemName } from "@/lib/utils";
+import { cn, formatFame, formatItemPower, formatItemName } from "@/lib/utils";
 
 interface BuildMetaCardProps {
   build: MetaBuildEntry;
   accentClassName: string;
+  weaponHref?: string;
 }
 
 export function BuildMetaCard({
   build,
   accentClassName,
+  weaponHref,
 }: BuildMetaCardProps) {
   const locale = useLocale();
   const t = useTranslations("Builds");
@@ -33,6 +36,13 @@ export function BuildMetaCard({
       );
 
   const avgIp = formatItemPower(build.avgIp);
+  const kdReliable = build.kd != null;
+  const kdLabel =
+    !kdReliable
+      ? tCommon("labels.emDash")
+      : build.deaths === 0 && build.kills > 0
+        ? t("kdInfinite")
+        : build.kd!.toFixed(1);
 
   const slotLabel = (slot: string): string => {
     switch (slot) {
@@ -40,6 +50,12 @@ export function BuildMetaCard({
         return tCommon("labels.mainHand");
       case "OffHand":
         return tCommon("labels.offHand");
+      case "Head":
+        return tCommon("labels.head");
+      case "Armor":
+        return tCommon("labels.armor");
+      case "Shoes":
+        return tCommon("labels.shoes");
       default:
         return slot;
     }
@@ -50,28 +66,45 @@ export function BuildMetaCard({
       label: tCommon("stats.uses"),
       value: build.appearances.toLocaleString(),
       className: undefined as string | undefined,
+      title: t("stats.usageTooltip"),
     },
     {
-      label: tCommon("stats.assists"),
-      value: build.assists.toLocaleString(),
-      className: undefined,
-    },
-    {
-      label: tCommon("stats.kills"),
-      value: build.kills.toLocaleString(),
-      className: "text-stat-kill",
-    },
-    {
-      label: tCommon("stats.deaths"),
-      value: build.deaths.toLocaleString(),
-      className: "text-stat-death",
+      label: tCommon("stats.kdShort"),
+      value: kdLabel,
+      className: kdReliable ? undefined : "text-muted-foreground",
+      title: kdReliable ? undefined : t("kdUnreliable"),
     },
     {
       label: tCommon("stats.avgIp"),
       value: avgIp ?? tCommon("labels.emDash"),
       className: "text-stat-ip",
+      title: undefined,
+    },
+    {
+      label: tCommon("stats.kills"),
+      value: build.kills.toLocaleString(),
+      className: "text-stat-kill",
+      title: undefined,
+    },
+    {
+      label: tCommon("stats.deaths"),
+      value: build.deaths.toLocaleString(),
+      className: "text-stat-death",
+      title: undefined,
+    },
+    {
+      label: tCommon("stats.assists"),
+      value: build.assists.toLocaleString(),
+      className: undefined,
+      title: undefined,
     },
   ];
+
+  const titleNode = (
+    <p className="font-display text-sm font-semibold leading-snug break-words">
+      {title}
+    </p>
+  );
 
   return (
     <li
@@ -92,14 +125,29 @@ export function BuildMetaCard({
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-display text-sm font-semibold leading-snug break-words">
-                {title}
-              </p>
+              {weaponHref ? (
+                <Link
+                  href={weaponHref}
+                  className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  {titleNode}
+                </Link>
+              ) : (
+                titleNode
+              )}
               <WeaponRoleBadge role={build.weaponRole} />
               <ArmorClassBadge armorClass={build.armorClass} />
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {tCommon("stats.players")}: {build.uniquePlayers}
+              {build.usageShare > 0 ? (
+                <>
+                  {" · "}
+                  {t("stats.usageShare", {
+                    pct: (build.usageShare * 100).toFixed(1),
+                  })}
+                </>
+              ) : null}
             </p>
           </div>
         </div>
@@ -107,7 +155,18 @@ export function BuildMetaCard({
         <div className="flex flex-wrap items-center gap-1">
           {TOP_BUILD_SLOTS.map((slot) => {
             const item = bySlot.get(slot);
-            if (!item) return null;
+            if (!item) {
+              return (
+                <div
+                  key={slot}
+                  className="flex size-[68px] items-center justify-center rounded-md border border-dashed border-border/60 bg-muted/10 text-[10px] leading-tight text-muted-foreground"
+                  title={t("emptySlot", { slot: slotLabel(slot) })}
+                  aria-label={t("emptySlot", { slot: slotLabel(slot) })}
+                >
+                  {slotLabel(slot)}
+                </div>
+              );
+            }
             const label = pickLocalizedName(
               item.displayNames,
               locale,
@@ -133,9 +192,16 @@ export function BuildMetaCard({
           })}
         </div>
 
-        <dl className="grid grid-cols-5 divide-x divide-border/60 rounded-md border border-border/50 bg-muted/20">
+        <dl className="grid grid-cols-3 divide-x divide-y divide-border/60 overflow-hidden rounded-md border border-border/50 bg-muted/20 sm:grid-cols-6 sm:divide-y-0">
           {stats.map((stat) => (
-            <div key={stat.label} className="px-1 py-2 text-center sm:px-2">
+            <div
+              key={stat.label}
+              className={cn(
+                "px-1 py-2 text-center sm:px-2",
+                stat.title && "cursor-help"
+              )}
+              title={stat.title}
+            >
               <dt className="text-[10px] leading-tight text-muted-foreground sm:text-xs">
                 {stat.label}
               </dt>
@@ -150,6 +216,12 @@ export function BuildMetaCard({
             </div>
           ))}
         </dl>
+
+        {build.avgFame > 0 ? (
+          <p className="text-[11px] tabular-nums text-muted-foreground">
+            {t("stats.avgFame")}: {formatFame(build.avgFame)}
+          </p>
+        ) : null}
       </div>
     </li>
   );

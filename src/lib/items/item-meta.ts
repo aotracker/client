@@ -30,6 +30,12 @@ export function getItemMeta(
   return CATALOG.items[itemFamilyKey(itemType)] ?? null;
 }
 
+export function listMainHandFamilyKeys(): string[] {
+  return Object.entries(CATALOG.items)
+    .filter(([, meta]) => meta.slot === "mainhand")
+    .map(([familyKey]) => familyKey);
+}
+
 export function getArmorClass(
   itemType: string | null | undefined
 ): ArmorClass | null {

@@ -45,9 +45,10 @@ export default function BuildsLoading() {
         <Skeleton className="h-4 w-full max-w-xl" />
       </div>
 
-      <FilterChipSkeleton count={1} />
+      <FilterChipSkeleton count={3} />
 
       <div className="space-y-8">
+        <div className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
@@ -61,7 +62,22 @@ export default function BuildsLoading() {
           ))}
         </div>
 
+        <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="flex min-w-0 items-center gap-2">
+              <Skeleton className="h-3 w-16 shrink-0" />
+              <Skeleton className="h-1 min-w-8 flex-1 rounded-full" />
+              <Skeleton className="h-3 w-28 max-w-[40%]" />
+            </div>
+          ))}
+        </div>
+        </div>
+
         <div className="overflow-hidden rounded-xl border border-border/70 bg-card/70">
+          <div className="flex items-center justify-between gap-3 border-b border-border/60 px-4 py-2.5">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="hidden h-3 w-48 sm:block" />
+          </div>
           <div className="flex h-1.5 bg-muted">
             {CONTENT_SECTIONS.map((section) => (
               <div key={section.accent} className={cn("w-1/3", section.accent)} />
@@ -78,6 +94,7 @@ export default function BuildsLoading() {
                   <Skeleton className="ml-auto h-4 w-8" />
                 </div>
                 <Skeleton className="mt-1 ml-4 h-3 w-24" />
+                <Skeleton className="mt-2 ml-4 h-3 w-28" />
               </div>
             ))}
           </div>

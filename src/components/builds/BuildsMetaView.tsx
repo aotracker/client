@@ -1,8 +1,9 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { PackageOpen } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { ChevronDown, PackageOpen } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { ContentBadge } from "@/components/ContentBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { ItemIcon } from "@/components/ItemIcon";
@@ -11,14 +12,24 @@ import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
 import { BuildMetaCard } from "@/components/builds/BuildMetaCard";
 import { ZVZ_MIN_PLAYERS } from "@/lib/albion/classify";
 import type { ContentType } from "@/lib/albion/types";
-import type { MetaBuildsResult } from "@/lib/db/queries";
-import { pickLocalizedName } from "@/lib/items/localized-name";
+import type { MetaBuildSort } from "@/lib/builds/params";
+import { weaponFilterParam } from "@/lib/builds/weapon-slug";
+import { itemFamilyKey } from "@/lib/item-icons";
 import { ITEM_QUALITY_EXCELLENT } from "@/lib/item-icons";
+import type {
+  MetaArmorMixEntry,
+  MetaBuildsResult,
+  MetaRoleMixEntry,
+} from "@/lib/db/queries";
+import { pickLocalizedName } from "@/lib/items/localized-name";
+import { buildFeedHref } from "@/lib/region-params";
 import { cn, formatFame, formatItemName } from "@/lib/utils";
 
 const GROUP_MAX_PLAYERS = ZVZ_MIN_PLAYERS - 1;
 
 const CONTENT_TYPE_ORDER: ContentType[] = ["SOLO", "GROUP", "ZVZ"];
+/** Hide content types that are a negligible share of a weapon's uses. */
+const MIN_WEAPON_CONTENT_TYPE_SHARE = 0.05;
 
 const CONTENT_TYPE_BAR: Record<ContentType, string> = {
   SOLO: "bg-solo",
@@ -30,6 +41,19 @@ const CONTENT_TYPE_TEXT: Record<ContentType, string> = {
   SOLO: "text-solo",
   GROUP: "text-group",
   ZVZ: "text-zvz",
+};
+
+const ROLE_BAR: Record<MetaRoleMixEntry["role"], string> = {
+  dps: "bg-red-500",
+  healer: "bg-green-500",
+  tank: "bg-blue-500",
+  support: "bg-violet-500",
+};
+
+const ARMOR_BAR: Record<MetaArmorMixEntry["armorClass"], string> = {
+  plate: "bg-slate-500",
+  leather: "bg-amber-600",
+  cloth: "bg-sky-500",
 };
 
 const CONTENT_SECTION_META: {
@@ -68,6 +92,8 @@ const CONTENT_SECTION_META: {
 
 interface BuildsMetaViewProps {
   data: MetaBuildsResult;
+  sort: MetaBuildSort;
+  weapon: string | null;
 }
 
 function weaponLabel(
@@ -81,16 +107,60 @@ function weaponLabel(
   );
 }
 
+function MixBar<T extends string>({
+  title,
+  segments,
+  total,
+  color,
+  label,
+}: {
+  title: string;
+  segments: { key: T; count: number }[];
+  total: number;
+  color: Record<T, string>;
+  label: (key: T) => string;
+}) {
+  if (segments.length === 0 || total <= 0) return null;
+
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <p className="w-16 shrink-0 text-[11px] text-muted-foreground">{title}</p>
+      <div className="flex h-1 min-w-8 flex-1 overflow-hidden rounded-full bg-muted/50">
+        {segments.map((segment) => (
+          <div
+            key={segment.key}
+            className={cn("h-full min-w-px", color[segment.key])}
+            style={{ width: `${(segment.count / total) * 100}%` }}
+          />
+        ))}
+      </div>
+      <p className="min-w-0 truncate text-[11px] tabular-nums text-muted-foreground/80">
+        {segments.map((segment, index) => (
+          <span key={segment.key}>
+            {index > 0 && <span className="text-border"> · </span>}
+            {label(segment.key)} {((segment.count / total) * 100).toFixed(0)}%
+          </span>
+        ))}
+      </p>
+    </div>
+  );
+}
+
 function WeaponUsesMix({
   usesByContentType,
 }: {
   usesByContentType: Record<ContentType, number>;
 }) {
   const tCommon = useTranslations("Common.contentTypes");
-  const segments = CONTENT_TYPE_ORDER.map((type) => ({
+  const allSegments = CONTENT_TYPE_ORDER.map((type) => ({
     type,
     count: usesByContentType[type] ?? 0,
-  })).filter((segment) => segment.count > 0);
+  }));
+  const totalUses = allSegments.reduce((sum, segment) => sum + segment.count, 0);
+  const segments = allSegments.filter(
+    (segment) =>
+      totalUses > 0 && segment.count / totalUses >= MIN_WEAPON_CONTENT_TYPE_SHARE
+  );
 
   if (segments.length === 0) return null;
 
@@ -136,16 +206,26 @@ function WeaponUsesMix({
   );
 }
 
-export function BuildsMetaView({ data }: BuildsMetaViewProps) {
+export function BuildsMetaView({ data, sort, weapon }: BuildsMetaViewProps) {
   const t = useTranslations("Builds");
   const tCommon = useTranslations("Common");
   const locale = useLocale();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const mixTotal = Math.max(
     1,
     data.contentMix.reduce((sum, e) => sum + e.count, 0)
   );
   const mixByType = new Map(
     data.contentMix.map((e) => [e.contentType, e.count])
+  );
+  const roleMixTotal = data.roleMix.reduce((sum, entry) => sum + entry.count, 0);
+  const armorMixTotal = data.armorMix.reduce(
+    (sum, entry) => sum + entry.count,
+    0
+  );
+  const sampleCapped = CONTENT_TYPE_ORDER.some(
+    (type) => data.cappedByContentType[type]
   );
 
   const contentLabel = (type: ContentType) =>
@@ -167,8 +247,20 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
     return t(key);
   };
 
+  function weaponHref(
+    familyKey: string | null,
+    names?: Record<string, string>
+  ): string {
+    const selected =
+      familyKey && familyKey !== weapon
+        ? weaponFilterParam(names, familyKey)
+        : "";
+    return buildFeedHref(pathname, searchParams, { weapon: selected });
+  }
+
   return (
     <div className="space-y-8">
+      <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
@@ -183,7 +275,7 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
           },
           {
             label: t("stats.buildsRanked"),
-            value: data.uniqueBuilds.toLocaleString(),
+            value: data.matchingBuilds.toLocaleString(),
             hint: t("stats.buildsHint"),
           },
           {
@@ -205,10 +297,57 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
         ))}
       </div>
 
+      {(data.roleMix.length > 0 ||
+        data.armorMix.length > 0 ||
+        sampleCapped) && (
+        <div className="space-y-1 px-0.5">
+          {(data.roleMix.length > 0 || data.armorMix.length > 0) && (
+            <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
+              <MixBar
+                title={t("mix.roles")}
+                segments={data.roleMix.map((entry) => ({
+                  key: entry.role,
+                  count: entry.count,
+                }))}
+                total={roleMixTotal}
+                color={ROLE_BAR}
+                label={(role) => tCommon(`labels.weaponRoles.${role}`)}
+              />
+              <MixBar
+                title={t("mix.armor")}
+                segments={data.armorMix.map((entry) => ({
+                  key: entry.armorClass,
+                  count: entry.count,
+                }))}
+                total={armorMixTotal}
+                color={ARMOR_BAR}
+                label={(armorClass) =>
+                  tCommon(`labels.armorClasses.${armorClass}`)
+                }
+              />
+            </div>
+          )}
+          {sampleCapped ? (
+            <p className="text-[11px] leading-snug text-muted-foreground/75">
+              {t("sampleCapped", { limit: data.sampleLimit.toLocaleString() })}
+            </p>
+          ) : null}
+        </div>
+      )}
+      </div>
+
       <nav
-        aria-label={tCommon("a11y.contentMix")}
+        aria-label={t("jumpNav.aria")}
         className="overflow-hidden rounded-xl border border-border/70 bg-card/70"
       >
+        <div className="flex items-center justify-between gap-3 border-b border-border/60 px-4 py-2.5">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t("jumpNav.title")}
+          </p>
+          <p className="hidden text-[11px] text-muted-foreground sm:block">
+            {t("jumpNav.hint")}
+          </p>
+        </div>
         <div className="flex h-1.5 bg-muted">
           {CONTENT_SECTION_META.map((section) => {
             const count = mixByType.get(section.type) ?? 0;
@@ -226,10 +365,18 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
           {CONTENT_SECTION_META.map((section) => {
             const count = mixByType.get(section.type) ?? 0;
             const pct = ((count / mixTotal) * 100).toFixed(0);
+            const sectionTitle = t(section.titleKey);
             return (
-              <Link
+              <a
                 key={section.id}
                 href={`#${section.id}`}
+                onClick={(event) => {
+                  const target = document.getElementById(section.id);
+                  if (!target) return;
+                  event.preventDefault();
+                  target.scrollIntoView({ behavior: "smooth", block: "start" });
+                  window.history.replaceState(null, "", `#${section.id}`);
+                }}
                 className="group px-4 py-3.5 transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
               >
                 <div className="flex items-center gap-2">
@@ -246,7 +393,14 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
                 <p className="mt-1 pl-4 text-xs tabular-nums text-muted-foreground">
                   {t("pvpEventsCount", { count: count.toLocaleString() })}
                 </p>
-              </Link>
+                <p className="mt-2 flex items-center gap-1 pl-4 text-xs font-medium text-primary">
+                  {t("jumpNav.cta", { section: sectionTitle })}
+                  <ChevronDown
+                    className="size-3.5 shrink-0 transition-transform group-hover:translate-y-0.5"
+                    aria-hidden
+                  />
+                </p>
+              </a>
             );
           })}
         </div>
@@ -258,54 +412,70 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
           description={t("hottestWeapons.description")}
         >
           <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {data.topWeapons.map((weapon, index) => {
-              const role = weapon.weaponRole;
+            {data.topWeapons.map((entry, index) => {
+              const role = entry.weaponRole;
+              const family = entry.familyKey || itemFamilyKey(entry.itemType);
+              const active = weapon === family;
               const secondaryStat =
                 role === "dps"
-                  ? weapon.kills > 0
+                  ? entry.kills > 0
                     ? t("hottestWeapons.killsSuffix", {
-                        count: weapon.kills.toLocaleString(),
+                        count: entry.kills.toLocaleString(),
                       })
                     : ""
-                  : weapon.assists > 0
+                  : entry.assists > 0
                     ? t("hottestWeapons.assistsSuffix", {
-                        count: weapon.assists.toLocaleString(),
+                        count: entry.assists.toLocaleString(),
                       })
                     : "";
 
               return (
-                <li
-                  key={`${weapon.itemType}-${index}`}
-                  className="flex items-start gap-3 rounded-md border border-border/60 bg-muted/20 px-3 py-2.5"
-                >
-                  <span className="w-5 shrink-0 pt-0.5 text-center text-xs font-semibold tabular-nums text-muted-foreground">
-                    {index + 1}
-                  </span>
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-md border border-border/50 bg-card/70 p-0.5">
-                    <ItemIcon
-                      itemType={weapon.itemType}
-                      quality={ITEM_QUALITY_EXCELLENT}
-                      tooltip={weaponLabel(weapon, locale)}
-                      width={52}
-                      height={52}
-                      className="block object-contain"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <p className="truncate text-sm font-medium">
-                        {weaponLabel(weapon, locale)}
-                      </p>
-                      <WeaponRoleBadge role={weapon.weaponRole} />
+                <li key={`${entry.itemType}-${index}`}>
+                  <Link
+                    href={weaponHref(family, entry.familyNames)}
+                    aria-current={active ? "true" : undefined}
+                    className={cn(
+                      "flex items-start gap-3 rounded-md border px-3 py-2.5 transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                      active
+                        ? "border-primary/70 bg-primary/10"
+                        : "border-border/60 bg-muted/20 hover:border-border hover:bg-muted/35"
+                    )}
+                  >
+                    <span className="w-5 shrink-0 pt-0.5 text-center text-xs font-semibold tabular-nums text-muted-foreground">
+                      {index + 1}
+                    </span>
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-md border border-border/50 bg-card/70 p-0.5">
+                      <ItemIcon
+                        itemType={entry.itemType}
+                        quality={ITEM_QUALITY_EXCELLENT}
+                        tooltip={weaponLabel(entry, locale)}
+                        width={52}
+                        height={52}
+                        className="block object-contain"
+                      />
                     </div>
-                    <WeaponUsesMix usesByContentType={weapon.usesByContentType} />
-                    <p className="mt-1 text-xs tabular-nums text-muted-foreground">
-                      {t("hottestWeapons.uses", {
-                        count: weapon.appearances.toLocaleString(),
-                      })}
-                      {secondaryStat}
-                    </p>
-                  </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <p className="truncate text-sm font-medium">
+                          {weaponLabel(entry, locale)}
+                        </p>
+                        <WeaponRoleBadge role={entry.weaponRole} />
+                      </div>
+                      <WeaponUsesMix usesByContentType={entry.usesByContentType} />
+                      <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+                        {t("hottestWeapons.uses", {
+                          count: entry.appearances.toLocaleString(),
+                        })}
+                        {entry.usageShare > 0
+                          ? t("hottestWeapons.share", {
+                              pct: (entry.usageShare * 100).toFixed(0),
+                            })
+                          : null}
+                        {secondaryStat}
+                      </p>
+                    </div>
+                  </Link>
                 </li>
               );
             })}
@@ -321,7 +491,7 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
             key={section.type}
             id={section.id}
             className={cn(
-              "scroll-mt-24 space-y-4 rounded-xl border border-border/60 bg-gradient-to-r p-4 sm:p-5",
+              "scroll-mt-28 space-y-4 rounded-xl border border-border/60 bg-gradient-to-r p-4 sm:p-5",
               section.tint
             )}
           >
@@ -338,7 +508,18 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
                 </p>
               </div>
               <p className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                {t("sections.topByUsage", { count: builds.length })}
+                {t.rich("sections.topBySort", {
+                  count: builds.length,
+                  sort: t(`sort.${sort}`),
+                  usageHint: (chunks) =>
+                    sort === "usage" ? (
+                      <span className="cursor-help" title={t("stats.usageTooltip")}>
+                        {chunks}
+                      </span>
+                    ) : (
+                      chunks
+                    ),
+                })}
               </p>
             </div>
 
@@ -355,13 +536,26 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
               </EmptyState>
             ) : (
               <ol className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                {builds.map((build) => (
-                  <BuildMetaCard
-                    key={`${section.type}-${build.rank}-${build.items.map((i) => i.itemType).join("|")}`}
-                    build={build}
-                    accentClassName={section.accent}
-                  />
-                ))}
+                {builds.map((build) => {
+                  const mainHand = build.items.find(
+                    (item) => item.slot === "MainHand"
+                  );
+                  return (
+                    <BuildMetaCard
+                      key={`${section.type}-${build.rank}-${build.items.map((i) => i.itemType).join("|")}`}
+                      build={build}
+                      accentClassName={section.accent}
+                      weaponHref={
+                        mainHand
+                          ? weaponHref(
+                              itemFamilyKey(mainHand.itemType),
+                              mainHand.familyNames ?? build.titleNames
+                            )
+                          : undefined
+                      }
+                    />
+                  );
+                })}
               </ol>
             )}
           </section>
@@ -369,11 +563,7 @@ export function BuildsMetaView({ data }: BuildsMetaViewProps) {
       })}
 
       <p className="text-center text-xs text-muted-foreground">
-        Ranked by usage across killers, victims, and assists (supports, tanks,
-        healers included). Same weapons and gear count together across tiers,
-        enchantments, and quality. Icons show the T8 Excellent version of each
-        piece. Assist-only weapon sightings merge into full loadouts when
-        possible.
+        {t("methodology")}
       </p>
     </div>
   );

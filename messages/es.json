@@ -202,7 +202,8 @@
       "players": "Jugadores",
       "uses": "Usos",
       "assists": "Asistencias",
-      "avgIp": "PI media"
+      "avgIp": "PI media",
+      "avgFame": "Fama media"
     },
     "labels": {
       "lastUpdated": "Última actualización: {datetime}",
@@ -213,6 +214,9 @@
       "emDash": "—",
       "mainHand": "Mano principal",
       "offHand": "Mano secundaria",
+      "head": "Cabeza",
+      "armor": "Armadura",
+      "shoes": "Calzado",
       "albionId": "ID de Albion",
       "albionPlayerId": "ID de jugador de Albion",
       "albionGuildId": "ID de gremio de Albion",
@@ -635,15 +639,46 @@
       "buildsRanked": "Builds clasificadas",
       "buildsHint": "En 1v1, grupo y ZvZ",
       "loadoutsSampled": "Equipaciones muestreadas",
-      "loadoutsHint": "Asesinos, víctimas y asistencias"
+      "loadoutsHint": "Asesinos, víctimas y asistencias",
+      "avgFame": "Fama media",
+      "usageShare": "{pct}% de la muestra",
+      "usageTooltip": "Bajas + muertes + asistencias. Sanadores, tanques y soportes cuentan cuando aparecen en un combate."
     },
     "pvpEventsCount": "{count} eventos JcJ",
+    "jumpNav": {
+      "aria": "Ir a las builds de 1v1, grupo o ZvZ",
+      "title": "Ir a las builds",
+      "hint": "Pulsa un tamaño de combate para ir a ese meta",
+      "cta": "Ir a {section}"
+    },
     "hottestWeapons": {
       "title": "Armas más populares",
-      "description": "Mejores armas de mano principal en cada tamaño de combate — una fila por arma, con un desglose de dónde aparece más.",
+      "description": "Mejores armas de mano principal en cada tamaño de combate — una fila por arma, con un desglose de dónde aparece más. Pulsa un arma para filtrar las builds.",
       "uses": "{count} usos",
+      "share": " · {pct}%",
       "killsSuffix": " · {count} bajas",
       "assistsSuffix": " · {count} asistencias"
+    },
+    "filters": {
+      "role": "Rol",
+      "armor": "Armadura",
+      "sort": "Orden",
+      "weapon": "Arma",
+      "allRoles": "Todos los roles",
+      "allArmor": "Toda la armadura",
+      "allWeapons": "Todas las armas",
+      "lastDay": "Últimas 24 horas",
+      "clearWeapon": "Quitar el filtro de {weapon}"
+    },
+    "sort": {
+      "usage": "Uso",
+      "kd": "K/D",
+      "kills": "Bajas",
+      "fame": "Fama"
+    },
+    "mix": {
+      "roles": "Mezcla de roles",
+      "armor": "Mezcla de armadura"
     },
     "sections": {
       "soloTitle": "Meta 1v1",
@@ -653,8 +688,14 @@
       "zvzTitle": "Meta ZvZ",
       "zvzBlurb": "Mejores builds de batallas de {minPlayers}+ jugadores.",
       "topByUsage": "Top {count} · por uso",
+      "topBySort": "Top {count} · <usageHint>{sort}</usageHint>",
       "empty": "Aún no hay datos de builds de {contentType} en los últimos {days} días."
     },
+    "methodology": "Clasificadas por uso entre asesinos, víctimas y asistencias (incluidos soportes, tanques y sanadores). Las mismas armas y equipo se agrupan entre niveles, encantamientos y calidad. Los iconos muestran la versión T8 Excelente de cada pieza. Los avistamientos de arma solo en asistencia se fusionan en equipaciones completas cuando es posible.",
+    "sampleCapped": "Se muestran las {limit} equipaciones más recientes por tamaño de combate, no todos los combates de la ventana.",
+    "emptySlot": "{slot} vacío",
+    "kdInfinite": "∞",
+    "kdUnreliable": "No hay usos suficientes para un K/D estable",
     "unknownBuild": "Build desconocida",
     "failedLoad": "Error al cargar builds"
   },
