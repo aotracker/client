@@ -48,7 +48,6 @@ export default function BuildsLoading() {
       <FilterChipSkeleton count={3} />
 
       <div className="space-y-8">
-        <div className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
@@ -60,17 +59,6 @@ export default function BuildsLoading() {
               <Skeleton className="mt-1.5 h-3 w-32 max-w-full" />
             </div>
           ))}
-        </div>
-
-        <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="flex min-w-0 items-center gap-2">
-              <Skeleton className="h-3 w-16 shrink-0" />
-              <Skeleton className="h-1 min-w-8 flex-1 rounded-full" />
-              <Skeleton className="h-3 w-28 max-w-[40%]" />
-            </div>
-          ))}
-        </div>
         </div>
 
         <div className="overflow-hidden rounded-xl border border-border/70 bg-card/70">

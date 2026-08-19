@@ -30,8 +30,8 @@ import {
   itemDisplayNames,
   itemFamilyNames,
 } from "@/lib/items/build-display";
-import { getBuildArmorClass, type ArmorClass } from "@/lib/items/item-meta";
-import { getWeaponRole, type WeaponRole } from "@/lib/items/weapon-roles";
+import { type ArmorClass } from "@/lib/items/item-meta";
+import { type WeaponRole } from "@/lib/items/weapon-roles";
 import type { AlbionRegion, ContentType } from "@/lib/albion/types";
 import { canonicalizeItemType, itemFamilyKey } from "@/lib/item-icons";
 import { db, schema } from "@/lib/db";
@@ -81,16 +81,6 @@ export interface MetaWeaponEntry {
   weaponRole: WeaponRole | null;
 }
 
-export interface MetaRoleMixEntry {
-  role: WeaponRole;
-  count: number;
-}
-
-export interface MetaArmorMixEntry {
-  armorClass: ArmorClass;
-  count: number;
-}
-
 export interface MetaBuildsResult {
   windowDays: number;
   totalEvents: number;
@@ -98,12 +88,7 @@ export interface MetaBuildsResult {
   totalFame: number;
   uniqueBuilds: number;
   matchingBuilds: number;
-  sampleLimit: number;
   contentMix: PlayerContentMixEntry[];
-  roleMix: MetaRoleMixEntry[];
-  armorMix: MetaArmorMixEntry[];
-  cappedByContentType: Record<ContentType, boolean>;
-  sampleAppearancesByContentType: Record<ContentType, number>;
   byContentType: Record<ContentType, MetaBuildEntry[]>;
   topWeapons: MetaWeaponEntry[];
 }
@@ -147,18 +132,6 @@ const META_ROLE_PRIORITY: Record<MetaBuildRole, number> = {
   victim: 2,
   assist: 1,
 };
-
-const emptyContentCounts = (): Record<ContentType, number> => ({
-  SOLO: 0,
-  GROUP: 0,
-  ZVZ: 0,
-});
-
-const emptyCapped = (): Record<ContentType, boolean> => ({
-  SOLO: false,
-  GROUP: false,
-  ZVZ: false,
-});
 
 function normalizeMetaBuildRole(
   role: "killer" | "victim" | "group_member" | "participant"
@@ -317,10 +290,6 @@ interface MetaBuildsCachePayload {
   totalFame: number;
   uniqueBuilds: number;
   contentMix: PlayerContentMixEntry[];
-  roleMix: MetaRoleMixEntry[];
-  armorMix: MetaArmorMixEntry[];
-  cappedByContentType: Record<ContentType, boolean>;
-  sampleAppearancesByContentType: Record<ContentType, number>;
   allByContentType: Record<ContentType, CachedMetaBuild[]>;
   topWeaponFamilies: string[];
   topWeapons: Omit<
@@ -398,8 +367,6 @@ async function loadMetaBuilds(
     GROUP: [],
     ZVZ: [],
   };
-  const cappedByContentType = emptyCapped();
-  const sampleAppearancesByContentType = emptyContentCounts();
   const weaponCounts = new Map<
     string,
     {
@@ -410,24 +377,12 @@ async function loadMetaBuilds(
       contentType: ContentType;
     }
   >();
-  const roleCounts: Record<WeaponRole, number> = {
-    dps: 0,
-    healer: 0,
-    tank: 0,
-    support: 0,
-  };
-  const armorCounts: Record<ArmorClass, number> = {
-    plate: 0,
-    leather: 0,
-    cloth: 0,
-  };
   let uniqueBuilds = 0;
   let totalAppearances = 0;
 
   for (let i = 0; i < META_BUILD_CONTENT_TYPES.length; i++) {
     const contentType = META_BUILD_CONTENT_TYPES[i];
     const rows = sampleRowGroups[i] ?? [];
-    cappedByContentType[contentType] = rows.length >= META_BUILD_SAMPLE_PER_TYPE;
     /** One loadout per player per event (killer/victim/assist overlap). */
     const byPlayerEvent = new Map<string, MetaBuildSample>();
 
@@ -472,15 +427,9 @@ async function loadMetaBuilds(
 
     const samples = [...byPlayerEvent.values()];
     totalAppearances += samples.length;
-    sampleAppearancesByContentType[contentType] = samples.length;
 
     for (const sample of samples) {
       const mainHand = getMainHandItem(sample.items);
-      const weaponRole = getWeaponRole(mainHand?.itemType);
-      if (weaponRole) roleCounts[weaponRole] += 1;
-      const armorClass = getBuildArmorClass(sample.items);
-      if (armorClass) armorCounts[armorClass] += 1;
-
       if (!mainHand) continue;
       const family = itemFamilyKey(mainHand.itemType);
       const weaponKey = `${contentType}:${family}`;
@@ -602,16 +551,6 @@ async function loadMetaBuilds(
     );
   }
 
-  const roleMix: MetaRoleMixEntry[] = (
-    ["dps", "healer", "tank", "support"] as const
-  )
-    .filter((role) => roleCounts[role] > 0)
-    .map((role) => ({ role, count: roleCounts[role] }));
-
-  const armorMix: MetaArmorMixEntry[] = (["plate", "leather", "cloth"] as const)
-    .filter((armorClass) => armorCounts[armorClass] > 0)
-    .map((armorClass) => ({ armorClass, count: armorCounts[armorClass] }));
-
   return {
     windowDays: days,
     totalEvents,
@@ -619,10 +558,6 @@ async function loadMetaBuilds(
     totalFame,
     uniqueBuilds,
     contentMix,
-    roleMix,
-    armorMix,
-    cappedByContentType,
-    sampleAppearancesByContentType,
     allByContentType,
     topWeaponFamilies,
     topWeapons,
@@ -697,12 +632,7 @@ function applyMetaBuildView(
     totalFame: payload.totalFame,
     uniqueBuilds: payload.uniqueBuilds,
     matchingBuilds,
-    sampleLimit: META_BUILD_SAMPLE_PER_TYPE,
     contentMix: payload.contentMix,
-    roleMix: payload.roleMix,
-    armorMix: payload.armorMix,
-    cappedByContentType: payload.cappedByContentType,
-    sampleAppearancesByContentType: payload.sampleAppearancesByContentType,
     byContentType,
     topWeapons,
   };

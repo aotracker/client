@@ -676,10 +676,6 @@
       "kills": "Kills",
       "fame": "Fame"
     },
-    "mix": {
-      "roles": "Role mix",
-      "armor": "Armor mix"
-    },
     "sections": {
       "soloTitle": "1v1 Meta",
       "soloBlurb": "Top builds from two-player fights.",
@@ -692,7 +688,6 @@
       "empty": "No {contentType} build data in the last {days} days yet."
     },
     "methodology": "Ranked by usage across killers, victims, and assists (supports, tanks, healers included). Same weapons and gear count together across tiers, enchantments, and quality. Icons show the T8 Excellent version of each piece. Assist-only weapon sightings merge into full loadouts when possible.",
-    "sampleCapped": "Showing the most recent {limit} loadouts per fight size, not every fight in the window.",
     "emptySlot": "Empty {slot}",
     "kdInfinite": "∞",
     "kdUnreliable": "Not enough uses for a stable K/D",

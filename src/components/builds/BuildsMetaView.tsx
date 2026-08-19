@@ -16,11 +16,7 @@ import type { MetaBuildSort } from "@/lib/builds/params";
 import { weaponFilterParam } from "@/lib/builds/weapon-slug";
 import { itemFamilyKey } from "@/lib/item-icons";
 import { ITEM_QUALITY_EXCELLENT } from "@/lib/item-icons";
-import type {
-  MetaArmorMixEntry,
-  MetaBuildsResult,
-  MetaRoleMixEntry,
-} from "@/lib/db/queries";
+import type { MetaBuildsResult } from "@/lib/db/queries";
 import { pickLocalizedName } from "@/lib/items/localized-name";
 import { buildFeedHref } from "@/lib/region-params";
 import { cn, formatFame, formatItemName } from "@/lib/utils";
@@ -41,19 +37,6 @@ const CONTENT_TYPE_TEXT: Record<ContentType, string> = {
   SOLO: "text-solo",
   GROUP: "text-group",
   ZVZ: "text-zvz",
-};
-
-const ROLE_BAR: Record<MetaRoleMixEntry["role"], string> = {
-  dps: "bg-red-500",
-  healer: "bg-green-500",
-  tank: "bg-blue-500",
-  support: "bg-violet-500",
-};
-
-const ARMOR_BAR: Record<MetaArmorMixEntry["armorClass"], string> = {
-  plate: "bg-slate-500",
-  leather: "bg-amber-600",
-  cloth: "bg-sky-500",
 };
 
 const CONTENT_SECTION_META: {
@@ -104,45 +87,6 @@ function weaponLabel(
     weapon.familyNames,
     locale,
     formatItemName(weapon.itemType)
-  );
-}
-
-function MixBar<T extends string>({
-  title,
-  segments,
-  total,
-  color,
-  label,
-}: {
-  title: string;
-  segments: { key: T; count: number }[];
-  total: number;
-  color: Record<T, string>;
-  label: (key: T) => string;
-}) {
-  if (segments.length === 0 || total <= 0) return null;
-
-  return (
-    <div className="flex min-w-0 items-center gap-2">
-      <p className="w-16 shrink-0 text-[11px] text-muted-foreground">{title}</p>
-      <div className="flex h-1 min-w-8 flex-1 overflow-hidden rounded-full bg-muted/50">
-        {segments.map((segment) => (
-          <div
-            key={segment.key}
-            className={cn("h-full min-w-px", color[segment.key])}
-            style={{ width: `${(segment.count / total) * 100}%` }}
-          />
-        ))}
-      </div>
-      <p className="min-w-0 truncate text-[11px] tabular-nums text-muted-foreground/80">
-        {segments.map((segment, index) => (
-          <span key={segment.key}>
-            {index > 0 && <span className="text-border"> · </span>}
-            {label(segment.key)} {((segment.count / total) * 100).toFixed(0)}%
-          </span>
-        ))}
-      </p>
-    </div>
   );
 }
 
@@ -219,14 +163,6 @@ export function BuildsMetaView({ data, sort, weapon }: BuildsMetaViewProps) {
   const mixByType = new Map(
     data.contentMix.map((e) => [e.contentType, e.count])
   );
-  const roleMixTotal = data.roleMix.reduce((sum, entry) => sum + entry.count, 0);
-  const armorMixTotal = data.armorMix.reduce(
-    (sum, entry) => sum + entry.count,
-    0
-  );
-  const sampleCapped = CONTENT_TYPE_ORDER.some(
-    (type) => data.cappedByContentType[type]
-  );
 
   const contentLabel = (type: ContentType) =>
     type === "SOLO"
@@ -260,7 +196,6 @@ export function BuildsMetaView({ data, sort, weapon }: BuildsMetaViewProps) {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
@@ -295,45 +230,6 @@ export function BuildsMetaView({ data, sort, weapon }: BuildsMetaViewProps) {
             <p className="mt-0.5 text-[11px] text-muted-foreground">{stat.hint}</p>
           </div>
         ))}
-      </div>
-
-      {(data.roleMix.length > 0 ||
-        data.armorMix.length > 0 ||
-        sampleCapped) && (
-        <div className="space-y-1 px-0.5">
-          {(data.roleMix.length > 0 || data.armorMix.length > 0) && (
-            <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
-              <MixBar
-                title={t("mix.roles")}
-                segments={data.roleMix.map((entry) => ({
-                  key: entry.role,
-                  count: entry.count,
-                }))}
-                total={roleMixTotal}
-                color={ROLE_BAR}
-                label={(role) => tCommon(`labels.weaponRoles.${role}`)}
-              />
-              <MixBar
-                title={t("mix.armor")}
-                segments={data.armorMix.map((entry) => ({
-                  key: entry.armorClass,
-                  count: entry.count,
-                }))}
-                total={armorMixTotal}
-                color={ARMOR_BAR}
-                label={(armorClass) =>
-                  tCommon(`labels.armorClasses.${armorClass}`)
-                }
-              />
-            </div>
-          )}
-          {sampleCapped ? (
-            <p className="text-[11px] leading-snug text-muted-foreground/75">
-              {t("sampleCapped", { limit: data.sampleLimit.toLocaleString() })}
-            </p>
-          ) : null}
-        </div>
-      )}
       </div>
 
       <nav
