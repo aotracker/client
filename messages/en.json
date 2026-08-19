@@ -377,7 +377,7 @@
     },
     "topKills": {
       "title": "Top Kills ({count})",
-      "description": "Highest fame kills by guild members",
+      "description": "Highest fame kills by this guild at the time of the kill",
       "loading": "Loading top kills from Albion Online…",
       "empty": "No cached top kills yet"
     },
@@ -416,7 +416,7 @@
     "noGuilds": "No guilds in this alliance",
     "topKills": {
       "title": "Top Kills ({count})",
-      "description": "Highest fame kills by current member guild players",
+      "description": "Highest fame kills by this alliance at the time of the kill",
       "empty": "No cached kills for alliance members yet"
     },
     "battles": {

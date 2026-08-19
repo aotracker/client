@@ -549,21 +549,17 @@ export async function getPlayerAnalytics(
   };
 }
 
+/**
+ * Highest-fame kills credited to this guild at the time of the kill,
+ * not the killer's current membership.
+ */
 export async function getGuildTopKillsFromDb(
   region: AlbionRegion,
   guildAlbionId: string,
   limit = 10
 ) {
-  const guild = await getGuildByAlbionId(region, guildAlbionId);
-  if (!guild) return [];
-
-  const guildPlayers = await db.query.players.findMany({
-    where: eq(schema.players.guildId, guild.id),
-    columns: { id: true },
-  });
-
-  const playerIds = guildPlayers.map((p) => p.id);
-  if (playerIds.length === 0) return [];
+  const albionId = guildAlbionId.trim();
+  if (!albionId) return [];
 
   const idRows = await db
     .select({ id: schema.killEvents.id })
@@ -571,7 +567,7 @@ export async function getGuildTopKillsFromDb(
     .where(
       and(
         eq(schema.killEvents.region, region),
-        inArray(schema.killEvents.killerId, playerIds),
+        eq(schema.killEvents.killerGuildAlbionId, albionId),
         killFamePositiveCondition()
       )
     )
@@ -581,29 +577,17 @@ export async function getGuildTopKillsFromDb(
   return hydrateKillCardsByIds(idRows.map((row) => row.id));
 }
 
+/**
+ * Highest-fame kills credited to this alliance at the time of the kill,
+ * not the killer's current membership.
+ */
 export async function getAllianceTopKillsFromDb(
   region: AlbionRegion,
   allianceAlbionId: string,
   limit = 10
 ) {
-  const memberGuilds = await db.query.guilds.findMany({
-    where: and(
-      eq(schema.guilds.region, region),
-      eq(schema.guilds.allianceId, allianceAlbionId)
-    ),
-    columns: { id: true, killFame: true, deathFame: true },
-  });
-
-  const guildUuids = memberGuilds.map((g) => g.id);
-  if (guildUuids.length === 0) return [];
-
-  const guildPlayers = await db.query.players.findMany({
-    where: inArray(schema.players.guildId, guildUuids),
-    columns: { id: true },
-  });
-
-  const playerIds = guildPlayers.map((p) => p.id);
-  if (playerIds.length === 0) return [];
+  const albionId = allianceAlbionId.trim();
+  if (!albionId) return [];
 
   const idRows = await db
     .select({ id: schema.killEvents.id })
@@ -611,7 +595,7 @@ export async function getAllianceTopKillsFromDb(
     .where(
       and(
         eq(schema.killEvents.region, region),
-        inArray(schema.killEvents.killerId, playerIds),
+        eq(schema.killEvents.killerAllianceAlbionId, albionId),
         killFamePositiveCondition()
       )
     )

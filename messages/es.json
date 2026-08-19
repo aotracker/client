@@ -377,7 +377,7 @@
     },
     "topKills": {
       "title": "Mejores bajas ({count})",
-      "description": "Bajas con más fama de miembros del gremio",
+      "description": "Bajas con más fama de este gremio en el momento de la baja",
       "loading": "Cargando mejores bajas desde Albion Online…",
       "empty": "Aún no hay mejores bajas en caché"
     },
@@ -416,7 +416,7 @@
     "noGuilds": "No hay gremios en esta alianza",
     "topKills": {
       "title": "Mejores bajas ({count})",
-      "description": "Bajas con más fama de jugadores de gremios miembros actuales",
+      "description": "Bajas con más fama de esta alianza en el momento de la baja",
       "empty": "Aún no hay bajas en caché de miembros de la alianza"
     },
     "battles": {

@@ -22,7 +22,7 @@ export async function AllianceTopKillsSection({
         Top Kills ({topKills.length})
       </h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        Highest fame kills by current member guild players
+        Highest fame kills by this alliance at the time of the kill
       </p>
       <div className="space-y-2">
         {topKills.length === 0 ? (
