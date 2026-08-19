@@ -3,7 +3,7 @@ import "server-only";
 import { itemFamilyKey } from "@/lib/item-icons";
 import { getItemFamilyDisplayName } from "@/lib/items/catalog";
 import { listMainHandFamilyKeys } from "@/lib/items/item-meta";
-import { LOCALE_DEFINITIONS } from "@/i18n/locales";
+import { DEFAULT_LOCALE, LOCALE_DEFINITIONS } from "@/i18n/locales";
 import { weaponNameSlug } from "@/lib/builds/weapon-slug";
 
 const WEAPON_FAMILY_RE = /^[A-Za-z0-9_]{1,64}$/;
@@ -20,8 +20,8 @@ function buildWeaponNameIndex(): WeaponNameIndex {
   const slugToFamily = new Map<string, string>();
 
   const locales = [
-    ...LOCALE_DEFINITIONS.filter((locale) => locale.default),
-    ...LOCALE_DEFINITIONS.filter((locale) => !locale.default),
+    ...LOCALE_DEFINITIONS.filter((locale) => locale.code === DEFAULT_LOCALE),
+    ...LOCALE_DEFINITIONS.filter((locale) => locale.code !== DEFAULT_LOCALE),
   ];
 
   for (const locale of locales) {
