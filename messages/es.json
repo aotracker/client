@@ -783,7 +783,7 @@
   },
   "Privacy": {
     "title": "Política de privacidad",
-    "lastUpdated": "Última actualización: 1 de agosto de 2026",
+    "lastUpdated": "Última actualización: 20 de agosto de 2026",
     "metaDescription": "Política de privacidad de {siteName}.",
     "intro": "{siteName} («nosotros», «nuestro») ofrece seguimiento de bajas y perfiles de Albion Online. Esta página explica qué información tratamos cuando usas el sitio.",
     "sections": {
@@ -793,13 +793,15 @@
       "logsBody1": "Nuestro proveedor de alojamiento puede recopilar automáticamente registros de solicitud estándar (por ejemplo, dirección IP, agente de usuario y páginas solicitadas) por motivos de seguridad, fiabilidad y rendimiento. No vendemos información personal.",
       "logsBody2": "Usamos Google Analytics 4 para comprender el tráfico agregado y cómo se usan las páginas (por ejemplo, vistas de página, ubicación aproximada, tipo de dispositivo y referentes). Google puede establecer cookies o tecnologías similares y tratar estos datos según <googlePrivacyLink>Política de privacidad de Google</googlePrivacyLink>. Puedes limitar las cookies de analítica mediante la configuración del navegador o las herramientas de exclusión de Google.",
       "googlePrivacyPolicy": "Política de privacidad de Google",
-      "cookiesTitle": "Cookies",
-      "cookiesBody1": "El sitio puede usar cookies o tecnologías similares necesarias para el funcionamiento básico, de nuestra plataforma de alojamiento o de Google Analytics (cuando esté activado). Puedes controlar las cookies desde la configuración de tu navegador.",
-      "cookiesBody2": "El autocompletado de búsqueda puede guardar consultas recientes y tu región preferida solo en el almacenamiento local de tu navegador, en tu dispositivo. Estos datos no se envían a nuestros servidores.",
+      "cookiesTitle": "Cookies y almacenamiento local",
+      "cookiesBody1": "El sitio puede usar cookies o tecnologías similares necesarias para el funcionamiento básico, de nuestra plataforma de alojamiento o de Google Analytics (cuando esté activado). También podemos guardar tu región preferida en una cookie para que las páginas renderizadas en el servidor coincidan con tu elección. Puedes controlar las cookies desde la configuración de tu navegador.",
+      "cookiesBody2": "El autocompletado de búsqueda, tu lista de seguimiento, la preferencia de tema y tu región preferida pueden guardarse en el almacenamiento local de tu navegador, en tu dispositivo. Cuando filtras bajas por lista de seguimiento o abres la página de actividad de la lista, los IDs de entidades de Albion de tu lista se envían a nuestros servidores solo para ejecutar esa solicitud; no almacenamos una cuenta persistente de lista de seguimiento para ti.",
       "thirdPartyTitle": "Enlaces de terceros",
-      "thirdPartyBody": "Los enlaces a Albion Online u otros sitios externos se ofrecen por comodidad. Sus prácticas de privacidad se rigen por sus propias políticas.",
+      "thirdPartyBody": "Los enlaces a Albion Online, Discord u otros sitios externos se ofrecen por comodidad. Sus prácticas de privacidad se rigen por sus propias políticas.",
+      "discordBotTitle": "Bot de Discord",
+      "discordBotBody": "Si un administrador de un servidor de Discord añade nuestro bot y configura feeds de kills o muertes, almacenamos el ID del servidor de Discord, los IDs de canal, el gremio de Albion seguido, filtros opcionales del feed y, opcionalmente, el ID de usuario de Discord de quien ejecutó el comando de configuración. Usamos esto solo para publicar notificaciones con datos públicos del juego. No leemos el contenido general de mensajes de tu servidor de Discord.",
       "contactTitle": "Contacto",
-      "contactBody": "Si tienes preguntas sobre esta política de privacidad, contacta con el operador del sitio a través de los canales indicados en el repositorio del proyecto o en la cuenta de alojamiento de este despliegue."
+      "contactBody": "Si tienes preguntas sobre esta política de privacidad o quieres solicitar cambios respecto a tus datos, visita nuestra <contactLink>página de contacto</contactLink> para ver formas de contactarnos, incluida nuestra comunidad de Discord."
     },
     "disclaimer": "{siteName} no está afiliado con Albion Online ni con Sandbox Interactive GmbH."
   },

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { PageHeader } from "@/components/PageSection";
 import { buildPageMetadata, NOINDEX_FOLLOW } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
@@ -81,9 +82,27 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
 
       <section className="space-y-2 text-sm text-muted-foreground">
         <h2 className="font-display text-lg font-semibold text-foreground">
+          {t("sections.discordBotTitle")}
+        </h2>
+        <p>{t("sections.discordBotBody")}</p>
+      </section>
+
+      <section className="space-y-2 text-sm text-muted-foreground">
+        <h2 className="font-display text-lg font-semibold text-foreground">
           {t("sections.contactTitle")}
         </h2>
-        <p>{t("sections.contactBody")}</p>
+        <p>
+          {t.rich("sections.contactBody", {
+            contactLink: (chunks) => (
+              <Link
+                href="/contact"
+                className="text-foreground underline underline-offset-2"
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
+        </p>
       </section>
 
       <p className="text-sm text-muted-foreground">

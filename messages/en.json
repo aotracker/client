@@ -783,7 +783,7 @@
   },
   "Privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: August 1, 2026",
+    "lastUpdated": "Last updated: August 20, 2026",
     "metaDescription": "Privacy policy for {siteName}.",
     "intro": "{siteName} (“we”, “our”) provides Albion Online kill and profile tracking. This page explains what information we handle when you use the site.",
     "sections": {
@@ -793,13 +793,15 @@
       "logsBody1": "Our hosting provider may automatically collect standard request logs (for example IP address, user agent, and pages requested) for security, reliability, and performance. We do not sell personal information.",
       "logsBody2": "We use Google Analytics 4 to understand aggregate traffic and how pages are used (for example page views, approximate location, device type, and referrers). Google may set cookies or use similar technologies and process this data according to <googlePrivacyLink>Google's Privacy Policy</googlePrivacyLink>. You can limit analytics cookies through your browser settings or Google's opt-out tools.",
       "googlePrivacyPolicy": "Google's Privacy Policy",
-      "cookiesTitle": "Cookies",
-      "cookiesBody1": "The site may use cookies or similar technologies required for basic operation, by our hosting platform, or by Google Analytics (when enabled). You can control cookies through your browser settings.",
-      "cookiesBody2": "Search autocomplete may store recent queries and your preferred region in your browser's local storage only on your device. This data is not sent to our servers.",
+      "cookiesTitle": "Cookies and local storage",
+      "cookiesBody1": "The site may use cookies or similar technologies required for basic operation, by our hosting platform, or by Google Analytics (when enabled). We may also store your preferred region in a cookie so server-rendered pages match your choice. You can control cookies through your browser settings.",
+      "cookiesBody2": "Search autocomplete, your watchlist, theme preference, and your preferred region may be stored in your browser's local storage on your device. When you filter kills by watchlist or open the watchlist activity page, the Albion entity IDs in your watchlist are sent to our servers only to run that request—we do not store a persistent watchlist account for you.",
       "thirdPartyTitle": "Third-party links",
-      "thirdPartyBody": "Links to Albion Online or other external sites are provided for convenience. Their privacy practices are governed by their own policies.",
+      "thirdPartyBody": "Links to Albion Online, Discord, or other external sites are provided for convenience. Their privacy practices are governed by their own policies.",
+      "discordBotTitle": "Discord bot",
+      "discordBotBody": "If a Discord server administrator adds our bot and configures kill or death feeds, we store the Discord server ID, channel IDs, the tracked Albion guild, optional feed filters, and optionally the Discord user ID of whoever ran the setup command. We use this only to post notifications containing publicly available game data. We do not read general message content from your Discord server.",
       "contactTitle": "Contact",
-      "contactBody": "If you have questions about this privacy policy, contact the site operator through the channels listed on the project repository or hosting account for this deployment."
+      "contactBody": "If you have questions about this privacy policy or want to request changes regarding your data, visit our <contactLink>contact page</contactLink> for ways to reach us, including our Discord community."
     },
     "disclaimer": "{siteName} is not affiliated with Albion Online or Sandbox Interactive GmbH."
   },
