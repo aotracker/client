@@ -1,5 +1,7 @@
 import { and, count, desc, eq, gte, ilike, inArray, isNotNull, ne, or, sql, sum } from "drizzle-orm";
+import type { AnyColumn } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
+import { cache } from "react";
 import { buildPresentation, decorateBuildItem } from "@/lib/items/build-display";
 import type { ArmorClass } from "@/lib/items/item-meta";
 import type { WeaponRole } from "@/lib/items/weapon-roles";
@@ -12,8 +14,18 @@ import type {
 } from "@/lib/albion/types";
 import { wrapGuildBattleListCache, isGuildBattleCacheComplete } from "@/lib/albion/battles";
 import { itemFamilyKey } from "@/lib/item-icons";
+import { LEADERBOARD_CACHE_REVALIDATE_SECONDS, cachedQuery } from "@/lib/cache";
 import { db, schema } from "@/lib/db";
 import { hydrateKillCardsByIds } from "./kills";
+import {
+  allianceFeudAKillsBCondition,
+  allianceFeudBKillsACondition,
+  allianceFeudPairCondition,
+  guildFeudAKillsBCondition,
+  guildFeudBKillsACondition,
+  guildFeudPairCondition,
+  type GuildFeudInput,
+} from "./feud-conditions";
 import {
   type PlayerBuildItem,
   type PlayerContentMixEntry,
@@ -630,40 +642,33 @@ export async function getAllianceFameFromMemberGuilds(
 }
 
 /**
- * Recent kills between two guilds using snapshot participant guild names
+ * Recent kills between two guilds using kill-time guild columns
  * (guild at time of kill), not current player membership.
  */
 export async function getGuildFeudKillsFromDb(
   region: AlbionRegion,
   guildNameA: string,
   guildNameB: string,
-  options: { limit?: number; excludeEventId?: number } = {}
+  options: {
+    limit?: number;
+    excludeEventId?: number;
+    guildAId?: string | null;
+    guildBId?: string | null;
+  } = {}
 ) {
-  const { limit = 10, excludeEventId } = options;
-  const nameA = guildNameA.trim().toLowerCase();
-  const nameB = guildNameB.trim().toLowerCase();
-  if (!nameA || !nameB || nameA === nameB) return [];
-
-  const killerPart = alias(schema.killParticipants, "feud_killer");
-  const victimPart = alias(schema.killParticipants, "feud_victim");
+  const { limit = 10, excludeEventId, guildAId, guildBId } = options;
+  const feudInput: GuildFeudInput = {
+    guildNameA,
+    guildNameB,
+    guildAId,
+    guildBId,
+  };
+  const pairCondition = guildFeudPairCondition(feudInput);
+  if (!pairCondition) return [];
 
   const rows = await db
     .select({ id: schema.killEvents.id })
     .from(schema.killEvents)
-    .innerJoin(
-      killerPart,
-      and(
-        eq(killerPart.eventId, schema.killEvents.id),
-        eq(killerPart.role, "killer")
-      )
-    )
-    .innerJoin(
-      victimPart,
-      and(
-        eq(victimPart.eventId, schema.killEvents.id),
-        eq(victimPart.role, "victim")
-      )
-    )
     .where(
       and(
         eq(schema.killEvents.region, region),
@@ -671,16 +676,7 @@ export async function getGuildFeudKillsFromDb(
         excludeEventId != null
           ? ne(schema.killEvents.eventId, excludeEventId)
           : undefined,
-        or(
-          and(
-            sql`lower(trim(${killerPart.guildName})) = ${nameA}`,
-            sql`lower(trim(${victimPart.guildName})) = ${nameB}`
-          ),
-          and(
-            sql`lower(trim(${killerPart.guildName})) = ${nameB}`,
-            sql`lower(trim(${victimPart.guildName})) = ${nameA}`
-          )
-        )
+        pairCondition
       )
     )
     .orderBy(desc(schema.killEvents.occurredAt))
@@ -691,6 +687,54 @@ export async function getGuildFeudKillsFromDb(
 
   return hydrateKillCardsByIds(ids);
 }
+
+async function loadGuildFeudKillsForCache(
+  region: AlbionRegion,
+  guildNameA: string,
+  guildNameB: string,
+  limit: number,
+  excludeEventId: number | null,
+  guildAId: string | null,
+  guildBId: string | null
+) {
+  return getGuildFeudKillsFromDb(region, guildNameA, guildNameB, {
+    limit,
+    excludeEventId: excludeEventId ?? undefined,
+    guildAId,
+    guildBId,
+  });
+}
+
+const cachedGuildFeudKills = cachedQuery(
+  loadGuildFeudKillsForCache,
+  ["guild-feud-kills"],
+  LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  ["kills"]
+);
+
+/** Cached guild feud list for kill-page embeds (30s TTL). */
+export const getCachedGuildFeudKillsFromDb = cache(
+  async (
+    region: AlbionRegion,
+    guildNameA: string,
+    guildNameB: string,
+    options: {
+      limit?: number;
+      excludeEventId?: number;
+      guildAId?: string | null;
+      guildBId?: string | null;
+    } = {}
+  ) =>
+    cachedGuildFeudKills(
+      region,
+      guildNameA,
+      guildNameB,
+      options.limit ?? 10,
+      options.excludeEventId ?? null,
+      options.guildAId ?? null,
+      options.guildBId ?? null
+    )
+);
 
 export async function getAllianceProfileFromDb(
   region: AlbionRegion,
@@ -726,16 +770,7 @@ export async function getAllianceProfileFromDb(
 }
 
 function alliancePairCondition(idA: string, idB: string) {
-  return or(
-    and(
-      eq(schema.killEvents.killerAllianceAlbionId, idA),
-      sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idB}`
-    ),
-    and(
-      eq(schema.killEvents.killerAllianceAlbionId, idB),
-      sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idA}`
-    )
-  );
+  return allianceFeudPairCondition(idA, idB);
 }
 
 export async function getAllianceFeudKillsFromDb(
@@ -749,6 +784,9 @@ export async function getAllianceFeudKillsFromDb(
   const idB = allianceIdB.trim();
   if (!idA || !idB || idA === idB) return [];
 
+  const pairCondition = alliancePairCondition(idA, idB);
+  if (!pairCondition) return [];
+
   const rows = await db
     .select({ id: schema.killEvents.id })
     .from(schema.killEvents)
@@ -759,7 +797,7 @@ export async function getAllianceFeudKillsFromDb(
         excludeEventId != null
           ? ne(schema.killEvents.eventId, excludeEventId)
           : undefined,
-        alliancePairCondition(idA, idB)
+        pairCondition
       )
     )
     .orderBy(desc(schema.killEvents.occurredAt))
@@ -770,6 +808,43 @@ export async function getAllianceFeudKillsFromDb(
 
   return hydrateKillCardsByIds(ids);
 }
+
+async function loadAllianceFeudKillsForCache(
+  region: AlbionRegion,
+  allianceIdA: string,
+  allianceIdB: string,
+  limit: number,
+  excludeEventId: number | null
+) {
+  return getAllianceFeudKillsFromDb(region, allianceIdA, allianceIdB, {
+    limit,
+    excludeEventId: excludeEventId ?? undefined,
+  });
+}
+
+const cachedAllianceFeudKills = cachedQuery(
+  loadAllianceFeudKillsForCache,
+  ["alliance-feud-kills"],
+  LEADERBOARD_CACHE_REVALIDATE_SECONDS,
+  ["kills"]
+);
+
+/** Cached alliance feud list for kill-page embeds (30s TTL). */
+export const getCachedAllianceFeudKillsFromDb = cache(
+  async (
+    region: AlbionRegion,
+    allianceIdA: string,
+    allianceIdB: string,
+    options: { limit?: number; excludeEventId?: number } = {}
+  ) =>
+    cachedAllianceFeudKills(
+      region,
+      allianceIdA,
+      allianceIdB,
+      options.limit ?? 10,
+      options.excludeEventId ?? null
+    )
+);
 
 export async function getAllianceFeudStats(
   region: AlbionRegion,
@@ -787,6 +862,10 @@ export async function getAllianceFeudStats(
   const idB = allianceIdB.trim();
   if (!idA || !idB || idA === idB) return empty;
 
+  const aKillsBCond = allianceFeudAKillsBCondition(idA, idB);
+  const bKillsACond = allianceFeudBKillsACondition(idA, idB);
+  if (!aKillsBCond || !bKillsACond) return empty;
+
   const [aKillsBRow, bKillsARow] = await Promise.all([
     db
       .select({
@@ -798,8 +877,7 @@ export async function getAllianceFeudStats(
         and(
           eq(schema.killEvents.region, region),
           killFamePositiveCondition(),
-          eq(schema.killEvents.killerAllianceAlbionId, idA),
-          sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idB}`
+          allianceFeudAKillsBCondition(idA, idB)!
         )
       ),
     db
@@ -812,8 +890,7 @@ export async function getAllianceFeudStats(
         and(
           eq(schema.killEvents.region, region),
           killFamePositiveCondition(),
-          eq(schema.killEvents.killerAllianceAlbionId, idB),
-          sql`${schema.killEvents.rawPayload}->'Victim'->>'AllianceId' = ${idA}`
+          allianceFeudBKillsACondition(idA, idB)!
         )
       ),
   ]);
@@ -829,7 +906,8 @@ export async function getAllianceFeudStats(
 export async function getGuildFeudStats(
   region: AlbionRegion,
   guildNameA: string,
-  guildNameB: string
+  guildNameB: string,
+  options: { guildAId?: string | null; guildBId?: string | null } = {}
 ): Promise<GuildFeudStats> {
   const empty: GuildFeudStats = {
     aKillsB: 0,
@@ -838,12 +916,15 @@ export async function getGuildFeudStats(
     bFameOnA: 0,
   };
 
-  const nameA = guildNameA.trim().toLowerCase();
-  const nameB = guildNameB.trim().toLowerCase();
-  if (!nameA || !nameB || nameA === nameB) return empty;
-
-  const killerPart = alias(schema.killParticipants, "feud_killer");
-  const victimPart = alias(schema.killParticipants, "feud_victim");
+  const feudInput: GuildFeudInput = {
+    guildNameA,
+    guildNameB,
+    guildAId: options.guildAId,
+    guildBId: options.guildBId,
+  };
+  const aKillsBCond = guildFeudAKillsBCondition(feudInput);
+  const bKillsACond = guildFeudBKillsACondition(feudInput);
+  if (!aKillsBCond || !bKillsACond) return empty;
 
   const [aKillsBRow, bKillsARow] = await Promise.all([
     db
@@ -852,24 +933,12 @@ export async function getGuildFeudStats(
         fame: sum(schema.killEvents.totalVictimKillFame),
       })
       .from(schema.killEvents)
-      .innerJoin(
-        killerPart,
-        and(
-          eq(killerPart.eventId, schema.killEvents.id),
-          eq(killerPart.role, "killer"),
-          sql`lower(trim(${killerPart.guildName})) = ${nameA}`
-        )
-      )
-      .innerJoin(
-        victimPart,
-        and(
-          eq(victimPart.eventId, schema.killEvents.id),
-          eq(victimPart.role, "victim"),
-          sql`lower(trim(${victimPart.guildName})) = ${nameB}`
-        )
-      )
       .where(
-        and(eq(schema.killEvents.region, region), killFamePositiveCondition())
+        and(
+          eq(schema.killEvents.region, region),
+          killFamePositiveCondition(),
+          aKillsBCond
+        )
       ),
     db
       .select({
@@ -877,24 +946,12 @@ export async function getGuildFeudStats(
         fame: sum(schema.killEvents.totalVictimKillFame),
       })
       .from(schema.killEvents)
-      .innerJoin(
-        killerPart,
-        and(
-          eq(killerPart.eventId, schema.killEvents.id),
-          eq(killerPart.role, "killer"),
-          sql`lower(trim(${killerPart.guildName})) = ${nameB}`
-        )
-      )
-      .innerJoin(
-        victimPart,
-        and(
-          eq(victimPart.eventId, schema.killEvents.id),
-          eq(victimPart.role, "victim"),
-          sql`lower(trim(${victimPart.guildName})) = ${nameA}`
-        )
-      )
       .where(
-        and(eq(schema.killEvents.region, region), killFamePositiveCondition())
+        and(
+          eq(schema.killEvents.region, region),
+          killFamePositiveCondition(),
+          bKillsACond
+        )
       ),
   ]);
 

@@ -146,12 +146,22 @@ export default async function KillDetailPage({ params }: PageProps) {
     Boolean(feudGuildB) &&
     feudGuildA.toLowerCase() !== feudGuildB.toLowerCase();
   const payload = compacted ? null : (event.rawPayload as AlbionEvent);
-  const killerAllianceId = payload?.Killer?.AllianceId?.trim() ?? "";
-  const victimAllianceId = payload?.Victim?.AllianceId?.trim() ?? "";
+  const killerAllianceId =
+    event.killerAllianceAlbionId?.trim() ||
+    payload?.Killer?.AllianceId?.trim() ||
+    "";
+  const victimAllianceId =
+    event.victimAllianceAlbionId?.trim() ||
+    payload?.Victim?.AllianceId?.trim() ||
+    "";
   const killerAllianceName =
-    payload?.Killer?.AllianceName?.trim() || killerAllianceId;
+    event.killerAllianceName?.trim() ||
+    payload?.Killer?.AllianceName?.trim() ||
+    killerAllianceId;
   const victimAllianceName =
-    payload?.Victim?.AllianceName?.trim() || victimAllianceId;
+    event.victimAllianceName?.trim() ||
+    payload?.Victim?.AllianceName?.trim() ||
+    victimAllianceId;
   const showAllianceFeud =
     !compacted &&
     Boolean(killerAllianceId) &&
@@ -256,6 +266,8 @@ export default async function KillDetailPage({ params }: PageProps) {
                 region={albionRegion}
                 guildA={feudGuildA}
                 guildB={feudGuildB}
+                guildAId={killerGuild?.albionId}
+                guildBId={victimGuild?.albionId}
                 excludeEventId={event.eventId}
               />
             </Suspense>

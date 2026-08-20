@@ -67,14 +67,19 @@ export default async function GuildFeudPage({ params }: PageProps) {
   const stats = await getGuildFeudStats(
     albionRegion,
     guildA.name,
-    guildB.name
+    guildB.name,
+    { guildAId: guildA.albionId, guildBId: guildB.albionId }
   );
 
   const feudKills = await getGuildFeudKillsFromDb(
     albionRegion,
     guildA.name,
     guildB.name,
-    { limit: 25 }
+    {
+      limit: 25,
+      guildAId: guildA.albionId,
+      guildBId: guildB.albionId,
+    }
   );
 
   const aKillsB = stats?.aKillsB ?? 0;

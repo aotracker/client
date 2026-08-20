@@ -1,7 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { KillCard } from "@/components/KillCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAllianceFeudKillsFromDb } from "@/lib/db/queries";
+import { getCachedAllianceFeudKillsFromDb } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { allianceFeudPath } from "@/lib/seo";
 
@@ -46,7 +46,7 @@ export async function KillAllianceFeud({
   allianceBName,
   excludeEventId,
 }: KillAllianceFeudProps) {
-  const feudKills = await getAllianceFeudKillsFromDb(
+  const feudKills = await getCachedAllianceFeudKillsFromDb(
     region,
     allianceAId,
     allianceBId,

@@ -1,6 +1,5 @@
 import { cache } from "react";
 import { and, count, desc, eq, gte, inArray, isNotNull, sql, sum } from "drizzle-orm";
-import { alias } from "drizzle-orm/pg-core";
 import {
   LEADERBOARD_CACHE_REVALIDATE_SECONDS,
   cachedQuery,
@@ -626,83 +625,73 @@ export async function getGuildHourActivity(
 export async function getGuildTopOpponents(
   region: AlbionRegion,
   guildName: string,
-  options: { days?: number; limit?: number } = {}
+  options: { days?: number; limit?: number; guildAlbionId?: string | null } = {}
 ) {
-  const { days = 30, limit = 10 } = options;
+  const { days = 30, limit = 10, guildAlbionId } = options;
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const nameLower = guildName.trim().toLowerCase();
-  if (!nameLower) return [];
+  const guildId = guildAlbionId?.trim() || null;
+  if (!nameLower && !guildId) return [];
 
-  const killerPart = alias(schema.killParticipants, "rival_killer");
-  const victimPart = alias(schema.killParticipants, "rival_victim");
+  const subjectKillerCondition = guildId
+    ? eq(schema.killEvents.killerGuildAlbionId, guildId)
+    : sql`lower(trim(${schema.killEvents.killerGuildName})) = ${nameLower}`;
+
+  const subjectVictimCondition = guildId
+    ? eq(schema.killEvents.victimGuildAlbionId, guildId)
+    : sql`lower(trim(${schema.killEvents.victimGuildName})) = ${nameLower}`;
+
+  const opponentKillerFilter = guildId
+    ? sql`${schema.killEvents.killerGuildAlbionId} IS NOT NULL AND ${schema.killEvents.killerGuildAlbionId} <> ${guildId}`
+    : sql`${schema.killEvents.killerGuildName} IS NOT NULL AND lower(trim(${schema.killEvents.killerGuildName})) <> ${nameLower}`;
+
+  const opponentVictimFilter = guildId
+    ? sql`${schema.killEvents.victimGuildAlbionId} IS NOT NULL AND ${schema.killEvents.victimGuildAlbionId} <> ${guildId}`
+    : sql`${schema.killEvents.victimGuildName} IS NOT NULL AND lower(trim(${schema.killEvents.victimGuildName})) <> ${nameLower}`;
 
   const [killsAgainstRows, deathsToRows] = await Promise.all([
     db
       .select({
-        guildName: victimPart.guildName,
-        guildAlbionId: sql<string | null>`${victimPart.rawPayload}->>'GuildId'`,
+        guildName: schema.killEvents.victimGuildName,
+        guildAlbionId: schema.killEvents.victimGuildAlbionId,
         count: count(),
         fame: sum(schema.killEvents.totalVictimKillFame),
       })
       .from(schema.killEvents)
-      .innerJoin(
-        killerPart,
-        and(
-          eq(killerPart.eventId, schema.killEvents.id),
-          eq(killerPart.role, "killer"),
-          sql`lower(trim(${killerPart.guildName})) = ${nameLower}`
-        )
-      )
-      .innerJoin(
-        victimPart,
-        and(
-          eq(victimPart.eventId, schema.killEvents.id),
-          eq(victimPart.role, "victim"),
-          isNotNull(victimPart.guildName),
-          sql`lower(trim(${victimPart.guildName})) <> ${nameLower}`
-        )
-      )
       .where(
         and(
           eq(schema.killEvents.region, region),
           killFamePositiveCondition(),
-          gte(schema.killEvents.occurredAt, cutoff)
+          gte(schema.killEvents.occurredAt, cutoff),
+          subjectKillerCondition,
+          opponentVictimFilter
         )
       )
-      .groupBy(victimPart.guildName, sql`${victimPart.rawPayload}->>'GuildId'`),
+      .groupBy(
+        schema.killEvents.victimGuildName,
+        schema.killEvents.victimGuildAlbionId
+      ),
     db
       .select({
-        guildName: killerPart.guildName,
-        guildAlbionId: sql<string | null>`${killerPart.rawPayload}->>'GuildId'`,
+        guildName: schema.killEvents.killerGuildName,
+        guildAlbionId: schema.killEvents.killerGuildAlbionId,
         count: count(),
         fame: sum(schema.killEvents.totalVictimKillFame),
       })
       .from(schema.killEvents)
-      .innerJoin(
-        victimPart,
-        and(
-          eq(victimPart.eventId, schema.killEvents.id),
-          eq(victimPart.role, "victim"),
-          sql`lower(trim(${victimPart.guildName})) = ${nameLower}`
-        )
-      )
-      .innerJoin(
-        killerPart,
-        and(
-          eq(killerPart.eventId, schema.killEvents.id),
-          eq(killerPart.role, "killer"),
-          isNotNull(killerPart.guildName),
-          sql`lower(trim(${killerPart.guildName})) <> ${nameLower}`
-        )
-      )
       .where(
         and(
           eq(schema.killEvents.region, region),
           killFamePositiveCondition(),
-          gte(schema.killEvents.occurredAt, cutoff)
+          gte(schema.killEvents.occurredAt, cutoff),
+          subjectVictimCondition,
+          opponentKillerFilter
         )
       )
-      .groupBy(killerPart.guildName, sql`${killerPart.rawPayload}->>'GuildId'`),
+      .groupBy(
+        schema.killEvents.killerGuildName,
+        schema.killEvents.killerGuildAlbionId
+      ),
   ]);
 
   const merged = new Map<string, GuildOpponentEntry>();

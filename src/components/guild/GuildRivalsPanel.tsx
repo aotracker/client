@@ -15,6 +15,7 @@ export async function GuildRivalsPanel({
   const rivals = await getGuildTopOpponents(region, guildName, {
     days: 30,
     limit: 10,
+    guildAlbionId: guildId,
   });
 
   return (

@@ -1,7 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { KillCard } from "@/components/KillCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getGuildFeudKillsFromDb } from "@/lib/db/queries";
+import { getCachedGuildFeudKillsFromDb } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { feudPath } from "@/lib/seo";
 
@@ -9,6 +9,8 @@ interface KillGuildFeudProps {
   region: AlbionRegion;
   guildA: string;
   guildB: string;
+  guildAId?: string | null;
+  guildBId?: string | null;
   excludeEventId: number;
 }
 
@@ -38,11 +40,15 @@ export async function KillGuildFeud({
   region,
   guildA,
   guildB,
+  guildAId,
+  guildBId,
   excludeEventId,
 }: KillGuildFeudProps) {
-  const feudKills = await getGuildFeudKillsFromDb(region, guildA, guildB, {
+  const feudKills = await getCachedGuildFeudKillsFromDb(region, guildA, guildB, {
     limit: 10,
     excludeEventId,
+    guildAId,
+    guildBId,
   });
 
   const feudHref = feudPath(region, guildA, guildB);
