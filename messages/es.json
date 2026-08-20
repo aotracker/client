@@ -29,8 +29,23 @@
     "disclaimer": "{siteName} no está afiliado, respaldado ni patrocinado por Albion Online ni por Sandbox Interactive GmbH.",
     "systemStatus": "Estado del sistema",
     "privacyPolicy": "Política de privacidad",
+    "contact": "Contacto",
     "discordBot": "Bot de Discord",
     "getAlbion": "Obtener Albion"
+  },
+  "Contact": {
+    "title": "Contacto",
+    "metaDescription": "Cómo contactar con el equipo de {siteName} para preguntas, comentarios y soporte.",
+    "intro": "Aceptamos preguntas, informes de errores y comentarios. La forma más rápida de contactarnos es en Discord.",
+    "joinDiscord": "Unirse a Discord",
+    "sections": {
+      "generalTitle": "Comunidad de Discord",
+      "generalBody": "Para problemas del sitio, ideas de funciones o cualquier otra cosa sobre {siteName}, únete al <discordLink>servidor de Discord de AOTracker</discordLink>. Es el mejor lugar para hacer preguntas y obtener ayuda de quienes gestionan este sitio.",
+      "discordTitle": "Bot de Discord",
+      "discordBody": "Para ayuda al añadir o configurar el bot de kills en Discord, consulta la <discordLink>página del bot de Discord</discordLink> con los pasos de configuración y la referencia de comandos.",
+      "privacyTitle": "Privacidad y datos",
+      "privacyBody": "Para preguntas sobre cómo tratamos los datos, consulta nuestra <privacyLink>Política de privacidad</privacyLink>."
+    }
   },
   "Discord": {
     "title": "Bot de Discord",

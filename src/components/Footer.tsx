@@ -44,6 +44,12 @@ export function Footer({
             {t("discordBot")}
           </Link>
           <Link
+            href="/contact"
+            className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            {t("contact")}
+          </Link>
+          <Link
             href="/privacy"
             className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >

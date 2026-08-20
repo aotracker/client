@@ -29,8 +29,23 @@
     "disclaimer": "{siteName} is not affiliated with, endorsed by, or sponsored by Albion Online or Sandbox Interactive GmbH.",
     "systemStatus": "System status",
     "privacyPolicy": "Privacy Policy",
+    "contact": "Contact",
     "discordBot": "Discord bot",
     "getAlbion": "Get Albion"
+  },
+  "Contact": {
+    "title": "Contact",
+    "metaDescription": "How to reach the {siteName} team for questions, feedback, and support.",
+    "intro": "Questions, bug reports, and feedback are welcome. The fastest way to reach us is on Discord.",
+    "joinDiscord": "Join Discord",
+    "sections": {
+      "generalTitle": "Discord community",
+      "generalBody": "For site issues, feature ideas, or anything else about {siteName}, join the <discordLink>AOTracker Discord server</discordLink>. That is the best place to ask questions and get help from the people who run this site.",
+      "discordTitle": "Discord bot",
+      "discordBody": "For help adding or configuring the Discord kill-feed bot, see the <discordLink>Discord bot page</discordLink> for setup steps and command reference.",
+      "privacyTitle": "Privacy and data",
+      "privacyBody": "For questions about how we handle data, see our <privacyLink>Privacy Policy</privacyLink>."
+    }
   },
   "Discord": {
     "title": "Discord bot",
