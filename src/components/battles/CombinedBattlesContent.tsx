@@ -14,6 +14,8 @@ import { StatValue } from "@/components/StatValue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatFame, regionLabel } from "@/lib/utils";
+import { withBattlePlayerWeaponTooltips } from "@/lib/items/battle-player-tooltips";
+import { getLocale } from "next-intl/server";
 import { RelativeTime } from "@/components/RelativeTime";
 import { Swords } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -59,6 +61,8 @@ export async function CombinedBattlesContent({
   if (!merged) notFound();
 
   const { battle, alliances, guilds, players } = merged;
+  const locale = await getLocale();
+  const playersWithTooltips = withBattlePlayerWeaponTooltips(players, locale);
 
   return (
     <>
@@ -114,7 +118,7 @@ export async function CombinedBattlesContent({
         <BattleAlliancesList region={region} alliances={alliances} />
         <BattleGuildsList region={region} guilds={guilds} />
       </div>
-      <BattlePlayersList region={region} players={players} />
+      <BattlePlayersList region={region} players={playersWithTooltips} />
     </>
   );
 }

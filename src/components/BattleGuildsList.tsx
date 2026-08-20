@@ -60,7 +60,6 @@ export function BattleGuildsList({ region, guilds }: BattleGuildsListProps) {
                 <td className={battleTableCellClass}>
                   <Link
                     href={guildPath(region, guild.name)}
-                    title={guild.name}
                     className="block truncate font-medium hover:text-primary hover:underline"
                   >
                     {guild.name}
@@ -70,7 +69,6 @@ export function BattleGuildsList({ region, guilds }: BattleGuildsListProps) {
                   {guild.alliance && guild.allianceId ? (
                     <Link
                       href={`/alliance/${region}/${guild.allianceId}`}
-                      title={guild.alliance}
                       className="block truncate text-muted-foreground hover:text-primary hover:underline"
                     >
                       {guild.alliance}

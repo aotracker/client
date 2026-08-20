@@ -55,7 +55,6 @@ export function BattleAlliancesList({ region, alliances }: BattleAlliancesListPr
                 <td className={battleTableCellClass}>
                   <Link
                     href={`/alliance/${region}/${alliance.id}`}
-                    title={alliance.name}
                     className="block truncate font-medium hover:text-primary hover:underline"
                   >
                     {alliance.name}

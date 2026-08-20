@@ -21,6 +21,8 @@ import { EntityStatStrip } from "@/components/EntityStatStrip";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatFame, regionLabel } from "@/lib/utils";
+import { withBattlePlayerWeaponTooltips } from "@/lib/items/battle-player-tooltips";
+import { getLocale } from "next-intl/server";
 import { RelativeTime } from "@/components/RelativeTime";
 import { battleJsonLd, JsonLd } from "@/components/JsonLd";
 import {
@@ -253,6 +255,8 @@ async function BattleDetails({
   }
 
   const { alliances, guilds, players } = cached;
+  const locale = await getLocale();
+  const playersWithTooltips = withBattlePlayerWeaponTooltips(players, locale);
 
   return (
     <>
@@ -260,7 +264,7 @@ async function BattleDetails({
         <BattleAlliancesList region={region} alliances={alliances} />
         <BattleGuildsList region={region} guilds={guilds} />
       </div>
-      <BattlePlayersList region={region} players={players} />
+      <BattlePlayersList region={region} players={playersWithTooltips} />
     </>
   );
 }

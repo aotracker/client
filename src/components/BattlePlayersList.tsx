@@ -3,7 +3,8 @@
 import { Link } from "@/i18n/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Search, Swords } from "lucide-react";
-import type { AlbionBattlePlayer, AlbionRegion } from "@/lib/albion/types";
+import type { AlbionRegion } from "@/lib/albion/types";
+import type { BattlePlayerRow } from "@/lib/items/battle-player-tooltips";
 import { ItemIcon } from "@/components/ItemIcon";
 import { StatValue } from "@/components/StatValue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,10 +28,10 @@ const PLAYER_SORT_OPTIONS: { value: PlayerSortKey; label: string }[] = [
 
 interface BattlePlayersListProps {
   region: AlbionRegion;
-  players: AlbionBattlePlayer[];
+  players: BattlePlayerRow[];
 }
 
-function sortValue(player: AlbionBattlePlayer, sortBy: PlayerSortKey): number {
+function sortValue(player: BattlePlayerRow, sortBy: PlayerSortKey): number {
   if (sortBy === "kills") return player.kills;
   if (sortBy === "deaths") return player.deaths;
   return player.killFame;
@@ -132,7 +133,7 @@ function BattlePlayerCard({
   player,
 }: {
   region: AlbionRegion;
-  player: AlbionBattlePlayer;
+  player: BattlePlayerRow;
 }) {
   return (
     <Card className="transition-colors hover:border-primary/40">
@@ -143,7 +144,7 @@ function BattlePlayerCard({
               <ItemIcon
                 itemType={player.weaponType}
                 quality={player.weaponQuality ?? 1}
-                alt="weapon"
+                tooltip={player.weaponTooltip ?? undefined}
                 fill
                 className="object-contain"
               />
