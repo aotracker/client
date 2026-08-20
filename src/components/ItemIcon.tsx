@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { memo, useState } from "react";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn, formatItemName } from "@/lib/utils";
 import { itemIconRemoteUrl, itemIconUrl } from "@/lib/item-icons";
 
@@ -10,6 +11,8 @@ interface ItemIconProps {
   quality?: number | null;
   alt?: string;
   tooltip?: string;
+  tooltipSide?: "top" | "bottom";
+  tooltipAlign?: "start" | "center" | "end";
   className?: string;
   fill?: boolean;
   width?: number;
@@ -51,6 +54,8 @@ export const ItemIcon = memo(function ItemIcon({
   quality,
   alt,
   tooltip,
+  tooltipSide,
+  tooltipAlign,
   className = "object-contain",
   fill,
   width,
@@ -64,16 +69,18 @@ export const ItemIcon = memo(function ItemIcon({
   const showImage = !failed && Boolean(src);
 
   return (
-    <span
-      title={label}
-      className={cn("relative", fill ? "block size-full" : "block")}
+    <Tooltip
+      content={label}
+      side={tooltipSide}
+      align={tooltipAlign}
+      block
+      className={cn("relative", fill ? "size-full" : "block")}
       style={!fill && width && height ? { width, height } : undefined}
     >
       {showImage && src ? (
         <Image
           src={src}
           alt={alt ?? label}
-          title={label}
           fill={fill}
           width={fill ? undefined : width}
           height={fill ? undefined : height}
@@ -91,6 +98,6 @@ export const ItemIcon = memo(function ItemIcon({
       ) : (
         <GenericItemPlaceholder />
       )}
-    </span>
+    </Tooltip>
   );
 });

@@ -3,6 +3,7 @@
 import { Shirt } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import type { ArmorClass } from "@/lib/items/item-meta";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +27,7 @@ export function ArmorClassBadge({
   const label = t(armorClass);
 
   return (
-    <span title={label}>
+    <Tooltip content={label}>
       <Badge
         size="sm"
         variant="outline"
@@ -35,6 +36,6 @@ export function ArmorClassBadge({
         <Shirt className="size-2.5 shrink-0" aria-hidden />
         {label}
       </Badge>
-    </span>
+    </Tooltip>
   );
 }

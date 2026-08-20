@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   cn,
   formatExactDateTimeI18n,
@@ -24,14 +25,15 @@ export function RelativeTime({ date, className }: RelativeTimeProps) {
 
   if (showRelative) {
     return (
-      <time
-        dateTime={toIsoString(date)}
-        className={cn(className)}
-        title={exact}
-        suppressHydrationWarning
-      >
-        {relative}
-      </time>
+      <Tooltip content={exact}>
+        <time
+          dateTime={toIsoString(date)}
+          className={cn(className)}
+          suppressHydrationWarning
+        >
+          {relative}
+        </time>
+      </Tooltip>
     );
   }
 

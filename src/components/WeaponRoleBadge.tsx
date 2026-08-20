@@ -1,6 +1,9 @@
+"use client";
+
 import type { LucideIcon } from "lucide-react";
 import { Heart, Shield, Sparkles, Swords } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import type { WeaponRole } from "@/lib/items/weapon-roles";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +41,11 @@ export function WeaponRoleBadge({
   const Icon = ROLE_ICON[role];
 
   return (
-    <span title={`Role from main-hand weapon tree: ${label}`}>
+    <Tooltip
+      content={`Role from main-hand weapon tree: ${label}`}
+      side="bottom"
+      align="start"
+    >
       <Badge
         size="sm"
         variant="outline"
@@ -47,6 +54,6 @@ export function WeaponRoleBadge({
         <Icon className="size-2.5 shrink-0" aria-hidden />
         {label}
       </Badge>
-    </span>
+    </Tooltip>
   );
 }

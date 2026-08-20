@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn, formatSilver } from "@/lib/utils";
 import { AlbionKillboardIcon } from "@/components/AlbionKillboardIcon";
 
@@ -22,13 +23,12 @@ export async function SilverValue({
   const t = await getTranslations("Common.labels");
 
   return (
-    <span
-      title={t("estimated")}
-      className={cn("inline-flex items-center gap-1", className)}
-    >
-      {prefix ? <span>{prefix}</span> : null}
-      <SilverIcon className={iconClassName} />
-      <span className="tabular-nums">{formatSilver(amount)}</span>
-    </span>
+    <Tooltip content={t("estimated")}>
+      <span className={cn("inline-flex items-center gap-1", className)}>
+        {prefix ? <span>{prefix}</span> : null}
+        <SilverIcon className={iconClassName} />
+        <span className="tabular-nums">{formatSilver(amount)}</span>
+      </span>
+    </Tooltip>
   );
 }

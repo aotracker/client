@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Check, ChevronDown, Languages } from "lucide-react";
 import { LOCALE_DEFINITIONS, type AppLocale } from "@/i18n/locales";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface LanguageSelectorProps {
@@ -62,21 +63,21 @@ export function LanguageSelector({
 
   return (
     <div ref={rootRef} className={cn("relative", className)}>
-      <button
-        type="button"
-        className={cn(
-          "inline-flex h-8 items-center gap-0.5 rounded-md text-xs font-medium uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-          compact
-            ? "px-2 text-muted-foreground hover:bg-accent hover:text-foreground"
-            : "border border-border bg-transparent px-2.5 hover:bg-accent"
-        )}
-        aria-expanded={open}
-        aria-controls={listId}
-        aria-haspopup="listbox"
-        aria-label={t("selectLanguage")}
-        title={active.label}
-        onClick={() => setOpen((value) => !value)}
-      >
+      <Tooltip content={active.label} side="bottom">
+        <button
+          type="button"
+          className={cn(
+            "inline-flex h-8 items-center gap-0.5 rounded-md text-xs font-medium uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            compact
+              ? "px-2 text-muted-foreground hover:bg-accent hover:text-foreground"
+              : "border border-border bg-transparent px-2.5 hover:bg-accent"
+          )}
+          aria-expanded={open}
+          aria-controls={listId}
+          aria-haspopup="listbox"
+          aria-label={t("selectLanguage")}
+          onClick={() => setOpen((value) => !value)}
+        >
         <Languages className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
         <span>{active.code}</span>
         <ChevronDown
@@ -87,6 +88,7 @@ export function LanguageSelector({
           aria-hidden
         />
       </button>
+      </Tooltip>
 
       {open && (
         <ul

@@ -15,6 +15,7 @@ import {
 } from "@/lib/region-params";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface NavbarRegionSelectorProps {
@@ -126,16 +127,19 @@ export function NavbarRegionSelector({
 
   return (
     <div ref={rootRef} className={cn("relative shrink-0", className)}>
-      <button
-        type="button"
-        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-transparent px-2 text-xs font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        aria-expanded={open}
-        aria-controls={listId}
-        aria-haspopup="listbox"
-        aria-label={tNav("selectRegion")}
-        title={`${tNav("serverRegion")}: ${regionOptionLabel(activeRegion)}`}
-        onClick={() => setOpen((value) => !value)}
+      <Tooltip
+        content={`${tNav("serverRegion")}: ${regionOptionLabel(activeRegion)}`}
+        side="bottom"
       >
+        <button
+          type="button"
+          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-transparent px-2 text-xs font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          aria-expanded={open}
+          aria-controls={listId}
+          aria-haspopup="listbox"
+          aria-label={tNav("selectRegion")}
+          onClick={() => setOpen((value) => !value)}
+        >
         <Globe className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
         <span className="tabular-nums tracking-wide text-foreground">
           {REGION_SHORT[activeRegion]}
@@ -148,6 +152,7 @@ export function NavbarRegionSelector({
           aria-hidden
         />
       </button>
+      </Tooltip>
 
       {open && (
         <div

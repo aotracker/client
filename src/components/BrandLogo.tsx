@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
-import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
+import { Tooltip } from "@/components/ui/tooltip";
+import { SITE_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 /** Compact AOT monogram. */
@@ -10,18 +11,21 @@ export function BrandMark({
   className?: string;
   title?: string;
 }) {
-  return (
+  const mark = (
     <span
       className={cn(
         "inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card font-display text-[11px] font-bold tracking-[0.08em] text-foreground",
         className
       )}
       aria-hidden={title ? undefined : true}
-      title={title}
     >
       AOT
     </span>
   );
+
+  if (!title) return mark;
+
+  return <Tooltip content={title}>{mark}</Tooltip>;
 }
 
 interface BrandLogoProps {
@@ -60,10 +64,7 @@ export function BrandLogo({
 
   if (!href) {
     return (
-      <span
-        className={cn("inline-flex items-center gap-2.5", className)}
-        title={SITE_TAGLINE}
-      >
+      <span className={cn("inline-flex items-center gap-2.5", className)}>
         {content}
       </span>
     );
@@ -77,7 +78,6 @@ export function BrandLogo({
         className
       )}
       aria-label={SITE_NAME}
-      title={SITE_TAGLINE}
     >
       {content}
     </Link>

@@ -25,6 +25,7 @@ import {
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useTheme } from "@/components/ThemeProvider";
 import { BrandLogo } from "@/components/BrandLogo";
+import { Tooltip } from "@/components/ui/tooltip";
 import { WatchlistNavButton } from "@/components/watchlist/WatchlistNavButton";
 import type { AlbionRegion } from "@/lib/albion/types";
 import {
@@ -86,19 +87,20 @@ function ServerTime({ className }: { className?: string }) {
   );
 
   return (
-    <p
-      className={cn(
-        "inline-flex shrink-0 items-center gap-1 tabular-nums text-[11px] leading-none text-muted-foreground",
-        className
-      )}
-      suppressHydrationWarning
-      title={t("serverTimeTitle")}
-    >
-      <Clock className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
-      <span className="sr-only">{t("serverTime")} </span>
-      {clock}
-      <span className="ml-0.5 opacity-70">UTC</span>
-    </p>
+    <Tooltip content={t("serverTimeTitle")} side="bottom">
+      <p
+        className={cn(
+          "inline-flex shrink-0 items-center gap-1 tabular-nums text-[11px] leading-none text-muted-foreground",
+          className
+        )}
+        suppressHydrationWarning
+      >
+        <Clock className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
+        <span className="sr-only">{t("serverTime")} </span>
+        {clock}
+        <span className="ml-0.5 opacity-70">UTC</span>
+      </p>
+    </Tooltip>
   );
 }
 
@@ -119,27 +121,28 @@ function ThemeToggleButton({
         : t("themeSwitchToSystem");
 
   return (
-    <button
-      type="button"
-      className={cn(
-        "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-        compact
-          ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-          : "border border-border hover:bg-accent",
-        className
-      )}
-      aria-label={label}
-      title={label}
-      onClick={toggleTheme}
-    >
-      {theme === "system" ? (
-        <Monitor className="h-4 w-4" />
-      ) : theme === "light" ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
-    </button>
+    <Tooltip content={label} side="bottom">
+      <button
+        type="button"
+        className={cn(
+          "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+          compact
+            ? "text-muted-foreground hover:bg-accent hover:text-foreground"
+            : "border border-border hover:bg-accent",
+          className
+        )}
+        aria-label={label}
+        onClick={toggleTheme}
+      >
+        {theme === "system" ? (
+          <Monitor className="h-4 w-4" />
+        ) : theme === "light" ? (
+          <Sun className="h-4 w-4" />
+        ) : (
+          <Moon className="h-4 w-4" />
+        )}
+      </button>
+    </Tooltip>
   );
 }
 

@@ -22,7 +22,7 @@ const CONTENT_SECTIONS = [
 
 function HottestWeaponSkeleton() {
   return (
-    <div className="flex items-start gap-3 rounded-md border border-border/60 bg-muted/20 px-3 py-2.5">
+    <div className="flex h-full items-start gap-3 px-3 py-3">
       <Skeleton className="mt-0.5 h-4 w-5 shrink-0" />
       <Skeleton className="size-14 shrink-0 rounded-md" />
       <div className="min-w-0 flex-1 space-y-1.5">
@@ -93,10 +93,12 @@ export default function BuildsLoading() {
             <Skeleton className="h-6 w-40" />
             <Skeleton className="h-4 w-full max-w-lg" />
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <HottestWeaponSkeleton key={i} />
-            ))}
+          <div className="overflow-hidden rounded-xl border border-border/70 bg-card/70">
+            <div className="grid grid-cols-1 divide-y divide-border/60 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <HottestWeaponSkeleton key={i} />
+              ))}
+            </div>
           </div>
         </div>
 

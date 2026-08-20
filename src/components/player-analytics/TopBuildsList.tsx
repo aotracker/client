@@ -87,7 +87,6 @@ export function TopBuildsList({ topBuilds }: TopBuildsListProps) {
                   <div
                     key={slot}
                     className="flex items-center justify-center rounded-md border border-border/50 bg-card/60 p-1 leading-none"
-                    title={`${slotLabel(slot)}: ${label}`}
                   >
                     <ItemIcon
                       itemType={item.itemType}

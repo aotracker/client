@@ -1,6 +1,7 @@
 import { Fragment, type ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   EntityStatStrip,
@@ -49,17 +50,20 @@ async function AffiliationTrail({ items }: { items: EntityAffiliation[] }) {
             </span>
           )}
           {item.href ? (
-            <Link
-              href={item.href}
-              className="min-w-0 break-words hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              title={item.title}
-            >
-              {item.label}
-            </Link>
+            <Tooltip content={item.title}>
+              <Link
+                href={item.href}
+                className="min-w-0 break-words hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {item.label}
+              </Link>
+            </Tooltip>
+          ) : item.title ? (
+            <Tooltip content={item.title}>
+              <span className="min-w-0 break-words">{item.label}</span>
+            </Tooltip>
           ) : (
-            <span className="min-w-0 break-words" title={item.title}>
-              {item.label}
-            </span>
+            <span className="min-w-0 break-words">{item.label}</span>
           )}
         </Fragment>
       ))}
@@ -117,12 +121,11 @@ export async function EntityHeader({
             {footerMeta}
           </div>
           {entityId && (
-            <span
-              className="break-all font-mono text-xs text-muted-foreground/70 sm:max-w-[50%] sm:text-right"
-              title={resolvedIdLabel}
-            >
-              {entityId}
-            </span>
+            <Tooltip content={resolvedIdLabel}>
+              <span className="break-all font-mono text-xs text-muted-foreground/70 sm:max-w-[50%] sm:text-right">
+                {entityId}
+              </span>
+            </Tooltip>
           )}
         </CardContent>
       )}

@@ -13,6 +13,7 @@ import { parseItemType } from "@/lib/item-icons";
 import { guildPath, playerPath } from "@/lib/seo";
 import { leaderboardKillCardHighlightClassName } from "@/components/leaderboards/leaderboard-rank-styles";
 import { ItemIcon } from "@/components/ItemIcon";
+import { Tooltip } from "@/components/ui/tooltip";
 import { RelativeTime } from "@/components/RelativeTime";
 import {
   KILL_CARD_PRIMARY_SLOTS,
@@ -124,18 +125,19 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
                 </Badge>
               ) : null}
               <ContentBadge type={event.contentType} />
-              <Link
-                href={killHref}
-                title={tPlayer("killDetails")}
-                className={cn(
-                  "truncate font-bold text-stat-fame hover:underline",
-                  large ? "text-base lg:text-lg" : "text-sm"
-                )}
-              >
-                {tCommon("labels.killFameWithUnit", {
-                  value: formatFame(event.totalVictimKillFame),
-                })}
-              </Link>
+              <Tooltip content={tPlayer("killDetails")}>
+                <Link
+                  href={killHref}
+                  className={cn(
+                    "truncate font-bold text-stat-fame hover:underline",
+                    large ? "text-base lg:text-lg" : "text-sm"
+                  )}
+                >
+                  {tCommon("labels.killFameWithUnit", {
+                    value: formatFame(event.totalVictimKillFame),
+                  })}
+                </Link>
+              </Tooltip>
             </div>
             <span className={cn(
               "text-xs text-muted-foreground sm:shrink-0 sm:text-right",
@@ -213,22 +215,23 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
             locale={locale}
           />
 
-          <Link
-            href={killHref}
-            title={tPlayer("killDetails")}
-            className="flex shrink-0 flex-col items-center rounded-md px-3 py-2 text-center transition-colors hover:bg-accent/50"
-          >
-            <Swords className="mb-1 h-5 w-5 text-muted-foreground" />
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t("killed")}
-            </span>
-            <span className="text-sm font-bold text-stat-fame">
-              {formatFame(event.totalVictimKillFame)}
-            </span>
-            <div className="mt-1.5">
-              <ContentBadge type={event.contentType} />
-            </div>
-          </Link>
+          <Tooltip content={tPlayer("killDetails")}>
+            <Link
+              href={killHref}
+              className="flex shrink-0 flex-col items-center rounded-md px-3 py-2 text-center transition-colors hover:bg-accent/50"
+            >
+              <Swords className="mb-1 h-5 w-5 text-muted-foreground" />
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t("killed")}
+              </span>
+              <span className="text-sm font-bold text-stat-fame">
+                {formatFame(event.totalVictimKillFame)}
+              </span>
+              <div className="mt-1.5">
+                <ContentBadge type={event.contentType} />
+              </div>
+            </Link>
+          </Tooltip>
 
           <PlayerBlock
             name={event.victim?.name ?? unknown}
@@ -291,12 +294,14 @@ function BuildStrip({
 
     if (!item) {
       return (
-        <div
+        <Tooltip
           key={slot}
+          content={`${label}: empty`}
+          block
           className="size-12 rounded-md bg-muted/45 sm:size-12 lg:size-14 xl:size-16"
-          title={`${label}: empty`}
-          aria-label={`${label} empty`}
-        />
+        >
+          <span aria-label={`${label} empty`} className="block size-full" />
+        </Tooltip>
       );
     }
 
@@ -306,7 +311,6 @@ function BuildStrip({
       <div
         key={slot}
         className="relative size-12 leading-none sm:size-12 lg:size-14 xl:size-16"
-        title={`${label}: ${name}`}
       >
         <ItemIcon
           itemType={item.itemType}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Home, Monitor, Moon, Sun } from "lucide-react";
 import { BrandMark } from "@/components/BrandLogo";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useTheme } from "@/components/ThemeProvider";
 import { SITE_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -18,21 +19,22 @@ function AdminThemeToggle() {
         : "Switch to system theme";
 
   return (
-    <button
-      type="button"
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      aria-label={label}
-      title={label}
-      onClick={toggleTheme}
-    >
-      {theme === "system" ? (
-        <Monitor className="h-4 w-4" />
-      ) : theme === "light" ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
-    </button>
+    <Tooltip content={label} side="bottom">
+      <button
+        type="button"
+        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        aria-label={label}
+        onClick={toggleTheme}
+      >
+        {theme === "system" ? (
+          <Monitor className="h-4 w-4" />
+        ) : theme === "light" ? (
+          <Sun className="h-4 w-4" />
+        ) : (
+          <Moon className="h-4 w-4" />
+        )}
+      </button>
+    </Tooltip>
   );
 }
 

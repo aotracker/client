@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ItemIcon } from "@/components/ItemIcon";
+import { Tooltip } from "@/components/ui/tooltip";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
 import { ArmorClassBadge } from "@/components/ArmorClassBadge";
 import { TOP_BUILD_SLOTS } from "@/lib/albion/types";
@@ -109,7 +110,7 @@ export function BuildMetaCard({
   return (
     <li
       className={cn(
-        "relative overflow-hidden rounded-lg border border-border/70 bg-card/80 p-4",
+        "relative overflow-visible rounded-lg border border-border/70 bg-card/80 p-4",
         "transition-colors hover:border-border hover:bg-card"
       )}
     >
@@ -124,7 +125,7 @@ export function BuildMetaCard({
             {build.rank}
           </span>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 overflow-visible">
               {weaponHref ? (
                 <Link
                   href={weaponHref}
@@ -152,19 +153,21 @@ export function BuildMetaCard({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1 overflow-visible">
           {TOP_BUILD_SLOTS.map((slot) => {
             const item = bySlot.get(slot);
             if (!item) {
               return (
-                <div
+                <Tooltip
                   key={slot}
+                  content={t("emptySlot", { slot: slotLabel(slot) })}
+                  block
                   className="flex size-[68px] items-center justify-center rounded-md border border-dashed border-border/60 bg-muted/10 text-[10px] leading-tight text-muted-foreground"
-                  title={t("emptySlot", { slot: slotLabel(slot) })}
-                  aria-label={t("emptySlot", { slot: slotLabel(slot) })}
                 >
-                  {slotLabel(slot)}
-                </div>
+                  <span aria-label={t("emptySlot", { slot: slotLabel(slot) })}>
+                    {slotLabel(slot)}
+                  </span>
+                </Tooltip>
               );
             }
             const label = pickLocalizedName(
@@ -177,12 +180,12 @@ export function BuildMetaCard({
               <div
                 key={slot}
                 className="flex items-center justify-center rounded-md border border-border/50 bg-muted/30 p-0.5 leading-none"
-                title={`${slotLabel(slot)}: ${label}`}
               >
                 <ItemIcon
                   itemType={item.itemType}
                   quality={item.quality}
                   tooltip={`${slotLabel(slot)}: ${label}`}
+                  tooltipAlign="start"
                   width={64}
                   height={64}
                   className="block object-contain"
@@ -196,23 +199,23 @@ export function BuildMetaCard({
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className={cn(
-                "px-1 py-2 text-center sm:px-2",
-                stat.title && "cursor-help"
-              )}
-              title={stat.title}
+              className="flex flex-col items-center px-1 py-2 sm:px-2"
             >
-              <dt className="text-[10px] leading-tight text-muted-foreground sm:text-xs">
-                {stat.label}
-              </dt>
-              <dd
-                className={cn(
-                  "mt-0.5 text-xs font-semibold tabular-nums sm:text-sm",
-                  stat.className
-                )}
-              >
-                {stat.value}
-              </dd>
+              <Tooltip content={stat.title} side="bottom" block className="w-full text-center">
+                <div>
+                  <dt className="text-[10px] leading-tight text-muted-foreground sm:text-xs">
+                    {stat.label}
+                  </dt>
+                  <dd
+                    className={cn(
+                      "mt-0.5 text-xs font-semibold tabular-nums sm:text-sm",
+                      stat.className
+                    )}
+                  >
+                    {stat.value}
+                  </dd>
+                </div>
+              </Tooltip>
             </div>
           ))}
         </dl>

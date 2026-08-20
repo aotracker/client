@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { ContentBadge } from "@/components/ContentBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { ItemIcon } from "@/components/ItemIcon";
+import { Tooltip } from "@/components/ui/tooltip";
 import { PageSection } from "@/components/PageSection";
 import { WeaponRoleBadge } from "@/components/WeaponRoleBadge";
 import { BuildMetaCard } from "@/components/builds/BuildMetaCard";
@@ -118,23 +119,26 @@ function WeaponUsesMix({
 
   return (
     <div className="mt-1.5 space-y-1">
-      <div
-        className="flex h-1.5 overflow-hidden rounded-full bg-muted/40"
-        title={segments
+      <Tooltip
+        content={segments
           .map(
             (segment) =>
               `${contentLabel(segment.type)}: ${segment.count.toLocaleString()}`
           )
           .join(" · ")}
+        block
+        className="flex h-1.5 overflow-hidden rounded-full bg-muted/40"
       >
-        {segments.map((segment) => (
-          <div
-            key={segment.type}
-            className={cn("h-full min-w-px", CONTENT_TYPE_BAR[segment.type])}
-            style={{ width: `${(segment.count / total) * 100}%` }}
-          />
-        ))}
-      </div>
+        <div className="flex size-full">
+          {segments.map((segment) => (
+            <div
+              key={segment.type}
+              className={cn("h-full min-w-px", CONTENT_TYPE_BAR[segment.type])}
+              style={{ width: `${(segment.count / total) * 100}%` }}
+            />
+          ))}
+        </div>
+      </Tooltip>
       <p className="text-[11px] leading-tight tabular-nums text-muted-foreground">
         {segments.map((segment, index) => (
           <span key={segment.type}>
@@ -307,75 +311,78 @@ export function BuildsMetaView({ data, sort, weapon }: BuildsMetaViewProps) {
           title={t("hottestWeapons.title")}
           description={t("hottestWeapons.description")}
         >
-          <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {data.topWeapons.map((entry, index) => {
-              const role = entry.weaponRole;
-              const family = entry.familyKey || itemFamilyKey(entry.itemType);
-              const active = weapon === family;
-              const secondaryStat =
-                role === "dps"
-                  ? entry.kills > 0
-                    ? t("hottestWeapons.killsSuffix", {
-                        count: entry.kills.toLocaleString(),
-                      })
-                    : ""
-                  : entry.assists > 0
-                    ? t("hottestWeapons.assistsSuffix", {
-                        count: entry.assists.toLocaleString(),
-                      })
-                    : "";
+          <div className="overflow-hidden rounded-xl border border-border/70 bg-card/70">
+            <ol className="grid grid-cols-1 divide-y divide-border/60 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
+              {data.topWeapons.map((entry, index) => {
+                const role = entry.weaponRole;
+                const family = entry.familyKey || itemFamilyKey(entry.itemType);
+                const active = weapon === family;
+                const secondaryStat =
+                  role === "dps"
+                    ? entry.kills > 0
+                      ? t("hottestWeapons.killsSuffix", {
+                          count: entry.kills.toLocaleString(),
+                        })
+                      : ""
+                    : entry.assists > 0
+                      ? t("hottestWeapons.assistsSuffix", {
+                          count: entry.assists.toLocaleString(),
+                        })
+                      : "";
 
-              return (
-                <li key={`${entry.itemType}-${index}`}>
-                  <Link
-                    href={weaponHref(family, entry.familyNames)}
-                    aria-current={active ? "true" : undefined}
-                    className={cn(
-                      "flex items-start gap-3 rounded-md border px-3 py-2.5 transition-colors",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                      active
-                        ? "border-primary/70 bg-primary/10"
-                        : "border-border/60 bg-muted/20 hover:border-border hover:bg-muted/35"
-                    )}
-                  >
-                    <span className="w-5 shrink-0 pt-0.5 text-center text-xs font-semibold tabular-nums text-muted-foreground">
-                      {index + 1}
-                    </span>
-                    <div className="flex size-14 shrink-0 items-center justify-center rounded-md border border-border/50 bg-card/70 p-0.5">
-                      <ItemIcon
-                        itemType={entry.itemType}
-                        quality={ITEM_QUALITY_EXCELLENT}
-                        tooltip={weaponLabel(entry, locale)}
-                        width={52}
-                        height={52}
-                        className="block object-contain"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <p className="truncate text-sm font-medium">
-                          {weaponLabel(entry, locale)}
-                        </p>
-                        <WeaponRoleBadge role={entry.weaponRole} />
+                return (
+                  <li key={`${entry.itemType}-${index}`}>
+                    <Link
+                      href={weaponHref(family, entry.familyNames)}
+                      aria-current={active ? "true" : undefined}
+                      className={cn(
+                        "flex h-full items-start gap-3 px-3 py-3 transition-colors",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
+                        active
+                          ? "bg-primary/10"
+                          : "hover:bg-muted/35"
+                      )}
+                    >
+                      <span className="w-5 shrink-0 pt-0.5 text-center text-xs font-semibold tabular-nums text-muted-foreground">
+                        {index + 1}
+                      </span>
+                      <div className="flex size-14 shrink-0 items-center justify-center rounded-md border border-border/50 bg-muted/30 p-0.5">
+                        <ItemIcon
+                          itemType={entry.itemType}
+                          quality={ITEM_QUALITY_EXCELLENT}
+                          tooltip={weaponLabel(entry, locale)}
+                          tooltipAlign="start"
+                          width={52}
+                          height={52}
+                          className="block object-contain"
+                        />
                       </div>
-                      <WeaponUsesMix usesByContentType={entry.usesByContentType} />
-                      <p className="mt-1 text-xs tabular-nums text-muted-foreground">
-                        {t("hottestWeapons.uses", {
-                          count: entry.appearances.toLocaleString(),
-                        })}
-                        {entry.usageShare > 0
-                          ? t("hottestWeapons.share", {
-                              pct: (entry.usageShare * 100).toFixed(0),
-                            })
-                          : null}
-                        {secondaryStat}
-                      </p>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 overflow-visible">
+                          <p className="truncate text-sm font-medium">
+                            {weaponLabel(entry, locale)}
+                          </p>
+                          <WeaponRoleBadge role={entry.weaponRole} />
+                        </div>
+                        <WeaponUsesMix usesByContentType={entry.usesByContentType} />
+                        <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+                          {t("hottestWeapons.uses", {
+                            count: entry.appearances.toLocaleString(),
+                          })}
+                          {entry.usageShare > 0
+                            ? t("hottestWeapons.share", {
+                                pct: (entry.usageShare * 100).toFixed(0),
+                              })
+                            : null}
+                          {secondaryStat}
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
         </PageSection>
       )}
 
@@ -409,9 +416,7 @@ export function BuildsMetaView({ data, sort, weapon }: BuildsMetaViewProps) {
                   sort: t(`sort.${sort}`),
                   usageHint: (chunks) =>
                     sort === "usage" ? (
-                      <span className="cursor-help" title={t("stats.usageTooltip")}>
-                        {chunks}
-                      </span>
+                      <Tooltip content={t("stats.usageTooltip")}>{chunks}</Tooltip>
                     ) : (
                       chunks
                     ),

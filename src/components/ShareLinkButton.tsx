@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useToast } from "@/components/Toast";
 import { cn } from "@/lib/utils";
 
@@ -56,17 +57,18 @@ export function ShareLinkButton({
   }
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      className={cn("gap-1.5", className)}
-      title={t("labels.copyLinkTitle")}
-      aria-label={resolvedLabel}
-      onClick={() => void handleCopy()}
-    >
-      <Copy className="h-3.5 w-3.5" />
-      {resolvedLabel}
-    </Button>
+    <Tooltip content={t("labels.copyLinkTitle")} side="bottom">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className={cn("gap-1.5", className)}
+        aria-label={resolvedLabel}
+        onClick={() => void handleCopy()}
+      >
+        <Copy className="h-3.5 w-3.5" />
+        {resolvedLabel}
+      </Button>
+    </Tooltip>
   );
 }
