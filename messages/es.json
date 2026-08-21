@@ -292,6 +292,76 @@
     "primeTime": "Prime Time",
     "lastDays": "Últimos {days} días"
   },
+  "Feud": {
+    "guildMeta": "Rivalidad de gremios · {region} · según bajas en caché",
+    "allianceMeta": "Rivalidad de alianzas · {region} · según bajas en caché",
+    "nav": {
+      "ariaLabel": "Secciones de la rivalidad",
+      "scoreboard": "Marcador",
+      "topPlayers": "Mejores jugadores",
+      "guildFeuds": "Rivalidades de gremios",
+      "kills": "Bajas"
+    },
+    "filters": {
+      "label": "Periodo"
+    },
+    "scoreboard": {
+      "vs": "vs",
+      "fame": "fama",
+      "totalKills": "{count, plural, one {# baja registrada} other {# bajas registradas}}"
+    },
+    "contentMix": {
+      "label": "Tipo de contenido",
+      "empty": "No hay bajas en este periodo"
+    },
+    "topKills": {
+      "title": "Mejores bajas",
+      "description": "Bajas de mayor fama en esta rivalidad"
+    },
+    "topPlayers": {
+      "title": "Jugadores destacados",
+      "description": "Asesinos y víctimas más activos en esta rivalidad",
+      "killers": "Mejores asesinos",
+      "victims": "Más eliminados",
+      "emptyKillers": "Sin asesinos registrados",
+      "emptyVictims": "Sin víctimas registradas",
+      "kills": "bajas",
+      "deaths": "muertes"
+    },
+    "battles": {
+      "title": "Batallas compartidas",
+      "description": "Batallas donde ambos bandos se enfrentaron",
+      "feudKills": "{count, plural, one {# baja de rivalidad} other {# bajas de rivalidad}} · {nameA} {aKills} – {bKills} {nameB}",
+      "empty": "No hay batallas vinculadas en este periodo"
+    },
+    "recentKills": {
+      "title": "Bajas recientes ({count})",
+      "description": "Bajas cronológicas entre ambos bandos",
+      "empty": "Aún no hay bajas entre estos bandos en nuestra base de datos",
+      "loadMore": "Cargar más"
+    },
+    "tabs": {
+      "title": "Bajas",
+      "filterAria": "Filtrar bajas",
+      "recent": "Recientes",
+      "topKills": "Mejores bajas",
+      "recentDescription": "Bajas cronológicas entre ambos bandos ({count} en total)",
+      "topDescription": "Bajas de mayor fama en esta rivalidad",
+      "recentEmpty": "Aún no hay bajas entre estos bandos en nuestra base de datos",
+      "topEmpty": "No hay bajas registradas en este periodo",
+      "loadMore": "Cargar más"
+    },
+    "crossLinks": {
+      "allianceFeudTitle": "Rivalidad de alianzas",
+      "allianceFeudDescriptionStart": "Ver la guerra más amplia entre",
+      "allianceFeudDescriptionAnd": "y",
+      "allianceFeudLink": "Ver rivalidad de alianzas",
+      "guildFeudsTitle": "Rivalidades de gremios en esta guerra",
+      "guildFeudsDescription": "Principales rivalidades de gremios en esta feud de alianzas",
+      "guildFeudLine": "{count} bajas · {fame} fama",
+      "viewGuildFeud": "Ver rivalidad"
+    }
+  },
   "Home": {
     "srOnlyTitle": "{siteName} — {pageTitle}",
     "sections": {

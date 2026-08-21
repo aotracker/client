@@ -253,46 +253,42 @@ export default async function KillDetailPage({ params }: PageProps) {
           compacted={compacted}
         />
         {showGuildFeud && (
-          <section>
-            <Suspense
-              fallback={
-                <KillGuildFeudFallback
-                  guildA={feudGuildA}
-                  guildB={feudGuildB}
-                />
-              }
-            >
-              <KillGuildFeud
-                region={albionRegion}
+          <Suspense
+            fallback={
+              <KillGuildFeudFallback
                 guildA={feudGuildA}
                 guildB={feudGuildB}
-                guildAId={killerGuild?.albionId}
-                guildBId={victimGuild?.albionId}
-                excludeEventId={event.eventId}
               />
-            </Suspense>
-          </section>
+            }
+          >
+            <KillGuildFeud
+              region={albionRegion}
+              guildA={feudGuildA}
+              guildB={feudGuildB}
+              guildAId={killerGuild?.albionId}
+              guildBId={victimGuild?.albionId}
+              excludeEventId={event.eventId}
+            />
+          </Suspense>
         )}
         {showAllianceFeud && (
-          <section>
-            <Suspense
-              fallback={
-                <KillAllianceFeudFallback
-                  allianceAName={killerAllianceName}
-                  allianceBName={victimAllianceName}
-                />
-              }
-            >
-              <KillAllianceFeud
-                region={albionRegion}
-                allianceAId={killerAllianceId}
-                allianceBId={victimAllianceId}
+          <Suspense
+            fallback={
+              <KillAllianceFeudFallback
                 allianceAName={killerAllianceName}
                 allianceBName={victimAllianceName}
-                excludeEventId={event.eventId}
               />
-            </Suspense>
-          </section>
+            }
+          >
+            <KillAllianceFeud
+              region={albionRegion}
+              allianceAId={killerAllianceId}
+              allianceBId={victimAllianceId}
+              allianceAName={killerAllianceName}
+              allianceBName={victimAllianceName}
+              excludeEventId={event.eventId}
+            />
+          </Suspense>
         )}
       </div>
     </>

@@ -6,4 +6,5 @@ export * from "./queries/leaderboards";
 export * from "./queries/builds";
 export * from "./queries/search";
 export * from "./queries/sitemap";
+export * from "./queries/feud";
 export * from "./queries/ops";

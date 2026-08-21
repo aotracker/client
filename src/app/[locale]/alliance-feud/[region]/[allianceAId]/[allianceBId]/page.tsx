@@ -1,24 +1,24 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { BackLink } from "@/components/BackLink";
-import { KillCard } from "@/components/KillCard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatValue } from "@/components/StatValue";
-import {
-  getAllianceByAlbionId,
-  getAllianceFeudKillsFromDb,
-  getAllianceFeudStats,
-} from "@/lib/db/queries";
+import { FeudPageContent } from "@/components/feud/FeudPageContent";
+import { FeudDisplayName } from "@/components/feud/FeudDisplayName";
+import { Link } from "@/i18n/navigation";
+import { getAllianceByAlbionId } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { isRegionEnabled } from "@/lib/albion/types";
-import { formatFame, regionLabel } from "@/lib/utils";
+import { regionLabel } from "@/lib/utils";
+import {
+  parseFeudDays,
+  parseFeudOffset,
+} from "@/lib/feud/params";
 import {
   allianceFeudPath,
   alliancePath,
   buildPageMetadata,
   notFoundMetadata,
 } from "@/lib/seo";
-import { Link } from "@/i18n/navigation";
 
 interface PageProps {
   params: Promise<{
@@ -26,6 +26,7 @@ interface PageProps {
     allianceAId: string;
     allianceBId: string;
   }>;
+  searchParams: Promise<{ days?: string; offset?: string }>;
 }
 
 export async function generateMetadata({
@@ -49,8 +50,12 @@ export async function generateMetadata({
   });
 }
 
-export default async function AllianceFeudPage({ params }: PageProps) {
+export default async function AllianceFeudPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { region, allianceAId, allianceBId } = await params;
+  const query = await searchParams;
   if (!isRegionEnabled(region)) notFound();
 
   const albionRegion = region as AlbionRegion;
@@ -60,94 +65,51 @@ export default async function AllianceFeudPage({ params }: PageProps) {
   ]);
   const nameA = allianceA?.name ?? allianceAId;
   const nameB = allianceB?.name ?? allianceBId;
+  const tagA = allianceA?.tag ?? null;
+  const tagB = allianceB?.tag ?? null;
   const idA = allianceA?.albionId ?? allianceAId;
   const idB = allianceB?.albionId ?? allianceBId;
-
-  const stats = await getAllianceFeudStats(albionRegion, idA, idB);
-  const feudKills = await getAllianceFeudKillsFromDb(
-    albionRegion,
-    idA,
-    idB,
-    { limit: 25 }
-  );
+  const days = parseFeudDays(query.days);
+  const offset = parseFeudOffset(query.offset);
+  const t = await getTranslations("Feud");
 
   return (
     <div className="space-y-6">
       <BackLink />
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          <Link
-            href={alliancePath(albionRegion, idA)}
-            className="hover:text-primary hover:underline"
-          >
-            {nameA}
-          </Link>
-          {" vs "}
-          <Link
-            href={alliancePath(albionRegion, idB)}
-            className="hover:text-primary hover:underline"
-          >
-            {nameB}
-          </Link>
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Alliance feud · {regionLabel(albionRegion)} · from cached kill data
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Head-to-head</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2 rounded-md border border-border/60 p-4">
-            <p className="text-sm font-medium">{nameA} kills</p>
-            <StatValue
-              label="Kills"
-              value={String(stats.aKillsB)}
-              variant="kill"
-              size="header"
-            />
-            <p className="text-sm text-stat-fame">
-              {formatFame(stats.aFameOnB)} fame
+      <FeudPageContent
+        kind="alliance"
+        region={albionRegion}
+        nameA={nameA}
+        nameB={nameB}
+        tagA={tagA}
+        tagB={tagB}
+        idA={idA}
+        idB={idB}
+        days={days}
+        offset={offset}
+        header={
+          <div>
+            <h1 className="font-display text-2xl font-semibold tracking-tight">
+              <Link
+                href={alliancePath(albionRegion, idA)}
+                className="hover:text-primary hover:underline"
+              >
+                <FeudDisplayName name={nameA} tag={tagA} />
+              </Link>
+              {" vs "}
+              <Link
+                href={alliancePath(albionRegion, idB)}
+                className="hover:text-primary hover:underline"
+              >
+                <FeudDisplayName name={nameB} tag={tagB} />
+              </Link>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("allianceMeta", { region: regionLabel(albionRegion) })}
             </p>
           </div>
-          <div className="space-y-2 rounded-md border border-border/60 p-4">
-            <p className="text-sm font-medium">{nameB} kills</p>
-            <StatValue
-              label="Kills"
-              value={String(stats.bKillsA)}
-              variant="kill"
-              size="header"
-            />
-            <p className="text-sm text-stat-fame">
-              {formatFame(stats.bFameOnA)} fame
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">Recent feud kills</h2>
-        {feudKills.length === 0 ? (
-          <Card>
-            <CardContent className="py-6 text-center text-sm text-muted-foreground">
-              No kills between these alliances in our database yet
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {feudKills.map((event) => (
-              <KillCard
-                key={`alliance-feud-${event.eventId}`}
-                event={event}
-                compact
-                compactSize="large"
-              />
-            ))}
-          </div>
-        )}
-      </section>
+        }
+      />
     </div>
   );
 }

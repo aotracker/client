@@ -292,6 +292,76 @@
     "primeTime": "Prime Time",
     "lastDays": "Last {days} days"
   },
+  "Feud": {
+    "guildMeta": "Guild feud · {region} · from cached kill data",
+    "allianceMeta": "Alliance feud · {region} · from cached kill data",
+    "nav": {
+      "ariaLabel": "Feud sections",
+      "scoreboard": "Scoreboard",
+      "topPlayers": "Top players",
+      "guildFeuds": "Guild feuds",
+      "kills": "Kills"
+    },
+    "filters": {
+      "label": "Period"
+    },
+    "scoreboard": {
+      "vs": "vs",
+      "fame": "fame",
+      "totalKills": "{count, plural, one {# kill tracked} other {# kills tracked}}"
+    },
+    "contentMix": {
+      "label": "Content mix",
+      "empty": "No kills in this period"
+    },
+    "topKills": {
+      "title": "Top kills",
+      "description": "Highest fame kills in this feud"
+    },
+    "topPlayers": {
+      "title": "Top players",
+      "description": "Most active killers and victims in this feud",
+      "killers": "Top killers",
+      "victims": "Most killed",
+      "emptyKillers": "No killers recorded",
+      "emptyVictims": "No victims recorded",
+      "kills": "kills",
+      "deaths": "deaths"
+    },
+    "battles": {
+      "title": "Shared battles",
+      "description": "Battles where both sides clashed",
+      "feudKills": "{count, plural, one {# feud kill} other {# feud kills}} · {nameA} {aKills} – {bKills} {nameB}",
+      "empty": "No linked battles in this period"
+    },
+    "recentKills": {
+      "title": "Recent kills ({count})",
+      "description": "Chronological kills between these sides",
+      "empty": "No kills between these sides in our database yet",
+      "loadMore": "Load more"
+    },
+    "tabs": {
+      "title": "Kills",
+      "filterAria": "Filter kills",
+      "recent": "Recent",
+      "topKills": "Top kills",
+      "recentDescription": "Chronological kills between these sides ({count} total)",
+      "topDescription": "Highest fame kills in this feud",
+      "recentEmpty": "No kills between these sides in our database yet",
+      "topEmpty": "No kills recorded in this period",
+      "loadMore": "Load more"
+    },
+    "crossLinks": {
+      "allianceFeudTitle": "Alliance feud",
+      "allianceFeudDescriptionStart": "See the wider war between",
+      "allianceFeudDescriptionAnd": "and",
+      "allianceFeudLink": "View alliance feud",
+      "guildFeudsTitle": "Guild feuds in this war",
+      "guildFeudsDescription": "Top guild rivalries driving this alliance feud",
+      "guildFeudLine": "{count} kills · {fame} fame",
+      "viewGuildFeud": "View feud"
+    }
+  },
   "Home": {
     "srOnlyTitle": "{siteName} — {pageTitle}",
     "sections": {
