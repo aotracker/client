@@ -13,7 +13,7 @@ import {
 } from "@/lib/kills-feed-params";
 import { feedRegionFilterOptions } from "@/lib/region-params";
 import { resolveServerFeedRegion } from "@/lib/region-preference-server";
-import { buildFeedPageMetadata } from "@/lib/seo";
+import { buildFeedPageMetadata } from "@/lib/seo-metadata";
 
 interface KillsPageProps {
   params: Promise<{ locale: string }>;

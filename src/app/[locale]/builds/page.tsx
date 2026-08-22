@@ -17,7 +17,7 @@ import { pickLocalizedName } from "@/lib/items/localized-name";
 import { feedRegionFilterOptions } from "@/lib/region-params";
 import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 import { formatItemName, regionLabel } from "@/lib/utils";
-import { buildFeedPageMetadata } from "@/lib/seo";
+import { buildFeedPageMetadata } from "@/lib/seo-metadata";
 
 interface BuildsPageProps {
   params: Promise<{ locale: string }>;

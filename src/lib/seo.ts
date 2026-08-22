@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { SITE_NAME } from "@/lib/site";
-import type { FeedRegion } from "@/lib/region-params";
-import { formatFame, regionLabel } from "@/lib/utils";
 import {
   DEFAULT_LOCALE,
   LOCALE_DEFINITIONS,
@@ -90,267 +88,9 @@ export function languageAlternates(
   return languages;
 }
 
-/** e.g. "PlayerName — Albion Online Americas Player" */
-export function albionEntityTitle(
-  name: string,
-  kind: SeoEntityKind,
-  region: string
-): string {
-  const kindLabel =
-    kind === "player"
-      ? "Player"
-      : kind === "guild"
-        ? "Guild"
-        : kind === "alliance"
-          ? "Alliance"
-          : kind === "kill"
-            ? "Kill"
-            : "Battle";
-  return `${name} — Albion Online ${regionLabel(region)} ${kindLabel}`;
-}
-
-function joinParts(parts: Array<string | null | undefined | false>): string {
-  return parts.filter(Boolean).join(" ");
-}
-
-export function playerSeoDescription(input: {
-  name: string;
-  region: string;
-  killFame: number | null | undefined;
-  deathFame: number | null | undefined;
-  fameRatio?: string | null;
-  guildName?: string | null;
-  allianceName?: string | null;
-}): string {
-  const region = regionLabel(input.region);
-  const affiliation = joinParts([
-    input.guildName ? `in guild ${input.guildName}` : null,
-    input.allianceName ? `(alliance ${input.allianceName})` : null,
-  ]);
-
-  const stats = joinParts([
-    `${formatFame(input.killFame)} kill fame`,
-    `${formatFame(input.deathFame)} death fame`,
-    input.fameRatio ? `${input.fameRatio} K/D ratio` : null,
-  ]);
-
-  return joinParts([
-    `${input.name} is an Albion Online ${region} player${affiliation ? ` ${affiliation}` : ""}.`,
-    `Lifetime PvP stats: ${stats}.`,
-    `View kills, deaths, gear, loot, and combat history on ${SITE_NAME}.`,
-  ]);
-}
-
-export function guildSeoDescription(input: {
-  name: string;
-  region: string;
-  killFame: number | null | undefined;
-  deathFame: number | null | undefined;
-  memberCount?: number | null;
-  allianceName?: string | null;
-  allianceTag?: string | null;
-  founderName?: string | null;
-  founded?: string | null;
-}): string {
-  const region = regionLabel(input.region);
-  const alliance = input.allianceName
-    ? input.allianceTag
-      ? `[${input.allianceTag}] ${input.allianceName}`
-      : input.allianceName
-    : null;
-
-  const stats = joinParts([
-    input.memberCount != null
-      ? `${input.memberCount.toLocaleString()} members`
-      : null,
-    `${formatFame(input.killFame)} kill fame`,
-    `${formatFame(input.deathFame)} death fame`,
-  ]);
-
-  const founding = joinParts([
-    input.founderName ? `Founded by ${input.founderName}` : null,
-    input.founded ? `(${input.founded})` : null,
-  ]);
-
-  return joinParts([
-    `${input.name} is an Albion Online ${region} guild${alliance ? ` in the ${alliance} alliance` : ""}.`,
-    `${stats}.`,
-    founding ? `${founding}.` : null,
-    `Track top kills, Albion battles, members, and PvP stats on ${SITE_NAME}.`,
-  ]);
-}
-
-export function allianceSeoDescription(input: {
-  name: string;
-  region: string;
-  memberCount?: number | null;
-  guildCount: number;
-  killFame?: number | null;
-  deathFame?: number | null;
-  founderName?: string | null;
-  founded?: string | null;
-}): string {
-  const region = regionLabel(input.region);
-
-  const stats = joinParts([
-    input.memberCount != null
-      ? `${input.memberCount.toLocaleString()} members`
-      : null,
-    `${input.guildCount.toLocaleString()} guilds`,
-    input.killFame != null ? `${formatFame(input.killFame)} kill fame` : null,
-    input.deathFame != null ? `${formatFame(input.deathFame)} death fame` : null,
-  ]);
-
-  const founding = joinParts([
-    input.founderName ? `Founded by ${input.founderName}` : null,
-    input.founded ? `(${input.founded})` : null,
-  ]);
-
-  return joinParts([
-    `${input.name} is an Albion Online ${region} alliance.`,
-    `${stats}.`,
-    founding ? `${founding}.` : null,
-    `View member guilds, top kills, Albion battles, and PvP stats on ${SITE_NAME}.`,
-  ]);
-}
-
-export function killSeoTitle(
-  killerName: string,
-  victimName: string,
-  region: string,
-  killFame?: number | null
-): string {
-  const famePart =
-    killFame != null
-      ? ` for ${formatFame(killFame)} fame`
-      : "";
-  return albionEntityTitle(
-    `${killerName} killed ${victimName}${famePart}`,
-    "kill",
-    region
-  );
-}
-
-export function killSeoDescription(input: {
-  region: string;
-  killerName: string;
-  victimName: string;
-  killerGuild?: string | null;
-  victimGuild?: string | null;
-  killFame: number | null | undefined;
-  contentType?: string | null;
-  participantCount?: number | null;
-  battleId?: number | null;
-  lootCount?: number | null;
-}): string {
-  const region = regionLabel(input.region);
-  const killer = input.killerGuild
-    ? `${input.killerName} (${input.killerGuild})`
-    : input.killerName;
-  const victim = input.victimGuild
-    ? `${input.victimName} (${input.victimGuild})`
-    : input.victimName;
-  const content =
-    input.contentType && input.contentType !== "GROUP"
-      ? `${input.contentType} `
-      : "";
-
-  const details = joinParts([
-    `${formatFame(input.killFame)} kill fame`,
-    input.participantCount != null && input.participantCount > 0
-      ? `${input.participantCount} participants`
-      : null,
-    input.lootCount != null && input.lootCount > 0
-      ? `${input.lootCount} loot items`
-      : null,
-    input.battleId != null ? `battle #${input.battleId}` : null,
-  ]);
-
-  return joinParts([
-    `${killer} killed ${victim} in an Albion Online ${region} ${content}PvP fight.`,
-    `${details}.`,
-    `View killer and victim gear, loot, assists, and kill details on ${SITE_NAME}.`,
-  ]);
-}
-
-export function battleSeoTitle(battleId: number | string, region: string): string {
-  return albionEntityTitle(`Battle #${battleId}`, "battle", region);
-}
-
-export function battleSeoDescription(input: {
-  region: string;
-  battleId: number | string;
-  totalFame: number | null | undefined;
-  totalKills?: number | null;
-  totalPlayers?: number | null;
-  startTime?: Date | string | null;
-  endTime?: Date | string | null;
-}): string {
-  const region = regionLabel(input.region);
-  const start =
-    input.startTime != null ? new Date(input.startTime) : null;
-  const end = input.endTime != null ? new Date(input.endTime) : null;
-  const durationMinutes =
-    start &&
-    end &&
-    !Number.isNaN(start.getTime()) &&
-    !Number.isNaN(end.getTime())
-      ? Math.max(0, Math.round((end.getTime() - start.getTime()) / 60_000))
-      : null;
-
-  const stats = joinParts([
-    `${formatFame(input.totalFame)} total fame`,
-    input.totalKills != null
-      ? `${input.totalKills.toLocaleString()} kills`
-      : null,
-    input.totalPlayers != null
-      ? `${input.totalPlayers.toLocaleString()} players`
-      : null,
-    durationMinutes != null
-      ? `${durationMinutes.toLocaleString()} minute fight`
-      : null,
-  ]);
-
-  return joinParts([
-    `Albion Battle #${input.battleId} is an Albion Online ${region} PvP battle.`,
-    `${stats}.`,
-    `View participating alliances, guilds, players, and kill stats on ${SITE_NAME}.`,
-  ]);
-}
-
 const NOINDEX_NOFOLLOW: Metadata["robots"] = { index: false, follow: false };
 const NOINDEX_FOLLOW: Metadata["robots"] = { index: false, follow: true };
 const INDEX_FOLLOW: Metadata["robots"] = { index: true, follow: true };
-
-/** Append region to a feed page title when filtered. */
-export function feedPageTitle(baseTitle: string, region: FeedRegion): string {
-  if (region === "all") return baseTitle;
-  return `${baseTitle} — ${regionLabel(region)}`;
-}
-
-/** Mention the active region in feed page descriptions. */
-export function feedPageDescription(
-  baseDescription: string,
-  region: FeedRegion
-): string {
-  if (region === "all") return baseDescription;
-  return `${baseDescription} Showing ${regionLabel(region)} region data.`;
-}
-
-export function buildFeedPageMetadata(options: {
-  title: string;
-  description: string;
-  canonicalPath: string;
-  region: FeedRegion;
-  locale?: string;
-}): Metadata {
-  return buildPageMetadata({
-    title: feedPageTitle(options.title, options.region),
-    description: feedPageDescription(options.description, options.region),
-    canonicalPath: options.canonicalPath,
-    locale: options.locale,
-  });
-}
 
 export function openGraphImagePath(canonicalPath: string): string {
   const pathname = canonicalPath.split("?")[0] ?? canonicalPath;
@@ -390,6 +130,9 @@ export function buildPageMetadata(options: {
         type: "image/png",
       }
     : null;
+  const alternateLocale = LOCALE_DEFINITIONS.filter(
+    (def) => def.code !== localeDef.code
+  ).map((def) => def.ogLocale);
 
   return {
     title: options.title,
@@ -406,6 +149,7 @@ export function buildPageMetadata(options: {
       siteName: SITE_NAME,
       type: ogType,
       locale: localeDef.ogLocale,
+      ...(alternateLocale.length > 0 ? { alternateLocale } : {}),
       ...(ogImage ? { images: [ogImage] } : {}),
     },
     twitter: {
@@ -415,18 +159,6 @@ export function buildPageMetadata(options: {
       ...(ogImage ? { images: [ogImageUrl] } : {}),
     },
   };
-}
-
-export function pendingEntityMetadata(
-  entityLabel: string,
-  canonicalPath: string
-): Metadata {
-  return buildPageMetadata({
-    title: `${entityLabel} not loaded yet`,
-    description: `This ${entityLabel.toLowerCase()} is still being fetched from Albion Online.`,
-    canonicalPath,
-    robots: NOINDEX_NOFOLLOW,
-  });
 }
 
 export function notFoundMetadata(): Metadata {

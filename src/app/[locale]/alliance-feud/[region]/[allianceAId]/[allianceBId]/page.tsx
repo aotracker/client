@@ -13,15 +13,12 @@ import {
   parseFeudDays,
   parseFeudOffset,
 } from "@/lib/feud/params";
-import {
-  allianceFeudPath,
-  alliancePath,
-  buildPageMetadata,
-  notFoundMetadata,
-} from "@/lib/seo";
+import { allianceFeudPath, alliancePath, notFoundMetadata } from "@/lib/seo";
+import { feudPageMetadata } from "@/lib/seo-metadata";
 
 interface PageProps {
   params: Promise<{
+    locale: string;
     region: string;
     allianceAId: string;
     allianceBId: string;
@@ -32,7 +29,7 @@ interface PageProps {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { region, allianceAId, allianceBId } = await params;
+  const { locale, region, allianceAId, allianceBId } = await params;
   if (!isRegionEnabled(region)) return notFoundMetadata();
 
   const albionRegion = region as AlbionRegion;
@@ -43,10 +40,13 @@ export async function generateMetadata({
   const nameA = allianceA?.name ?? allianceAId;
   const nameB = allianceB?.name ?? allianceBId;
 
-  return buildPageMetadata({
-    title: `${nameA} vs ${nameB} — Alliance Feud`,
-    description: `Head-to-head PvP stats and recent kills between ${nameA} and ${nameB} on ${regionLabel(albionRegion)}.`,
+  return feudPageMetadata({
+    kind: "alliance",
+    nameA,
+    nameB,
+    region: albionRegion,
     canonicalPath: allianceFeudPath(region, allianceAId, allianceBId),
+    locale,
   });
 }
 

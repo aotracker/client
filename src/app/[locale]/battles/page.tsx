@@ -12,7 +12,7 @@ import { parseBattlesMinPlayers } from "@/lib/battles-constants";
 import { getCronJobStatuses } from "@/lib/jobs/cron-state";
 import { feedRegionFilterOptions } from "@/lib/region-params";
 import { resolveServerFeedRegion } from "@/lib/region-preference-server";
-import { buildFeedPageMetadata } from "@/lib/seo";
+import { buildFeedPageMetadata } from "@/lib/seo-metadata";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 
 interface BattlesPageProps {

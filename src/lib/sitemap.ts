@@ -10,6 +10,11 @@ import {
   listSitemapGuilds,
   listSitemapKills,
   listSitemapPlayers,
+  maxSitemapAlliancesUpdatedAt,
+  maxSitemapBattlesUpdatedAt,
+  maxSitemapGuildsUpdatedAt,
+  maxSitemapKillsUpdatedAt,
+  maxSitemapPlayersUpdatedAt,
 } from "@/lib/db/queries";
 import { absoluteUrl, entityPath, type EntityType } from "@/lib/seo";
 import { LOCALE_DEFINITIONS, withLocalePrefix } from "@/i18n/locales";
@@ -18,30 +23,47 @@ import {
   leaderboardCanonicalPath,
 } from "@/lib/leaderboards/params";
 
-export const URLS_PER_SITEMAP = 10_000;
+/** Google's per-file URL cap (sitemaps protocol). */
+export const GOOGLE_MAX_URLS_PER_SITEMAP = 50_000;
 
-export type SitemapBucket =
-  | "static"
-  | "players"
-  | "guilds"
-  | "alliances"
-  | "kills"
-  | "battles";
+/** Conservative entity page size so locale expansion stays under 50k URLs. */
+export const ENTITIES_PER_SITEMAP = 20_000;
+
+export const URLS_PER_SITEMAP = ENTITIES_PER_SITEMAP;
+
+const ENTITY_BUCKETS = [
+  "players",
+  "guilds",
+  "alliances",
+  "kills",
+  "battles",
+] as const;
+
+export type SitemapBucket = "static" | (typeof ENTITY_BUCKETS)[number];
 
 export interface SitemapSlice {
-  id: number;
+  id: string;
   bucket: SitemapBucket;
   page: number;
 }
 
+export interface SitemapIndexEntry {
+  loc: string;
+  lastModified?: Date | null;
+}
+
 function pageCount(total: number): number {
   if (total <= 0) return 0;
-  return Math.ceil(total / URLS_PER_SITEMAP);
+  return Math.ceil(total / ENTITIES_PER_SITEMAP);
+}
+
+export function emittedUrlCount(entityCount: number): number {
+  return entityCount * LOCALE_DEFINITIONS.length;
 }
 
 function localizeUrls(
   path: string,
-  extras: Omit<MetadataRoute.Sitemap[number], "url">
+  extras: Omit<MetadataRoute.Sitemap[number], "url"> = {}
 ): MetadataRoute.Sitemap {
   return LOCALE_DEFINITIONS.map((def) => ({
     url: absoluteUrl(withLocalePrefix(def.code, path)),
@@ -61,8 +83,6 @@ function mapEntityRows(
     );
     return localizeUrls(path, {
       lastModified: row.updatedAt ?? undefined,
-      changeFrequency: "daily" as const,
-      priority: type === "player" || type === "guild" ? 0.8 : 0.7,
     });
   });
 }
@@ -75,36 +95,43 @@ function mapNumericRows(
     const path = entityPath(type, row.region, row.entityId);
     return localizeUrls(path, {
       lastModified: row.updatedAt ?? undefined,
-      changeFrequency: type === "kill" ? ("hourly" as const) : ("daily" as const),
-      priority: type === "battle" ? 0.75 : 0.65,
     });
   });
 }
 
 export function staticSitemapEntries(): MetadataRoute.Sitemap {
-  const now = new Date();
-  const paths: { path: string; changeFrequency: "hourly" | "daily"; priority: number }[] = [
-    { path: "/", changeFrequency: "hourly", priority: 1 },
-    { path: "/kills", changeFrequency: "hourly", priority: 0.95 },
-    { path: "/battles", changeFrequency: "hourly", priority: 0.9 },
-    ...LEADERBOARD_TABS.map((tab) => ({
-      path: leaderboardCanonicalPath(tab),
-      changeFrequency: "hourly" as const,
-      priority: 0.9,
-    })),
-    { path: "/builds", changeFrequency: "daily", priority: 0.8 },
-    { path: "/watchlist", changeFrequency: "daily", priority: 0.6 },
-    { path: "/discord", changeFrequency: "daily", priority: 0.5 },
-    { path: "/privacy", changeFrequency: "daily", priority: 0.3 },
+  const paths = [
+    "/",
+    "/kills",
+    "/battles",
+    ...LEADERBOARD_TABS.map((tab) => leaderboardCanonicalPath(tab)),
+    "/builds",
+    "/discord",
   ];
 
-  return paths.flatMap(({ path, changeFrequency, priority }) =>
-    localizeUrls(path, {
-      lastModified: now,
-      changeFrequency,
-      priority,
-    })
+  return paths.flatMap((path) => localizeUrls(path));
+}
+
+export function sitemapPartId(bucket: SitemapBucket, page = 0): string {
+  if (bucket === "static") return "static";
+  return `${bucket}-${page}`;
+}
+
+export function parseSitemapPartId(raw: string): SitemapSlice | null {
+  const normalized = raw.replace(/\.xml$/i, "");
+  if (normalized === "static") {
+    return { id: "static", bucket: "static", page: 0 };
+  }
+
+  const match = /^(players|guilds|alliances|kills|battles)-(\d+)$/.exec(
+    normalized
   );
+  if (!match) return null;
+  return {
+    id: normalized,
+    bucket: match[1] as Exclude<SitemapBucket, "static">,
+    page: Number.parseInt(match[2], 10),
+  };
 }
 
 export async function buildSitemapSlices(): Promise<SitemapSlice[]> {
@@ -116,29 +143,66 @@ export async function buildSitemapSlices(): Promise<SitemapSlice[]> {
     countSitemapBattles(),
   ]);
 
-  const slices: SitemapSlice[] = [{ id: 0, bucket: "static", page: 0 }];
-  let nextId = 1;
-
-  const buckets: {
-    bucket: Exclude<SitemapBucket, "static">;
-    total: number;
-  }[] = [
-    { bucket: "players", total: players },
-    { bucket: "guilds", total: guilds },
-    { bucket: "alliances", total: alliances },
-    { bucket: "kills", total: kills },
-    { bucket: "battles", total: battles },
+  const slices: SitemapSlice[] = [
+    { id: sitemapPartId("static"), bucket: "static", page: 0 },
   ];
 
-  for (const { bucket, total } of buckets) {
-    const pages = pageCount(total);
+  const totals: Record<Exclude<SitemapBucket, "static">, number> = {
+    players,
+    guilds,
+    alliances,
+    kills,
+    battles,
+  };
+
+  for (const bucket of ENTITY_BUCKETS) {
+    const pages = pageCount(totals[bucket]);
     for (let page = 0; page < pages; page++) {
-      slices.push({ id: nextId, bucket, page });
-      nextId += 1;
+      slices.push({
+        id: sitemapPartId(bucket, page),
+        bucket,
+        page,
+      });
     }
   }
 
   return slices;
+}
+
+export async function getSitemapBucketLastmod(
+  bucket: SitemapBucket
+): Promise<Date | null> {
+  switch (bucket) {
+    case "static":
+      return null;
+    case "players":
+      return maxSitemapPlayersUpdatedAt();
+    case "guilds":
+      return maxSitemapGuildsUpdatedAt();
+    case "alliances":
+      return maxSitemapAlliancesUpdatedAt();
+    case "kills":
+      return maxSitemapKillsUpdatedAt();
+    case "battles":
+      return maxSitemapBattlesUpdatedAt();
+    default:
+      return null;
+  }
+}
+
+export async function buildSitemapIndexEntries(): Promise<SitemapIndexEntry[]> {
+  const slices = await buildSitemapSlices();
+  const lastmodByBucket = new Map<SitemapBucket, Date | null>();
+  await Promise.all(
+    [...new Set(slices.map((slice) => slice.bucket))].map(async (bucket) => {
+      lastmodByBucket.set(bucket, await getSitemapBucketLastmod(bucket));
+    })
+  );
+
+  return slices.map((slice) => ({
+    loc: absoluteUrl(sitemapPartPath(slice.id)),
+    lastModified: lastmodByBucket.get(slice.bucket) ?? null,
+  }));
 }
 
 export async function getSitemapEntriesForSlice(
@@ -148,8 +212,8 @@ export async function getSitemapEntriesForSlice(
     return staticSitemapEntries();
   }
 
-  const offset = slice.page * URLS_PER_SITEMAP;
-  const limit = URLS_PER_SITEMAP;
+  const offset = slice.page * ENTITIES_PER_SITEMAP;
+  const limit = ENTITIES_PER_SITEMAP;
 
   switch (slice.bucket) {
     case "players":
@@ -179,7 +243,7 @@ function escapeXml(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function toLastMod(value: string | Date | undefined): string | null {
+function toLastMod(value: string | Date | undefined | null): string | null {
   if (!value) return null;
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return null;
@@ -190,17 +254,10 @@ export function renderUrlSetXml(entries: MetadataRoute.Sitemap): string {
   const urls = entries
     .map((entry) => {
       const lastmod = toLastMod(entry.lastModified);
-      const changefreq = entry.changeFrequency
-        ? `\n    <changefreq>${entry.changeFrequency}</changefreq>`
-        : "";
-      const priority =
-        entry.priority != null
-          ? `\n    <priority>${entry.priority}</priority>`
-          : "";
       return `  <url>
     <loc>${escapeXml(entry.url)}</loc>${
         lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""
-      }${changefreq}${priority}
+      }
   </url>`;
     })
     .join("\n");
@@ -212,13 +269,16 @@ ${urls}
 `;
 }
 
-export function renderSitemapIndexXml(locs: string[]): string {
-  const items = locs
-    .map(
-      (loc) => `  <sitemap>
-    <loc>${escapeXml(loc)}</loc>
-  </sitemap>`
-    )
+export function renderSitemapIndexXml(entries: SitemapIndexEntry[]): string {
+  const items = entries
+    .map((entry) => {
+      const lastmod = toLastMod(entry.lastModified);
+      return `  <sitemap>
+    <loc>${escapeXml(entry.loc)}</loc>${
+        lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""
+      }
+  </sitemap>`;
+    })
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -237,7 +297,7 @@ export function sitemapXmlResponse(body: string): Response {
   });
 }
 
-/** Child sitemap path used in the index (stable, Search Console friendly). */
-export function sitemapPartPath(id: number): string {
-  return `/sitemaps/${id}`;
+/** Root-hosted child sitemap path (Search Console + directory-scope safe). */
+export function sitemapPartPath(id: string): string {
+  return `/sitemap-${id}.xml`;
 }

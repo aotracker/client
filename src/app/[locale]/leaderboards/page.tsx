@@ -21,7 +21,7 @@ import { feedRegionFilterOptions } from "@/lib/region-params";
 import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 import { formatUtcHour, isPrimeTimeHourForFilter } from "@/lib/albion/prime-times";
 import { regionLabel } from "@/lib/utils";
-import { buildFeedPageMetadata } from "@/lib/seo";
+import { buildFeedPageMetadata } from "@/lib/seo-metadata";
 
 interface LeaderboardsPageProps {
   params: Promise<{ locale: string }>;

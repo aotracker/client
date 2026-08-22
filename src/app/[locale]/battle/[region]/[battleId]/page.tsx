@@ -21,22 +21,22 @@ import { EntityStatStrip } from "@/components/EntityStatStrip";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatFame, regionLabel } from "@/lib/utils";
+import { getLocaleDefinition } from "@/i18n/locales";
 import { withBattlePlayerWeaponTooltips } from "@/lib/items/battle-player-tooltips";
 import { getLocale } from "next-intl/server";
 import { RelativeTime } from "@/components/RelativeTime";
 import { battleJsonLd, JsonLd } from "@/components/JsonLd";
+import { entityCanonical, entityPath, notFoundMetadata } from "@/lib/seo";
 import {
   battleSeoDescription,
   battleSeoTitle,
-  buildPageMetadata,
-  entityCanonical,
-  entityPath,
-  notFoundMetadata,
+  buildLocalizedPageMetadata,
   pendingEntityMetadata,
-} from "@/lib/seo";
+  translatedRegionLabel,
+} from "@/lib/seo-metadata";
 
 interface PageProps {
-  params: Promise<{ region: string; battleId: string }>;
+  params: Promise<{ locale: string; region: string; battleId: string }>;
 }
 
 const loadCachedBattle = cache(async function loadCachedBattle(
@@ -47,7 +47,7 @@ const loadCachedBattle = cache(async function loadCachedBattle(
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { region, battleId } = await params;
+  const { locale, region, battleId } = await params;
   if (!isRegionEnabled(region)) return notFoundMetadata();
   const albionRegion = region as AlbionRegion;
   const parsedBattleId = parseInt(battleId, 10);
@@ -55,25 +55,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (Number.isNaN(parsedBattleId)) return notFoundMetadata();
 
   const battle = await loadCachedBattle(albionRegion, parsedBattleId);
-  if (!battle) return pendingEntityMetadata("Battle", path);
+  if (!battle) return pendingEntityMetadata("battle", path, locale);
 
   const id = battle.id ?? parsedBattleId;
   const totalPlayers =
     battle.totalPlayers ??
     (battle.players ? Object.keys(battle.players).length : null);
 
-  return buildPageMetadata({
-    title: battleSeoTitle(id, albionRegion),
-    description: battleSeoDescription({
-      region: albionRegion,
-      battleId: id,
-      totalFame: battle.totalFame,
-      totalKills: battle.totalKills,
-      totalPlayers,
-      startTime: battle.startTime,
-      endTime: battle.endTime,
-    }),
+  return buildLocalizedPageMetadata({
+    title: await battleSeoTitle(id, albionRegion, locale),
+    description: await battleSeoDescription(
+      {
+        region: albionRegion,
+        battleId: id,
+        totalFame: battle.totalFame,
+        totalKills: battle.totalKills,
+        totalPlayers,
+        startTime: battle.startTime,
+        endTime: battle.endTime,
+      },
+      locale
+    ),
     canonicalPath: path,
+    locale,
   });
 }
 
@@ -106,19 +110,23 @@ export default async function BattleDetailPage({ params }: PageProps) {
     );
   }
 
+  const locale = await getLocale();
+  const regionName = await translatedRegionLabel(albionRegion, locale);
   const battleName = `Albion Battle #${battle.id ?? parsedBattleId}`;
-  const battleDescription = `${formatFame(battle.totalFame)} fame · ${battle.totalKills ?? 0} kills · ${regionLabel(albionRegion)}`;
+  const battleDescription = `${formatFame(battle.totalFame)} fame · ${battle.totalKills ?? 0} kills · ${regionName}`;
 
   return (
     <div className="space-y-6">
       <JsonLd
         data={battleJsonLd({
           name: battleName,
-          url: entityCanonical("battle", albionRegion, parsedBattleId),
+          url: entityCanonical("battle", albionRegion, parsedBattleId, locale),
           startDate: battle.startTime,
           endDate: battle.endTime,
           description: battleDescription,
-          regionLabel: regionLabel(albionRegion),
+          regionLabel: regionName,
+          inLanguage: getLocaleDefinition(locale).htmlLang,
+          locale,
         })}
       />
       <BackLink />

@@ -29,20 +29,21 @@ import {
 import { AllianceProfileNav } from "@/components/alliance/AllianceProfileNav";
 import { EntityHeaderSkeleton } from "@/components/ui/skeleton";
 import { notFound } from "next/navigation";
-import { formatFame, regionLabel } from "@/lib/utils";
+import { formatFame } from "@/lib/utils";
+import { getLocale } from "next-intl/server";
+import { getLocaleDefinition } from "@/i18n/locales";
 import { JsonLd, organizationJsonLd } from "@/components/JsonLd";
+import { entityCanonical, entityPath, notFoundMetadata } from "@/lib/seo";
 import {
   albionEntityTitle,
   allianceSeoDescription,
-  buildPageMetadata,
-  entityCanonical,
-  entityPath,
-  notFoundMetadata,
+  buildLocalizedPageMetadata,
   pendingEntityMetadata,
-} from "@/lib/seo";
+  translatedRegionLabel,
+} from "@/lib/seo-metadata";
 
 interface PageProps {
-  params: Promise<{ region: string; allianceId: string }>;
+  params: Promise<{ locale: string; region: string; allianceId: string }>;
 }
 
 const loadAllianceProfile = cache(async function loadAllianceProfile(
@@ -80,11 +81,11 @@ const loadAllianceProfile = cache(async function loadAllianceProfile(
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { region, allianceId } = await params;
+  const { locale, region, allianceId } = await params;
   if (!isRegionEnabled(region)) return notFoundMetadata();
   const path = entityPath("alliance", region, allianceId);
   const data = await loadAllianceProfile(region as AlbionRegion, allianceId);
-  if (!data) return pendingEntityMetadata("Alliance", path);
+  if (!data) return pendingEntityMetadata("alliance", path, locale);
 
   const displayName = data.info.tag
     ? `[${data.info.tag}] ${data.info.name}`
@@ -94,19 +95,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     allianceId
   );
 
-  return buildPageMetadata({
-    title: albionEntityTitle(displayName, "alliance", region),
-    description: allianceSeoDescription({
-      name: displayName,
-      region,
-      memberCount: data.memberCount,
-      guildCount: data.guilds.length,
-      killFame: fame.killFame,
-      deathFame: fame.deathFame,
-      founderName: data.info.founderName,
-      founded: data.info.founded,
-    }),
+  return buildLocalizedPageMetadata({
+    title: await albionEntityTitle(displayName, "alliance", region, locale),
+    description: await allianceSeoDescription(
+      {
+        name: displayName,
+        region,
+        memberCount: data.memberCount,
+        guildCount: data.guilds.length,
+        killFame: fame.killFame,
+        deathFame: fame.deathFame,
+        founderName: data.info.founderName,
+        founded: data.info.founded,
+      },
+      locale
+    ),
     canonicalPath: path,
+    locale,
   });
 }
 
@@ -141,16 +146,19 @@ export default async function AllianceProfilePage({ params }: PageProps) {
   const descriptionFame =
     alliance.killFame ||
     (await getAllianceFameFromMemberGuilds(albionRegion, allianceId)).killFame;
+  const locale = await getLocale();
+  const regionName = await translatedRegionLabel(albionRegion, locale);
 
   return (
     <div className="space-y-6">
       <JsonLd
         data={organizationJsonLd({
           name: displayName,
-          url: entityCanonical("alliance", albionRegion, allianceId),
-          regionLabel: regionLabel(albionRegion),
+          url: entityCanonical("alliance", albionRegion, allianceId, locale),
+          regionLabel: regionName,
           memberCount,
-          description: `${displayName} alliance on ${regionLabel(albionRegion)} · ${formatFame(descriptionFame)} kill fame · ${guilds.length} guilds`,
+          description: `${displayName} alliance on ${regionName} · ${formatFame(descriptionFame)} kill fame · ${guilds.length} guilds`,
+          inLanguage: getLocaleDefinition(locale).htmlLang,
         })}
       />
       <BackLink />

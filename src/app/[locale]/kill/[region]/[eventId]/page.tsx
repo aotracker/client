@@ -1,7 +1,8 @@
 import { cache, Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getLocaleDefinition } from "@/i18n/locales";
 import { getKillEvent } from "@/lib/db/queries";
 import { ensureKillEventQueued } from "@/lib/jobs/queue";
 import type { AlbionEvent, AlbionRegion } from "@/lib/albion/types";
@@ -24,19 +25,21 @@ import {
 import { formatFame, regionLabel } from "@/lib/utils";
 import { JsonLd, killJsonLd } from "@/components/JsonLd";
 import {
-  buildPageMetadata,
   entityCanonical,
   entityPath,
   guildPath,
-  killSeoDescription,
-  killSeoTitle,
   notFoundMetadata,
-  pendingEntityMetadata,
   playerPath,
 } from "@/lib/seo";
+import {
+  buildLocalizedPageMetadata,
+  killSeoDescription,
+  killSeoTitle,
+  pendingEntityMetadata,
+} from "@/lib/seo-metadata";
 
 interface PageProps {
-  params: Promise<{ region: string; eventId: string }>;
+  params: Promise<{ locale: string; region: string; eventId: string }>;
 }
 
 const loadKillEvent = cache(async function loadKillEvent(
@@ -51,7 +54,7 @@ const loadKillEvent = cache(async function loadKillEvent(
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { region, eventId } = await params;
+  const { locale, region, eventId } = await params;
   if (!isRegionEnabled(region)) return notFoundMetadata();
   const albionRegion = region as AlbionRegion;
   const parsedEventId = parseInt(eventId, 10);
@@ -59,7 +62,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const result = await loadKillEvent(albionRegion, parsedEventId);
 
   if (result.pending) {
-    return pendingEntityMetadata("Kill", path);
+    return pendingEntityMetadata("kill", path, locale);
   }
 
   if (!result.event) return notFoundMetadata();
@@ -71,27 +74,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const lootCount =
     event.items?.filter((i) => i.category === "inventory").length ?? 0;
 
-  return buildPageMetadata({
-    title: killSeoTitle(
+  return buildLocalizedPageMetadata({
+    title: await killSeoTitle(
       killerName,
       victimName,
       event.region,
-      event.totalVictimKillFame
+      event.totalVictimKillFame,
+      locale
     ),
-    description: killSeoDescription({
-      region: event.region,
-      killerName,
-      victimName,
-      killerGuild: killerGuild?.name,
-      victimGuild: victimGuild?.name,
-      killFame: event.totalVictimKillFame,
-      contentType: event.contentType,
-      participantCount: event.participantCount,
-      battleId: event.albionBattleId,
-      lootCount,
-    }),
+    description: await killSeoDescription(
+      {
+        region: event.region,
+        killerName,
+        victimName,
+        killerGuild: killerGuild?.name,
+        victimGuild: victimGuild?.name,
+        killFame: event.totalVictimKillFame,
+        contentType: event.contentType,
+        participantCount: event.participantCount,
+        battleId: event.albionBattleId,
+        lootCount,
+      },
+      locale
+    ),
     canonicalPath: path,
     openGraphType: "article",
+    locale,
   });
 }
 
@@ -172,6 +180,7 @@ export default async function KillDetailPage({ params }: PageProps) {
   const killDescription = `${formatFame(event.totalVictimKillFame)} fame · ${event.contentType} · ${regionLabel(event.region)}`;
   const sharePath = entityPath("kill", event.region, event.eventId);
 
+  const locale = await getLocale();
   const tKill = await getTranslations("Kill");
   const lootSection =
     compacted || victimLoot.length === 0 ? undefined : (
@@ -200,11 +209,12 @@ export default async function KillDetailPage({ params }: PageProps) {
       <JsonLd
         data={killJsonLd({
           headline: killHeadline,
-          url: entityCanonical("kill", event.region, event.eventId),
+          url: entityCanonical("kill", event.region, event.eventId, locale),
           datePublished: event.occurredAt,
           description: killDescription,
           killerName: event.killer?.name,
           victimName: event.victim?.name,
+          inLanguage: getLocaleDefinition(locale).htmlLang,
         })}
       />
       <h1 className="sr-only">{killHeadline}</h1>

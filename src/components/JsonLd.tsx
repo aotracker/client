@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, getLocaleDefinition, withLocalePrefix } from "@/i18n/locales";
 import { absoluteUrl, DEFAULT_DESCRIPTION } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
 
@@ -10,18 +11,29 @@ export function JsonLd({ data }: { data: Record<string, unknown> | Record<string
   );
 }
 
-export function websiteJsonLd(): Record<string, unknown> {
+function htmlLang(locale?: string): string {
+  return getLocaleDefinition(locale ?? DEFAULT_LOCALE).htmlLang;
+}
+
+export function websiteJsonLd(options?: {
+  locale?: string;
+  description?: string;
+}): Record<string, unknown> {
+  const locale = options?.locale ?? DEFAULT_LOCALE;
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
-    url: absoluteUrl("/"),
-    description: DEFAULT_DESCRIPTION,
+    url: absoluteUrl(withLocalePrefix(locale, "/")),
+    description: options?.description ?? DEFAULT_DESCRIPTION,
+    inLanguage: htmlLang(locale),
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: absoluteUrl("/search?q={search_term_string}"),
+        urlTemplate: absoluteUrl(
+          `${withLocalePrefix(locale, "/search")}?q={search_term_string}`
+        ),
       },
       "query-input": "required name=search_term_string",
     },
@@ -35,6 +47,7 @@ export function playerJsonLd(options: {
   guildName?: string | null;
   killFame?: number | null;
   deathFame?: number | null;
+  inLanguage?: string;
 }): Record<string, unknown> {
   const person: Record<string, unknown> = {
     "@type": "Person",
@@ -55,6 +68,7 @@ export function playerJsonLd(options: {
     "@type": "ProfilePage",
     name: options.name,
     url: options.url,
+    inLanguage: options.inLanguage,
     mainEntity: person,
     about: person,
   };
@@ -67,12 +81,14 @@ export function organizationJsonLd(options: {
   regionLabel: string;
   memberCount?: number | null;
   description?: string;
+  inLanguage?: string;
 }): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: options.name,
     url: options.url,
+    inLanguage: options.inLanguage,
     description:
       options.description ??
       `Albion Online organization on ${options.regionLabel}`,
@@ -89,6 +105,7 @@ export function killJsonLd(options: {
   description: string;
   killerName?: string | null;
   victimName?: string | null;
+  inLanguage?: string;
 }): Record<string, unknown> {
   const datePublished =
     typeof options.datePublished === "string"
@@ -102,6 +119,7 @@ export function killJsonLd(options: {
     url: options.url,
     datePublished,
     description: options.description,
+    inLanguage: options.inLanguage,
     author: {
       "@type": "Organization",
       name: SITE_NAME,
@@ -124,6 +142,8 @@ export function battleJsonLd(options: {
   endDate?: Date | string | null;
   description: string;
   regionLabel: string;
+  inLanguage?: string;
+  locale?: string;
 }): Record<string, unknown> {
   const startDate = options.startDate
     ? typeof options.startDate === "string"
@@ -135,6 +155,7 @@ export function battleJsonLd(options: {
       ? options.endDate
       : options.endDate.toISOString()
     : undefined;
+  const locale = options.locale ?? DEFAULT_LOCALE;
 
   return {
     "@context": "https://schema.org",
@@ -142,6 +163,7 @@ export function battleJsonLd(options: {
     name: options.name,
     url: options.url,
     description: options.description,
+    inLanguage: options.inLanguage,
     eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
     location: {
@@ -154,7 +176,7 @@ export function battleJsonLd(options: {
     organizer: {
       "@type": "Organization",
       name: SITE_NAME,
-      url: absoluteUrl("/"),
+      url: absoluteUrl(withLocalePrefix(locale, "/")),
     },
   };
 }

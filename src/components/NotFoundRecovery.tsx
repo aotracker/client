@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Download,
@@ -19,19 +19,30 @@ import { Button } from "@/components/ui/button";
 import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 import { isRegionEnabled } from "@/lib/albion/types";
 import { feedNavHref } from "@/lib/region-params";
-import { getStoredPreferredRegion } from "@/lib/region-preference";
+import {
+  getStoredPreferredRegion,
+  type PreferredRegion,
+} from "@/lib/region-preference";
 
 const ENTITY_RE =
   /^\/(kill|battle|player|guild|alliance)\/([a-z]+)\/([^/?#]+)\/?$/i;
 
-export function NotFoundRecovery() {
+export function NotFoundRecovery({
+  preferredRegion = null,
+}: {
+  preferredRegion?: PreferredRegion | null;
+}) {
   const pathname = usePathname() ?? "";
   const router = useRouter();
   const t = useTranslations("Errors.notFound");
   const tNav = useTranslations("Nav");
   const tButtons = useTranslations("Common.buttons");
   const tKinds = useTranslations("Common.entityKinds");
-  const feedRegion = getStoredPreferredRegion();
+  const [feedRegion, setFeedRegion] = useState(preferredRegion);
+
+  useEffect(() => {
+    setFeedRegion(getStoredPreferredRegion() ?? preferredRegion);
+  }, [preferredRegion]);
 
   const recovery = useMemo(() => {
     const match = pathname.match(ENTITY_RE);

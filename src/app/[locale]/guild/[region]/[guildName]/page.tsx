@@ -39,23 +39,23 @@ import {
   getEntityResolveJobStateForPending,
   resolveGuildAlbionId,
 } from "@/lib/entity-resolve";
-import { formatFame, regionLabel } from "@/lib/utils";
+import { formatFame } from "@/lib/utils";
+import { getLocaleDefinition } from "@/i18n/locales";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { withLocalePrefix } from "@/i18n/locales";
 import { JsonLd, organizationJsonLd } from "@/components/JsonLd";
+import { entityCanonical, entityPath, notFoundMetadata } from "@/lib/seo";
 import {
   albionEntityTitle,
-  buildPageMetadata,
-  entityCanonical,
-  entityPath,
-  notFoundMetadata,
-  pendingEntityMetadata,
+  buildLocalizedPageMetadata,
   guildSeoDescription,
-} from "@/lib/seo";
+  pendingEntityMetadata,
+  translatedRegionLabel,
+} from "@/lib/seo-metadata";
 
 interface PageProps {
-  params: Promise<{ region: string; guildName: string }>;
+  params: Promise<{ locale: string; region: string; guildName: string }>;
 }
 
 function guildHeaderFromDb(
@@ -159,43 +159,49 @@ const loadGuildProfile = cache(async function loadGuildProfile(
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { region, guildName } = await params;
+  const { locale, region, guildName } = await params;
   if (!isRegionEnabled(region)) return notFoundMetadata();
 
   const albionRegion = region as AlbionRegion;
   const resolved = await resolveGuildAlbionId(albionRegion, guildName);
   if (!resolved || !("albionId" in resolved)) {
     return pendingEntityMetadata(
-      "Guild",
-      entityPath("guild", region, decodeEntitySegment(guildName))
+      "guild",
+      entityPath("guild", region, decodeEntitySegment(guildName)),
+      locale
     );
   }
 
   const profile = await loadGuildProfile(albionRegion, resolved.albionId);
   if (!profile) {
     return pendingEntityMetadata(
-      "Guild",
-      entityPath("guild", region, decodeEntitySegment(guildName))
+      "guild",
+      entityPath("guild", region, decodeEntitySegment(guildName)),
+      locale
     );
   }
 
   const { header } = profile;
   const path = entityPath("guild", region, header.name);
 
-  return buildPageMetadata({
-    title: albionEntityTitle(header.name, "guild", region),
-    description: guildSeoDescription({
-      name: header.name,
-      region,
-      killFame: header.killFame,
-      deathFame: header.deathFame,
-      memberCount: header.memberCount,
-      allianceName: header.allianceName,
-      allianceTag: header.allianceTag,
-      founderName: header.founderName,
-      founded: header.founded,
-    }),
+  return buildLocalizedPageMetadata({
+    title: await albionEntityTitle(header.name, "guild", region, locale),
+    description: await guildSeoDescription(
+      {
+        name: header.name,
+        region,
+        killFame: header.killFame,
+        deathFame: header.deathFame,
+        memberCount: header.memberCount,
+        allianceName: header.allianceName,
+        allianceTag: header.allianceTag,
+        founderName: header.founderName,
+        founded: header.founded,
+      },
+      locale
+    ),
     canonicalPath: path,
+    locale,
   });
 }
 
@@ -258,16 +264,19 @@ export default async function GuildProfilePage({ params }: PageProps) {
     syncJobState,
   });
   const canonicalPath = entityPath("guild", albionRegion, header.name);
+  const locale = await getLocale();
+  const regionName = await translatedRegionLabel(albionRegion, locale);
 
   return (
     <div className="space-y-6">
       <JsonLd
         data={organizationJsonLd({
           name: header.name,
-          url: entityCanonical("guild", albionRegion, header.name),
-          regionLabel: regionLabel(albionRegion),
+          url: entityCanonical("guild", albionRegion, header.name, locale),
+          regionLabel: regionName,
           memberCount: header.memberCount,
-          description: `${header.name} guild on ${regionLabel(albionRegion)} · ${formatFame(header.killFame)} kill fame`,
+          description: `${header.name} guild on ${regionName} · ${formatFame(header.killFame)} kill fame`,
+          inLanguage: getLocaleDefinition(locale).htmlLang,
         })}
       />
       <BackLink />

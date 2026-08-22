@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { DocumentLang } from "@/components/DocumentLang";
 import { Footer } from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Navbar } from "@/components/Navbar";
@@ -14,7 +13,7 @@ import { ToastProvider } from "@/components/Toast";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 import { getServerPreferredRegion } from "@/lib/region-preference-server";
 import { SITE_NAME } from "@/lib/site";
-import { getSiteUrl, languageAlternates } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/seo";
 import { getLocaleDefinition, LOCALE_CODES } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
 
@@ -43,9 +42,6 @@ export async function generateMetadata({
       siteName: SITE_NAME,
       locale: localeDef.ogLocale,
     },
-    alternates: {
-      languages: languageAlternates("/"),
-    },
     twitter: {
       card: "summary_large_image",
     },
@@ -72,11 +68,9 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
   const preferredRegion = await getServerPreferredRegion();
-  const localeDef = getLocaleDefinition(locale);
 
   return (
     <>
-      <DocumentLang lang={localeDef.htmlLang} />
       <NextIntlClientProvider messages={messages}>
         <ThemeProvider>
           <ToastProvider>

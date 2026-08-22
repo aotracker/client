@@ -1,4 +1,4 @@
-import { count, desc, gte, isNotNull } from "drizzle-orm";
+import { count, desc, gte, isNotNull, max, sql } from "drizzle-orm";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { db, schema } from "@/lib/db";
 
@@ -17,7 +17,11 @@ export interface SitemapNumericEntityRow {
   updatedAt: Date | null;
 }
 
-const SITEMAP_KILL_LOOKBACK_MS = 14 * 24 * 60 * 60 * 1000;
+export const SITEMAP_LOOKBACK_MS = 14 * 24 * 60 * 60 * 1000;
+
+function lookbackCutoff(): Date {
+  return new Date(Date.now() - SITEMAP_LOOKBACK_MS);
+}
 
 export async function countSitemapPlayers(): Promise<number> {
   const [row] = await db
@@ -44,17 +48,66 @@ export async function countSitemapAlliances(): Promise<number> {
 }
 
 export async function countSitemapKills(): Promise<number> {
-  const cutoff = new Date(Date.now() - SITEMAP_KILL_LOOKBACK_MS);
   const [row] = await db
     .select({ value: count() })
     .from(schema.killEvents)
-    .where(gte(schema.killEvents.occurredAt, cutoff));
+    .where(gte(schema.killEvents.occurredAt, lookbackCutoff()));
   return row?.value ?? 0;
 }
 
 export async function countSitemapBattles(): Promise<number> {
-  const [row] = await db.select({ value: count() }).from(schema.battles);
+  const [row] = await db
+    .select({ value: count() })
+    .from(schema.battles)
+    .where(gte(schema.battles.startTime, lookbackCutoff()));
   return row?.value ?? 0;
+}
+
+export async function maxSitemapPlayersUpdatedAt(): Promise<Date | null> {
+  const [row] = await db
+    .select({ value: max(schema.players.updatedAt) })
+    .from(schema.players)
+    .where(isNotNull(schema.players.lastSyncedAt));
+  return row?.value ?? null;
+}
+
+export async function maxSitemapGuildsUpdatedAt(): Promise<Date | null> {
+  const [row] = await db
+    .select({ value: max(schema.guilds.updatedAt) })
+    .from(schema.guilds)
+    .where(isNotNull(schema.guilds.lastSyncedAt));
+  return row?.value ?? null;
+}
+
+export async function maxSitemapAlliancesUpdatedAt(): Promise<Date | null> {
+  const [row] = await db
+    .select({ value: max(schema.alliances.updatedAt) })
+    .from(schema.alliances)
+    .where(isNotNull(schema.alliances.lastSyncedAt));
+  return row?.value ?? null;
+}
+
+export async function maxSitemapKillsUpdatedAt(): Promise<Date | null> {
+  const [row] = await db
+    .select({ value: max(schema.killEvents.occurredAt) })
+    .from(schema.killEvents)
+    .where(gte(schema.killEvents.occurredAt, lookbackCutoff()));
+  return row?.value ?? null;
+}
+
+export async function maxSitemapBattlesUpdatedAt(): Promise<Date | null> {
+  const [row] = await db
+    .select({
+      value: max(
+        sql<Date | string>`COALESCE(${schema.battles.lastSyncedAt}, ${schema.battles.startTime})`
+      ),
+    })
+    .from(schema.battles)
+    .where(gte(schema.battles.startTime, lookbackCutoff()));
+  const value = row?.value;
+  if (value == null || value === "") return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 export async function listSitemapPlayers(
@@ -115,34 +168,32 @@ export async function listSitemapKills(
   offset: number,
   limit: number
 ): Promise<SitemapNumericEntityRow[]> {
-  const cutoff = new Date(Date.now() - SITEMAP_KILL_LOOKBACK_MS);
-  const rows = await db
+  return db
     .select({
       entityId: schema.killEvents.eventId,
       region: schema.killEvents.region,
       updatedAt: schema.killEvents.occurredAt,
     })
     .from(schema.killEvents)
-    .where(gte(schema.killEvents.occurredAt, cutoff))
+    .where(gte(schema.killEvents.occurredAt, lookbackCutoff()))
     .orderBy(desc(schema.killEvents.totalVictimKillFame), desc(schema.killEvents.occurredAt))
     .offset(offset)
     .limit(limit);
-  return rows;
 }
 
 export async function listSitemapBattles(
   offset: number,
   limit: number
 ): Promise<SitemapNumericEntityRow[]> {
-  const rows = await db
+  return db
     .select({
       entityId: schema.battles.albionBattleId,
       region: schema.battles.region,
-      updatedAt: schema.battles.lastSyncedAt,
+      updatedAt: sql<Date | null>`COALESCE(${schema.battles.lastSyncedAt}, ${schema.battles.startTime})`,
     })
     .from(schema.battles)
+    .where(gte(schema.battles.startTime, lookbackCutoff()))
     .orderBy(desc(schema.battles.totalFame), desc(schema.battles.startTime))
     .offset(offset)
     .limit(limit);
-  return rows;
 }

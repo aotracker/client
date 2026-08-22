@@ -13,9 +13,10 @@ import {
 } from "@/components/battles/CombinedBattlesContent";
 import { buildPageMetadata, notFoundMetadata } from "@/lib/seo";
 import { MAX_COMBINED_BATTLES } from "@/lib/battles-constants";
-import { regionLabel } from "@/lib/utils";
+import { translatedRegionLabel } from "@/lib/seo-metadata";
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ ids?: string }>;
 }
 
@@ -55,17 +56,21 @@ function parseBattleIds(raw: string | undefined): ParsedBattleRef[] | null {
 }
 
 export async function generateMetadata({
+  params,
   searchParams,
 }: PageProps): Promise<Metadata> {
-  const params = await searchParams;
-  const refs = parseBattleIds(params.ids);
+  const { locale } = await params;
+  const query = await searchParams;
+  const refs = parseBattleIds(query.ids);
   if (!refs) return notFoundMetadata();
 
+  const regionName = await translatedRegionLabel(refs[0]!.region, locale);
   return buildPageMetadata({
     title: `Combined Battles (${refs.length})`,
-    description: `Combined stats for ${refs.length} Albion Online battles · ${regionLabel(refs[0]!.region)}`,
+    description: `Combined stats for ${refs.length} Albion Online battles · ${regionName}`,
     canonicalPath: `/battles/combined?ids=${refs.map((r) => `${r.region}:${r.battleId}`).join(",")}`,
     robots: { index: false, follow: true },
+    locale,
   });
 }
 

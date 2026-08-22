@@ -42,7 +42,7 @@ export default async function RootNotFound() {
             <StatusBanner />
             <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
               <div className="flex flex-col items-center justify-center py-16">
-                <NotFoundRecovery />
+                <NotFoundRecovery preferredRegion={preferredRegion} />
               </div>
             </main>
             <Footer preferredRegion={preferredRegion} />

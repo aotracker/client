@@ -15,7 +15,7 @@ import {
   getEntityResolveJobStateForPending,
   resolvePlayerAlbionId,
 } from "@/lib/entity-resolve";
-import { regionLabel } from "@/lib/utils";
+import { getLocaleDefinition, withLocalePrefix } from "@/i18n/locales";
 import { ProfileHeader } from "@/components/ProfileHeader";
 import { ProfileFetchPending } from "@/components/ProfileFetchPending";
 import {
@@ -32,20 +32,23 @@ import {
 import { PlayerProfileNav } from "@/components/player/PlayerProfileNav";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
-import { withLocalePrefix } from "@/i18n/locales";
 import { JsonLd, playerJsonLd } from "@/components/JsonLd";
+import { entityCanonical, entityPath, notFoundMetadata } from "@/lib/seo";
 import {
   albionEntityTitle,
-  buildPageMetadata,
-  entityCanonical,
-  entityPath,
-  notFoundMetadata,
+  buildLocalizedPageMetadata,
   pendingEntityMetadata,
   playerSeoDescription,
-} from "@/lib/seo";
+  translatedRegionLabel,
+} from "@/lib/seo-metadata";
 
 interface PageProps {
-  params: Promise<{ region: string; playerName?: string; playerId?: string }>;
+  params: Promise<{
+    locale: string;
+    region: string;
+    playerName?: string;
+    playerId?: string;
+  }>;
 }
 
 function playerSegmentFromParams(params: {
@@ -86,7 +89,7 @@ const loadPlayerProfile = cache(async function loadPlayerProfile(
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const { region } = resolvedParams;
+  const { locale, region } = resolvedParams;
   const playerName = playerSegmentFromParams(resolvedParams);
   if (!isRegionEnabled(region)) return notFoundMetadata();
 
@@ -94,16 +97,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const resolved = await resolvePlayerAlbionId(albionRegion, playerName);
   if (!resolved || !("albionId" in resolved)) {
     return pendingEntityMetadata(
-      "Player",
-      entityPath("player", region, decodeEntitySegment(playerName))
+      "player",
+      entityPath("player", region, decodeEntitySegment(playerName)),
+      locale
     );
   }
 
   const profile = await loadPlayerProfile(albionRegion, resolved.albionId);
   if (!profile) {
     return pendingEntityMetadata(
-      "Player",
-      entityPath("player", region, decodeEntitySegment(playerName))
+      "player",
+      entityPath("player", region, decodeEntitySegment(playerName)),
+      locale
     );
   }
 
@@ -111,19 +116,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const path = entityPath("player", region, player.name);
   const allianceName = player.guild?.allianceName ?? player.allianceName;
 
-  return buildPageMetadata({
-    title: albionEntityTitle(player.name, "player", region),
-    description: playerSeoDescription({
-      name: player.name,
-      region,
-      killFame: player.killFame,
-      deathFame: player.deathFame,
-      fameRatio: player.fameRatio,
-      guildName: player.guild?.name,
-      allianceName,
-    }),
+  return buildLocalizedPageMetadata({
+    title: await albionEntityTitle(player.name, "player", region, locale),
+    description: await playerSeoDescription(
+      {
+        name: player.name,
+        region,
+        killFame: player.killFame,
+        deathFame: player.deathFame,
+        fameRatio: player.fameRatio,
+        guildName: player.guild?.name,
+        allianceName,
+      },
+      locale
+    ),
     canonicalPath: path,
     openGraphType: "profile",
+    locale,
   });
 }
 
@@ -176,17 +185,20 @@ export default async function PlayerProfilePage({ params }: PageProps) {
 
   const { player } = profile;
   const canonicalPath = entityPath("player", albionRegion, player.name);
+  const locale = await getLocale();
+  const regionName = await translatedRegionLabel(albionRegion, locale);
 
   return (
     <div className="space-y-6">
       <JsonLd
         data={playerJsonLd({
           name: player.name,
-          url: entityCanonical("player", albionRegion, player.name),
-          regionLabel: regionLabel(albionRegion),
+          url: entityCanonical("player", albionRegion, player.name, locale),
+          regionLabel: regionName,
           guildName: player.guild?.name,
           killFame: player.killFame,
           deathFame: player.deathFame,
+          inLanguage: getLocaleDefinition(locale).htmlLang,
         })}
       />
 

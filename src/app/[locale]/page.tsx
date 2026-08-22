@@ -19,8 +19,8 @@ import { resolveServerFeedRegion } from "@/lib/region-preference-server";
 import { JsonLd, websiteJsonLd } from "@/components/JsonLd";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import { buildPageMetadata } from "@/lib/seo";
+import { translatedRegionLabel } from "@/lib/seo-metadata";
 import { SITE_NAME } from "@/lib/site";
-import { regionLabel } from "@/lib/utils";
 
 interface HomeProps {
   params: Promise<{ locale: string }>;
@@ -38,7 +38,8 @@ export async function generateMetadata({
 
   const baseTitle = tSeo("homePageTitle");
   const baseDescription = tSeo("defaultDescription");
-  const regionName = region === "all" ? "" : regionLabel(region);
+  const regionName =
+    region === "all" ? "" : await translatedRegionLabel(region, locale);
   const title =
     region === "all"
       ? baseTitle
@@ -86,7 +87,12 @@ export default async function HomePage({ params, searchParams }: HomeProps) {
 
   return (
     <div className="space-y-6">
-      <JsonLd data={websiteJsonLd()} />
+      <JsonLd
+        data={websiteJsonLd({
+          locale,
+          description: tSeo("defaultDescription"),
+        })}
+      />
       <h1 className="sr-only">
         {t("srOnlyTitle", {
           siteName: SITE_NAME,

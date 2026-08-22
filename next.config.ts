@@ -33,6 +33,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: "/sitemap-:name.xml",
+        destination: "/sitemaps/:name",
+      },
+      {
         source: "/sitemaps/:id.xml",
         destination: "/sitemaps/:id",
       },
