@@ -53,6 +53,7 @@
     "loginDescription": "Choose a provider to sync your watchlist and recent searches across devices.",
     "loginMetaDescription": "Sign in to {siteName} with Discord or Google to sync your watchlist and searches.",
     "loginUnavailable": "Sign-in is not configured on this environment yet.",
+    "signInError": "Could not start sign-in. Try again or contact support if this keeps happening.",
     "loginLegal": "By signing in you agree to our <privacy>Privacy Policy</privacy>.",
     "openLoginPage": "Open full login page",
     "adminSignInHint": "Sign in with Discord or Google. Admin access is granted manually after your first login.",

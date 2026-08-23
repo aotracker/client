@@ -53,6 +53,7 @@
     "loginDescription": "Elige un proveedor para sincronizar tu lista de seguimiento y búsquedas recientes entre dispositivos.",
     "loginMetaDescription": "Inicia sesión en {siteName} con Discord o Google para sincronizar tu lista y búsquedas.",
     "loginUnavailable": "El inicio de sesión aún no está configurado en este entorno.",
+    "signInError": "No se pudo iniciar sesión. Inténtalo de nuevo o contacta con soporte si persiste.",
     "loginLegal": "Al iniciar sesión aceptas nuestra <privacy>Política de privacidad</privacy>.",
     "openLoginPage": "Abrir página de inicio de sesión",
     "adminSignInHint": "Inicia sesión con Discord o Google. El acceso de administrador se otorga manualmente tras el primer inicio de sesión.",

@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { authClient } from "@/lib/auth-client";
 import {
   isDiscordLoginVisible,
   isGoogleLoginVisible,
   type SocialAuthProvider,
 } from "@/lib/auth-providers";
+import { startSocialSignIn } from "@/lib/social-sign-in";
 import { cn } from "@/lib/utils";
 
 export function DiscordIcon({ className }: { className?: string }) {
@@ -51,6 +51,7 @@ export type LoginButtonLabels = {
   signInWithGoogle: string;
   signingIn: string;
   loginUnavailable: string;
+  signInError: string;
 };
 
 /** English copy for operator surfaces that stay locale-free (e.g. /admin). */
@@ -59,6 +60,8 @@ export const LOGIN_BUTTON_LABELS_EN: LoginButtonLabels = {
   signInWithGoogle: "Continue with Google",
   signingIn: "Redirecting…",
   loginUnavailable: "Sign-in is not configured on this environment yet.",
+  signInError:
+    "Could not start sign-in. Confirm auth env vars on the server and try again.",
 };
 
 type LoginButtonsProps = {
@@ -78,6 +81,7 @@ function LoginButtonsView({
   labels,
 }: LoginButtonsProps & { labels: LoginButtonLabels }) {
   const [pending, setPending] = useState<SocialAuthProvider | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const showDiscord = isDiscordLoginVisible();
   const showGoogle = isGoogleLoginVisible();
@@ -90,13 +94,15 @@ function LoginButtonsView({
 
   async function signIn(provider: SocialAuthProvider) {
     onBeforeSignIn?.();
+    setError(null);
     setPending(provider);
-    try {
-      await authClient.signIn.social({
-        provider,
-        callbackURL,
-      });
-    } catch {
+    const result = await startSocialSignIn({
+      provider,
+      callbackURL,
+      fallbackError: labels.signInError,
+    });
+    if (!result.ok) {
+      setError(result.message);
       setPending(null);
     }
   }
@@ -110,6 +116,11 @@ function LoginButtonsView({
 
   return (
     <div className={cn("flex flex-col gap-2.5", className)}>
+      {error ? (
+        <p className="text-xs text-danger-foreground" role="alert">
+          {error}
+        </p>
+      ) : null}
       {showDiscord ? (
         <button
           type="button"
@@ -149,6 +160,7 @@ export function LoginButtons(props: Omit<LoginButtonsProps, "labels">) {
         signInWithGoogle: t("signInWithGoogle"),
         signingIn: t("signingIn"),
         loginUnavailable: t("loginUnavailable"),
+        signInError: t("signInError"),
       }}
     />
   );

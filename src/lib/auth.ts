@@ -3,6 +3,10 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { eq, and } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
+import {
+  resolveAuthBaseUrl,
+  resolveAuthTrustedOrigins,
+} from "@/lib/auth-url";
 
 function discordClientConfigured(): boolean {
   return Boolean(
@@ -90,8 +94,12 @@ async function maybeBootstrapAdmin(account: {
 }
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: resolveAuthBaseUrl(),
   secret: process.env.BETTER_AUTH_SECRET,
+  trustedOrigins: resolveAuthTrustedOrigins(),
+  advanced: {
+    trustedProxyHeaders: true,
+  },
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
