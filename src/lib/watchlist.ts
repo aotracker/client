@@ -49,6 +49,22 @@ export function watchlistKey(entry: Pick<WatchlistEntry, "type" | "region" | "al
   return `${entry.type}:${entry.region}:${entry.albionId}`;
 }
 
+/** Keep one row per (type, region, albionId); earlier `addedAt` wins. */
+export function uniqueWatchlistEntries(entries: WatchlistEntry[]): WatchlistEntry[] {
+  const map = new Map<string, WatchlistEntry>();
+  for (const entry of entries) {
+    const key = watchlistKey(entry);
+    const existing = map.get(key);
+    if (
+      !existing ||
+      new Date(entry.addedAt).getTime() < new Date(existing.addedAt).getTime()
+    ) {
+      map.set(key, entry);
+    }
+  }
+  return Array.from(map.values());
+}
+
 export function entityHref(entry: WatchlistEntry): string {
   if (entry.type === "player") return playerPath(entry.region, entry.name);
   if (entry.type === "guild") return guildPath(entry.region, entry.name);

@@ -36,7 +36,11 @@ Workers and the ingest API live in [`../ingest/`](../ingest/) and are **never** 
 | `DATABASE_URL` | PostgreSQL on OVH VM public IP (`postgresql://albion:…@VM_PUBLIC_IP:5432/albion_kills?sslmode=no-verify`) |
 | `INGEST_API_URL` | `https://queue.aotracker.net` (ingest HTTP API; not Cloudflare-proxied today) |
 | `INGEST_API_SECRET` | Bearer token for ingest API (must match `/home/ubuntu/ingest/.env`) |
-| `CRON_SECRET` | Secures ops `/api/cron/*` and `/status` |
+| `CRON_SECRET` | Secures `/api/cron/*` and machine Bearer on `/api/admin/*` |
+| `BETTER_AUTH_SECRET` | Better Auth signing secret (`openssl rand -base64 32`) |
+| `BETTER_AUTH_URL` | Canonical site URL (`http://localhost:3000` / `https://www.aotracker.net`) |
+| `DISCORD_CLIENT_ID` | Discord Application ID (same as invite button / bot) |
+| `DISCORD_CLIENT_SECRET` | Discord OAuth client secret (not the bot token) |
 | `DISABLED_REGIONS` | Comma-separated region slugs to skip. Empty/unset = all regions enabled |
 | `NEXT_PUBLIC_APP_URL` | Canonical public URL (`https://www.aotracker.net`) |
 
@@ -46,6 +50,11 @@ Workers and the ingest API live in [`../ingest/`](../ingest/) and are **never** 
 |---|---|
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 |
 | `NEXT_PUBLIC_ITEM_ICON_CDN` | `https://cdn.aotracker.net/item-icons` (Cloudflare R2 custom domain, prefix `item-icons/`) |
+| `NEXT_PUBLIC_DISCORD_CLIENT_ID` | Public Discord Application ID for `/discord` invite + Sign In button visibility |
+| `BOOTSTRAP_ADMIN_DISCORD_ID` | Auto-promote this Discord snowflake on first sign-in if no admin exists yet |
+| `BOOTSTRAP_ADMIN_GOOGLE_ID` | Auto-promote this Google subject (`sub`) on first sign-in if no admin exists yet |
+
+Discord OAuth redirects (same app as the bot): `http://localhost:3000/api/auth/callback/discord` and `https://www.aotracker.net/api/auth/callback/discord`. Apply auth tables via ingest `npm run db:apply-pending` (includes `db:apply-auth-users`). Promote admins with `npm run promote-admin -- --discord-id <snowflake>` from `ingest/`.
 
 ### Not needed on Vercel
 
@@ -122,6 +131,7 @@ vercel.json           # Vercel config
 - `/alliance/[region]/[allianceId]` — alliance profile
 - `/search` — search
 - `/health` — public health
-- `/status` — ops dashboard (requires `CRON_SECRET`)
+- `/admin` — operator console (Discord login + `users.is_admin`; machines use Bearer `CRON_SECRET`)
+- `/api/auth/*` — Better Auth (Discord OAuth)
 
 Full feature list and architecture: [DEPLOY.md](../DEPLOY.md).

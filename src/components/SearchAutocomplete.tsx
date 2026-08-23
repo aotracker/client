@@ -16,11 +16,8 @@ import {
   setPreferredRegion,
   type PreferredRegion,
 } from "@/lib/region-preference";
-import {
-  getRecentSearches,
-  pushRecentSearch,
-  type RecentSearch,
-} from "@/lib/search/recent-searches";
+import { useRecentSearches } from "@/components/search/useRecentSearches";
+import type { RecentSearch } from "@/lib/search/recent-searches";
 
 type SuggestItem = {
   key: string;
@@ -64,7 +61,7 @@ export function SearchAutocomplete({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [recent, setRecent] = useState<RecentSearch[]>([]);
+  const { recent, push: pushRecent, refresh: refreshRecent } = useRecentSearches();
   const [suggestions, setSuggestions] = useState<SuggestItem[]>([]);
   const resolvedPlaceholder = placeholder ?? t("placeholder");
 
@@ -83,12 +80,12 @@ export function SearchAutocomplete({
   }
 
   useEffect(() => {
-    setRecent(getRecentSearches());
-  }, []);
-
-  useEffect(() => {
     setQuery(initialQuery);
   }, [initialQuery]);
+
+  useEffect(() => {
+    if (open) refreshRecent();
+  }, [open, refreshRecent]);
 
   const siteOrigin =
     typeof window !== "undefined" ? window.location.origin : undefined;
@@ -262,14 +259,13 @@ export function SearchAutocomplete({
   const navigateTo = useCallback(
     (href: string, recentEntry?: Omit<RecentSearch, "ts">) => {
       if (recentEntry) {
-        pushRecentSearch(recentEntry);
-        setRecent(getRecentSearches());
+        pushRecent(recentEntry);
       }
       setOpen(false);
       onNavigate?.();
       router.push(href);
     },
-    [onNavigate, router]
+    [onNavigate, pushRecent, router]
   );
 
   function handleSubmit(e: React.FormEvent) {
@@ -328,7 +324,12 @@ export function SearchAutocomplete({
   return (
     <div ref={rootRef} className={cn("relative w-full", className)}>
       <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
-        <div className={cn("relative min-w-0 flex-1", compact && "sm:max-w-56")}>
+        <div
+          className={cn(
+            "relative min-w-0 flex-1",
+            compact && "sm:max-w-none"
+          )}
+        >
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={resolvedPlaceholder}
@@ -462,6 +463,9 @@ export function usePreferredRegion(
   const setRegion = useCallback((next: PreferredRegion) => {
     setRegionState(next);
     setPreferredRegion(next);
+    void import("@/lib/auth-prefs").then(({ pushPreferredRegionToServer }) =>
+      pushPreferredRegionToServer(next).catch(() => {})
+    );
   }, []);
 
   return [region, setRegion];

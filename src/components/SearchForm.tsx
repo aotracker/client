@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Clock } from "lucide-react";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -12,9 +12,8 @@ import type { AlbionRegion } from "@/lib/albion/types";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 import { feedRegionFilterOptions } from "@/lib/region-params";
 import type { PreferredRegion } from "@/lib/region-preference";
-import { getRecentSearches } from "@/lib/search/recent-searches";
+import { useRecentSearches } from "@/components/search/useRecentSearches";
 import { Link } from "@/i18n/navigation";
-import type { RecentSearch } from "@/lib/search/recent-searches";
 
 interface SearchFormProps {
   initialQuery?: string;
@@ -34,14 +33,14 @@ export function SearchForm({
   const [region, setRegion] = useSearchRegion(initialRegion ?? "all", {
     preferStored: initialRegion == null,
   });
-  const [recent, setRecent] = useState<RecentSearch[]>([]);
+  const { recent, refresh } = useRecentSearches();
   const regionOptions = feedRegionFilterOptions().filter(
     (option) => option.value === "all" || regions.includes(option.value)
   );
 
   useEffect(() => {
-    setRecent(getRecentSearches());
-  }, []);
+    void refresh();
+  }, [refresh]);
 
   return (
     <div className="space-y-3">

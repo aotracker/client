@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { verifyCronRequest } from "@/lib/jobs/cron-auth";
+import { verifyAdminRequest } from "@/lib/auth/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ function parseFilters(value: unknown): {
 }
 
 export async function GET(request: Request) {
-  if (!verifyCronRequest(request)) {
+  if (!(await verifyAdminRequest(request)).ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  if (!verifyCronRequest(request)) {
+  if (!(await verifyAdminRequest(request)).ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

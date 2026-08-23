@@ -28,6 +28,18 @@ export function getRecentSearches(): RecentSearch[] {
   }
 }
 
+export function setRecentSearches(entries: RecentSearch[]): void {
+  if (!canUseStorage()) return;
+  try {
+    localStorage.setItem(
+      RECENT_KEY,
+      JSON.stringify(entries.slice(0, MAX_RECENT))
+    );
+  } catch {
+    // ignore quota / private mode
+  }
+}
+
 export function pushRecentSearch(
   entry: Omit<RecentSearch, "ts"> & { ts?: number }
 ): void {

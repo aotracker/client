@@ -10,8 +10,8 @@ export type ProfileNavSection = {
   icon?: LucideIcon;
 };
 
-/** Sticky under the site navbar (~57px). Keep in sync with Navbar height. */
-const STICKY_TOP_CLASS = "top-[57px]";
+/** Sticky under the site navbar (h-14 = 56px). Keep in sync with Navbar height. */
+const STICKY_TOP_CLASS = "top-14";
 
 export function ProfileSectionNav({
   sections,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
-import { verifyCronRequest } from "@/lib/jobs/cron-auth";
+import { verifyAdminRequest } from "@/lib/auth/admin";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 import { db, schema } from "@/lib/db";
 import { getConfigRegistry } from "@/lib/ops/config-registry";
@@ -8,7 +8,7 @@ import { getConfigRegistry } from "@/lib/ops/config-registry";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  if (!verifyCronRequest(request)) {
+  if (!(await verifyAdminRequest(request)).ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

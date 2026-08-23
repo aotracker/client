@@ -46,6 +46,16 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
 
       <section className="space-y-2 text-sm text-muted-foreground">
         <h2 className="font-display text-lg font-semibold text-foreground">
+          {t("sections.accountsTitle")}
+        </h2>
+        <p>{t("sections.accountsBody1")}</p>
+        <p>{t("sections.accountsBody2")}</p>
+        <p>{t("sections.accountsBody3")}</p>
+        <p>{t("sections.accountsBody4")}</p>
+      </section>
+
+      <section className="space-y-2 text-sm text-muted-foreground">
+        <h2 className="font-display text-lg font-semibold text-foreground">
           {t("sections.logsTitle")}
         </h2>
         <p>{t("sections.logsBody1")}</p>
@@ -93,6 +103,14 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
         </h2>
         <p>
           {t.rich("sections.contactBody", {
+            accountLink: (chunks) => (
+              <Link
+                href="/account"
+                className="text-foreground underline underline-offset-2"
+              >
+                {chunks}
+              </Link>
+            ),
             contactLink: (chunks) => (
               <Link
                 href="/contact"

@@ -1,53 +1,24 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
-import { Home, Monitor, Moon, Sun } from "lucide-react";
+import { Home } from "lucide-react";
 import { BrandMark } from "@/components/BrandLogo";
-import { Tooltip } from "@/components/ui/tooltip";
-import { useTheme } from "@/components/ThemeProvider";
+import { UserMenu } from "@/components/UserMenu";
 import { SITE_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { AdminNav } from "./AdminNav";
 
-function AdminThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  const label =
-    theme === "system"
-      ? "Switch to light theme"
-      : theme === "light"
-        ? "Switch to dark theme"
-        : "Switch to system theme";
-
-  return (
-    <Tooltip content={label} side="bottom">
-      <button
-        type="button"
-        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        aria-label={label}
-        onClick={toggleTheme}
-      >
-        {theme === "system" ? (
-          <Monitor className="h-4 w-4" />
-        ) : theme === "light" ? (
-          <Sun className="h-4 w-4" />
-        ) : (
-          <Moon className="h-4 w-4" />
-        )}
-      </button>
-    </Tooltip>
-  );
-}
-
 function AdminTopBar({ showNav = true }: { showNav?: boolean }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-3 sm:gap-4 sm:px-4 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <BrandMark className="size-8" title={SITE_NAME} />
           <div className="min-w-0 leading-tight">
             <p className="truncate font-display text-sm font-semibold tracking-tight">
               {SITE_NAME}
-              <span className="ml-2 text-muted-foreground font-sans text-xs font-medium normal-case tracking-normal">
+              <span className="ml-2 font-sans text-xs font-medium normal-case tracking-normal text-muted-foreground">
                 Admin
               </span>
             </p>
@@ -58,7 +29,6 @@ function AdminTopBar({ showNav = true }: { showNav?: boolean }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-          <AdminThemeToggle />
           <Link
             href="/"
             className={cn(
@@ -68,18 +38,28 @@ function AdminTopBar({ showNav = true }: { showNav?: boolean }) {
             )}
           >
             <Home className="h-4 w-4" aria-hidden />
-            <span>Home</span>
+            <span className="hidden sm:inline">Home</span>
           </Link>
+          <Suspense
+            fallback={
+              <span
+                className="h-8 w-8 animate-pulse rounded-full bg-muted"
+                aria-hidden
+              />
+            }
+          >
+            <UserMenu />
+          </Suspense>
         </div>
       </div>
 
-      {showNav && (
-        <div className="border-t border-border/60 lg:hidden">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      {showNav ? (
+        <div className="border-t border-border lg:hidden">
+          <div className="mx-auto max-w-7xl px-3 sm:px-4">
             <AdminNav orientation="horizontal" />
           </div>
         </div>
-      )}
+      ) : null}
     </header>
   );
 }

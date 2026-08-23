@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { verifyCronRequest } from "@/lib/jobs/cron-auth";
+import { verifyAdminRequest } from "@/lib/auth/admin";
 import { getSystemInfoSnapshot } from "@/lib/ops/system-info";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  if (!verifyCronRequest(request)) {
+  if (!(await verifyAdminRequest(request)).ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

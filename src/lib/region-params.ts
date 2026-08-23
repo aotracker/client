@@ -8,6 +8,7 @@ import {
   setPreferredRegion,
   type PreferredRegion,
 } from "@/lib/region-preference";
+import { pushPreferredRegionToServer } from "@/lib/auth-prefs";
 
 export type FeedRegion = PreferredRegion;
 
@@ -66,9 +67,10 @@ export function applyFeedRegionParam(
 
 /** Persist the site-wide preference, including "All Regions". */
 export function rememberFeedRegionSelection(region: string): void {
-  if (isPreferredRegion(region)) {
-    setPreferredRegion(region);
-  }
+  if (!isPreferredRegion(region)) return;
+  setPreferredRegion(region);
+  // Best-effort sync for signed-in users; ignore failures (anonymous / offline).
+  void pushPreferredRegionToServer(region).catch(() => {});
 }
 
 /** Build a feed page href, merging current params with updates. */

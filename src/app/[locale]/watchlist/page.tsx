@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { PageHeader } from "@/components/PageSection";
-import { WatchlistPageContent } from "@/components/watchlist/WatchlistPageContent";
+import { WatchlistPageClient } from "@/components/watchlist/WatchlistPageClient";
 import { buildPageMetadata } from "@/lib/seo";
 
 interface WatchlistPageProps {
@@ -25,12 +24,6 @@ export async function generateMetadata({
 export default async function WatchlistPage({ params }: WatchlistPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("Watchlist");
 
-  return (
-    <div className="space-y-6">
-      <PageHeader title={t("title")} description={t("description")} />
-      <WatchlistPageContent />
-    </div>
-  );
+  return <WatchlistPageClient />;
 }

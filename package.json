@@ -21,6 +21,7 @@
     "vm:db:reclassify": "tsx --env-file=.env ../deploy/vm/scripts/reclassify-kills.ts"
   },
   "dependencies": {
+    "better-auth": "^1.7.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
@@ -36,11 +37,11 @@
     "uuid": "^11.0.3"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.3.0",
     "@types/node": "^22.17.0",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@types/uuid": "^10.0.0",
-    "@next/bundle-analyzer": "^16.3.0",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9.17.0",
     "eslint-config-next": "^16.3.0",

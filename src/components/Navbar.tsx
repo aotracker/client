@@ -1,18 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState, useSyncExternalStore } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  Clock,
   Hammer,
   Home,
   Menu,
-  Monitor,
-  Moon,
   Search,
   Skull,
-  Star,
-  Sun,
   Swords,
   Trophy,
   X,
@@ -22,11 +17,8 @@ import {
   NavbarRegionSelector,
   useActiveFeedRegion,
 } from "@/components/NavbarRegionIndicator";
-import { LanguageSelector } from "@/components/LanguageSelector";
-import { useTheme } from "@/components/ThemeProvider";
 import { BrandLogo } from "@/components/BrandLogo";
-import { Tooltip } from "@/components/ui/tooltip";
-import { WatchlistNavButton } from "@/components/watchlist/WatchlistNavButton";
+import { UserMenu } from "@/components/UserMenu";
 import type { AlbionRegion } from "@/lib/albion/types";
 import {
   appendFeedRegionToHref,
@@ -43,131 +35,6 @@ import { cn } from "@/lib/utils";
 interface NavbarProps {
   regions: AlbionRegion[];
   preferredRegion: PreferredRegion | null;
-}
-
-const SERVER_CLOCK_PLACEHOLDER = "--:--:--";
-
-function formatUtcClock(date: Date): string {
-  return date.toLocaleTimeString("en-GB", {
-    timeZone: "UTC",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
-}
-
-let cachedClock = formatUtcClock(new Date());
-
-function subscribeToClock(onStoreChange: () => void) {
-  const id = window.setInterval(() => {
-    const next = formatUtcClock(new Date());
-    if (next !== cachedClock) {
-      cachedClock = next;
-      onStoreChange();
-    }
-  }, 1000);
-  return () => window.clearInterval(id);
-}
-
-function getClockSnapshot() {
-  return cachedClock;
-}
-
-function getServerClockSnapshot() {
-  return SERVER_CLOCK_PLACEHOLDER;
-}
-
-function ServerTime({ className }: { className?: string }) {
-  const t = useTranslations("Nav");
-  const clock = useSyncExternalStore(
-    subscribeToClock,
-    getClockSnapshot,
-    getServerClockSnapshot
-  );
-
-  return (
-    <Tooltip content={t("serverTimeTitle")} side="bottom">
-      <p
-        className={cn(
-          "inline-flex shrink-0 items-center gap-1 tabular-nums text-[11px] leading-none text-muted-foreground",
-          className
-        )}
-        suppressHydrationWarning
-      >
-        <Clock className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
-        <span className="sr-only">{t("serverTime")} </span>
-        {clock}
-        <span className="ml-0.5 opacity-70">UTC</span>
-      </p>
-    </Tooltip>
-  );
-}
-
-function ThemeToggleButton({
-  className,
-  compact = false,
-}: {
-  className?: string;
-  compact?: boolean;
-}) {
-  const t = useTranslations("Nav");
-  const { theme, toggleTheme } = useTheme();
-  const label =
-    theme === "system"
-      ? t("themeSwitchToLight")
-      : theme === "light"
-        ? t("themeSwitchToDark")
-        : t("themeSwitchToSystem");
-
-  return (
-    <Tooltip content={label} side="bottom">
-      <button
-        type="button"
-        className={cn(
-          "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-          compact
-            ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-            : "border border-border hover:bg-accent",
-          className
-        )}
-        aria-label={label}
-        onClick={toggleTheme}
-      >
-        {theme === "system" ? (
-          <Monitor className="h-4 w-4" />
-        ) : theme === "light" ? (
-          <Sun className="h-4 w-4" />
-        ) : (
-          <Moon className="h-4 w-4" />
-        )}
-      </button>
-    </Tooltip>
-  );
-}
-
-/** Shared border group: clock · watchlist · language · theme */
-function NavbarPrefsCluster({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "relative z-10 hidden h-8 items-center rounded-md border border-border sm:flex",
-        className
-      )}
-    >
-      <div className="hidden items-center px-2.5 lg:flex">
-        <ServerTime />
-      </div>
-      <div className="hidden h-full w-px bg-border lg:block" aria-hidden />
-      <WatchlistNavButton className="rounded-none border-0" />
-      <div className="h-full w-px bg-border" aria-hidden />
-      <Suspense fallback={null}>
-        <LanguageSelector compact />
-      </Suspense>
-      <div className="h-full w-px bg-border" aria-hidden />
-      <ThemeToggleButton compact />
-    </div>
-  );
 }
 
 interface FeedNavHrefs {
@@ -188,6 +55,13 @@ function buildFeedNavHrefs(activeRegion: FeedRegion): FeedNavHrefs {
   };
 }
 
+const DESKTOP_LINKS = [
+  { key: "leaderboards" as const, icon: Trophy, match: "/leaderboards" },
+  { key: "kills" as const, icon: Skull, match: "/kills" },
+  { key: "battles" as const, icon: Swords, match: "/battles" },
+  { key: "builds" as const, icon: Hammer, match: "/builds" },
+];
+
 function NavbarBrandAndDesktopNav({
   preferredRegion,
   pathname,
@@ -200,57 +74,36 @@ function NavbarBrandAndDesktopNav({
 
   return (
     <>
-      <BrandLogo href={hrefs.home} />
+      <BrandLogo
+        href={hrefs.home}
+        markOnly
+        className="sm:hidden"
+      />
+      <BrandLogo href={hrefs.home} className="hidden sm:inline-flex" />
 
-      <nav className="hidden shrink-0 items-center gap-3 sm:flex">
-        <Link
-          href={hrefs.leaderboards}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-            pathname.startsWith("/leaderboards")
-              ? "text-foreground"
-              : "text-muted-foreground"
-          )}
-        >
-          <Trophy className="h-4 w-4 shrink-0" aria-hidden />
-          {t("leaderboards")}
-        </Link>
-        <Link
-          href={hrefs.kills}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-            pathname.startsWith("/kills")
-              ? "text-foreground"
-              : "text-muted-foreground"
-          )}
-        >
-          <Skull className="h-4 w-4 shrink-0" aria-hidden />
-          {t("kills")}
-        </Link>
-        <Link
-          href={hrefs.battles}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-            pathname.startsWith("/battles")
-              ? "text-foreground"
-              : "text-muted-foreground"
-          )}
-        >
-          <Swords className="h-4 w-4 shrink-0" aria-hidden />
-          {t("battles")}
-        </Link>
-        <Link
-          href={hrefs.builds}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-sm text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-            pathname.startsWith("/builds")
-              ? "text-foreground"
-              : "text-muted-foreground"
-          )}
-        >
-          <Hammer className="h-4 w-4 shrink-0" aria-hidden />
-          {t("builds")}
-        </Link>
+      <nav
+        className="hidden shrink-0 items-center gap-0.5 md:flex"
+        aria-label={t("primaryNav")}
+      >
+        {DESKTOP_LINKS.map(({ key, icon: Icon, match }) => {
+          const active = pathname.startsWith(match);
+          return (
+            <Link
+              key={key}
+              href={hrefs[key]}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                active
+                  ? "bg-accent font-medium text-foreground"
+                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+              )}
+            >
+              <Icon className="hidden h-3.5 w-3.5 shrink-0 lg:block" aria-hidden />
+              {t(key)}
+            </Link>
+          );
+        })}
       </nav>
     </>
   );
@@ -264,51 +117,45 @@ function NavbarMobileFeedLinks({
   onNavigate: () => void;
 }) {
   const t = useTranslations("Nav");
+  const pathname = usePathname();
   const hrefs = buildFeedNavHrefs(useActiveFeedRegion(preferredRegion));
 
+  const links = [
+    { key: "home" as const, href: hrefs.home, icon: Home, match: null },
+    ...DESKTOP_LINKS.map(({ key, icon, match }) => ({
+      key,
+      href: hrefs[key],
+      icon,
+      match,
+    })),
+  ];
+
   return (
-    <>
-      <Link
-        href={hrefs.home}
-        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        onClick={onNavigate}
-      >
-        <Home className="h-4 w-4 shrink-0" aria-hidden />
-        {t("home")}
-      </Link>
-      <Link
-        href={hrefs.leaderboards}
-        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        onClick={onNavigate}
-      >
-        <Trophy className="h-4 w-4 shrink-0" aria-hidden />
-        {t("leaderboards")}
-      </Link>
-      <Link
-        href={hrefs.kills}
-        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        onClick={onNavigate}
-      >
-        <Skull className="h-4 w-4 shrink-0" aria-hidden />
-        {t("kills")}
-      </Link>
-      <Link
-        href={hrefs.battles}
-        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        onClick={onNavigate}
-      >
-        <Swords className="h-4 w-4 shrink-0" aria-hidden />
-        {t("battles")}
-      </Link>
-      <Link
-        href={hrefs.builds}
-        className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        onClick={onNavigate}
-      >
-        <Hammer className="h-4 w-4 shrink-0" aria-hidden />
-        {t("builds")}
-      </Link>
-    </>
+    <div className="flex flex-col gap-0.5">
+      {links.map(({ key, href, icon: Icon, match }) => {
+        const active =
+          match === null
+            ? pathname === "/" || pathname === ""
+            : pathname.startsWith(match);
+        return (
+          <Link
+            key={key}
+            href={href}
+            className={cn(
+              "inline-flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+              active
+                ? "bg-accent font-medium text-foreground"
+                : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+            )}
+            onClick={onNavigate}
+          >
+            <Icon className="h-4 w-4 shrink-0" aria-hidden />
+            {t(key)}
+          </Link>
+        );
+      })}
+    </div>
   );
 }
 
@@ -327,10 +174,11 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
   }, [pathname, preferredRegion]);
 
   const fallbackHomeHref = feedNavHref("/", navRegion);
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:gap-2.5">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:gap-3 sm:px-4">
         <Suspense fallback={<BrandLogo href={fallbackHomeHref} />}>
           <NavbarBrandAndDesktopNav
             preferredRegion={navRegion}
@@ -338,29 +186,35 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
           />
         </Suspense>
 
-        <div className="flex min-w-0 flex-1 items-center gap-2">
+        <div className="flex min-w-0 flex-1 justify-center sm:justify-end md:justify-center">
           <SearchAutocompleteLazy
             region={navRegion ?? "all"}
             compact
-            className="min-w-0 flex-1"
-            onNavigate={() => setMenuOpen(false)}
+            showSubmitButton={false}
+            className="w-full min-w-0 max-w-md"
+            onNavigate={closeMenu}
           />
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1">
           <Suspense fallback={null}>
             <NavbarRegionSelector
               regions={regions}
               preferredRegion={navRegion}
               onRegionChange={setNavRegion}
+              className="hidden sm:block"
             />
           </Suspense>
 
-          <NavbarPrefsCluster />
+          <div className="hidden sm:block">
+            <Suspense fallback={null}>
+              <UserMenu />
+            </Suspense>
+          </div>
 
           <button
             type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:hidden"
             aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
@@ -375,59 +229,42 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
       </div>
 
       {menuOpen && (
-        <div className="border-t border-border px-4 py-3 sm:hidden">
-          <nav className="flex flex-col gap-4">
+        <div className="border-t border-border px-3 py-3 sm:px-4 md:hidden">
+          <nav className="flex flex-col gap-4" aria-label={t("primaryNav")}>
+            <div className="sm:hidden">
+              <Suspense fallback={null}>
+                <NavbarRegionSelector
+                  regions={regions}
+                  preferredRegion={navRegion}
+                  variant="chips"
+                  onSelect={closeMenu}
+                  onRegionChange={setNavRegion}
+                />
+              </Suspense>
+            </div>
+
             <Suspense fallback={null}>
-              <NavbarRegionSelector
-                regions={regions}
+              <NavbarMobileFeedLinks
                 preferredRegion={navRegion}
-                variant="chips"
-                onSelect={() => setMenuOpen(false)}
-                onRegionChange={setNavRegion}
+                onNavigate={closeMenu}
               />
             </Suspense>
 
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("preferences")}
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 flex-1 items-center justify-between rounded-md border border-border px-2.5">
-                  <ServerTime />
-                  <div className="flex items-center">
-                    <Suspense fallback={null}>
-                      <LanguageSelector compact />
-                    </Suspense>
-                    <div className="mx-0.5 h-4 w-px bg-border" aria-hidden />
-                    <ThemeToggleButton compact />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <Suspense fallback={null}>
-                <NavbarMobileFeedLinks
-                  preferredRegion={navRegion}
-                  onNavigate={() => setMenuOpen(false)}
-                />
-              </Suspense>
-              <Link
-                href="/watchlist"
-                className="flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                onClick={() => setMenuOpen(false)}
-              >
-                <Star className="h-4 w-4" aria-hidden />
-                {t("watchlist")}
-              </Link>
+            <div className="flex flex-col gap-0.5 border-t border-border pt-3 sm:hidden">
               <Link
                 href="/search"
-                className="inline-flex items-center gap-1.5 rounded-sm text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                onClick={() => setMenuOpen(false)}
+                className="inline-flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                onClick={closeMenu}
               >
                 <Search className="h-4 w-4 shrink-0" aria-hidden />
                 {t("search")}
               </Link>
+            </div>
+
+            <div className="border-t border-border pt-3 sm:hidden">
+              <Suspense fallback={null}>
+                <UserMenu variant="panel" onNavigate={closeMenu} />
+              </Suspense>
             </div>
           </nav>
         </div>

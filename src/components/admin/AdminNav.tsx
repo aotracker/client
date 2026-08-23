@@ -9,6 +9,7 @@ import {
   ScrollText,
   Server,
   Settings,
+  Users,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ const NAV_ITEMS: Array<{
   { href: "/admin/errors", label: "Errors", icon: AlertTriangle },
   { href: "/admin/api-logs", label: "API Logs", icon: ScrollText },
   { href: "/admin/system", label: "System", icon: Server },
+  { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/actions", label: "Actions", icon: Zap },
 ];

@@ -133,7 +133,10 @@ export function NavbarRegionSelector({
       >
         <button
           type="button"
-          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-transparent px-2 text-xs font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className={cn(
+            "inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            open && "bg-accent text-foreground"
+          )}
           aria-expanded={open}
           aria-controls={listId}
           aria-haspopup="listbox"
