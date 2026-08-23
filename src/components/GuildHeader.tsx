@@ -75,13 +75,6 @@ export function GuildHeader({ guild, sharePath }: GuildHeaderProps) {
       </span>
     );
   }
-  if (guild.lastSyncedAt) {
-    footerParts.push(
-      <p key="synced" className="text-xs">
-        Last updated: {formatExactDateTime(guild.lastSyncedAt)}
-      </p>
-    );
-  }
 
   return (
     <EntityHeader
@@ -122,6 +115,7 @@ export function GuildHeader({ guild, sharePath }: GuildHeaderProps) {
       ]}
       entityId={guild.albionId}
       entityIdLabel="Albion guild ID"
+      lastUpdatedAt={guild.lastSyncedAt}
       footerMeta={
         footerParts.length > 0 ? (
           <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">

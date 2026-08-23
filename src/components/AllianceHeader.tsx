@@ -24,6 +24,7 @@ interface AllianceHeaderProps {
     founderId?: string | null;
     founderName?: string | null;
     founded?: string | null;
+    lastSyncedAt?: Date | null;
   };
   guilds?: { id: string; name: string }[];
   sharePath?: string;
@@ -119,6 +120,7 @@ export function AllianceHeader({
       ]}
       entityId={alliance.albionId}
       entityIdLabel="Albion alliance ID"
+      lastUpdatedAt={alliance.lastSyncedAt}
       footerMeta={
         footerParts.length > 0 ? (
           <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">
@@ -139,7 +141,7 @@ export function AllianceHeader({
               <Link
                 key={guild.id}
                 href={guildPath(alliance.region, guild.name)}
-                className="max-w-full truncate rounded-md border border-border/50 bg-muted/25 px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-muted/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="max-w-full truncate rounded-md border border-border/50 bg-muted/25 px-2.5 py-1.5 text-sm font-medium text-stat-neutral transition-colors hover:border-primary/40 hover:bg-muted/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 {guild.name}
               </Link>

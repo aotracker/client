@@ -15,7 +15,11 @@ export async function AllianceHeaderSection({
 }: {
   region: AlbionRegion;
   allianceId: string;
-  alliance: { killFame: number | null; deathFame: number | null };
+  alliance: {
+    killFame: number | null;
+    deathFame: number | null;
+    lastSyncedAt?: Date | null;
+  };
   info: {
     name: string;
     tag: string | null;
@@ -44,6 +48,7 @@ export async function AllianceHeaderSection({
         founderId: info.founderId,
         founderName: info.founderName,
         founded: info.founded,
+        lastSyncedAt: alliance.lastSyncedAt,
       }}
       guilds={guilds.map((guild) => ({ id: guild.id, name: guild.name }))}
       sharePath={entityPath("alliance", region, allianceId)}

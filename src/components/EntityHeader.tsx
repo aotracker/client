@@ -7,7 +7,7 @@ import {
   EntityStatStrip,
   type EntityStat,
 } from "@/components/EntityStatStrip";
-import { cn } from "@/lib/utils";
+import { cn, formatExactDateTime } from "@/lib/utils";
 
 export type EntityAffiliation = {
   key: string;
@@ -23,11 +23,13 @@ interface EntityHeaderProps {
   affiliations?: EntityAffiliation[];
   actions?: ReactNode;
   stats: EntityStat[];
-  /** Left side of muted footer (founder, founded, synced, etc.). */
+  /** Left side of muted footer (founder, founded, etc.). */
   footerMeta?: ReactNode;
-  /** Right side of muted footer — typically Albion ID. */
+  /** Albion ID shown under the header actions (top-right). */
   entityId?: string;
   entityIdLabel?: string;
+  /** Sync timestamp in the footer bottom-right. */
+  lastUpdatedAt?: Date | null;
   children?: ReactNode;
   className?: string;
 }
@@ -80,12 +82,14 @@ export async function EntityHeader({
   footerMeta,
   entityId,
   entityIdLabel,
+  lastUpdatedAt,
   children,
   className,
 }: EntityHeaderProps) {
   const t = await getTranslations("Common.labels");
   const resolvedIdLabel = entityIdLabel ?? t("albionId");
-  const hasFooter = Boolean(footerMeta) || Boolean(entityId);
+  const hasHeaderAside = Boolean(actions) || Boolean(entityId);
+  const hasFooter = Boolean(footerMeta) || Boolean(lastUpdatedAt);
 
   return (
     <Card className={className}>
@@ -102,7 +106,18 @@ export async function EntityHeader({
             </h1>
             <AffiliationTrail items={affiliations} />
           </div>
-          {actions}
+          {hasHeaderAside ? (
+            <div className="flex shrink-0 flex-col items-start gap-1.5 sm:items-end">
+              {actions}
+              {entityId ? (
+                <Tooltip content={`${resolvedIdLabel}: ${entityId}`}>
+                  <span className="inline-block max-w-full overflow-x-auto whitespace-nowrap font-mono text-[10px] leading-tight text-muted-foreground/50 sm:text-right">
+                    {entityId}
+                  </span>
+                </Tooltip>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         <EntityStatStrip stats={stats} />
@@ -114,19 +129,19 @@ export async function EntityHeader({
         <CardContent
           className={cn(
             "border-t border-border/40 pt-4",
-            "flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+            "flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
           )}
         >
           <div className="min-w-0 flex-1 space-y-1 text-sm text-muted-foreground">
             {footerMeta}
           </div>
-          {entityId && (
-            <Tooltip content={resolvedIdLabel}>
-              <span className="break-all font-mono text-xs text-muted-foreground/70 sm:max-w-[50%] sm:text-right">
-                {entityId}
-              </span>
-            </Tooltip>
-          )}
+          {lastUpdatedAt ? (
+            <p className="shrink-0 text-xs text-muted-foreground sm:text-right">
+              {t("lastUpdated", {
+                datetime: formatExactDateTime(lastUpdatedAt),
+              })}
+            </p>
+          ) : null}
         </CardContent>
       )}
     </Card>
