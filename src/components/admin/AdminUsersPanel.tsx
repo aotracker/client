@@ -272,7 +272,7 @@ export function AdminUsersPanel() {
                               ) : null}
                               {user.activeSessionCount > 0 ? (
                                 <Badge variant="success" size="sm">
-                                  Online
+                                  Signed in
                                 </Badge>
                               ) : null}
                               <Badge variant="outline" size="sm">
