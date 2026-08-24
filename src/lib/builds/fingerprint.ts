@@ -15,6 +15,55 @@ export interface PlayerBuildItem {
   familyNames?: Record<string, string>;
 }
 
+export interface KillItemBuildSource {
+  ownerRole: string;
+  category: string;
+  slot: string | null;
+  itemType: string;
+  quality: number | null;
+}
+
+const TOP_BUILD_SLOT_ORDER = new Map<string, number>(
+  TOP_BUILD_SLOTS.map((slot, index) => [slot, index])
+);
+
+export function extractBuildItemsFromKillItems(
+  items: KillItemBuildSource[],
+  role: string
+): PlayerBuildItem[] {
+  const result: PlayerBuildItem[] = [];
+  for (const item of items) {
+    if (item.ownerRole !== role) continue;
+    if (item.category !== "equipment") continue;
+    if (!item.slot || !TOP_BUILD_SLOT_ORDER.has(item.slot)) continue;
+    if (!item.itemType) continue;
+    result.push({
+      slot: item.slot,
+      itemType: item.itemType,
+      quality: item.quality ?? 0,
+    });
+  }
+  result.sort(
+    (a, b) =>
+      (TOP_BUILD_SLOT_ORDER.get(a.slot) ?? 99) -
+      (TOP_BUILD_SLOT_ORDER.get(b.slot) ?? 99)
+  );
+  return result;
+}
+
+/** Prefer normalized kill_items; fall back to participant JSONB during rollout. */
+export function resolveBuildItems(
+  killItems: KillItemBuildSource[] | undefined,
+  role: string,
+  rawPayload: unknown
+): PlayerBuildItem[] {
+  const fromItems = killItems?.length
+    ? extractBuildItemsFromKillItems(killItems, role)
+    : [];
+  if (fromItems.length > 0) return fromItems;
+  return extractBuildItemsFromParticipantPayload(rawPayload);
+}
+
 export function extractBuildItemsFromParticipantPayload(
   raw: unknown
 ): PlayerBuildItem[] {

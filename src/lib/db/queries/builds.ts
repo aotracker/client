@@ -18,10 +18,11 @@ import type {
 import {
   buildFingerprint,
   canonicalizeBuildItems,
-  extractBuildItemsFromParticipantPayload,
   getMainHandItem,
   isSparseBuild,
   preferBuildItems,
+  resolveBuildItems,
+  type KillItemBuildSource,
   type PlayerBuildItem,
 } from "@/lib/builds/fingerprint";
 import {
@@ -126,6 +127,42 @@ const META_CACHE_KEEP_USAGE = 48;
 const META_TOP_WEAPONS = 8;
 /** Top weapons considered per content type before merging duplicates. */
 const META_TOP_WEAPONS_PER_TYPE = 4;
+
+function groupEquipmentByEventRole(
+  items: (KillItemBuildSource & { eventId: string })[]
+): Map<string, KillItemBuildSource[]> {
+  const byKey = new Map<string, KillItemBuildSource[]>();
+  for (const item of items) {
+    const key = `${item.eventId}:${item.ownerRole}`;
+    const list = byKey.get(key) ?? [];
+    list.push(item);
+    byKey.set(key, list);
+  }
+  return byKey;
+}
+
+async function loadEquipmentItemsByEventIds(eventIds: string[]) {
+  if (eventIds.length === 0) return new Map<string, KillItemBuildSource[]>();
+
+  const rows = await db
+    .select({
+      eventId: schema.killItems.eventId,
+      ownerRole: schema.killItems.ownerRole,
+      category: schema.killItems.category,
+      slot: schema.killItems.slot,
+      itemType: schema.killItems.itemType,
+      quality: schema.killItems.quality,
+    })
+    .from(schema.killItems)
+    .where(
+      and(
+        inArray(schema.killItems.eventId, eventIds),
+        eq(schema.killItems.category, "equipment")
+      )
+    );
+
+  return groupEquipmentByEventRole(rows);
+}
 
 const META_ROLE_PRIORITY: Record<MetaBuildRole, number> = {
   killer: 3,
@@ -383,6 +420,8 @@ async function loadMetaBuilds(
   for (let i = 0; i < META_BUILD_CONTENT_TYPES.length; i++) {
     const contentType = META_BUILD_CONTENT_TYPES[i];
     const rows = sampleRowGroups[i] ?? [];
+    const eventIds = [...new Set(rows.map((row) => row.eventId))];
+    const itemsByEventRole = await loadEquipmentItemsByEventIds(eventIds);
     /** One loadout per player per event (killer/victim/assist overlap). */
     const byPlayerEvent = new Map<string, MetaBuildSample>();
 
@@ -396,7 +435,11 @@ async function loadMetaBuilds(
         continue;
       }
 
-      const items = extractBuildItemsFromParticipantPayload(row.rawPayload);
+      const items = resolveBuildItems(
+        itemsByEventRole.get(`${row.eventId}:${row.role}`),
+        row.role,
+        row.rawPayload
+      );
       if (items.length === 0) continue;
 
       const role = normalizeMetaBuildRole(row.role);

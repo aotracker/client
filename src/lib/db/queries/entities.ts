@@ -37,6 +37,8 @@ import {
   killFamePositiveCondition,
   loadPlayersWithGuildNames,
   preferBuildItems,
+  resolveBuildItems,
+  type KillItemBuildSource,
 } from "./shared";
 
 export interface PlayerActivityDay {
@@ -494,6 +496,7 @@ export async function getPlayerAnalytics(
     db
       .select({
         eventId: schema.killEvents.id,
+        role: schema.killParticipants.role,
         rawPayload: schema.killParticipants.rawPayload,
       })
       .from(schema.killParticipants)
@@ -510,6 +513,36 @@ export async function getPlayerAnalytics(
       .orderBy(desc(schema.killEvents.occurredAt))
       .limit(PLAYER_ANALYTICS_BUILD_SAMPLE_LIMIT),
   ]);
+
+  const buildEventIds = [
+    ...new Set(buildParticipationRows.map((row) => row.eventId)),
+  ];
+  const buildEquipmentRows =
+    buildEventIds.length > 0
+      ? await db
+          .select({
+            eventId: schema.killItems.eventId,
+            ownerRole: schema.killItems.ownerRole,
+            category: schema.killItems.category,
+            slot: schema.killItems.slot,
+            itemType: schema.killItems.itemType,
+            quality: schema.killItems.quality,
+          })
+          .from(schema.killItems)
+          .where(
+            and(
+              inArray(schema.killItems.eventId, buildEventIds),
+              eq(schema.killItems.category, "equipment")
+            )
+          )
+      : [];
+  const buildItemsByEventRole = new Map<string, KillItemBuildSource[]>();
+  for (const item of buildEquipmentRows) {
+    const key = `${item.eventId}:${item.ownerRole}`;
+    const list = buildItemsByEventRole.get(key) ?? [];
+    list.push(item);
+    buildItemsByEventRole.set(key, list);
+  }
 
   const activity: PlayerActivityDay[] = activityRows
     .map((row) => ({
@@ -541,7 +574,11 @@ export async function getPlayerAnalytics(
     if (seenEvents.has(row.eventId)) continue;
     seenEvents.add(row.eventId);
 
-    const ordered = extractBuildItemsFromParticipantPayload(row.rawPayload);
+    const ordered = resolveBuildItems(
+      buildItemsByEventRole.get(`${row.eventId}:${row.role}`),
+      row.role,
+      row.rawPayload
+    );
     if (ordered.length === 0) continue;
     buildSamples.push(ordered);
   }

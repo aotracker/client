@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
+import type { AlbionPlayerRef } from "@/lib/albion/types";
 import type { PlayerBuildItem } from "./fingerprint";
 import {
   buildFingerprint,
   canonicalizeBuildItems,
+  extractBuildItemsFromKillItems,
+  extractBuildItemsFromParticipantPayload,
   getMainHandItem,
   isSparseBuild,
   preferBuildItems,
+  resolveBuildItems,
 } from "./fingerprint";
 
 function item(
@@ -103,5 +107,96 @@ describe("getMainHandItem", () => {
         item("MainHand", "T8_2H_HOLYSTAFF"),
       ])?.itemType
     ).toBe("T8_2H_HOLYSTAFF");
+  });
+});
+
+describe("extractBuildItemsFromKillItems", () => {
+  it("matches participant payload equipment for the same role", () => {
+    const payload: AlbionPlayerRef = {
+      Equipment: {
+        MainHand: { Type: "T8_MAIN_SWORD", Quality: 4, Count: 1 },
+        Armor: { Type: "T8_ARMOR_PLATE_SET1", Quality: 3, Count: 1 },
+        Shoes: { Type: "T8_SHOES_PLATE_SET1", Quality: 2, Count: 1 },
+      },
+    };
+    const fromPayload = extractBuildItemsFromParticipantPayload(payload);
+    const fromItems = extractBuildItemsFromKillItems(
+      [
+        {
+          ownerRole: "killer",
+          category: "equipment",
+          slot: "MainHand",
+          itemType: "T8_MAIN_SWORD",
+          quality: 4,
+        },
+        {
+          ownerRole: "killer",
+          category: "equipment",
+          slot: "Armor",
+          itemType: "T8_ARMOR_PLATE_SET1",
+          quality: 3,
+        },
+        {
+          ownerRole: "killer",
+          category: "inventory",
+          slot: "slot_0",
+          itemType: "T8_BAG",
+          quality: 0,
+        },
+        {
+          ownerRole: "victim",
+          category: "equipment",
+          slot: "MainHand",
+          itemType: "T8_2H_BOW",
+          quality: 1,
+        },
+        {
+          ownerRole: "killer",
+          category: "equipment",
+          slot: "Shoes",
+          itemType: "T8_SHOES_PLATE_SET1",
+          quality: 2,
+        },
+      ],
+      "killer"
+    );
+
+    expect(buildFingerprint(fromItems)).toBe(buildFingerprint(fromPayload));
+    expect(fromItems).toEqual(fromPayload);
+  });
+});
+
+describe("resolveBuildItems", () => {
+  it("prefers kill_items over payload", () => {
+    const items = resolveBuildItems(
+      [
+        {
+          ownerRole: "killer",
+          category: "equipment",
+          slot: "MainHand",
+          itemType: "T8_2H_HOLYSTAFF",
+          quality: 4,
+        },
+      ],
+      "killer",
+      {
+        Equipment: {
+          MainHand: { Type: "T4_MAIN_SWORD", Quality: 1, Count: 1 },
+        },
+      }
+    );
+    expect(items).toEqual([
+      { slot: "MainHand", itemType: "T8_2H_HOLYSTAFF", quality: 4 },
+    ]);
+  });
+
+  it("falls back to payload when items are missing", () => {
+    expect(
+      resolveBuildItems([], "killer", {
+        Equipment: {
+          MainHand: { Type: "T8_MAIN_SWORD", Quality: 2, Count: 1 },
+        },
+      })
+    ).toEqual([{ slot: "MainHand", itemType: "T8_MAIN_SWORD", quality: 2 }]);
   });
 });

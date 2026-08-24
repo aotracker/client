@@ -7,10 +7,13 @@ export type { PlayerBuildItem } from "@/lib/builds/fingerprint";
 export {
   buildFingerprint,
   canonicalizeBuildItems,
+  extractBuildItemsFromKillItems,
   extractBuildItemsFromParticipantPayload,
   getMainHandItem,
   isSparseBuild,
   preferBuildItems,
+  resolveBuildItems,
+  type KillItemBuildSource,
 } from "@/lib/builds/fingerprint";
 
 /**
