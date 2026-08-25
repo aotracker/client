@@ -33,7 +33,7 @@ function buildSocialProviders() {
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
       // Better Auth defaults to identify+email; disable so we only request identify
       disableDefaultScope: true,
-      scope: ["identify"],
+      scope: ["identify", "guilds"],
       mapProfileToUser(profile) {
         const username =
           typeof profile.username === "string" && profile.username
@@ -152,6 +152,14 @@ export type Session = typeof auth.$Infer.Session;
 export async function getSession() {
   const { headers } = await import("next/headers");
   return auth.api.getSession({ headers: await headers() });
+}
+
+/** Better Auth session row id (not the secret token). */
+export function getSessionRowId(
+  session: Awaited<ReturnType<typeof getSession>>
+): string | null {
+  const id = session?.session?.id;
+  return typeof id === "string" && id.length > 0 ? id : null;
 }
 
 /** Look up Discord snowflake for a site user (for promote/admin tooling). */

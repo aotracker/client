@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { DiscordFeedFiltersBuilder } from "@/components/discord/DiscordFeedFiltersBuilder";
 import { PageHeader } from "@/components/PageSection";
 import { discordInviteUrl } from "@/lib/discord-invite";
@@ -36,6 +37,11 @@ const COMMANDS = [
   { name: "/untrack", key: "untrack" },
   { name: "/status", key: "status" },
   { name: "/feed-filters", key: "feedFilters" },
+  { name: "/ping-role", key: "pingRole" },
+  { name: "/whoami", key: "whoami" },
+  { name: "/lookup", key: "lookup" },
+  { name: "/feud", key: "feud" },
+  { name: "/watchlist-add", key: "watchlistAdd" },
 ] as const;
 
 interface CommandCopy {
@@ -123,6 +129,16 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
           </ol>
         </div>
         <p>{t("permissionsNote")}</p>
+        <p>
+          <Link
+            href="/account/discord"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            {t("manageFeeds")}
+          </Link>
+          {" — "}
+          {t("manageFeedsBody")}
+        </p>
       </section>
 
       <DiscordFeedFiltersBuilder />

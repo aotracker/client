@@ -33,6 +33,7 @@ export function FilterSelect<T extends string>({
   disabled = false,
   className,
   align = "start",
+  fit = false,
   "aria-label": ariaLabel,
 }: {
   label?: string;
@@ -42,6 +43,8 @@ export function FilterSelect<T extends string>({
   disabled?: boolean;
   className?: string;
   align?: "start" | "end";
+  /** Size the trigger to the selected label instead of a fixed min width. */
+  fit?: boolean;
   "aria-label"?: string;
 }) {
   const listId = useId();
@@ -74,7 +77,14 @@ export function FilterSelect<T extends string>({
   }, [open]);
 
   return (
-    <div ref={rootRef} className={cn("relative inline-block min-w-[9.5rem]", className)}>
+    <div
+      ref={rootRef}
+      className={cn(
+        "relative inline-block",
+        fit ? "w-fit" : "min-w-[9.5rem]",
+        className
+      )}
+    >
       {label ? (
         <p
           id={labelId}
@@ -87,8 +97,9 @@ export function FilterSelect<T extends string>({
         type="button"
         disabled={disabled}
         className={cn(
-          "inline-flex h-8 w-full items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-left text-sm font-medium transition-colors",
-          "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+          "inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-left text-sm font-medium text-foreground transition-colors",
+          fit ? "w-auto" : "w-full",
+          "hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
           "disabled:pointer-events-none disabled:opacity-50"
         )}
         aria-expanded={open}
@@ -104,7 +115,9 @@ export function FilterSelect<T extends string>({
             aria-hidden
           />
         ) : null}
-        <span className="min-w-0 flex-1 truncate">{selected?.label}</span>
+        <span className={cn(fit ? "shrink-0" : "min-w-0 flex-1 truncate")}>
+          {selected?.label}
+        </span>
         {selected?.suffix ? (
           <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
             {selected.suffix}
@@ -125,8 +138,9 @@ export function FilterSelect<T extends string>({
           role="listbox"
           aria-label={accessibleName}
           className={cn(
-            "absolute z-50 mt-1 min-w-full overflow-hidden rounded-md border border-border bg-card p-1 shadow-lg",
+            "absolute z-50 mt-1 min-w-full overflow-hidden rounded-md border border-border bg-background p-1 text-foreground shadow-lg",
             "max-h-64 overflow-y-auto",
+            fit && "w-max",
             align === "end" ? "right-0" : "left-0"
           )}
         >
@@ -144,7 +158,7 @@ export function FilterSelect<T extends string>({
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                   isSelected
                     ? "bg-primary/10 font-medium text-foreground"
-                    : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
                 onClick={() => {
                   setOpen(false);

@@ -14,6 +14,10 @@ import { PageHeader } from "@/components/PageSection";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  displayableAccountEmail,
+  isSyntheticDiscordEmail,
+} from "@/lib/auth-email";
+import {
   cn,
   formatExactDateTime,
   formatRelativeTime,
@@ -35,6 +39,13 @@ type AdminUser = {
     accountId: string;
     createdAt?: string | Date;
   }>;
+  claims: Array<{
+    id: string;
+    region: string;
+    albionId: string;
+    name: string;
+    claimedAt: string | Date;
+  }>;
   watchlistCount: number;
   recentSearchCount: number;
   lastActiveAt: string | Date | null;
@@ -50,6 +61,41 @@ function preferredRegionLabel(region: string | null): string {
 function formatWhen(value: string | Date | null | undefined): string {
   if (!value) return "Never";
   return formatRelativeTime(value);
+}
+
+function accountEmailLine(user: AdminUser): {
+  text: string;
+  showVerifiedBadge: boolean;
+  verified: boolean;
+} {
+  const providerIds = user.providers.map((p) => p.providerId);
+  const displayEmail = displayableAccountEmail(user.email, providerIds);
+  if (displayEmail) {
+    return {
+      text: displayEmail,
+      showVerifiedBadge: true,
+      verified: user.emailVerified,
+    };
+  }
+  if (isSyntheticDiscordEmail(user.email) || providerIds.includes("discord")) {
+    return {
+      text: "No email (Discord does not share one)",
+      showVerifiedBadge: false,
+      verified: false,
+    };
+  }
+  if (user.email?.trim()) {
+    return {
+      text: user.email.trim(),
+      showVerifiedBadge: true,
+      verified: user.emailVerified,
+    };
+  }
+  return {
+    text: "No email on file",
+    showVerifiedBadge: false,
+    verified: false,
+  };
 }
 
 function StatChip({
@@ -117,6 +163,9 @@ export function AdminUsersPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [reassign, setReassign] = useState<
+    Record<string, { region: string; query: string }>
+  >({});
 
   const load = useCallback(async (query: string) => {
     setLoading(true);
@@ -170,6 +219,34 @@ export function AdminUsersPanel() {
     }
   }
 
+  async function mutateClaim(
+    userId: string,
+    body: Record<string, string>
+  ): Promise<boolean> {
+    setBusyId(userId);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/users/claims", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, ...body }),
+      });
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(payload?.error ?? "Claim update failed");
+      }
+      await load(q);
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Claim update failed");
+      return false;
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   const summary = useMemo(() => {
     const adminCount = users.filter((u) => u.isAdmin).length;
     const activeCount = users.filter((u) => u.activeSessionCount > 0).length;
@@ -181,7 +258,7 @@ export function AdminUsersPanel() {
     <div className="space-y-6">
       <PageHeader
         title="Users"
-        description="Account details, linked providers, sync usage, and admin access"
+        description="Linked Discord/Google accounts, sync usage, claimed characters, and admin access. Discord sign-ins use a local placeholder email that is never shown here."
       />
 
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -213,7 +290,7 @@ export function AdminUsersPanel() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search name, email, user id, region, Discord id, or Google sub"
+              placeholder="Search name, Google email, user id, region, Discord id, or Google sub"
               className="flex h-9 w-full rounded-md border border-border bg-background py-1 pl-9 pr-3 text-sm"
             />
           </div>
@@ -237,6 +314,7 @@ export function AdminUsersPanel() {
                   (p) =>
                     p.providerId !== "discord" && p.providerId !== "google"
                 );
+                const emailLine = accountEmailLine(user);
 
                 return (
                   <li
@@ -275,14 +353,16 @@ export function AdminUsersPanel() {
                                   Signed in
                                 </Badge>
                               ) : null}
-                              <Badge variant="outline" size="sm">
-                                {user.emailVerified
-                                  ? "Email verified"
-                                  : "Email unverified"}
-                              </Badge>
+                              {emailLine.showVerifiedBadge ? (
+                                <Badge variant="outline" size="sm">
+                                  {emailLine.verified
+                                    ? "Email verified"
+                                    : "Email unverified"}
+                                </Badge>
+                              ) : null}
                             </div>
                             <p className="truncate text-xs text-muted-foreground">
-                              {user.email}
+                              {emailLine.text}
                             </p>
                             <p
                               className="truncate font-mono text-[10px] text-muted-foreground"
@@ -382,6 +462,110 @@ export function AdminUsersPanel() {
                               No linked providers
                             </span>
                           ) : null}
+                        </div>
+
+                        <div className="space-y-2 rounded-md border border-border/70 bg-muted/10 px-2.5 py-2">
+                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                            Claimed characters
+                          </p>
+                          {(user.claims ?? []).length === 0 ? (
+                            <p className="text-[11px] text-muted-foreground">
+                              None
+                            </p>
+                          ) : (
+                            <ul className="space-y-1.5">
+                              {(user.claims ?? []).map((claim) => (
+                                <li
+                                  key={claim.id}
+                                  className="flex flex-wrap items-center justify-between gap-2 text-xs"
+                                >
+                                  <span className="min-w-0 truncate text-foreground">
+                                    {claim.name}{" "}
+                                    <span className="text-muted-foreground">
+                                      ({regionLabel(claim.region)})
+                                    </span>
+                                  </span>
+                                  <button
+                                    type="button"
+                                    className="text-[11px] font-medium text-muted-foreground hover:text-foreground disabled:opacity-60"
+                                    disabled={busyId === user.id}
+                                    onClick={() =>
+                                      void mutateClaim(user.id, {
+                                        action: "unclaim",
+                                        region: claim.region,
+                                      })
+                                    }
+                                  >
+                                    Force unclaim
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+                            <select
+                              className="h-8 rounded-md border border-border bg-background px-2 text-[11px]"
+                              value={
+                                reassign[user.id]?.region ??
+                                user.preferredRegion ??
+                                "americas"
+                              }
+                              onChange={(event) =>
+                                setReassign((prev) => ({
+                                  ...prev,
+                                  [user.id]: {
+                                    region: event.target.value,
+                                    query: prev[user.id]?.query ?? "",
+                                  },
+                                }))
+                              }
+                            >
+                              <option value="americas">Americas</option>
+                              <option value="europe">Europe</option>
+                              <option value="asia">Asia</option>
+                            </select>
+                            <input
+                              className="h-8 min-w-0 flex-1 rounded-md border border-border bg-background px-2 text-[11px]"
+                              placeholder="Player name or Albion id"
+                              value={reassign[user.id]?.query ?? ""}
+                              onChange={(event) =>
+                                setReassign((prev) => ({
+                                  ...prev,
+                                  [user.id]: {
+                                    region:
+                                      prev[user.id]?.region ??
+                                      user.preferredRegion ??
+                                      "americas",
+                                    query: event.target.value,
+                                  },
+                                }))
+                              }
+                            />
+                            <button
+                              type="button"
+                              className="inline-flex h-8 shrink-0 items-center rounded-md border border-border px-2 text-[11px] font-medium disabled:opacity-60"
+                              disabled={
+                                busyId === user.id ||
+                                !(reassign[user.id]?.query ?? "").trim()
+                              }
+                              onClick={() => {
+                                const draft = reassign[user.id];
+                                const query = draft?.query.trim() ?? "";
+                                if (!query) return;
+                                void mutateClaim(user.id, {
+                                  action: "reassign",
+                                  region:
+                                    draft?.region ??
+                                    user.preferredRegion ??
+                                    "americas",
+                                  name: query,
+                                  albionId: query,
+                                });
+                              }}
+                            >
+                              Reassign
+                            </button>
+                          </div>
                         </div>
                       </div>
 

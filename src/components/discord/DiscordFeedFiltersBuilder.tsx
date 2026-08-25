@@ -12,6 +12,7 @@ export function DiscordFeedFiltersBuilder() {
   const [minSilver, setMinSilver] = useState("0");
   const [content, setContent] = useState<string[]>([]);
   const [paused, setPaused] = useState(false);
+  const [feed, setFeed] = useState<"both" | "kills" | "deaths">("both");
   const [copied, setCopied] = useState(false);
 
   const command = useMemo(() => {
@@ -32,8 +33,9 @@ export function DiscordFeedFiltersBuilder() {
       parts.push("content:all");
     }
     parts.push(`paused:${paused ? "true" : "false"}`);
+    if (feed !== "both") parts.push(`feed:${feed}`);
     return parts.join(" ");
-  }, [content, minFame, minSilver, paused]);
+  }, [content, feed, minFame, minSilver, paused]);
 
   function toggleContent(value: string) {
     setContent((prev) =>
@@ -113,6 +115,23 @@ export function DiscordFeedFiltersBuilder() {
           onChange={(event) => setPaused(event.target.checked)}
         />
         {t("paused")}
+      </label>
+
+      <label className="space-y-1 text-sm">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {t("feed")}
+        </span>
+        <select
+          className="h-9 w-full max-w-xs rounded-md border border-border bg-background px-3 text-sm"
+          value={feed}
+          onChange={(event) =>
+            setFeed(event.target.value as "both" | "kills" | "deaths")
+          }
+        >
+          <option value="both">{t("feedBoth")}</option>
+          <option value="kills">{t("feedKills")}</option>
+          <option value="deaths">{t("feedDeaths")}</option>
+        </select>
       </label>
 
       <div className="space-y-2">

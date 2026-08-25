@@ -64,12 +64,12 @@ export function DiscordFeedsPanel() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Discord feed filters</CardTitle>
+        <CardTitle className="text-base">Discord notification filters</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {error && <p className="text-sm text-danger-foreground">{error}</p>}
         {feeds.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No Discord feeds stored.</p>
+          <p className="text-sm text-muted-foreground">No Discord notifications stored.</p>
         ) : (
           <div className="space-y-3">
             {feeds.map((feed) => (

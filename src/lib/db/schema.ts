@@ -662,6 +662,30 @@ export const userRecentSearches = pgTable(
   (t) => [index("user_recent_searches_user_searched_idx").on(t.userId, t.searchedAt)]
 );
 
+/** Honor-system claimed Albion characters (one per region per user). */
+export const userClaimedCharacters = pgTable(
+  "user_claimed_characters",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    region: regionEnum("region").notNull(),
+    albionId: text("albion_id").notNull(),
+    claimedAt: timestamp("claimed_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("user_claimed_characters_region_albion_idx").on(
+      t.region,
+      t.albionId
+    ),
+    uniqueIndex("user_claimed_characters_user_region_idx").on(t.userId, t.region),
+    index("user_claimed_characters_user_idx").on(t.userId),
+  ]
+);
+
 export const guildsRelations = relations(guilds, ({ many }) => ({
   players: many(players),
 }));

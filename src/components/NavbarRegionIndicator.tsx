@@ -42,7 +42,7 @@ export function useActiveFeedRegion(
 
 const REGION_SHORT: Record<FeedRegion, string> = {
   all: "ALL",
-  americas: "AM",
+  americas: "AMER",
   europe: "EU",
   asia: "AS",
 };

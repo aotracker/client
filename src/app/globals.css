@@ -5,6 +5,7 @@
 @layer base {
   /* Dark is default */
   :root {
+    color-scheme: dark;
     --background: 222 47% 6%;
     --foreground: 210 40% 96%;
     --card: 222 47% 9%;
@@ -63,6 +64,7 @@
     --danger: 0 72% 42%;
     --danger-foreground: 0 63% 28%;
     --danger-border: 0 70% 45%;
+    color-scheme: light;
   }
 
   * {
@@ -189,7 +191,7 @@
   }
 
   .stagger-children > * {
-    animation: slide-up 250ms ease-out both;
+    animation: slide-up 250ms ease-out backwards;
   }
 
   .stagger-children > *:nth-child(1) {
