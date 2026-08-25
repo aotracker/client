@@ -21,47 +21,123 @@ export interface KillItemBuildSource {
   slot: string | null;
   itemType: string;
   quality: number | null;
+  participantId?: string | null;
 }
 
 const TOP_BUILD_SLOT_ORDER = new Map<string, number>(
   TOP_BUILD_SLOTS.map((slot, index) => [slot, index])
 );
 
+/**
+ * Killer and victim are unique per event even without participant_id.
+ * Assist roles are only attributable when kill_items.participant_id is set.
+ */
+export const UNIQUE_BUILD_OWNER_ROLES = ["killer", "victim"] as const;
+export const BUILD_PARTICIPATION_ROLES = [
+  "killer",
+  "victim",
+  "group_member",
+  "participant",
+] as const;
+
+const BUILD_OWNER_ROLE_PRIORITY: Record<string, number> = {
+  killer: 0,
+  victim: 1,
+  group_member: 2,
+  participant: 3,
+};
+
+export function isUniqueBuildOwnerRole(
+  role: string
+): role is (typeof UNIQUE_BUILD_OWNER_ROLES)[number] {
+  return role === "killer" || role === "victim";
+}
+
+/** True when `candidate` is a better build source than `current` for one event. */
+export function isPreferredBuildOwnerRole(
+  current: string,
+  candidate: string
+): boolean {
+  return (
+    (BUILD_OWNER_ROLE_PRIORITY[candidate] ?? 99) <
+    (BUILD_OWNER_ROLE_PRIORITY[current] ?? 99)
+  );
+}
+
+function sortBuildItems(items: PlayerBuildItem[]): PlayerBuildItem[] {
+  return [...items].sort(
+    (a, b) =>
+      (TOP_BUILD_SLOT_ORDER.get(a.slot) ?? 99) -
+      (TOP_BUILD_SLOT_ORDER.get(b.slot) ?? 99)
+  );
+}
+
 export function extractBuildItemsFromKillItems(
   items: KillItemBuildSource[],
   role: string
 ): PlayerBuildItem[] {
-  const result: PlayerBuildItem[] = [];
+  const bySlot = new Map<string, PlayerBuildItem>();
   for (const item of items) {
     if (item.ownerRole !== role) continue;
     if (item.category !== "equipment") continue;
     if (!item.slot || !TOP_BUILD_SLOT_ORDER.has(item.slot)) continue;
     if (!item.itemType) continue;
-    result.push({
+    const next: PlayerBuildItem = {
       slot: item.slot,
       itemType: item.itemType,
       quality: item.quality ?? 0,
-    });
+    };
+    const existing = bySlot.get(item.slot);
+    if (!existing) {
+      bySlot.set(item.slot, next);
+      continue;
+    }
+    // Duplicate slots mean this role is not uniquely attributable.
+    return [];
   }
-  result.sort(
-    (a, b) =>
-      (TOP_BUILD_SLOT_ORDER.get(a.slot) ?? 99) -
-      (TOP_BUILD_SLOT_ORDER.get(b.slot) ?? 99)
-  );
-  return result;
+  return sortBuildItems([...bySlot.values()]);
 }
 
-/** Prefer normalized kill_items; fall back to participant JSONB during rollout. */
+/**
+ * Prefer kill_items that belong to this participant. Killer/victim rows remain
+ * usable on older events where participant_id is still null. Shared assist
+ * roles without participant_id fall back to per-player payload (usually null).
+ */
 export function resolveBuildItems(
   killItems: KillItemBuildSource[] | undefined,
   role: string,
-  rawPayload: unknown
+  rawPayload: unknown,
+  participantId?: string | null
 ): PlayerBuildItem[] {
-  const fromItems = killItems?.length
-    ? extractBuildItemsFromKillItems(killItems, role)
-    : [];
+  const fromItems = extractAttributedBuildItems(
+    killItems,
+    role,
+    participantId
+  );
   if (fromItems.length > 0) return fromItems;
   return extractBuildItemsFromParticipantPayload(rawPayload);
+}
+
+function extractAttributedBuildItems(
+  killItems: KillItemBuildSource[] | undefined,
+  role: string,
+  participantId?: string | null
+): PlayerBuildItem[] {
+  if (!killItems?.length) return [];
+
+  if (participantId) {
+    const forParticipant = killItems.filter(
+      (item) => item.participantId === participantId
+    );
+    if (forParticipant.length > 0) {
+      return extractBuildItemsFromKillItems(forParticipant, role);
+    }
+  }
+
+  if (isUniqueBuildOwnerRole(role)) {
+    return extractBuildItemsFromKillItems(killItems, role);
+  }
+  return [];
 }
 
 export function extractBuildItemsFromParticipantPayload(

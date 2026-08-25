@@ -22,7 +22,7 @@ import {
   isSparseBuild,
   preferBuildItems,
   resolveBuildItems,
-  type KillItemBuildSource,
+  UNIQUE_BUILD_OWNER_ROLES,
   type PlayerBuildItem,
 } from "@/lib/builds/fingerprint";
 import {
@@ -39,6 +39,7 @@ import { db, schema } from "@/lib/db";
 import {
   type PlayerContentMixEntry,
   killFamePositiveCondition,
+  loadAttributedEquipmentItems,
   regionCondition,
 } from "./shared";
 
@@ -127,42 +128,9 @@ const META_CACHE_KEEP_USAGE = 48;
 const META_TOP_WEAPONS = 8;
 /** Top weapons considered per content type before merging duplicates. */
 const META_TOP_WEAPONS_PER_TYPE = 4;
-
-function groupEquipmentByEventRole(
-  items: (KillItemBuildSource & { eventId: string })[]
-): Map<string, KillItemBuildSource[]> {
-  const byKey = new Map<string, KillItemBuildSource[]>();
-  for (const item of items) {
-    const key = `${item.eventId}:${item.ownerRole}`;
-    const list = byKey.get(key) ?? [];
-    list.push(item);
-    byKey.set(key, list);
-  }
-  return byKey;
-}
-
-async function loadEquipmentItemsByEventIds(eventIds: string[]) {
-  if (eventIds.length === 0) return new Map<string, KillItemBuildSource[]>();
-
-  const rows = await db
-    .select({
-      eventId: schema.killItems.eventId,
-      ownerRole: schema.killItems.ownerRole,
-      category: schema.killItems.category,
-      slot: schema.killItems.slot,
-      itemType: schema.killItems.itemType,
-      quality: schema.killItems.quality,
-    })
-    .from(schema.killItems)
-    .where(
-      and(
-        inArray(schema.killItems.eventId, eventIds),
-        eq(schema.killItems.category, "equipment")
-      )
-    );
-
-  return groupEquipmentByEventRole(rows);
-}
+/** Assist rows sampled separately so killer/victim stats stay filled during rollout. */
+const META_BUILD_ASSIST_SAMPLE_PER_TYPE = 6_000;
+const META_ASSIST_ROLES = ["group_member", "participant"] as const;
 
 const META_ROLE_PRIORITY: Record<MetaBuildRole, number> = {
   killer: 3,
@@ -336,11 +304,51 @@ interface MetaBuildsCachePayload {
 }
 
 /**
- * Global build meta from recent kill participants (killers, victims, and
- * assists), split by content type. Ranked by usage so support/tank/healer
- * loadouts surface even without last-hits. Same weapons/gear across tiers
- * are combined (matches player analytics).
+ * Global build meta from recent loadouts (killer, victim, and attributed
+ * assists). Assist gear is used only when kill_items.participant_id is set.
  */
+function sampleMetaParticipations(
+  region: AlbionRegion | "all",
+  cutoff: Date,
+  contentType: ContentType,
+  roles: readonly (
+    | "killer"
+    | "victim"
+    | "group_member"
+    | "participant"
+  )[],
+  limit: number
+) {
+  return db
+    .select({
+      eventId: schema.killEvents.id,
+      participantId: schema.killParticipants.id,
+      contentType: schema.killEvents.contentType,
+      role: schema.killParticipants.role,
+      fame: schema.killEvents.totalVictimKillFame,
+      ip: schema.killParticipants.averageItemPower,
+      participantCount: schema.killEvents.participantCount,
+      playerId: schema.killParticipants.playerId,
+      rawPayload: schema.killParticipants.rawPayload,
+    })
+    .from(schema.killParticipants)
+    .innerJoin(
+      schema.killEvents,
+      eq(schema.killEvents.id, schema.killParticipants.eventId)
+    )
+    .where(
+      and(
+        gte(schema.killEvents.occurredAt, cutoff),
+        eq(schema.killEvents.contentType, contentType),
+        killFamePositiveCondition(),
+        regionCondition(region),
+        inArray(schema.killParticipants.role, [...roles])
+      )
+    )
+    .orderBy(desc(schema.killEvents.occurredAt))
+    .limit(limit);
+}
+
 async function loadMetaBuilds(
   region: AlbionRegion | "all",
   days: number
@@ -363,40 +371,25 @@ async function loadMetaBuilds(
         )
       )
       .groupBy(schema.killEvents.contentType),
-    ...META_BUILD_CONTENT_TYPES.map((contentType) =>
-      db
-        .select({
-          eventId: schema.killEvents.id,
-          contentType: schema.killEvents.contentType,
-          role: schema.killParticipants.role,
-          fame: schema.killEvents.totalVictimKillFame,
-          ip: schema.killParticipants.averageItemPower,
-          participantCount: schema.killEvents.participantCount,
-          playerId: schema.killParticipants.playerId,
-          rawPayload: schema.killParticipants.rawPayload,
-        })
-        .from(schema.killParticipants)
-        .innerJoin(
-          schema.killEvents,
-          eq(schema.killEvents.id, schema.killParticipants.eventId)
-        )
-        .where(
-          and(
-            gte(schema.killEvents.occurredAt, cutoff),
-            eq(schema.killEvents.contentType, contentType),
-            killFamePositiveCondition(),
-            regionCondition(region),
-            inArray(schema.killParticipants.role, [
-              "killer",
-              "victim",
-              "group_member",
-              "participant",
-            ])
-          )
-        )
-        .orderBy(desc(schema.killEvents.occurredAt))
-        .limit(META_BUILD_SAMPLE_PER_TYPE)
-    ),
+    ...META_BUILD_CONTENT_TYPES.map(async (contentType) => {
+      const [kvRows, assistRows] = await Promise.all([
+        sampleMetaParticipations(
+          region,
+          cutoff,
+          contentType,
+          UNIQUE_BUILD_OWNER_ROLES,
+          META_BUILD_SAMPLE_PER_TYPE
+        ),
+        sampleMetaParticipations(
+          region,
+          cutoff,
+          contentType,
+          META_ASSIST_ROLES,
+          META_BUILD_ASSIST_SAMPLE_PER_TYPE
+        ),
+      ]);
+      return [...kvRows, ...assistRows];
+    }),
   ]);
 
   const allByContentType: MetaBuildsCachePayload["allByContentType"] = {
@@ -421,7 +414,10 @@ async function loadMetaBuilds(
     const contentType = META_BUILD_CONTENT_TYPES[i];
     const rows = sampleRowGroups[i] ?? [];
     const eventIds = [...new Set(rows.map((row) => row.eventId))];
-    const itemsByEventRole = await loadEquipmentItemsByEventIds(eventIds);
+    const itemsByEvent = await loadAttributedEquipmentItems(
+      eventIds,
+      rows.map((row) => row.participantId)
+    );
     /** One loadout per player per event (killer/victim/assist overlap). */
     const byPlayerEvent = new Map<string, MetaBuildSample>();
 
@@ -436,9 +432,10 @@ async function loadMetaBuilds(
       }
 
       const items = resolveBuildItems(
-        itemsByEventRole.get(`${row.eventId}:${row.role}`),
+        itemsByEvent.get(row.eventId),
         row.role,
-        row.rawPayload
+        row.rawPayload,
+        row.participantId
       );
       if (items.length === 0) continue;
 

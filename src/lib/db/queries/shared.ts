@@ -1,18 +1,26 @@
-import { eq, gt, gte, inArray, sql } from "drizzle-orm";
+import { and, eq, gt, gte, inArray, isNull, or, sql } from "drizzle-orm";
 import type { AlbionRegion, ContentType } from "@/lib/albion/types";
 import { ALL_REGIONS, ENABLED_REGIONS } from "@/lib/albion/types";
+import {
+  UNIQUE_BUILD_OWNER_ROLES,
+  type KillItemBuildSource,
+} from "@/lib/builds/fingerprint";
 import { db, schema } from "@/lib/db";
 
 export type { PlayerBuildItem } from "@/lib/builds/fingerprint";
 export {
+  BUILD_PARTICIPATION_ROLES,
   buildFingerprint,
   canonicalizeBuildItems,
   extractBuildItemsFromKillItems,
   extractBuildItemsFromParticipantPayload,
   getMainHandItem,
+  isPreferredBuildOwnerRole,
   isSparseBuild,
+  isUniqueBuildOwnerRole,
   preferBuildItems,
   resolveBuildItems,
+  UNIQUE_BUILD_OWNER_ROLES,
   type KillItemBuildSource,
 } from "@/lib/builds/fingerprint";
 
@@ -109,4 +117,57 @@ export async function loadPlayersWithGuildNames(playerIds: string[]) {
       },
     },
   });
+}
+
+/**
+ * Equipment for sampled participants. Uses kill_items_event_idx, then keeps
+ * rows attributed to those participants (new ingest) or killer/victim rows
+ * that predate participant_id (legacy).
+ */
+export async function loadAttributedEquipmentItems(
+  eventIds: string[],
+  participantIds: string[]
+): Promise<Map<string, KillItemBuildSource[]>> {
+  if (eventIds.length === 0) return new Map();
+
+  const attribution =
+    participantIds.length > 0
+      ? or(
+          inArray(schema.killItems.participantId, participantIds),
+          and(
+            isNull(schema.killItems.participantId),
+            inArray(schema.killItems.ownerRole, [...UNIQUE_BUILD_OWNER_ROLES])
+          )
+        )
+      : and(
+          isNull(schema.killItems.participantId),
+          inArray(schema.killItems.ownerRole, [...UNIQUE_BUILD_OWNER_ROLES])
+        );
+
+  const rows = await db
+    .select({
+      eventId: schema.killItems.eventId,
+      participantId: schema.killItems.participantId,
+      ownerRole: schema.killItems.ownerRole,
+      category: schema.killItems.category,
+      slot: schema.killItems.slot,
+      itemType: schema.killItems.itemType,
+      quality: schema.killItems.quality,
+    })
+    .from(schema.killItems)
+    .where(
+      and(
+        inArray(schema.killItems.eventId, eventIds),
+        eq(schema.killItems.category, "equipment"),
+        attribution
+      )
+    );
+
+  const byEvent = new Map<string, KillItemBuildSource[]>();
+  for (const row of rows) {
+    const list = byEvent.get(row.eventId) ?? [];
+    list.push(row);
+    byEvent.set(row.eventId, list);
+  }
+  return byEvent;
 }

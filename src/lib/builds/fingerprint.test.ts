@@ -7,7 +7,9 @@ import {
   extractBuildItemsFromKillItems,
   extractBuildItemsFromParticipantPayload,
   getMainHandItem,
+  isPreferredBuildOwnerRole,
   isSparseBuild,
+  isUniqueBuildOwnerRole,
   preferBuildItems,
   resolveBuildItems,
 } from "./fingerprint";
@@ -164,6 +166,30 @@ describe("extractBuildItemsFromKillItems", () => {
     expect(buildFingerprint(fromItems)).toBe(buildFingerprint(fromPayload));
     expect(fromItems).toEqual(fromPayload);
   });
+
+  it("returns empty when a slot is duplicated for the same role", () => {
+    expect(
+      extractBuildItemsFromKillItems(
+        [
+          {
+            ownerRole: "participant",
+            category: "equipment",
+            slot: "MainHand",
+            itemType: "T8_MAIN_SWORD",
+            quality: 4,
+          },
+          {
+            ownerRole: "participant",
+            category: "equipment",
+            slot: "MainHand",
+            itemType: "T8_2H_BOW",
+            quality: 3,
+          },
+        ],
+        "participant"
+      )
+    ).toEqual([]);
+  });
 });
 
 describe("resolveBuildItems", () => {
@@ -198,5 +224,127 @@ describe("resolveBuildItems", () => {
         },
       })
     ).toEqual([{ slot: "MainHand", itemType: "T8_MAIN_SWORD", quality: 2 }]);
+  });
+
+  it("does not use shared participant kill_items (mixed players)", () => {
+    const items = resolveBuildItems(
+      [
+        {
+          ownerRole: "participant",
+          category: "equipment",
+          slot: "MainHand",
+          itemType: "T8_2H_BOW",
+          quality: 4,
+        },
+        {
+          ownerRole: "participant",
+          category: "equipment",
+          slot: "Armor",
+          itemType: "T8_ARMOR_PLATE_SET1",
+          quality: 3,
+        },
+      ],
+      "participant",
+      {
+        Equipment: {
+          MainHand: { Type: "T8_MAIN_SWORD", Quality: 2, Count: 1 },
+        },
+      }
+    );
+    expect(items).toEqual([
+      { slot: "MainHand", itemType: "T8_MAIN_SWORD", quality: 2 },
+    ]);
+  });
+
+  it("skips shared-role kill_items when the participant payload is gone", () => {
+    expect(
+      resolveBuildItems(
+        [
+          {
+            ownerRole: "group_member",
+            category: "equipment",
+            slot: "MainHand",
+            itemType: "T8_2H_BOW",
+            quality: 1,
+          },
+        ],
+        "group_member",
+        null
+      )
+    ).toEqual([]);
+  });
+
+  it("attributes assist gear by participant_id among mixed event items", () => {
+    const items = resolveBuildItems(
+      [
+        {
+          ownerRole: "participant",
+          category: "equipment",
+          slot: "MainHand",
+          itemType: "T8_2H_HOLYSTAFF",
+          quality: 4,
+          participantId: "assist-1",
+        },
+        {
+          ownerRole: "participant",
+          category: "equipment",
+          slot: "Armor",
+          itemType: "T8_ARMOR_CLOTH_SET1",
+          quality: 3,
+          participantId: "assist-1",
+        },
+        {
+          ownerRole: "participant",
+          category: "equipment",
+          slot: "MainHand",
+          itemType: "T8_2H_BOW",
+          quality: 2,
+          participantId: "assist-2",
+        },
+      ],
+      "participant",
+      null,
+      "assist-1"
+    );
+    expect(items).toEqual([
+      { slot: "MainHand", itemType: "T8_2H_HOLYSTAFF", quality: 4 },
+      { slot: "Armor", itemType: "T8_ARMOR_CLOTH_SET1", quality: 3 },
+    ]);
+  });
+
+  it("still uses killer/victim kill_items when participant_id is unset", () => {
+    expect(
+      resolveBuildItems(
+        [
+          {
+            ownerRole: "killer",
+            category: "equipment",
+            slot: "MainHand",
+            itemType: "T8_MAIN_SWORD",
+            quality: 4,
+            participantId: null,
+          },
+        ],
+        "killer",
+        null,
+        "legacy-participant-row"
+      )
+    ).toEqual([{ slot: "MainHand", itemType: "T8_MAIN_SWORD", quality: 4 }]);
+  });
+});
+
+describe("build owner role helpers", () => {
+  it("treats killer and victim as uniquely attributable", () => {
+    expect(isUniqueBuildOwnerRole("killer")).toBe(true);
+    expect(isUniqueBuildOwnerRole("victim")).toBe(true);
+    expect(isUniqueBuildOwnerRole("participant")).toBe(false);
+    expect(isUniqueBuildOwnerRole("group_member")).toBe(false);
+  });
+
+  it("prefers killer over victim over assist roles", () => {
+    expect(isPreferredBuildOwnerRole("participant", "killer")).toBe(true);
+    expect(isPreferredBuildOwnerRole("killer", "participant")).toBe(false);
+    expect(isPreferredBuildOwnerRole("victim", "killer")).toBe(true);
+    expect(isPreferredBuildOwnerRole("killer", "victim")).toBe(false);
   });
 });

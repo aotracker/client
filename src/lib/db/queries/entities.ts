@@ -29,16 +29,17 @@ import {
 import {
   type PlayerBuildItem,
   type PlayerContentMixEntry,
+  BUILD_PARTICIPATION_ROLES,
   buildFingerprint,
   canonicalizeBuildItems,
-  extractBuildItemsFromParticipantPayload,
   getMainHandItem,
+  isPreferredBuildOwnerRole,
   isSparseBuild,
   killFamePositiveCondition,
+  loadAttributedEquipmentItems,
   loadPlayersWithGuildNames,
   preferBuildItems,
   resolveBuildItems,
-  type KillItemBuildSource,
 } from "./shared";
 
 export interface PlayerActivityDay {
@@ -101,8 +102,10 @@ function getLast30DaysCutoff() {
   return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 }
 
-/** Cap gear-sample rows so active ZvZ players cannot load unbounded JSONB. */
+/** Unique events after collapsing killer/victim/assist rows for the same kill. */
 const PLAYER_ANALYTICS_BUILD_SAMPLE_LIMIT = 500;
+/** Extra rows so duplicate roles per event still fill the unique-event cap. */
+const PLAYER_ANALYTICS_BUILD_ROW_LIMIT = 1500;
 
 function toDateKey(value: Date | string): string {
   const d = typeof value === "string" ? new Date(value) : value;
@@ -496,6 +499,7 @@ export async function getPlayerAnalytics(
     db
       .select({
         eventId: schema.killEvents.id,
+        participantId: schema.killParticipants.id,
         role: schema.killParticipants.role,
         rawPayload: schema.killParticipants.rawPayload,
       })
@@ -507,41 +511,46 @@ export async function getPlayerAnalytics(
       .where(
         and(
           eq(schema.killParticipants.playerId, playerId),
+          inArray(schema.killParticipants.role, [...BUILD_PARTICIPATION_ROLES]),
           gte(schema.killEvents.occurredAt, cutoff)
         )
       )
       .orderBy(desc(schema.killEvents.occurredAt))
-      .limit(PLAYER_ANALYTICS_BUILD_SAMPLE_LIMIT),
+      .limit(PLAYER_ANALYTICS_BUILD_ROW_LIMIT),
   ]);
 
-  const buildEventIds = [
-    ...new Set(buildParticipationRows.map((row) => row.eventId)),
-  ];
-  const buildEquipmentRows =
-    buildEventIds.length > 0
-      ? await db
-          .select({
-            eventId: schema.killItems.eventId,
-            ownerRole: schema.killItems.ownerRole,
-            category: schema.killItems.category,
-            slot: schema.killItems.slot,
-            itemType: schema.killItems.itemType,
-            quality: schema.killItems.quality,
-          })
-          .from(schema.killItems)
-          .where(
-            and(
-              inArray(schema.killItems.eventId, buildEventIds),
-              eq(schema.killItems.category, "equipment")
-            )
-          )
-      : [];
-  const buildItemsByEventRole = new Map<string, KillItemBuildSource[]>();
-  for (const item of buildEquipmentRows) {
-    const key = `${item.eventId}:${item.ownerRole}`;
-    const list = buildItemsByEventRole.get(key) ?? [];
-    list.push(item);
-    buildItemsByEventRole.set(key, list);
+  const preferredByEvent = new Map<string, (typeof buildParticipationRows)[0]>();
+  for (const row of buildParticipationRows) {
+    const existing = preferredByEvent.get(row.eventId);
+    if (!existing || isPreferredBuildOwnerRole(existing.role, row.role)) {
+      preferredByEvent.set(row.eventId, row);
+    }
+  }
+
+  const preferredRows: (typeof buildParticipationRows)[0][] = [];
+  const seenEvents = new Set<string>();
+  for (const row of buildParticipationRows) {
+    if (seenEvents.has(row.eventId)) continue;
+    seenEvents.add(row.eventId);
+    preferredRows.push(preferredByEvent.get(row.eventId) ?? row);
+    if (preferredRows.length >= PLAYER_ANALYTICS_BUILD_SAMPLE_LIMIT) break;
+  }
+
+  const buildItemsByEvent = await loadAttributedEquipmentItems(
+    preferredRows.map((row) => row.eventId),
+    preferredRows.map((row) => row.participantId)
+  );
+
+  const buildSamples: PlayerBuildItem[][] = [];
+  for (const preferred of preferredRows) {
+    const ordered = resolveBuildItems(
+      buildItemsByEvent.get(preferred.eventId),
+      preferred.role,
+      preferred.rawPayload,
+      preferred.participantId
+    );
+    if (ordered.length === 0) continue;
+    buildSamples.push(ordered);
   }
 
   const activity: PlayerActivityDay[] = activityRows
@@ -565,22 +574,6 @@ export async function getPlayerAnalytics(
     const existing = fameByDayMap.get(day) ?? { day, earned: 0, lost: 0 };
     existing.lost = Number(row.fame ?? 0);
     fameByDayMap.set(day, existing);
-  }
-
-  const buildSamples: PlayerBuildItem[][] = [];
-  const seenEvents = new Set<string>();
-  for (const row of buildParticipationRows) {
-    // One build sample per event (matches distinct-event activity counting)
-    if (seenEvents.has(row.eventId)) continue;
-    seenEvents.add(row.eventId);
-
-    const ordered = resolveBuildItems(
-      buildItemsByEventRole.get(`${row.eventId}:${row.role}`),
-      row.role,
-      row.rawPayload
-    );
-    if (ordered.length === 0) continue;
-    buildSamples.push(ordered);
   }
 
   const topBuilds = aggregateTopBuilds(buildSamples);
