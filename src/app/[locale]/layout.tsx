@@ -11,6 +11,8 @@ import { StatusBanner } from "@/components/StatusBanner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider } from "@/components/Toast";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
+import { getSession } from "@/lib/auth";
+import { toPublicAuthUser } from "@/lib/auth-user";
 import { getServerPreferredRegion } from "@/lib/region-preference-server";
 import { SITE_NAME } from "@/lib/site";
 import { getSiteUrl } from "@/lib/seo";
@@ -66,8 +68,12 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
 
-  const messages = await getMessages();
-  const preferredRegion = await getServerPreferredRegion();
+  const [messages, preferredRegion, session] = await Promise.all([
+    getMessages(),
+    getServerPreferredRegion(),
+    getSession().catch(() => null),
+  ]);
+  const initialUser = toPublicAuthUser(session?.user);
 
   return (
     <>
@@ -75,7 +81,11 @@ export default async function LocaleLayout({
         <ThemeProvider>
           <ToastProvider>
             <RegionPreferenceSync />
-            <Navbar regions={ENABLED_REGIONS} preferredRegion={preferredRegion} />
+            <Navbar
+              regions={ENABLED_REGIONS}
+              preferredRegion={preferredRegion}
+              initialUser={initialUser}
+            />
             <StatusBanner />
             <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
               {children}
