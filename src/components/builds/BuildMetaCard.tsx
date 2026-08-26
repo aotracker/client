@@ -162,7 +162,7 @@ export function BuildMetaCard({
                   key={slot}
                   content={t("emptySlot", { slot: slotLabel(slot) })}
                   block
-                  className="flex size-[68px] items-center justify-center rounded-md border border-dashed border-border/60 bg-muted/10 text-[10px] leading-tight text-muted-foreground"
+                  className="flex size-16 items-center justify-center rounded-md border border-dashed border-border/60 bg-muted/10 text-xs leading-tight text-muted-foreground"
                 >
                   <span aria-label={t("emptySlot", { slot: slotLabel(slot) })}>
                     {slotLabel(slot)}
@@ -203,7 +203,7 @@ export function BuildMetaCard({
             >
               <Tooltip content={stat.title} side="bottom" block className="w-full text-center">
                 <div>
-                  <dt className="text-[10px] leading-tight text-muted-foreground sm:text-xs">
+                  <dt className="text-xs leading-tight text-muted-foreground sm:text-xs">
                     {stat.label}
                   </dt>
                   <dd
@@ -221,7 +221,7 @@ export function BuildMetaCard({
         </dl>
 
         {build.avgFame > 0 ? (
-          <p className="text-[11px] tabular-nums text-muted-foreground">
+          <p className="text-xs tabular-nums text-muted-foreground">
             {t("stats.avgFame")}: {formatFame(build.avgFame)}
           </p>
         ) : null}

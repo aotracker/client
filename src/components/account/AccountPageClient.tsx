@@ -20,6 +20,7 @@ import {
 } from "@/components/auth/LoginButtons";
 import { RelativeTime } from "@/components/RelativeTime";
 import { useToast } from "@/components/Toast";
+import { Button, buttonClassName } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -27,6 +28,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Input } from "@/components/ui/input";
 import {
   isDiscordLoginVisible,
   isGoogleLoginVisible,
@@ -88,8 +90,6 @@ type Busy =
   | `unlink-${SocialAuthProvider}`
   | `revoke-${string}`
   | null;
-
-const ACCOUNT_CARD = "border-border/80 bg-card/80";
 
 function discordAccountId(accounts: LinkedAccount[]): string | null {
   const row = accounts.find((account) => account.providerId === "discord");
@@ -411,7 +411,7 @@ export function AccountPageClient() {
         </p>
       ) : null}
 
-      <Card className={`${ACCOUNT_CARD} relative z-20`}>
+      <Card className="relative z-20">
         <CardHeader>
           <CardTitle className="font-display text-base text-foreground/90">
             {t("identity")}
@@ -448,7 +448,7 @@ export function AccountPageClient() {
         </CardContent>
       </Card>
 
-      <Card className={ACCOUNT_CARD}>
+      <Card>
         <CardHeader>
           <CardTitle className="font-display text-base text-foreground/90">
             {t("providersTitle")}
@@ -466,7 +466,7 @@ export function AccountPageClient() {
                 label={
                   <span className="inline-flex items-center gap-2">
                     {provider === "discord" ? (
-                      <DiscordIcon className="h-4 w-4 text-[#5865F2]" />
+                      <DiscordIcon className="h-4 w-4 text-discord" />
                     ) : (
                       <GoogleIcon className="h-4 w-4" />
                     )}
@@ -487,19 +487,22 @@ export function AccountPageClient() {
                         {t("linked")}
                       </span>
                       {provider === "discord" && discordId ? (
-                        <button
+                        <Button
                           type="button"
-                          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                          variant="ghost"
+                          size="sm"
                           onClick={() => void copyDiscordId(discordId)}
                         >
                           <Copy className="h-3 w-3" aria-hidden />
                           {t("copyId")}
-                        </button>
+                        </Button>
                       ) : null}
                       {canUnlink ? (
-                        <button
+                        <Button
                           type="button"
-                          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-danger-foreground disabled:opacity-60"
+                          variant="ghost"
+                          size="sm"
+                          className="hover:text-danger-foreground"
                           disabled={busy !== null}
                           onClick={() => void unlinkProvider(provider)}
                         >
@@ -509,13 +512,14 @@ export function AccountPageClient() {
                             : provider === "discord"
                               ? t("unlinkDiscord")
                               : t("unlinkGoogle")}
-                        </button>
+                        </Button>
                       ) : null}
                     </>
                   ) : canLink ? (
-                    <button
+                    <Button
                       type="button"
-                      className="inline-flex h-8 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground/90 transition-colors hover:bg-accent disabled:opacity-60"
+                      variant="outline"
+                      size="sm"
                       disabled={linkPending !== null || busy !== null}
                       onClick={() => void linkProvider(provider)}
                     >
@@ -524,7 +528,7 @@ export function AccountPageClient() {
                         : provider === "discord"
                           ? t("linkDiscord")
                           : t("linkGoogle")}
-                    </button>
+                    </Button>
                   ) : (
                     <span className="text-xs text-muted-foreground">
                       {t("notLinked")}
@@ -540,7 +544,7 @@ export function AccountPageClient() {
         </CardContent>
       </Card>
 
-      <Card className={`${ACCOUNT_CARD} relative z-10`}>
+      <Card className="relative z-10">
         <CardHeader>
           <CardTitle className="font-display text-base text-foreground/90">
             {t("preferencesTitle")}
@@ -565,7 +569,7 @@ export function AccountPageClient() {
           >
             <Link
               href="/watchlist"
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground/90 transition-colors hover:bg-accent"
+              className={buttonClassName({ variant: "outline", size: "sm" })}
             >
               <Star className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
               {t("watchlistLink")}
@@ -577,29 +581,31 @@ export function AccountPageClient() {
             </span>
           </AccountSettingsRow>
           <div className="flex flex-wrap gap-2 border-t border-border/60 pt-3">
-            <button
+            <Button
               type="button"
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground/90 transition-colors hover:bg-accent disabled:opacity-60"
+              variant="outline"
+              size="sm"
               disabled={busy !== null}
               onClick={() => void exportData()}
             >
               <Download className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
               {busy === "export" ? t("exporting") : t("exportData")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
+              variant="outline"
+              size="sm"
               disabled={busy !== null}
               onClick={() => void clearSynced()}
             >
               <CloudOff className="h-3.5 w-3.5" aria-hidden />
               {busy === "clear" ? t("clearing") : t("clearSynced")}
-            </button>
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Card className={ACCOUNT_CARD}>
+      <Card>
         <CardHeader>
           <CardTitle className="font-display text-base text-foreground/90">
             {t("sessionsTitle")}
@@ -617,8 +623,9 @@ export function AccountPageClient() {
               return (
                 <li
                   key={row.id}
-                  className="flex flex-col gap-2 rounded-lg border border-border/60 bg-muted/15 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
                 >
+                  <Card variant="muted" className="flex w-full flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0 space-y-0.5">
                     <p
                       className="truncate text-sm font-medium text-foreground/90"
@@ -638,17 +645,20 @@ export function AccountPageClient() {
                       {t("sessionCurrent")}
                     </span>
                   ) : (
-                    <button
+                    <Button
                       type="button"
-                      className="inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
                       disabled={busy !== null}
                       onClick={() => void revokeSession(row.id)}
                     >
                       {busy === `revoke-${row.id}`
                         ? t("sessionRevoking")
                         : t("sessionRevoke")}
-                    </button>
+                    </Button>
                   )}
+                  </Card>
                 </li>
               );
             })}
@@ -656,21 +666,22 @@ export function AccountPageClient() {
           {otherSessions.length === 0 ? (
             <p className="text-xs text-muted-foreground">{t("sessionNone")}</p>
           ) : (
-            <button
+            <Button
               type="button"
-              className="inline-flex h-8 items-center justify-center rounded-md border border-border bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
+              variant="outline"
+              size="sm"
               disabled={busy !== null}
               onClick={() => void revokeOtherSessions()}
             >
               {busy === "revoke-others"
                 ? t("sessionRevoking")
                 : t("sessionRevokeOthers")}
-            </button>
+            </Button>
           )}
         </CardContent>
       </Card>
 
-      <Card className="border-danger-border/40 bg-card/80">
+      <Card className="border-danger-border/40">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display text-base text-danger-foreground">
             <ShieldAlert className="h-4 w-4" aria-hidden />
@@ -681,25 +692,24 @@ export function AccountPageClient() {
         <CardContent>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <label className="block min-w-0 flex-1 space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("deleteConfirm")}
-              </span>
-              <input
+              <span className="text-label">{t("deleteConfirm")}</span>
+              <Input
                 value={deleteConfirm}
                 onChange={(e) => setDeleteConfirm(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-danger-border/40 bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-danger-border focus-visible:ring-2 focus-visible:ring-danger/30"
+                className="border-danger-border/40 focus-visible:ring-danger"
                 autoComplete="off"
               />
             </label>
-            <button
+            <Button
               type="button"
-              className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-danger px-4 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+              size="sm"
+              className="shrink-0 bg-danger text-danger-foreground hover:bg-danger/90"
               disabled={busy !== null || deleteConfirm !== "DELETE"}
               onClick={() => void deleteAccount()}
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden />
               {busy === "delete" ? t("deleting") : t("deleteAccount")}
-            </button>
+            </Button>
           </div>
         </CardContent>
       </Card>

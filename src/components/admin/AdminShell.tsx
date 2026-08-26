@@ -22,7 +22,7 @@ function AdminTopBar({ showNav = true }: { showNav?: boolean }) {
                 Admin
               </span>
             </p>
-            <p className="truncate text-[11px] text-muted-foreground">
+            <p className="truncate text-xs text-muted-foreground">
               Operator console
             </p>
           </div>
@@ -71,7 +71,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 py-6 sm:px-6 lg:px-8">
         <aside className="hidden w-52 shrink-0 lg:block">
           <div className="sticky top-20 space-y-3">
-            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-label px-3">
               Navigate
             </p>
             <AdminNav />

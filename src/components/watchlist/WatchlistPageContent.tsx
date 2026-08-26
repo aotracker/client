@@ -1,16 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Inbox, Star, Trash2 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { InlineAlert } from "@/components/InlineAlert";
 import { KillCard } from "@/components/KillCard";
+import { KillFeedFilters } from "@/components/KillFeedFilters";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { KillCardSkeleton } from "@/components/ui/skeleton";
 import type { KillCardEvent } from "@/lib/albion/player-history";
+import { parseJuicyFlag } from "@/lib/kills-feed-params";
 import { entityHref, type WatchlistEntry } from "@/lib/watchlist";
 import { regionLabel } from "@/lib/utils";
 import { useWatchlist } from "./useWatchlist";
@@ -19,6 +22,8 @@ export function WatchlistPageContent() {
   const t = useTranslations("Watchlist");
   const tCommon = useTranslations("Common");
   const { entries, ready, remove } = useWatchlist();
+  const searchParams = useSearchParams();
+  const juicy = parseJuicyFlag(searchParams.get("juicy") ?? undefined);
   const [activity, setActivity] = useState<KillCardEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +52,7 @@ export function WatchlistPageContent() {
           alliances: list
             .filter((e) => e.type === "alliance")
             .map((e) => ({ region: e.region, albionId: e.albionId })),
+          juicy,
         }),
       });
       if (!res.ok) throw new Error(t("failedActivity"));
@@ -58,7 +64,7 @@ export function WatchlistPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [juicy, t]);
 
   useEffect(() => {
     if (!ready) return;
@@ -136,7 +142,14 @@ export function WatchlistPageContent() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold">{t("recentActivity")}</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">{t("recentActivity")}</h2>
+          <KillFeedFilters
+            show="none"
+            showJuicy
+            pathname="/watchlist"
+          />
+        </div>
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -149,7 +162,7 @@ export function WatchlistPageContent() {
           <Card>
             <CardContent className="py-6">
               <EmptyState icon={Inbox} bordered={false} className="p-0">
-                {t("noActivity")}
+                {t(juicy ? "noJuicyActivity" : "noActivity")}
               </EmptyState>
             </CardContent>
           </Card>

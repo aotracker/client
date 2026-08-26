@@ -260,7 +260,7 @@ export async function RecentKillsSection({
           </Link>
         }
       >
-        <EmptyState icon={Swords} title={t("emptyRecentTitle")} className="p-8">
+        <EmptyState icon={Swords} title={t("emptyRecentTitle")}>
           {t.rich("emptyRecentBody", {
             searchLink: (chunks) => (
               <Link

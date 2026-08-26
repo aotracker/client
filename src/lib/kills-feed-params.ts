@@ -4,6 +4,8 @@ import type { WatchlistEntry } from "@/lib/watchlist";
 
 export const KILLS_FEED_PAGE_SIZE = 25;
 export const MIN_FAME_OPTIONS = [0, 10_000, 25_000, 50_000, 100_000] as const;
+/** Victim inventory estimated silver that counts as a juicy kill. */
+export const JUICY_MIN_SILVER = 20_000_000;
 
 export type WatchlistFeedRef = {
   region: AlbionRegion;
@@ -19,6 +21,10 @@ export function parseMinFame(value: string | undefined): number {
 
 export function parseWatchlistFlag(value: string | undefined): boolean {
   return value === "1" || value === "true";
+}
+
+export function parseJuicyFlag(value: string | boolean | undefined): boolean {
+  return value === true || value === "1" || value === "true";
 }
 
 export function parseWatchlistRefs(

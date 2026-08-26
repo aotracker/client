@@ -6,6 +6,7 @@ import {
   type KillItemBuildSource,
 } from "@/lib/builds/fingerprint";
 import { db, schema } from "@/lib/db";
+import { JUICY_MIN_SILVER } from "@/lib/kills-feed-params";
 
 export type { PlayerBuildItem } from "@/lib/builds/fingerprint";
 export {
@@ -30,6 +31,11 @@ export {
  */
 export function killFamePositiveCondition() {
   return gt(schema.killEvents.totalVictimKillFame, 0);
+}
+
+/** Victim inventory estimated silver ≥ 20m. */
+export function juicyLootCondition() {
+  return gte(schema.killEvents.lootEstSilver, JUICY_MIN_SILVER);
 }
 
 export type ContentTypeFilter = "ZVZ" | "SOLO" | "GROUP" | "all";

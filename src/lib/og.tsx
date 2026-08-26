@@ -521,10 +521,14 @@ export function createBattleOgImage(options: {
   subtitle: string;
   mode: "alliances" | "guilds";
   rows: BattleOgTableRow[];
+  highlightName?: string | null;
+  badge?: string;
 }): ImageResponse {
   const rows = options.rows.slice(0, 4);
   const isGuilds = options.mode === "guilds";
   const tableTitle = isGuilds ? "Guilds" : "Alliances";
+  const badge = options.badge ?? "Albion Battle";
+  const highlight = options.highlightName?.trim().toLowerCase() ?? "";
 
   const headerCell = (label: string, color: string, flex = 1) => (
     <div
@@ -595,7 +599,7 @@ export function createBattleOgImage(options: {
               padding: "8px 18px",
             }}
           >
-            Albion Battle
+            {badge}
           </div>
         </div>
 
@@ -674,7 +678,10 @@ export function createBattleOgImage(options: {
             {headerCell("Fame", COLORS.fame, 0.85)}
           </div>
 
-          {rows.map((row) => (
+          {rows.map((row) => {
+            const isHighlight =
+              Boolean(highlight) && row.name.trim().toLowerCase() === highlight;
+            return (
             <div
               key={`${row.name}-${row.alliance ?? ""}`}
               style={{
@@ -683,6 +690,8 @@ export function createBattleOgImage(options: {
                 gap: 12,
                 borderTop: `1px solid ${COLORS.border}`,
                 paddingTop: 12,
+                background: isHighlight ? "rgba(245, 193, 74, 0.12)" : undefined,
+                borderRadius: isHighlight ? 8 : 0,
               }}
             >
               <div
@@ -691,7 +700,7 @@ export function createBattleOgImage(options: {
                   flex: isGuilds ? 1.35 : 1.6,
                   fontSize: 24,
                   fontWeight: 600,
-                  color: COLORS.text,
+                  color: isHighlight ? COLORS.fame : COLORS.text,
                 }}
               >
                 {truncateLabel(row.name, isGuilds ? 16 : 20)}
@@ -714,7 +723,8 @@ export function createBattleOgImage(options: {
               {valueCell(row.averageIp, COLORS.ip, 0.75)}
               {valueCell(row.fame, COLORS.fame, 0.85)}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     ),

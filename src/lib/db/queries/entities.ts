@@ -36,6 +36,7 @@ import {
   isPreferredBuildOwnerRole,
   isSparseBuild,
   killFamePositiveCondition,
+  juicyLootCondition,
   loadAttributedEquipmentItems,
   loadPlayersWithGuildNames,
   preferBuildItems,
@@ -1104,12 +1105,17 @@ export async function getWatchlistActivity(
     guilds: { region: AlbionRegion; albionId: string }[];
     alliances?: { region: AlbionRegion; albionId: string }[];
   },
-  limit = 10
+  limit = 10,
+  options?: { juicy?: boolean }
 ) {
   const resolved = await resolveWatchlistKillFeed(entries);
   const playerUuids = resolved.playerIds;
   const guildNamesLower = resolved.guildNamesLower;
   const alliances = resolved.alliances;
+  const juicy = options?.juicy === true;
+  const eventConditions = juicy
+    ? and(killFamePositiveCondition(), juicyLootCondition())
+    : killFamePositiveCondition();
 
   if (
     playerUuids.length === 0 &&
@@ -1124,7 +1130,7 @@ export async function getWatchlistActivity(
   if (playerUuids.length > 0) {
     const playerEvents = await db.query.killEvents.findMany({
       where: and(
-        killFamePositiveCondition(),
+        eventConditions,
         or(
           inArray(schema.killEvents.killerId, playerUuids),
           inArray(schema.killEvents.victimId, playerUuids)
@@ -1158,7 +1164,7 @@ export async function getWatchlistActivity(
             sql`lower(trim(${killerPart.guildName})) = ${nameLower}`
           )
         )
-        .where(killFamePositiveCondition())
+        .where(eventConditions)
         .orderBy(desc(schema.killEvents.occurredAt))
         .limit(limit);
 
@@ -1180,7 +1186,7 @@ export async function getWatchlistActivity(
             sql`lower(trim(${victimPart.guildName})) = ${nameLower}`
           )
         )
-        .where(killFamePositiveCondition())
+        .where(eventConditions)
         .orderBy(desc(schema.killEvents.occurredAt))
         .limit(limit);
 
@@ -1201,7 +1207,7 @@ export async function getWatchlistActivity(
         .where(
           and(
             eq(schema.killEvents.region, alliance.region),
-            killFamePositiveCondition(),
+            eventConditions,
             or(
               eq(
                 schema.killEvents.killerAllianceAlbionId,

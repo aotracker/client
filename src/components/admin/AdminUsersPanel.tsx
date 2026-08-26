@@ -12,7 +12,9 @@ import {
 import { DiscordIcon, GoogleIcon } from "@/components/auth/LoginButtons";
 import { PageHeader } from "@/components/PageSection";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input, Select } from "@/components/ui/input";
 import {
   displayableAccountEmail,
   isSyntheticDiscordEmail,
@@ -108,17 +110,17 @@ function StatChip({
   value: string | number;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-md border border-border/80 bg-muted/20 px-3 py-2">
+    <Card variant="muted" className="flex items-center gap-2 px-3 py-2">
       <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
       <div className="min-w-0 leading-tight">
-        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">
           {label}
         </p>
         <p className="text-sm font-medium tabular-nums text-foreground">
           {value}
         </p>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -136,9 +138,9 @@ function ProviderPill({
   return (
     <span
       className={cn(
-        "inline-flex max-w-full items-center gap-1.5 rounded-md border px-2 py-1 text-[11px]",
+        "inline-flex max-w-full items-center gap-1.5 rounded-md border px-2 py-1 text-xs",
         isDiscord
-          ? "border-[#5865F2]/30 bg-[#5865F2]/10"
+          ? "border-discord/30 bg-discord/10"
           : isGoogle
             ? "border-stat-ip/30 bg-stat-ip/10"
             : "border-border bg-muted/30"
@@ -146,7 +148,7 @@ function ProviderPill({
       title={`${label}: ${accountId}`}
     >
       {isDiscord ? (
-        <DiscordIcon className="h-3 w-3 shrink-0 text-[#5865F2]" />
+        <DiscordIcon className="h-3 w-3 shrink-0 text-discord" />
       ) : null}
       {isGoogle ? <GoogleIcon className="h-3 w-3 shrink-0" /> : null}
       <span className="font-medium text-foreground">{label}</span>
@@ -287,16 +289,16 @@ export function AdminUsersPanel() {
               className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
               aria-hidden
             />
-            <input
+            <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search name, Google email, user id, region, Discord id, or Google sub"
-              className="flex h-9 w-full rounded-md border border-border bg-background py-1 pl-9 pr-3 text-sm"
+              className="pl-9"
             />
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {error ? <p className="text-sm text-danger-foreground">{error}</p> : null}
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : users.length === 0 ? (
@@ -317,10 +319,8 @@ export function AdminUsersPanel() {
                 const emailLine = accountEmailLine(user);
 
                 return (
-                  <li
-                    key={user.id}
-                    className="rounded-lg border border-border bg-card/60 p-4"
-                  >
+                  <li key={user.id}>
+                    <Card variant="muted" className="p-4">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="min-w-0 flex-1 space-y-3">
                         <div className="flex items-start gap-3">
@@ -365,7 +365,7 @@ export function AdminUsersPanel() {
                               {emailLine.text}
                             </p>
                             <p
-                              className="truncate font-mono text-[10px] text-muted-foreground"
+                              className="truncate font-mono text-xs text-muted-foreground"
                               title={user.id}
                             >
                               {user.id}
@@ -375,7 +375,7 @@ export function AdminUsersPanel() {
 
                         <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
                           <div className="rounded-md border border-border/70 bg-muted/15 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">
                               Joined
                             </p>
                             <p
@@ -386,7 +386,7 @@ export function AdminUsersPanel() {
                             </p>
                           </div>
                           <div className="rounded-md border border-border/70 bg-muted/15 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">
                               Last active
                             </p>
                             <p
@@ -406,7 +406,7 @@ export function AdminUsersPanel() {
                             </p>
                           </div>
                           <div className="rounded-md border border-border/70 bg-muted/15 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">
                               Preferred region
                             </p>
                             <p className="text-xs font-medium text-foreground">
@@ -414,7 +414,7 @@ export function AdminUsersPanel() {
                             </p>
                           </div>
                           <div className="rounded-md border border-border/70 bg-muted/15 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">
                               Synced data
                             </p>
                             <p className="inline-flex items-center gap-2 text-xs font-medium text-foreground">
@@ -458,18 +458,18 @@ export function AdminUsersPanel() {
                             />
                           ))}
                           {user.providers.length === 0 ? (
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               No linked providers
                             </span>
                           ) : null}
                         </div>
 
                         <div className="space-y-2 rounded-md border border-border/70 bg-muted/10 px-2.5 py-2">
-                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
                             Claimed characters
                           </p>
                           {(user.claims ?? []).length === 0 ? (
-                            <p className="text-[11px] text-muted-foreground">
+                            <p className="text-xs text-muted-foreground">
                               None
                             </p>
                           ) : (
@@ -485,9 +485,10 @@ export function AdminUsersPanel() {
                                       ({regionLabel(claim.region)})
                                     </span>
                                   </span>
-                                  <button
+                                  <Button
                                     type="button"
-                                    className="text-[11px] font-medium text-muted-foreground hover:text-foreground disabled:opacity-60"
+                                    variant="ghost"
+                                    size="sm"
                                     disabled={busyId === user.id}
                                     onClick={() =>
                                       void mutateClaim(user.id, {
@@ -497,14 +498,15 @@ export function AdminUsersPanel() {
                                     }
                                   >
                                     Force unclaim
-                                  </button>
+                                  </Button>
                                 </li>
                               ))}
                             </ul>
                           )}
                           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-                            <select
-                              className="h-8 rounded-md border border-border bg-background px-2 text-[11px]"
+                            <Select
+                              size="sm"
+                              className="w-auto"
                               value={
                                 reassign[user.id]?.region ??
                                 user.preferredRegion ??
@@ -523,9 +525,10 @@ export function AdminUsersPanel() {
                               <option value="americas">Americas</option>
                               <option value="europe">Europe</option>
                               <option value="asia">Asia</option>
-                            </select>
-                            <input
-                              className="h-8 min-w-0 flex-1 rounded-md border border-border bg-background px-2 text-[11px]"
+                            </Select>
+                            <Input
+                              size="sm"
+                              className="min-w-0 flex-1"
                               placeholder="Player name or Albion id"
                               value={reassign[user.id]?.query ?? ""}
                               onChange={(event) =>
@@ -541,9 +544,11 @@ export function AdminUsersPanel() {
                                 }))
                               }
                             />
-                            <button
+                            <Button
                               type="button"
-                              className="inline-flex h-8 shrink-0 items-center rounded-md border border-border px-2 text-[11px] font-medium disabled:opacity-60"
+                              variant="outline"
+                              size="sm"
+                              className="shrink-0"
                               disabled={
                                 busyId === user.id ||
                                 !(reassign[user.id]?.query ?? "").trim()
@@ -564,19 +569,16 @@ export function AdminUsersPanel() {
                               }}
                             >
                               Reassign
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
 
-                      <button
+                      <Button
                         type="button"
-                        className={cn(
-                          "inline-flex h-9 shrink-0 items-center justify-center rounded-md px-3 text-xs font-medium disabled:opacity-60",
-                          user.isAdmin
-                            ? "border border-border bg-background hover:bg-accent"
-                            : "bg-primary text-primary-foreground hover:opacity-90"
-                        )}
+                        variant={user.isAdmin ? "outline" : "default"}
+                        size="sm"
+                        className="shrink-0"
                         disabled={busyId === user.id}
                         onClick={() => void setAdmin(user.id, !user.isAdmin)}
                       >
@@ -585,8 +587,9 @@ export function AdminUsersPanel() {
                           : user.isAdmin
                             ? "Demote admin"
                             : "Promote to admin"}
-                      </button>
+                      </Button>
                     </div>
+                    </Card>
                   </li>
                 );
               })}

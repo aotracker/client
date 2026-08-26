@@ -39,7 +39,7 @@ export async function GuildActivitySection({
       actions={
         peakPrime ? (
           <div className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 sm:text-right">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary">
               {t("peakPrimeTime")}
             </p>
             <p className="font-display text-xl font-semibold tabular-nums leading-tight">

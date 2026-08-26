@@ -3,6 +3,7 @@ import { getKillFeed, resolveWatchlistKillFeed } from "@/lib/db/queries";
 import { isRegionEnabled, type AlbionRegion } from "@/lib/albion/types";
 import {
   parseMinFame,
+  parseJuicyFlag,
   parseWatchlistRefs,
 } from "@/lib/kills-feed-params";
 
@@ -18,6 +19,7 @@ export async function GET(request: Request) {
     ? parseInt(afterEventIdRaw, 10)
     : undefined;
   const minFame = parseMinFame(searchParams.get("minFame") ?? undefined);
+  const juicy = parseJuicyFlag(searchParams.get("juicy") ?? undefined);
   const players = parseWatchlistRefs(searchParams.get("players"));
   const guilds = parseWatchlistRefs(searchParams.get("guilds"));
   const alliances = parseWatchlistRefs(searchParams.get("alliances"));
@@ -48,6 +50,7 @@ export async function GET(request: Request) {
           ? afterEventId
           : undefined,
       minFame,
+      juicy,
       watch,
     });
     return NextResponse.json(

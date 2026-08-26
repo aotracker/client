@@ -50,7 +50,7 @@ export function AdminLoginRequired() {
           ) : (
             <div className="space-y-3">
               <LoginButtonsEnglish callbackURL="/admin" size="sm" />
-              <p className="text-[11px]">
+              <p className="text-xs">
                 <Link
                   href="/login?next=/admin"
                   className="text-primary hover:underline"

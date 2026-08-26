@@ -35,7 +35,7 @@ function Metric({
 }) {
   return (
     <div className="rounded-md border border-border/50 px-3 py-2">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-0.5 text-sm font-medium">{value}</p>
     </div>
   );

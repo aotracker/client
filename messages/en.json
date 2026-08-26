@@ -87,25 +87,25 @@
   "Discord": {
     "title": "Discord bot",
     "metaDescription": "Add the {siteName} Discord bot to post guild kills and deaths with gear snapshots.",
-    "description": "The bot posts a tracked Albion guild’s new kills and deaths into Discord channels you choose, each with a gear snapshot and a link to the full kill page on {siteName}.",
+    "description": "The bot posts a tracked Albion guild’s new kills, deaths, and large battles into Discord channels you choose — kill snapshots, battle recap images, and links back to {siteName}.",
     "invite": "Add to Discord",
     "inviteUnavailable": "The public invite link is not configured yet. Check back soon, or ask the site operator for the bot invite.",
     "previewCaption": "Example kill post after the bot is added and configured.",
     "previewAltEmbed": "Discord message with a kill title, timestamp, and gear snapshot",
     "previewAlt": "Kill snapshot with killer and victim gear, kill fame, and loot",
     "setupTitle": "Get started",
-    "setupIntro": "Two things have to happen before anything posts: the bot must join your Discord server, and you must bind one Albion guild plus kill and death channels. You can do this in the browser after Discord login, or with slash commands. You need Discord Manage Server for every setup step except /status.",
+    "setupIntro": "Two things have to happen before anything posts: the bot must join your Discord server, and you must bind one Albion guild plus the channels you want. You can do this in the browser after Discord login, or with slash commands. You need Discord Manage Server for every setup step except /status.",
     "manageFeeds": "Manage notifications in the browser",
     "manageFeedsBody": "Sign in with Discord, then open Discord Notifications. Anyone with Manage Server on that Discord server can set the tracked guild, channels, filters, and ping role without using slash commands.",
     "setupAddTitle": "1. Add the bot to your Discord server",
     "setupAdd1": "Click Add to Discord. In Discord’s authorize screen, pick the server you want notifications in. You must have Manage Server there, or Discord will not let you finish the invite.",
     "setupAdd2": "Approve the permissions (view channel, send messages, embed links, attach files, use application commands, and read message history). The bot only posts in channels you choose later.",
-    "setupAdd3": "After it joins, type / in a text channel. You should see /track, /kills-channel, /deaths-channel, /untrack, and /status. The first time, global commands can take a few minutes to show up.",
+    "setupAdd3": "After it joins, type / in a text channel. You should see /track, /kills-channel, /deaths-channel, /battles-channel, /untrack, and /status. The first time, global commands can take a few minutes to show up.",
     "setupRegisterTitle": "2. Register a guild to start notifications",
     "setupRegister1": "The Albion guild must already exist on AOTracker. Search the guild on this site first. If it is not there yet, /track will not find it.",
     "setupRegister2": "In Discord, run /track. Choose the region, then start typing the guild name and pick it from autocomplete. This binds one guild to this Discord server and replaces any previous /track.",
-    "setupRegister3": "Run /kills-channel and /deaths-channel and pick a text channel for each. Dedicated #kills and #deaths channels work best. Nothing is posted until at least one of these is set.",
-    "setupRegister4": "Run /status to confirm the guild and channels. From then on, new kills and deaths that land in our database are posted automatically. Older fights are not backfilled into Discord.",
+    "setupRegister3": "Run /kills-channel, /deaths-channel, and optionally /battles-channel, and pick a text channel for each. Dedicated channels work best. Nothing is posted until at least one of these is set.",
+    "setupRegister4": "Run /status to confirm the guild and channels. From then on, new kills, deaths, and qualifying battles that land in our database are posted automatically. Older fights are not backfilled into Discord.",
     "permissionsNote": "Anyone in the server can run /status, /whoami, /lookup, /feud, and /watchlist-add. Only members with Manage Server can change tracking, channels, filters, or ping roles.",
     "commandsTitle": "Commands",
     "commandsIntro": "Type / in Discord to open the command picker, then fill in the options from the dropdowns.",
@@ -115,7 +115,7 @@
       "track": {
         "usage": "/track region:Americas|Europe|Asia guild:GuildName",
         "summary": "Bind one Albion guild to this Discord server. Replaces a previous /track.",
-        "detail": "Pick the region first, then start typing the guild name and select it from autocomplete. The guild must already appear on AOTracker. This creates both kills and deaths notifications; channels are still unset until you run the channel commands.",
+        "detail": "Pick the region first, then start typing the guild name and select it from autocomplete. The guild must already appear on AOTracker. This creates kills, deaths, and battle notifications; channels are still unset until you run the channel commands.",
         "example": "/track region:Americas guild:Elevate"
       },
       "killsChannel": {
@@ -130,10 +130,16 @@
         "detail": "Same as /kills-channel, for deaths. Friendly-fire (same guild on both sides) posts here only.",
         "example": "/deaths-channel channel:#deaths"
       },
+      "battlesChannel": {
+        "usage": "/battles-channel channel:#channel",
+        "summary": "Channel that receives a battle recap image when the tracked guild finishes a fight over N players.",
+        "detail": "Choose a text or announcement channel. Run /track first. The bot waits until the Albion board stops changing, then posts one recap image per battle. Optional thread-per-battle is set on Discord Notifications or with /feed-filters.",
+        "example": "/battles-channel channel:#battles"
+      },
       "untrack": {
         "usage": "/untrack",
-        "summary": "Stop posting kills and deaths in this server.",
-        "detail": "Removes guild kill and death notifications. The bot stays in the server. Run /track again to start over. Does not delete old Discord messages.",
+        "summary": "Stop posting kills, deaths, and battles in this server.",
+        "detail": "Removes guild kill, death, and battle notifications. The bot stays in the server. Run /track again to start over. Does not delete old Discord messages.",
         "example": "/untrack"
       },
       "status": {
@@ -144,14 +150,14 @@
       },
       "feedFilters": {
         "usage": "/feed-filters min-fame:10000 min-silver:500000 content:SOLO,GROUP paused:false feed:kills",
-        "summary": "Limit which kills or deaths the bot posts.",
-        "detail": "Use feed:kills or feed:deaths to change one notification channel, or omit feed to update both. Use 0 fame/silver for any, and omit content or use all for every fight size. Manage Server required.",
-        "example": "/feed-filters min-fame:25000 content:SOLO,GROUP feed:kills"
+        "summary": "Limit which kills, deaths, or battles the bot posts.",
+        "detail": "Use feed:kills, feed:deaths, or feed:battles to change one notification, or omit feed to update all. For battles, set min-players and create-thread. Use 0 fame/silver for any, and omit content or use all for every fight size. Manage Server required.",
+        "example": "/feed-filters min-players:40 create-thread:true feed:battles"
       },
       "pingRole": {
         "usage": "/ping-role role:@Role feed:both",
-        "summary": "Mention a role on kill or death posts.",
-        "detail": "Optional. Use clear:true to stop pinging. feed can be kills, deaths, or both. Manage Server required.",
+        "summary": "Mention a role on kill, death, or battle posts.",
+        "detail": "Optional. Use clear:true to stop pinging. feed can be kills, deaths, battles, or both. Battle pings fire on the recap post. Manage Server required.",
         "example": "/ping-role role:@Kills feed:kills"
       },
       "whoami": {
@@ -187,14 +193,17 @@
       "content": "Content types",
       "paused": "Pause posts",
       "feed": "Feed",
-      "feedBoth": "Kills and deaths",
+      "feedBoth": "All feeds",
       "feedKills": "Kills only",
       "feedDeaths": "Deaths only",
+      "feedBattles": "Battles only",
+      "minPlayers": "Min players",
+      "createThread": "Thread per battle",
       "copy": "Copy command",
       "copied": "Copied"
     },
     "postsTitle": "What each post includes",
-    "postsBody": "Each qualifying kill or death is one Discord message: a snapshot image with killer and victim gear, inventory, item power, kill fame, and estimated silver, plus link buttons for the killer, victim, and the full kill page on {siteName}. Zero-fame events are skipped.",
+    "postsBody": "Each qualifying kill or death is one Discord message: a snapshot image with killer and victim gear, inventory, item power, kill fame, and estimated silver, plus link buttons for the killer, victim, and the full kill page on {siteName}. Zero-fame events are skipped. Large battles post one recap image after the fight settles, with a link to the battle page.",
     "note": "Anyone can follow any Albion guild. You need Manage Server to configure the bot.",
     "feeds": {
       "title": "Discord Notifications",
@@ -221,6 +230,7 @@
       "statusNone": "Not tracking",
       "statusKills": "Kills channel",
       "statusDeaths": "Deaths channel",
+      "statusBattles": "Battles channel",
       "statusLastKills": "Last kills post",
       "statusLastDeaths": "Last deaths post",
       "statusLastActivity": "Last posts",
@@ -237,6 +247,10 @@
       "untrack": "Stop tracking",
       "killsTitle": "Kills notifications",
       "deathsTitle": "Deaths notifications",
+      "battlesTitle": "Battle notifications",
+      "battlesHelp": "When the tracked guild is in a battle with at least N players, AOTracker waits until the fight stops changing, then posts one recap image and a link to the battle page.",
+      "minPlayers": "Min players (N)",
+      "createThread": "Start a Discord thread for each battle",
       "channel": "Channel",
       "contentTypes": "Fight size",
       "minFame": "Min fame",
@@ -245,7 +259,8 @@
       "saveFilters": "Save filters",
       "pingRole": "Ping role",
       "pingRoleNone": "No ping",
-      "testPost": "Send test post"
+      "testPost": "Send test post",
+      "testPreview": "Send preview"
     }
   },
   "Common": {
@@ -413,6 +428,8 @@
     "minFame": "Min fame",
     "anyFame": "Any fame",
     "watchlistOnly": "Watchlist only",
+    "juicy": "Juicy",
+    "juicyHint": "Loot worth 20m+ silver",
     "primeTime": "Prime Time",
     "lastDays": "Last {days} days"
   },
@@ -940,6 +957,7 @@
     "pinned": "Pinned ({count})",
     "recentActivity": "Recent activity",
     "noActivity": "No recent kills involving your watchlist",
+    "noJuicyActivity": "No juicy kills (20m+ loot) involving your watchlist",
     "failedActivity": "Failed to load activity",
     "typePlayer": "Player",
     "typeGuild": "Guild",

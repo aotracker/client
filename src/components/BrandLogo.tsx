@@ -14,7 +14,7 @@ export function BrandMark({
   const mark = (
     <span
       className={cn(
-        "inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card font-display text-[11px] font-bold tracking-[0.08em] text-foreground",
+        "inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card font-display text-xs font-bold tracking-wide text-foreground",
         className
       )}
       aria-hidden={title ? undefined : true}
@@ -45,7 +45,7 @@ export function BrandLogo({
     <>
       <BrandMark
         className={cn(
-          size === "sm" ? "size-7 text-[10px]" : "size-8 text-[11px]"
+          size === "sm" ? "size-7 text-xs" : "size-8 text-xs"
         )}
       />
       {!markOnly && (

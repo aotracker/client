@@ -1,10 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/PageSection";
 import { WatchlistPageContent } from "@/components/watchlist/WatchlistPageContent";
 import { WatchlistSignInBanner } from "@/components/watchlist/WatchlistSignInBanner";
 import { useWatchlist } from "@/components/watchlist/useWatchlist";
+import { KillCardSkeleton } from "@/components/ui/skeleton";
 
 export function WatchlistPageClient() {
   const t = useTranslations("Watchlist");
@@ -17,7 +19,17 @@ export function WatchlistPageClient() {
     <div className="space-y-6">
       <PageHeader title={t("title")} description={description} />
       <WatchlistSignInBanner />
-      <WatchlistPageContent />
+      <Suspense
+        fallback={
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <KillCardSkeleton key={i} />
+            ))}
+          </div>
+        }
+      >
+        <WatchlistPageContent />
+      </Suspense>
     </div>
   );
 }

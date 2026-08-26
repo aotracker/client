@@ -10,6 +10,8 @@ function parseFilters(value: unknown): {
   minSilver?: number;
   contentTypes?: string[];
   paused?: boolean;
+  minPlayers?: number;
+  createThread?: boolean;
 } {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   return value as {
@@ -17,6 +19,8 @@ function parseFilters(value: unknown): {
     minSilver?: number;
     contentTypes?: string[];
     paused?: boolean;
+    minPlayers?: number;
+    createThread?: boolean;
   };
 }
 
@@ -77,6 +81,8 @@ export async function PATCH(request: Request) {
         minSilver?: number | null;
         contentTypes?: string[] | null;
         paused?: boolean | null;
+        minPlayers?: number | null;
+        createThread?: boolean | null;
       };
     };
     if (!body.id) {
@@ -113,6 +119,15 @@ export async function PATCH(request: Request) {
       if ("paused" in body.filters) {
         if (body.filters.paused) next.paused = true;
         else delete next.paused;
+      }
+      if ("minPlayers" in body.filters) {
+        const value = body.filters.minPlayers;
+        if (value && value > 0) next.minPlayers = value;
+        else delete next.minPlayers;
+      }
+      if ("createThread" in body.filters) {
+        if (body.filters.createThread) next.createThread = true;
+        else delete next.createThread;
       }
     }
 

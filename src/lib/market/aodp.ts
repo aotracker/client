@@ -1,4 +1,16 @@
 import type { AlbionRegion } from "@/lib/albion/types";
+import {
+  aggregateUnitPrices,
+  type AodpPriceRow,
+  type PriceKey,
+} from "./aggregate-unit-prices";
+
+export {
+  aggregateUnitPrices,
+  priceKey,
+  type AodpPriceRow,
+  type PriceKey,
+} from "./aggregate-unit-prices";
 
 export const AODP_BASE_URLS: Record<AlbionRegion, string> = {
   americas: "https://west.albion-online-data.com",
@@ -8,46 +20,6 @@ export const AODP_BASE_URLS: Record<AlbionRegion, string> = {
 
 const AODP_TIMEOUT_MS = 8_000;
 const MAX_URL_LENGTH = 4096;
-
-export interface AodpPriceRow {
-  item_id: string;
-  city: string;
-  quality: number;
-  sell_price_min: number;
-  sell_price_min_date?: string;
-  sell_price_max?: number;
-  buy_price_min?: number;
-  buy_price_max?: number;
-}
-
-export type PriceKey = `${string}:${number}`;
-
-export function priceKey(itemId: string, quality: number): PriceKey {
-  return `${itemId}:${quality}`;
-}
-
-/** Average of non-zero sell_price_min values across locations, keyed by item+quality. */
-export function aggregateUnitPrices(
-  rows: AodpPriceRow[]
-): Map<PriceKey, number> {
-  const sums = new Map<PriceKey, { total: number; count: number }>();
-
-  for (const row of rows) {
-    const price = row.sell_price_min;
-    if (!Number.isFinite(price) || price <= 0) continue;
-    const key = priceKey(row.item_id, row.quality);
-    const entry = sums.get(key) ?? { total: 0, count: 0 };
-    entry.total += price;
-    entry.count += 1;
-    sums.set(key, entry);
-  }
-
-  const result = new Map<PriceKey, number>();
-  for (const [key, { total, count }] of sums) {
-    result.set(key, Math.round(total / count));
-  }
-  return result;
-}
 
 function buildPricesUrl(
   baseUrl: string,
@@ -117,7 +89,7 @@ async function fetchPriceBatch(
 
 /**
  * Fetch current market prices for the given item IDs and qualities.
- * Returns aggregated unit prices (avg non-zero sell_price_min per city).
+ * Returns aggregated unit prices (median sell after dropping troll listings).
  */
 export async function fetchCurrentUnitPrices(
   region: AlbionRegion,

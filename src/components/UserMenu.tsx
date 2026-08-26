@@ -229,12 +229,12 @@ function AccountPanel({
                     {name}
                   </span>
                   {isAdmin ? (
-                    <span className="shrink-0 rounded-sm bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                    <span className="shrink-0 rounded-sm bg-primary/15 px-1.5 py-0.5 text-xs font-medium text-primary">
                       Admin
                     </span>
                   ) : null}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {signedInLabel()}
                 </p>
               </div>
@@ -245,7 +245,7 @@ function AccountPanel({
                 <p className="text-sm font-medium text-foreground">
                   {tAuth("signIn")}
                 </p>
-                <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+                <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
                   {tAuth("signInHint")}
                 </p>
               </div>
@@ -329,11 +329,11 @@ function AccountPanel({
           />
           <span className="min-w-0 flex-1">{tNav("watchlist")}</span>
           {watchCount > 0 ? (
-            <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-primary">
+            <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-xs font-medium tabular-nums text-primary">
               {watchCount > 99 ? "99+" : watchCount}
             </span>
           ) : (
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {tNav("watchlistEmpty")}
             </span>
           )}
@@ -343,14 +343,14 @@ function AccountPanel({
           />
         </Link>
         {!user && authEnabled && watchCount > 0 ? (
-          <p className="px-2.5 pb-1.5 pt-0.5 text-[10px] leading-snug text-muted-foreground">
+          <p className="px-2.5 pb-1.5 pt-0.5 text-xs leading-snug text-muted-foreground">
             {tAuth("watchlistLocalHint")}
           </p>
         ) : null}
       </div>
 
       <div className="border-t border-border p-1">
-        <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="px-2.5 pb-1 pt-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {tNav("theme")}
         </p>
         <div className="grid grid-cols-3 gap-0.5 px-1 pb-1">
@@ -363,7 +363,7 @@ function AccountPanel({
                 type="button"
                 aria-pressed={selected}
                 className={cn(
-                  "inline-flex flex-col items-center gap-1 rounded-md px-1 py-2 text-[10px] transition-colors",
+                  "inline-flex flex-col items-center gap-1 rounded-md px-1 py-2 text-xs transition-colors",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                   selected
                     ? "bg-primary/10 font-medium text-foreground"
@@ -381,7 +381,7 @@ function AccountPanel({
 
       {!onAdminRoute ? (
         <div className="border-t border-border p-1">
-          <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="px-2.5 pb-1 pt-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {tNav("language")}
           </p>
           {LOCALE_DEFINITIONS.map((def) => {
@@ -419,7 +419,7 @@ function AccountPanel({
 
       <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
         <p
-          className="inline-flex items-center gap-1.5 tabular-nums text-[11px] text-muted-foreground"
+          className="inline-flex items-center gap-1.5 tabular-nums text-xs text-muted-foreground"
           title={tNav("serverTimeTitle")}
           suppressHydrationWarning
         >
@@ -431,7 +431,7 @@ function AccountPanel({
         {user ? (
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-sm px-1.5 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex items-center gap-1 rounded-sm px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={() => {
               onAction?.();
               void signOutWithPrefsSnapshot(user.id);
@@ -557,7 +557,7 @@ export function UserMenu({
         ) : (
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-foreground">
             {user ? (
-              <span className="text-[10px] font-medium">
+              <span className="text-xs font-medium">
                 {name.slice(0, 1).toUpperCase()}
               </span>
             ) : (
@@ -569,7 +569,7 @@ export function UserMenu({
           {user ? name : authEnabled ? tAuth("signIn") : tNav("account")}
         </span>
         {user && isAdmin ? (
-          <span className="hidden rounded-sm bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium text-primary sm:inline">
+          <span className="hidden rounded-sm bg-primary/15 px-1.5 py-0.5 text-xs font-medium text-primary sm:inline">
             Admin
           </span>
         ) : null}
@@ -587,7 +587,7 @@ export function UserMenu({
           id={listId}
           role="menu"
           aria-label={tAuth("account")}
-          className="absolute right-0 top-[calc(100%+0.375rem)] z-50 w-[17rem]"
+          className="absolute right-0 top-[calc(100%+0.375rem)] z-50 w-64"
         >
           <AccountPanel onAction={close} initialUser={initialUser} />
         </div>

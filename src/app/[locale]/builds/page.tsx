@@ -1,8 +1,10 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { AlertTriangle } from "lucide-react";
 import { BuildsMetaView } from "@/components/builds/BuildsMetaView";
 import { BuildsFilters } from "@/components/builds/BuildsFilters";
+import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageSection";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import { getMetaBuilds } from "@/lib/db/queries";
@@ -106,9 +108,7 @@ export default async function BuildsPage({
       </Suspense>
 
       {error ? (
-        <div className="rounded-md border border-border bg-card p-8 text-center text-muted-foreground">
-          {error}
-        </div>
+        <EmptyState icon={AlertTriangle}>{error}</EmptyState>
       ) : data ? (
         <BuildsMetaView data={data} sort={sort} weapon={weapon} />
       ) : null}

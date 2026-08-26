@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+
 export const BATTLE_LIST_PAGE_SIZE = 10;
 
 interface BattleListPaginationProps {
@@ -27,8 +29,6 @@ export function BattleListPagination({
   const rangeEnd = knownTotal
     ? Math.min(page * pageSize, totalItems)
     : page * pageSize;
-  const buttonClassName =
-    "inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50";
 
   return (
     <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:justify-between">
@@ -38,25 +38,27 @@ export function BattleListPagination({
           : `Showing ${rangeStart}–${rangeStart + pageSize - 1}`}
       </p>
       <div className="flex items-center gap-2">
-        <button
+        <Button
           type="button"
-          className={buttonClassName}
+          variant="outline"
+          size="sm"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
           Previous
-        </button>
+        </Button>
         <span className="px-2 text-sm text-muted-foreground">
           {knownTotal ? `Page ${page} of ${totalPages}` : `Page ${page}`}
         </span>
-        <button
+        <Button
           type="button"
-          className={buttonClassName}
+          variant="outline"
+          size="sm"
           disabled={knownTotal ? page >= totalPages : !hasMore}
           onClick={() => onPageChange(page + 1)}
         >
           Next
-        </button>
+        </Button>
       </div>
     </div>
   );

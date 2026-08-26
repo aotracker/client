@@ -164,7 +164,7 @@ export function NavbarRegionSelector({
           aria-label={tNav("selectRegion")}
           className="absolute right-0 top-[calc(100%+0.375rem)] z-50 min-w-[11rem] overflow-hidden rounded-md border border-border bg-card p-1 shadow-lg"
         >
-          <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="px-2.5 pb-1 pt-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {tNav("serverRegion")}
           </p>
           {options.map((option) => {

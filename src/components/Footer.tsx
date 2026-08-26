@@ -6,6 +6,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { ALBION_REF_URL, SITE_NAME } from "@/lib/site";
 import { feedNavHref } from "@/lib/region-params";
 import type { PreferredRegion } from "@/lib/region-preference";
+import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 
 export function Footer({
@@ -55,14 +56,14 @@ export function Footer({
           >
             {t("privacyPolicy")}
           </Link>
-          <a
+          <Button
             href={ALBION_REF_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-7 items-center justify-center rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            size="sm"
           >
             {t("getAlbion")}
-          </a>
+          </Button>
         </div>
       </div>
     </footer>

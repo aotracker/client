@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { PageHeader } from "@/components/PageSection";
+import { Button } from "@/components/ui/button";
 import { buildPageMetadata, NOINDEX_FOLLOW } from "@/lib/seo";
 import { DISCORD_SERVER_INVITE_URL, SITE_NAME } from "@/lib/site";
 
@@ -52,14 +53,13 @@ export default async function ContactPage({ params }: ContactPageProps) {
             ),
           })}
         </p>
-        <a
+        <Button
           href={DISCORD_SERVER_INVITE_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           {t("joinDiscord")}
-        </a>
+        </Button>
       </section>
 
       <section className="space-y-2 text-sm text-muted-foreground">

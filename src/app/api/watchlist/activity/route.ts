@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getWatchlistActivity } from "@/lib/db/queries";
 import { isRegionEnabled, type AlbionRegion } from "@/lib/albion/types";
+import { parseJuicyFlag } from "@/lib/kills-feed-params";
 
 export async function POST(request: Request) {
   try {
@@ -8,6 +9,7 @@ export async function POST(request: Request) {
       players?: { region: string; albionId: string }[];
       guilds?: { region: string; albionId: string }[];
       alliances?: { region: string; albionId: string }[];
+      juicy?: string | boolean;
     };
 
     const players = (body.players ?? []).filter(
@@ -24,7 +26,8 @@ export async function POST(request: Request) {
 
     const events = await getWatchlistActivity(
       { players, guilds, alliances },
-      15
+      15,
+      { juicy: parseJuicyFlag(body.juicy) }
     );
 
     return NextResponse.json({ events });

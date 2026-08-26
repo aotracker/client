@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input, Select } from "@/components/ui/input";
 
 const CONTENT_OPTIONS = ["SOLO", "GROUP", "ZVZ"] as const;
 
@@ -12,7 +14,9 @@ export function DiscordFeedFiltersBuilder() {
   const [minSilver, setMinSilver] = useState("0");
   const [content, setContent] = useState<string[]>([]);
   const [paused, setPaused] = useState(false);
-  const [feed, setFeed] = useState<"both" | "kills" | "deaths">("both");
+  const [minPlayers, setMinPlayers] = useState("20");
+  const [createThread, setCreateThread] = useState(false);
+  const [feed, setFeed] = useState<"both" | "kills" | "deaths" | "battles">("both");
   const [copied, setCopied] = useState(false);
 
   const command = useMemo(() => {
@@ -33,9 +37,14 @@ export function DiscordFeedFiltersBuilder() {
       parts.push("content:all");
     }
     parts.push(`paused:${paused ? "true" : "false"}`);
+    const players = Number(minPlayers);
+    if (Number.isFinite(players) && players > 0) {
+      parts.push(`min-players:${Math.floor(players)}`);
+    }
+    parts.push(`create-thread:${createThread ? "true" : "false"}`);
     if (feed !== "both") parts.push(`feed:${feed}`);
     return parts.join(" ");
-  }, [content, feed, minFame, minSilver, paused]);
+  }, [content, createThread, feed, minFame, minPlayers, minSilver, paused]);
 
   function toggleContent(value: string) {
     setContent((prev) =>
@@ -54,45 +63,44 @@ export function DiscordFeedFiltersBuilder() {
   }
 
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-card/40 px-4 py-4">
-      <div className="space-y-1">
-        <h2 className="font-display text-lg font-semibold text-foreground">
-          {t("title")}
-        </h2>
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-display">{t("title")}</CardTitle>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
-      </div>
-
+      </CardHeader>
+      <CardContent className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="space-y-1 text-sm">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t("minFame")}
-          </span>
-          <input
+          <span className="text-label">{t("minFame")}</span>
+          <Input
             type="number"
             min={0}
             value={minFame}
             onChange={(event) => setMinFame(event.target.value)}
-            className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
           />
         </label>
         <label className="space-y-1 text-sm">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t("minSilver")}
-          </span>
-          <input
+          <span className="text-label">{t("minSilver")}</span>
+          <Input
             type="number"
             min={0}
             value={minSilver}
             onChange={(event) => setMinSilver(event.target.value)}
-            className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+          />
+        </label>
+        <label className="space-y-1 text-sm">
+          <span className="text-label">{t("minPlayers")}</span>
+          <Input
+            type="number"
+            min={1}
+            value={minPlayers}
+            onChange={(event) => setMinPlayers(event.target.value)}
           />
         </label>
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t("content")}
-        </p>
+        <p className="text-label">{t("content")}</p>
         <div className="flex flex-wrap gap-2">
           {CONTENT_OPTIONS.map((value) => (
             <Button
@@ -111,6 +119,15 @@ export function DiscordFeedFiltersBuilder() {
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
+          checked={createThread}
+          onChange={(event) => setCreateThread(event.target.checked)}
+        />
+        {t("createThread")}
+      </label>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
           checked={paused}
           onChange={(event) => setPaused(event.target.checked)}
         />
@@ -118,30 +135,30 @@ export function DiscordFeedFiltersBuilder() {
       </label>
 
       <label className="space-y-1 text-sm">
-        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t("feed")}
-        </span>
-        <select
-          className="h-9 w-full max-w-xs rounded-md border border-border bg-background px-3 text-sm"
+        <span className="text-label">{t("feed")}</span>
+        <Select
+          className="max-w-xs"
           value={feed}
           onChange={(event) =>
-            setFeed(event.target.value as "both" | "kills" | "deaths")
+            setFeed(event.target.value as "both" | "kills" | "deaths" | "battles")
           }
         >
           <option value="both">{t("feedBoth")}</option>
           <option value="kills">{t("feedKills")}</option>
           <option value="deaths">{t("feedDeaths")}</option>
-        </select>
+          <option value="battles">{t("feedBattles")}</option>
+        </Select>
       </label>
 
       <div className="space-y-2">
-        <code className="block overflow-x-auto rounded-md bg-muted px-2.5 py-1.5 font-mono text-[13px] text-foreground">
+        <code className="block overflow-x-auto rounded-md bg-muted px-3 py-1.5 font-mono text-sm text-foreground">
           {command}
         </code>
         <Button type="button" size="sm" variant="outline" onClick={copyCommand}>
           {copied ? t("copied") : t("copy")}
         </Button>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

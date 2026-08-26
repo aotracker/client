@@ -1,4 +1,4 @@
-export const DISCORD_INVITE_PERMISSIONS = "2147601408";
+export const DISCORD_INVITE_PERMISSIONS = "309237446016";
 
 export function discordInviteUrl(clientId: string): string {
   const params = new URLSearchParams({

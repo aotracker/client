@@ -270,7 +270,7 @@ export function BattlesFeed({
 
   if (battles.length === 0) {
     return (
-      <EmptyState icon={searchQuery ? SearchX : Swords} className="p-8">
+      <EmptyState icon={searchQuery ? SearchX : Swords}>
         {emptyMessage}
       </EmptyState>
     );

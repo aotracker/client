@@ -37,7 +37,7 @@ export function leaderboardRankBadgeClassName(rank: number): string {
 }
 
 export function leaderboardPodiumCardClassName(rank: number): string {
-  return isTopThree(rank) ? TOP_THREE_PODIUM : "border-border/60 bg-card/40";
+  return isTopThree(rank) ? TOP_THREE_PODIUM : "border-border bg-card";
 }
 
 export function leaderboardKillCardHighlightClassName(rank: number): string {

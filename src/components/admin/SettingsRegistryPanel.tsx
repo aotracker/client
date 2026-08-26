@@ -23,11 +23,11 @@ export function SettingsRegistryPanel({
                   <span className="text-muted-foreground">{item.name}</span>
                   <span className="font-medium">{item.value}</span>
                 </div>
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {item.source}
                 </p>
                 {item.note && (
-                  <p className="mt-1 text-[11px] text-amber-400">{item.note}</p>
+                  <p className="mt-1 text-xs text-warning-foreground">{item.note}</p>
                 )}
               </div>
             ))}

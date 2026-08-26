@@ -59,6 +59,7 @@ const config: Config = {
         zvz: "#ef4444",
         group: "#f59e0b",
         solo: "#3b82f6",
+        discord: "hsl(var(--discord))",
       },
       borderRadius: {
         lg: "var(--radius)",

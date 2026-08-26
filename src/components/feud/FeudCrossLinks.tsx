@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ArrowUpRight, Swords } from "lucide-react";
 import { PageSection } from "@/components/PageSection";
+import { buttonClassName } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { FeudDisplayName } from "@/components/feud/FeudDisplayName";
 import { formatFame } from "@/lib/utils";
 import { getAllianceByAlbionId } from "@/lib/db/queries";
@@ -58,7 +60,7 @@ export async function GuildFeudAllianceLink({
   );
 
   return (
-    <div className="rounded-lg border border-border/60 bg-card/40 p-4">
+    <Card className="p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 space-y-1">
           <p className="text-sm font-medium">{t("allianceFeudTitle")}</p>
@@ -71,13 +73,13 @@ export async function GuildFeudAllianceLink({
         </div>
         <Link
           href={allianceFeudPath(region, allianceAId, allianceBId)}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           {t("allianceFeudLink")}
           <ArrowUpRight className="h-4 w-4" aria-hidden />
         </Link>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -99,7 +101,8 @@ export async function AllianceFeudGuildLinks({
       title={t("guildFeudsTitle")}
       description={t("guildFeudsDescription")}
     >
-      <ol className="divide-y divide-border/60 overflow-hidden rounded-md border border-border/60 bg-card/40">
+      <Card>
+      <ol className="divide-y divide-border">
         {pairs.map((pair) => {
           const feudHref = feudPath(region, pair.guildAName, pair.guildBName);
 
@@ -133,6 +136,7 @@ export async function AllianceFeudGuildLinks({
           );
         })}
       </ol>
+      </Card>
     </PageSection>
   );
 }

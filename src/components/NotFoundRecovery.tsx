@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { InlineAlert } from "@/components/InlineAlert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClassName } from "@/components/ui/button";
 import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 import { isRegionEnabled } from "@/lib/albion/types";
 import { feedNavHref } from "@/lib/region-params";
@@ -113,49 +113,49 @@ export function NotFoundRecovery({
       <div className="flex flex-wrap justify-center gap-2">
         <Link
           href={feedNavHref("/", feedRegion)}
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           <Home className="h-3.5 w-3.5" aria-hidden />
           {tButtons("home")}
         </Link>
         <Link
           href={feedNavHref("/kills", feedRegion)}
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           <Skull className="h-3.5 w-3.5" aria-hidden />
           {tNav("kills")}
         </Link>
         <Link
           href={feedNavHref("/leaderboards", feedRegion)}
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           <Trophy className="h-3.5 w-3.5" aria-hidden />
           {tNav("leaderboards")}
         </Link>
         <Link
           href={feedNavHref("/battles", feedRegion)}
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           <Swords className="h-3.5 w-3.5" aria-hidden />
           {tNav("battles")}
         </Link>
         <Link
           href={feedNavHref("/builds", feedRegion)}
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           <Hammer className="h-3.5 w-3.5" aria-hidden />
           {tNav("builds")}
         </Link>
         <Link
           href="/watchlist"
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           <Star className="h-3.5 w-3.5" aria-hidden />
           {tNav("watchlist")}
         </Link>
         <Link
           href="/search"
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-border bg-transparent px-3 text-xs font-medium transition-colors hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           <Search className="h-3.5 w-3.5" aria-hidden />
           {tNav("search")}
@@ -163,7 +163,7 @@ export function NotFoundRecovery({
       </div>
 
       <div className="space-y-2 text-left">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="text-label">
           {t("searchHeading")}
         </p>
         <SearchAutocomplete

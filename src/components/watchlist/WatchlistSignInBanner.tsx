@@ -6,6 +6,8 @@ import { Link } from "@/i18n/navigation";
 import { LogIn } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { isSocialLoginVisible } from "@/lib/auth-providers";
+import { buttonClassName } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useWatchlist } from "@/components/watchlist/useWatchlist";
 
 /** CTA when anonymous users have local pins — push them toward sign-in sync. */
@@ -26,7 +28,7 @@ export function WatchlistSignInBanner() {
   if (entries.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-border bg-card/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <Card className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground">
           {t("syncTitle", { count: entries.length })}
@@ -37,11 +39,11 @@ export function WatchlistSignInBanner() {
       </div>
       <Link
         href="/login?next=/watchlist"
-        className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className={buttonClassName({ size: "sm", className: "shrink-0" })}
       >
         <LogIn className="h-3.5 w-3.5" aria-hidden />
         {tAuth("signIn")}
       </Link>
-    </div>
+    </Card>
   );
 }

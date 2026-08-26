@@ -168,7 +168,7 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
             />
             <span
               className={cn(
-                "shrink-0 px-0.5 text-center text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:px-1 sm:pt-2 sm:text-xs",
+                "shrink-0 px-0.5 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground sm:px-1 sm:pt-2 sm:text-xs",
                 large && "lg:pt-2.5 lg:text-sm"
               )}
             >
@@ -383,7 +383,7 @@ function PlayerBlock({
       {itemPower ? (
         <>
           {" "}
-          <span className="text-[11px] font-medium leading-none text-stat-ip">
+          <span className="text-xs font-medium leading-none text-stat-ip">
             (<ItemPowerValue value={itemPower} className="font-medium" />)
           </span>
         </>

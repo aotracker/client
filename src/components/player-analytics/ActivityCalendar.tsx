@@ -131,7 +131,7 @@ export function ActivityCalendar({ activity }: ActivityCalendarProps) {
   return (
     <div className="flex h-56 flex-col">
       <div className="grid min-h-0 flex-1 grid-cols-[2rem_1fr] gap-2">
-        <div className="grid grid-rows-7 gap-1 pt-5 text-[10px] leading-none text-muted-foreground">
+        <div className="grid grid-rows-7 gap-1 pt-5 text-xs leading-none text-muted-foreground">
           {DAY_LABELS.map((label) => (
             <div key={label} className="flex items-center justify-end pr-0.5">
               {label}
@@ -141,7 +141,7 @@ export function ActivityCalendar({ activity }: ActivityCalendarProps) {
 
         <div className="flex min-h-0 min-w-0 flex-col gap-1">
           <div
-            className="grid h-4 text-[10px] text-muted-foreground"
+            className="grid h-4 text-xs text-muted-foreground"
             style={{
               gridTemplateColumns: `repeat(${weeks.length}, minmax(0, 1fr))`,
             }}
@@ -182,7 +182,7 @@ export function ActivityCalendar({ activity }: ActivityCalendarProps) {
                     type="button"
                     aria-label={`${formatDayLabel(cell.day)}: ${cell.events} PvP events, ${cell.kills} kills, ${cell.deaths} deaths`}
                     className={cn(
-                      "flex items-center justify-center rounded-sm border border-border/40 text-[10px] font-medium tabular-nums transition-shadow hover:ring-1 hover:ring-foreground/50",
+                      "flex items-center justify-center rounded-sm border border-border/40 text-xs font-medium tabular-nums transition-shadow hover:ring-1 hover:ring-foreground/50",
                       intensityClass(cell.events, maxTotal)
                     )}
                     onMouseEnter={() =>
@@ -204,7 +204,7 @@ export function ActivityCalendar({ activity }: ActivityCalendarProps) {
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-3 text-[10px] text-muted-foreground">
+      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
         <div className="min-h-[1rem] truncate">
           {hover ? (
             <span>

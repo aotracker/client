@@ -32,7 +32,7 @@ export function EntityStatStrip({ stats, className }: EntityStatStripProps) {
     >
       {stats.map((stat) => (
         <div key={stat.label} className="min-w-0 text-center">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">
             {stat.mobileLabel ? (
               <>
                 <span className="sm:hidden">{stat.mobileLabel}</span>

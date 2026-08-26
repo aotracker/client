@@ -131,7 +131,7 @@ function RuntimeSection({
             </span>
           </div>
           <UsageBar percent={heapPercent} />
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             RSS {formatBytes(runtime.memory.rssBytes)} · external{" "}
             {formatBytes(runtime.memory.externalBytes)}
           </p>
@@ -147,7 +147,7 @@ function RuntimeSection({
               mono
             />
           </div>
-          <p className="text-[11px] text-muted-foreground">{runtime.cpu.model}</p>
+          <p className="text-xs text-muted-foreground">{runtime.cpu.model}</p>
         </section>
 
         {runtime.disk && (
@@ -163,7 +163,7 @@ function RuntimeSection({
               </span>
             </div>
             <UsageBar percent={runtime.disk.usagePercent} tone="warn" />
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {formatBytes(runtime.disk.freeBytes)} free
             </p>
           </section>
@@ -277,7 +277,7 @@ export function SystemInfoPanel({ initial }: SystemInfoPanelProps) {
             <span className="text-muted-foreground">
               Discord bot
               {snapshot.discord.tag ? (
-                <span className="ml-2 font-mono text-[11px] text-muted-foreground/80">
+                <span className="ml-2 font-mono text-xs text-muted-foreground/80">
                   {snapshot.discord.tag}
                 </span>
               ) : null}

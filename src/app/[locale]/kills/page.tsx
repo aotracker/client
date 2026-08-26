@@ -1,14 +1,17 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { AlertTriangle } from "lucide-react";
 import { KillFeedFilters } from "@/components/KillFeedFilters";
 import { KillsFeedSection } from "@/components/kills/KillsFeedSection";
+import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageSection";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import { getKillFeed, type ContentTypeFilter } from "@/lib/db/queries";
 import {
   KILLS_FEED_PAGE_SIZE,
   parseMinFame,
+  parseJuicyFlag,
   parseWatchlistFlag,
 } from "@/lib/kills-feed-params";
 import { feedRegionFilterOptions } from "@/lib/region-params";
@@ -22,6 +25,7 @@ interface KillsPageProps {
     type?: string;
     minFame?: string;
     watchlist?: string;
+    juicy?: string;
   }>;
 }
 
@@ -65,6 +69,7 @@ export default async function KillsPage({
   const contentType = parseContentType(search.type);
   const minFame = parseMinFame(search.minFame);
   const watchlistOnly = parseWatchlistFlag(search.watchlist);
+  const juicy = parseJuicyFlag(search.juicy);
   const filterRegions = feedRegionFilterOptions();
 
   let events: Awaited<ReturnType<typeof getKillFeed>> = [];
@@ -75,6 +80,7 @@ export default async function KillsPage({
       region,
       contentType,
       minFame,
+      juicy,
       limit: KILLS_FEED_PAGE_SIZE,
       offset: 0,
     });
@@ -86,28 +92,28 @@ export default async function KillsPage({
     <div className="space-y-6">
       <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
 
-      <Suspense fallback={<FilterChipSkeleton count={4} />}>
+      <Suspense fallback={<FilterChipSkeleton count={3} />}>
         <KillFeedFilters
           regions={filterRegions}
           activeRegion={region}
           pathname="/kills"
           showMinFame
           showWatchlist
+          showJuicy
         />
       </Suspense>
 
       {error ? (
-        <div className="rounded-md border border-border bg-card p-8 text-center text-muted-foreground">
-          {error}
-        </div>
+        <EmptyState icon={AlertTriangle}>{error}</EmptyState>
       ) : (
         <KillsFeedSection
-          key={`${region}:${contentType}:${minFame}:${watchlistOnly}`}
+          key={`${region}:${contentType}:${minFame}:${watchlistOnly}:${juicy}`}
           initialEvents={events}
           region={region}
           contentType={contentType}
           minFame={minFame}
           watchlistOnly={watchlistOnly}
+          juicy={juicy}
           pageSize={KILLS_FEED_PAGE_SIZE}
         />
       )}

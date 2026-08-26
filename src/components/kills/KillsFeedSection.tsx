@@ -13,6 +13,7 @@ interface KillsFeedSectionProps {
   contentType: ContentTypeFilter;
   minFame: number;
   watchlistOnly: boolean;
+  juicy: boolean;
   pageSize: number;
 }
 
@@ -22,6 +23,7 @@ export function KillsFeedSection({
   contentType,
   minFame,
   watchlistOnly,
+  juicy,
   pageSize,
 }: KillsFeedSectionProps) {
   const t = useTranslations("Home");
@@ -36,6 +38,7 @@ export function KillsFeedSection({
       pageSize={pageSize}
       minFame={minFame}
       watchlistOnly={watchlistOnly}
+      juicy={juicy}
       onPollAtChange={setLastPollAt}
       onPausedChange={setPaused}
       liveStatus={

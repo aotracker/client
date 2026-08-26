@@ -1,14 +1,25 @@
 import { cn } from "@/lib/utils";
 
+export type CardVariant = "default" | "muted";
+
 export function Card({
   className,
   children,
+  variant = "default",
 }: {
   className?: string;
   children: React.ReactNode;
+  variant?: CardVariant;
 }) {
   return (
-    <div className={cn("rounded-lg border border-border bg-card text-card-foreground", className)}>
+    <div
+      className={cn(
+        "rounded-lg border border-border text-card-foreground",
+        variant === "default" && "bg-card",
+        variant === "muted" && "bg-muted/15",
+        className
+      )}
+    >
       {children}
     </div>
   );

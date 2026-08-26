@@ -13,7 +13,7 @@ export default function KillsLoading() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <FilterChipSkeleton count={4} />
+        <FilterChipSkeleton count={3} />
       </div>
 
       <div className="space-y-3">

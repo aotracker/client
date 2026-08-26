@@ -34,6 +34,7 @@
     --danger: 0 72% 55%;
     --danger-foreground: 0 86% 78%;
     --danger-border: 0 72% 55%;
+    --discord: 235 86% 65%;
   }
 
   html.light {
@@ -64,6 +65,7 @@
     --danger: 0 72% 42%;
     --danger-foreground: 0 63% 28%;
     --danger-border: 0 70% 45%;
+    --discord: 235 78% 52%;
     color-scheme: light;
   }
 

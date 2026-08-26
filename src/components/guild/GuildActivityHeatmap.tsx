@@ -55,7 +55,7 @@ export function GuildActivityHeatmap({
 
   return (
     <div className="space-y-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground sm:hidden">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:hidden">
         {t("hourAxis")}
       </p>
       <div className="-mx-1 overflow-x-auto pb-1 [scrollbar-width:thin]">
@@ -116,15 +116,15 @@ export function GuildActivityHeatmap({
                         : "text-muted-foreground"
                   )}
                 >
-                  <span className="text-[11px] font-semibold tabular-nums sm:text-sm">
+                  <span className="text-xs font-semibold tabular-nums sm:text-sm">
                     {formatUtcHour(bar.utcHour)}
                   </span>
-                  <span className="mt-0.5 hidden text-[9px] font-semibold uppercase tracking-wider opacity-70 sm:block">
+                  <span className="mt-0.5 hidden text-xs font-semibold uppercase tracking-wider opacity-70 sm:block">
                     {t("hourAxis")}
                   </span>
                 </span>
                 {isPeak ? (
-                  <span className="hidden text-[9px] font-semibold uppercase leading-none text-primary sm:block">
+                  <span className="hidden text-xs font-semibold uppercase leading-none text-primary sm:block">
                     {t("peakLabel")}
                   </span>
                 ) : (
@@ -136,7 +136,7 @@ export function GuildActivityHeatmap({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 text-[11px] text-muted-foreground sm:flex-row sm:items-start sm:justify-between sm:gap-3 sm:text-[10px]">
+      <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-start sm:justify-between sm:gap-3 sm:text-xs">
         <p className="min-h-[2.75rem] leading-snug sm:min-h-[1rem] sm:truncate">
           {shown ? (
             t("hover", {

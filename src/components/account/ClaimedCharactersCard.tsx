@@ -6,7 +6,10 @@ import { Link } from "@/i18n/navigation";
 import { ExternalLink, UserRound } from "lucide-react";
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import { playerPath } from "@/lib/seo";
+import { Button, buttonClassName } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Input } from "@/components/ui/input";
 
 type ClaimedCharacter = {
   id: string;
@@ -150,10 +153,8 @@ export function ClaimedCharactersCard() {
       ) : (
         <ul className="space-y-2">
           {claims.map((claim) => (
-            <li
-              key={claim.id}
-              className="flex flex-col gap-2 rounded-lg border border-border/60 bg-muted/15 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
-            >
+            <li key={claim.id}>
+              <Card variant="muted" className="flex flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-foreground/90">
                   {claim.name}
@@ -165,30 +166,30 @@ export function ClaimedCharactersCard() {
               <div className="flex shrink-0 items-center gap-2">
                 <Link
                   href={playerPath(claim.region, claim.name)}
-                  className="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  className={buttonClassName({ variant: "outline", size: "sm" })}
                 >
                   <ExternalLink className="h-3 w-3" aria-hidden />
                   {t("claimOpenProfile")}
                 </Link>
-                <button
+                <Button
                   type="button"
-                  className="inline-flex h-8 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
+                  variant="outline"
+                  size="sm"
                   disabled={busy}
                   onClick={() => void unclaim(claim.region)}
                 >
                   {t("unclaim")}
-                </button>
+                </Button>
               </div>
+              </Card>
             </li>
           ))}
         </ul>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-[9.5rem_minmax(0,1fr)]">
+      <div className="grid gap-3 sm:grid-cols-[10rem_minmax(0,1fr)]">
         <label className="space-y-1.5 text-sm">
-          <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t("claimRegion")}
-          </span>
+          <span className="text-label">{t("claimRegion")}</span>
           <FilterSelect
             className="w-full"
             aria-label={t("claimRegion")}
@@ -202,10 +203,9 @@ export function ClaimedCharactersCard() {
           />
         </label>
         <label className="min-w-0 space-y-1.5 text-sm">
-          <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t("claimSearch")}
-          </span>
-          <input
+          <span className="text-label">{t("claimSearch")}</span>
+          <Input
+            size="sm"
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
@@ -213,7 +213,6 @@ export function ClaimedCharactersCard() {
             }}
             disabled={busy}
             placeholder={t("claimSearchPlaceholder")}
-            className="flex h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-60"
             autoComplete="off"
           />
         </label>
@@ -244,22 +243,23 @@ export function ClaimedCharactersCard() {
             {t("claimConfirm", { name: pending.name })}
           </p>
           <div className="flex gap-2">
-            <button
+            <Button
               type="button"
-              className="inline-flex h-8 items-center rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+              variant="outline"
+              size="sm"
               disabled={busy}
               onClick={() => setPending(null)}
             >
               {t("claimCancel")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="inline-flex h-8 items-center rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+              size="sm"
               disabled={busy}
               onClick={() => void confirmClaim()}
             >
               {busy ? t("claiming") : t("claimConfirmButton")}
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}

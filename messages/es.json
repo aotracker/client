@@ -87,25 +87,25 @@
   "Discord": {
     "title": "Bot de Discord",
     "metaDescription": "Añade el bot de Discord de {siteName} para publicar kills y muertes de gremio con instantáneas de equipo.",
-    "description": "El bot publica las kills y muertes nuevas de un gremio de Albion en los canales de Discord que elijas, cada una con una instantánea del equipo y un enlace a la página completa en {siteName}.",
+    "description": "El bot publica las kills, muertes y batallas grandes de un gremio de Albion en los canales de Discord que elijas: instantáneas de kill, imágenes de resumen de batalla y enlaces a {siteName}.",
     "invite": "Añadir a Discord",
     "inviteUnavailable": "El enlace de invitación aún no está configurado. Vuelve más tarde o pide la invitación al operador del sitio.",
     "previewCaption": "Ejemplo de publicación de kill después de añadir y configurar el bot.",
     "previewAltEmbed": "Mensaje de Discord con el título de la kill, la hora y la instantánea de equipo",
     "previewAlt": "Instantánea de kill con el equipo de asesino y víctima, fama de kill y botín",
     "setupTitle": "Empezar",
-    "setupIntro": "Hacen falta dos cosas antes de que se publique nada: el bot debe unirse a tu servidor de Discord, y tienes que vincular un gremio de Albion más los canales de kills y muertes. Puedes hacerlo en el navegador tras iniciar sesión con Discord, o con comandos slash. Necesitas Administrar servidor para todos los pasos de configuración excepto /status.",
+    "setupIntro": "Hacen falta dos cosas antes de que se publique nada: el bot debe unirse a tu servidor de Discord, y tienes que vincular un gremio de Albion más los canales que quieras. Puedes hacerlo en el navegador tras iniciar sesión con Discord, o con comandos slash. Necesitas Administrar servidor para todos los pasos de configuración excepto /status.",
     "manageFeeds": "Gestionar notificaciones en el navegador",
     "manageFeedsBody": "Inicia sesión con Discord y abre Notificaciones de Discord. Quien tenga Administrar servidor en ese servidor de Discord puede configurar el gremio, los canales, los filtros y el rol de ping sin usar comandos slash.",
     "setupAddTitle": "1. Añade el bot a tu servidor de Discord",
     "setupAdd1": "Pulsa Añadir a Discord. En la pantalla de autorización, elige el servidor donde quieres las notificaciones. Debes tener Administrar servidor ahí; si no, Discord no te dejará terminar la invitación.",
     "setupAdd2": "Acepta los permisos (ver canal, enviar mensajes, insertar enlaces, adjuntar archivos, usar comandos de aplicación y leer el historial). El bot solo publica en los canales que elijas después.",
-    "setupAdd3": "Cuando se una, escribe / en un canal de texto. Deberías ver /track, /kills-channel, /deaths-channel, /untrack y /status. La primera vez, los comandos globales pueden tardar unos minutos en aparecer.",
+    "setupAdd3": "Cuando se una, escribe / en un canal de texto. Deberías ver /track, /kills-channel, /deaths-channel, /battles-channel, /untrack y /status. La primera vez, los comandos globales pueden tardar unos minutos en aparecer.",
     "setupRegisterTitle": "2. Registra un gremio para recibir notificaciones",
     "setupRegister1": "El gremio de Albion debe existir ya en AOTracker. Búscalo primero en este sitio. Si aún no está, /track no lo encontrará.",
     "setupRegister2": "En Discord, usa /track. Elige la región, escribe el nombre del gremio y selecciónalo en el autocompletado. Esto vincula un gremio a este servidor y sustituye cualquier /track anterior.",
-    "setupRegister3": "Usa /kills-channel y /deaths-channel y elige un canal de texto para cada uno. Lo más claro es un #kills y un #deaths. No se publica nada hasta que configures al menos uno.",
-    "setupRegister4": "Usa /status para confirmar el gremio y los canales. A partir de ahí se publican solos las kills y muertes nuevas que lleguen a nuestra base de datos. No se rellenan combates antiguos en Discord.",
+    "setupRegister3": "Usa /kills-channel, /deaths-channel y, si quieres, /battles-channel, y elige un canal de texto para cada uno. Lo más claro es un canal dedicado. No se publica nada hasta que configures al menos uno.",
+    "setupRegister4": "Usa /status para confirmar el gremio y los canales. A partir de ahí se publican solos las kills, muertes y batallas que lleguen a nuestra base de datos. No se rellenan combates antiguos en Discord.",
     "permissionsNote": "Cualquiera en el servidor puede usar /status, /whoami, /lookup, /feud y /watchlist-add. Solo quien tenga Administrar servidor puede cambiar el seguimiento, los canales, los filtros o el rol de ping.",
     "commandsTitle": "Comandos",
     "commandsIntro": "Escribe / en Discord para abrir el selector y rellena las opciones en los menús.",
@@ -115,7 +115,7 @@
       "track": {
         "usage": "/track region:Americas|Europe|Asia guild:GuildName",
         "summary": "Vincula un gremio de Albion a este servidor. Sustituye un /track anterior.",
-        "detail": "Elige primero la región, luego escribe el nombre del gremio y selecciónalo en el autocompletado. El gremio debe aparecer ya en AOTracker. Esto crea las notificaciones de kills y de muertes; los canales quedan vacíos hasta que uses los comandos de canal.",
+        "detail": "Elige primero la región, luego escribe el nombre del gremio y selecciónalo en el autocompletado. El gremio debe aparecer ya en AOTracker. Esto crea las notificaciones de kills, muertes y batallas; los canales quedan vacíos hasta que uses los comandos de canal.",
         "example": "/track region:Americas guild:Elevate"
       },
       "killsChannel": {
@@ -130,10 +130,16 @@
         "detail": "Igual que /kills-channel, para muertes. El fuego amigo (mismo gremio en ambos lados) se publica solo aquí.",
         "example": "/deaths-channel channel:#deaths"
       },
+      "battlesChannel": {
+        "usage": "/battles-channel channel:#canal",
+        "summary": "Canal que recibe una imagen de resumen cuando el gremio seguido termina una batalla de más de N jugadores.",
+        "detail": "Elige un canal de texto o de anuncios. Ejecuta /track primero. El bot espera a que el marcador de Albion deje de cambiar y publica una imagen de resumen por batalla. El hilo opcional se configura en Notificaciones de Discord o con /feed-filters.",
+        "example": "/battles-channel channel:#battles"
+      },
       "untrack": {
         "usage": "/untrack",
-        "summary": "Deja de publicar kills y muertes en este servidor.",
-        "detail": "Quita las notificaciones de kills y muertes del gremio. El bot sigue en el servidor. Vuelve a usar /track para empezar de nuevo. No borra mensajes antiguos de Discord.",
+        "summary": "Deja de publicar kills, muertes y batallas en este servidor.",
+        "detail": "Quita las notificaciones de kills, muertes y batallas del gremio. El bot sigue en el servidor. Vuelve a usar /track para empezar de nuevo. No borra mensajes antiguos de Discord.",
         "example": "/untrack"
       },
       "status": {
@@ -144,14 +150,14 @@
       },
       "feedFilters": {
         "usage": "/feed-filters min-fame:10000 min-silver:500000 content:SOLO,GROUP paused:false feed:kills",
-        "summary": "Limita qué kills o muertes publica el bot.",
-        "detail": "Usa feed:kills o feed:deaths para cambiar un canal de notificaciones, o omite feed para actualizar ambos. Usa 0 en fama/plata para cualquiera, y omite content o usa all para todos los tamaños. Requiere Administrar servidor.",
-        "example": "/feed-filters min-fame:25000 content:SOLO,GROUP feed:kills"
+        "summary": "Limita qué kills, muertes o batallas publica el bot.",
+        "detail": "Usa feed:kills, feed:deaths o feed:battles para cambiar una notificación, o omite feed para actualizar todas. En batallas, usa min-players y create-thread. Usa 0 en fama/plata para cualquiera, y omite content o usa all para todos los tamaños. Requiere Administrar servidor.",
+        "example": "/feed-filters min-players:40 create-thread:true feed:battles"
       },
       "pingRole": {
         "usage": "/ping-role role:@Rol feed:both",
-        "summary": "Menciona un rol en las publicaciones de kills o muertes.",
-        "detail": "Opcional. Usa clear:true para dejar de mencionar. feed puede ser kills, deaths o both. Requiere Administrar servidor.",
+        "summary": "Menciona un rol en las publicaciones de kills, muertes o batallas.",
+        "detail": "Opcional. Usa clear:true para dejar de mencionar. feed puede ser kills, deaths, battles o both. En batallas el ping sale en el resumen. Requiere Administrar servidor.",
         "example": "/ping-role role:@Kills feed:kills"
       },
       "whoami": {
@@ -187,14 +193,17 @@
       "content": "Tipos de contenido",
       "paused": "Pausar publicaciones",
       "feed": "Feed",
-      "feedBoth": "Kills y muertes",
+      "feedBoth": "Todos los feeds",
       "feedKills": "Solo kills",
       "feedDeaths": "Solo muertes",
+      "feedBattles": "Solo batallas",
+      "minPlayers": "Mínimo de jugadores",
+      "createThread": "Hilo por batalla",
       "copy": "Copiar comando",
       "copied": "Copiado"
     },
     "postsTitle": "Qué incluye cada publicación",
-    "postsBody": "Cada kill o muerte válida es un mensaje de Discord: una imagen con el equipo de asesino y víctima, inventario, poder de objeto, fama de kill y plata estimada, más botones de enlace al asesino, la víctima y la página completa en {siteName}. Se omiten eventos sin fama.",
+    "postsBody": "Cada kill o muerte válida es un mensaje de Discord: una imagen con el equipo de asesino y víctima, inventario, poder de objeto, fama de kill y plata estimada, más botones de enlace al asesino, la víctima y la página completa en {siteName}. Se omiten eventos sin fama. Las batallas grandes publican una imagen de resumen cuando el combate se estabiliza, con un enlace a la página de la batalla.",
     "note": "Cualquiera puede seguir cualquier gremio de Albion. Necesitas Administrar servidor para configurar el bot.",
     "feeds": {
       "title": "Notificaciones de Discord",
@@ -221,6 +230,7 @@
       "statusNone": "Sin seguimiento",
       "statusKills": "Canal de kills",
       "statusDeaths": "Canal de muertes",
+      "statusBattles": "Canal de batallas",
       "statusLastKills": "Última publicación de kills",
       "statusLastDeaths": "Última publicación de muertes",
       "statusLastActivity": "Últimas publicaciones",
@@ -237,6 +247,10 @@
       "untrack": "Dejar de seguir",
       "killsTitle": "Notificaciones de kills",
       "deathsTitle": "Notificaciones de muertes",
+      "battlesTitle": "Notificaciones de batallas",
+      "battlesHelp": "Cuando el gremio seguido participa en una batalla de al menos N jugadores, AOTracker espera a que el combate deje de cambiar y publica una imagen de resumen con un enlace a la página.",
+      "minPlayers": "Mínimo de jugadores (N)",
+      "createThread": "Crear un hilo de Discord por cada batalla",
       "channel": "Canal",
       "contentTypes": "Tamaño del combate",
       "minFame": "Fama mínima",
@@ -245,7 +259,8 @@
       "saveFilters": "Guardar filtros",
       "pingRole": "Rol de ping",
       "pingRoleNone": "Sin ping",
-      "testPost": "Enviar prueba"
+      "testPost": "Enviar prueba",
+      "testPreview": "Enviar vista previa"
     }
   },
   "Common": {
@@ -413,6 +428,8 @@
     "minFame": "Fama mínima",
     "anyFame": "Cualquier fama",
     "watchlistOnly": "Solo lista de seguimiento",
+    "juicy": "Jugosas",
+    "juicyHint": "Botín de 20 M+ de plata",
     "primeTime": "Prime Time",
     "lastDays": "Últimos {days} días"
   },
@@ -940,6 +957,7 @@
     "pinned": "Fijados ({count})",
     "recentActivity": "Actividad reciente",
     "noActivity": "No hay bajas recientes relacionadas con tu lista de seguimiento",
+    "noJuicyActivity": "No hay bajas jugosas (botín de 20 M+) en tu lista de seguimiento",
     "failedActivity": "Error al cargar la actividad",
     "typePlayer": "Jugador",
     "typeGuild": "Gremio",

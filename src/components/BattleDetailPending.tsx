@@ -175,7 +175,7 @@ export function BattleDetailPending({
             </span>
           </p>
           {jobInfo?.lastError && !failed && jobInfo.waitingOnAlbionApi && (
-            <p className="mt-2 max-w-lg text-[11px] text-muted-foreground">
+            <p className="mt-2 max-w-lg text-xs text-muted-foreground">
               Last probe: {jobInfo.lastError}
             </p>
           )}

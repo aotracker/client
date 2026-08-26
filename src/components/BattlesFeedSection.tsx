@@ -1,5 +1,7 @@
+import { AlertTriangle } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { BattlesFeed } from "@/components/BattlesFeed";
+import { EmptyState } from "@/components/EmptyState";
 import { BattleCardSkeleton } from "@/components/ui/skeleton";
 import { getBattlesFeed } from "@/lib/db/queries";
 import { BATTLES_FEED_PAGE_SIZE } from "@/lib/battles-constants";
@@ -43,9 +45,7 @@ export async function BattlesFeedSection({
 
   if (error) {
     return (
-      <div className="rounded-md border border-border bg-card p-8 text-center text-muted-foreground">
-        {error}
-      </div>
+      <EmptyState icon={AlertTriangle}>{error}</EmptyState>
     );
   }
 

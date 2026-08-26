@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { KillCard } from "@/components/KillCard";
 import { PageSection } from "@/components/PageSection";
+import { buttonClassName } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { getCachedGuildFeudKillsFromDb } from "@/lib/db/queries";
@@ -64,7 +65,7 @@ export async function KillGuildFeud({
       actions={
         <Link
           href={feudHref}
-          className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium hover:bg-accent"
+          className={buttonClassName({ variant: "outline", size: "sm" })}
         >
           Full feud
         </Link>

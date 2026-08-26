@@ -19,6 +19,7 @@ import {
   type ContentTypeFilter,
   type RegionFilters,
   coveringRegionCondition,
+  juicyLootCondition,
   killFamePositiveCondition,
   leaderboardConditions,
 } from "./shared";
@@ -40,6 +41,8 @@ export interface KillFeedFilters {
   afterEventId?: number;
   /** Minimum victim kill fame (inclusive). */
   minFame?: number;
+  /** Victim inventory estimated silver ≥ 20m. */
+  juicy?: boolean;
   /** Pre-resolved watchlist matchers. Skips the shared cache. */
   watch?: KillFeedWatchResolved;
 }
@@ -180,6 +183,7 @@ async function loadKillFeed(filters: {
   after?: string;
   afterEventId?: number;
   minFame?: number;
+  juicy?: boolean;
   watch?: KillFeedWatchResolved;
 }) {
   const {
@@ -190,6 +194,7 @@ async function loadKillFeed(filters: {
     after,
     afterEventId,
     minFame,
+    juicy,
     watch,
   } = filters;
 
@@ -202,6 +207,9 @@ async function loadKillFeed(filters: {
   }
   if (minFame != null && minFame > 0) {
     conditions.push(gte(schema.killEvents.totalVictimKillFame, minFame));
+  }
+  if (juicy) {
+    conditions.push(juicyLootCondition());
   }
   if (watch) {
     const watchCond = watchlistCondition(watch);
@@ -247,8 +255,9 @@ const cachedKillFeed = cachedQuery(
     contentType: ContentTypeFilter,
     limit: number,
     offset: number,
-    minFame: number
-  ) => loadKillFeed({ region, contentType, limit, offset, minFame }),
+    minFame: number,
+    juicy: boolean
+  ) => loadKillFeed({ region, contentType, limit, offset, minFame, juicy }),
   ["kill-feed"],
   HOME_CACHE_REVALIDATE_SECONDS,
   ["kills"]
@@ -265,6 +274,7 @@ export const getKillFeed = cache(async function getKillFeed(
     after,
     afterEventId,
     minFame = 0,
+    juicy = false,
     watch,
   } = filters;
 
@@ -282,11 +292,12 @@ export const getKillFeed = cache(async function getKillFeed(
       after: afterIso,
       afterEventId,
       minFame,
+      juicy,
       watch,
     });
   }
 
-  return cachedKillFeed(region, contentType, limit, offset, minFame);
+  return cachedKillFeed(region, contentType, limit, offset, minFame, juicy);
 });
 
 async function loadRecentJuicyKills(

@@ -243,7 +243,7 @@ function MatchMeta({
       <div className="flex flex-col items-center">
         <div className="flex items-center gap-2">
           <AlbionKillboardIcon icon="skull" className="size-7" />
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
+          <p className="text-sm font-semibold uppercase tracking-widest text-foreground">
             {killedLabel}
           </p>
         </div>
@@ -286,7 +286,7 @@ function AssistsSection({
   if (assistants.length === 0) return null;
   return (
     <section className="rounded-lg border border-border/40 bg-muted/5 px-4 py-3">
-      <h2 className="mb-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+      <h2 className="mb-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
         {title}
       </h2>
       <ul className="grid gap-x-4 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">

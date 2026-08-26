@@ -7,6 +7,7 @@ import type { AlbionRegion } from "@/lib/albion/types";
 import type { ContentTypeFilter } from "@/lib/db/queries";
 import {
   MIN_FAME_OPTIONS,
+  parseJuicyFlag,
   parseMinFame,
   parseWatchlistFlag,
 } from "@/lib/kills-feed-params";
@@ -16,18 +17,22 @@ import {
   rememberFeedRegionSelection,
 } from "@/lib/region-params";
 import { formatFame } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { FilterBar, FilterSelect } from "@/components/ui/filter-select";
+import {
+  FilterBar,
+  FilterCheckbox,
+  FilterSelect,
+} from "@/components/ui/filter-select";
 
 const CONTENT_FILTERS: ContentTypeFilter[] = ["all", "SOLO", "GROUP", "ZVZ"];
 
 interface KillFeedFiltersProps {
-  regions: { value: AlbionRegion | "all"; label: string }[];
+  regions?: { value: AlbionRegion | "all"; label: string }[];
   activeRegion?: AlbionRegion | "all";
-  show?: "all" | "regions" | "contentTypes";
+  show?: "all" | "regions" | "contentTypes" | "none";
   pathname?: string;
   showMinFame?: boolean;
   showWatchlist?: boolean;
+  showJuicy?: boolean;
 }
 
 function isContentTypeFilter(value: string): value is ContentTypeFilter {
@@ -35,12 +40,13 @@ function isContentTypeFilter(value: string): value is ContentTypeFilter {
 }
 
 export function KillFeedFilters({
-  regions,
+  regions = [],
   activeRegion = "all",
   show = "all",
   pathname = "/",
   showMinFame = false,
   showWatchlist = false,
+  showJuicy = false,
 }: KillFeedFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,12 +60,14 @@ export function KillFeedFilters({
   const watchlistOnly = parseWatchlistFlag(
     searchParams.get("watchlist") ?? undefined
   );
+  const juicy = parseJuicyFlag(searchParams.get("juicy") ?? undefined);
 
   function update(updates: {
     region?: string;
     type?: string;
     minFame?: string | null;
     watchlist?: string | null;
+    juicy?: string | null;
   }) {
     if (updates.region) {
       rememberFeedRegionSelection(updates.region);
@@ -115,14 +123,19 @@ export function KillFeedFilters({
         />
       )}
       {showWatchlist && (
-        <Button
-          variant={watchlistOnly ? "default" : "outline"}
-          size="sm"
-          aria-pressed={watchlistOnly}
-          onClick={() => update({ watchlist: watchlistOnly ? null : "1" })}
-        >
-          {tFilters("watchlistOnly")}
-        </Button>
+        <FilterCheckbox
+          label={tFilters("watchlistOnly")}
+          checked={watchlistOnly}
+          onChange={(next) => update({ watchlist: next ? "1" : null })}
+        />
+      )}
+      {showJuicy && (
+        <FilterCheckbox
+          label={tFilters("juicy")}
+          title={tFilters("juicyHint")}
+          checked={juicy}
+          onChange={(next) => update({ juicy: next ? "1" : null })}
+        />
       )}
     </FilterBar>
   );

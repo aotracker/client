@@ -40,12 +40,12 @@ function OpsEventDetailsCell({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="text-[11px] text-primary hover:underline"
+        className="text-xs text-primary hover:underline"
       >
         {expanded ? "Hide details" : "Show details"}
       </button>
       {expanded && (
-        <pre className="max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-md border border-border/50 bg-muted/20 p-3 text-[11px] text-muted-foreground">
+        <pre className="max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-md border border-border/50 bg-muted/20 p-3 text-xs text-muted-foreground">
           {JSON.stringify(record, null, 2)}
         </pre>
       )}

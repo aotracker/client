@@ -384,7 +384,7 @@ export function SearchAutocomplete({
             </p>
           )}
           {!query.trim() && recentItems.length > 0 && (
-            <p className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {tCommon("labels.recent")}
             </p>
           )}
@@ -424,7 +424,7 @@ export function SearchAutocomplete({
                 {item.label}
               </span>
               {kindLabel(item.kind) && (
-                <span className="shrink-0 text-[10px] uppercase tracking-wide text-muted-foreground">
+                <span className="shrink-0 text-xs uppercase tracking-wide text-muted-foreground">
                   {kindLabel(item.kind)}
                 </span>
               )}

@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { DiscordFeedFiltersBuilder } from "@/components/discord/DiscordFeedFiltersBuilder";
 import { PageHeader } from "@/components/PageSection";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { discordInviteUrl } from "@/lib/discord-invite";
 import { buildPageMetadata } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
@@ -34,6 +36,7 @@ const COMMANDS = [
   { name: "/track", key: "track" },
   { name: "/kills-channel", key: "killsChannel" },
   { name: "/deaths-channel", key: "deathsChannel" },
+  { name: "/battles-channel", key: "battlesChannel" },
   { name: "/untrack", key: "untrack" },
   { name: "/status", key: "status" },
   { name: "/feed-filters", key: "feedFilters" },
@@ -70,12 +73,7 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
       />
 
       {inviteHref ? (
-        <a
-          href={inviteHref}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        >
-          {t("invite")}
-        </a>
+        <Button href={inviteHref}>{t("invite")}</Button>
       ) : (
         <p className="text-sm text-muted-foreground">{t("inviteUnavailable")}</p>
       )}
@@ -86,13 +84,13 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
           <img
             src={KILL_FEED_PREVIEW_EMBED}
             alt={t("previewAltEmbed")}
-            className="h-auto w-full max-w-sm rounded-lg border border-border bg-card/40"
+            className="h-auto w-full max-w-sm rounded-lg border border-border bg-card"
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={KILL_FEED_PREVIEW}
             alt={t("previewAlt")}
-            className="h-auto w-full max-w-md rounded-lg border border-border bg-card/40"
+            className="h-auto w-full max-w-md rounded-lg border border-border bg-card"
           />
         </div>
         <figcaption className="text-sm text-muted-foreground">
@@ -154,10 +152,8 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
           {COMMANDS.map((cmd) => {
             const copy = commandCopy[cmd.key];
             return (
-              <article
-                key={cmd.key}
-                className="space-y-2 rounded-lg border border-border bg-card/40 px-4 py-3"
-              >
+              <Card key={cmd.key} variant="muted">
+                <CardContent className="space-y-2 p-4">
                 <div className="space-y-0.5">
                   <h3 className="font-mono text-sm font-semibold text-foreground">
                     {cmd.name}
@@ -165,23 +161,24 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
                   <p className="text-foreground/90">{copy.summary}</p>
                 </div>
                 <p>
-                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  <span className="text-label">
                     {t("usageLabel")}
                   </span>
-                  <code className="mt-1 block overflow-x-auto rounded-md bg-muted px-2.5 py-1.5 font-mono text-[13px] text-foreground">
+                  <code className="mt-1 block overflow-x-auto rounded-md bg-muted px-3 py-1.5 font-mono text-sm text-foreground">
                     {copy.usage}
                   </code>
                 </p>
                 <p>{copy.detail}</p>
                 <p>
-                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  <span className="text-label">
                     {t("exampleLabel")}
                   </span>
-                  <code className="mt-1 block overflow-x-auto rounded-md bg-muted/70 px-2.5 py-1.5 font-mono text-[13px] text-foreground">
+                  <code className="mt-1 block overflow-x-auto rounded-md bg-muted px-3 py-1.5 font-mono text-sm text-foreground">
                     {copy.example}
                   </code>
                 </p>
-              </article>
+                </CardContent>
+              </Card>
             );
           })}
         </div>

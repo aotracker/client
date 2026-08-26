@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { LoginButtons } from "@/components/auth/LoginButtons";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { isSocialLoginVisible } from "@/lib/auth-providers";
 
 export function LoginForm({
@@ -17,15 +18,14 @@ export function LoginForm({
   const showButtons = authConfigured && isSocialLoginVisible();
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
-      <div className="space-y-2 border-b border-border px-5 py-5 sm:px-6">
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+    <Card>
+      <CardHeader>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">
           {t("loginTitle")}
         </h1>
         <p className="text-sm text-muted-foreground">{t("loginDescription")}</p>
-      </div>
-
-      <div className="space-y-4 px-5 py-5 sm:px-6">
+      </CardHeader>
+      <CardContent className="space-y-4">
         {showButtons ? (
           <LoginButtons callbackURL={callbackURL} />
         ) : (
@@ -34,7 +34,7 @@ export function LoginForm({
           </p>
         )}
 
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
+        <p className="text-xs leading-relaxed text-muted-foreground">
           {t.rich("loginLegal", {
             privacy: (chunks) => (
               <Link href="/privacy" className="text-primary hover:underline">
@@ -43,7 +43,7 @@ export function LoginForm({
             ),
           })}
         </p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

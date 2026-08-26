@@ -55,6 +55,7 @@ interface KillFeedListProps {
   preview?: boolean;
   minFame?: number;
   watchlistOnly?: boolean;
+  juicy?: boolean;
   onPollAtChange?: (at: Date) => void;
   onPausedChange?: (paused: boolean) => void;
   /** When set, shown on the left of the pause control (full /kills feed). */
@@ -80,6 +81,7 @@ export function KillFeedList({
   preview = false,
   minFame = 0,
   watchlistOnly = false,
+  juicy = false,
   onPollAtChange,
   onPausedChange,
   liveStatus,
@@ -139,6 +141,7 @@ export function KillFeedList({
       if (region !== "all") params.set("region", region);
       if (contentType !== "all") params.set("type", contentType);
       if (minFame > 0) params.set("minFame", String(minFame));
+      if (juicy) params.set("juicy", "1");
       if (watchlistOnly) {
         const refs = watchlistRefsByType(entries);
         params.set("players", serializeWatchlistRefs(refs.players));
@@ -146,7 +149,7 @@ export function KillFeedList({
         params.set("alliances", serializeWatchlistRefs(refs.alliances));
       }
     },
-    [contentType, entries, minFame, region, watchlistOnly]
+    [contentType, entries, juicy, minFame, region, watchlistOnly]
   );
 
   const pollNew = useCallback(async () => {

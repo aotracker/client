@@ -111,7 +111,7 @@ export async function EntityHeader({
               {actions}
               {entityId ? (
                 <Tooltip content={`${resolvedIdLabel}: ${entityId}`}>
-                  <span className="inline-block max-w-full overflow-x-auto whitespace-nowrap font-mono text-[10px] leading-tight text-muted-foreground/50 sm:text-right">
+                  <span className="inline-block max-w-full overflow-x-auto whitespace-nowrap font-mono text-xs leading-tight text-muted-foreground/50 sm:text-right">
                     {entityId}
                   </span>
                 </Tooltip>

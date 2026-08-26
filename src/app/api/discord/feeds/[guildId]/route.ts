@@ -2,12 +2,15 @@ import { NextResponse } from "next/server";
 import { discordInviteUrl } from "@/lib/discord-invite";
 import { requireDiscordManageGuild } from "@/lib/discord-manage-auth";
 import {
+  FEED_GUILD_BATTLES,
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
+  getDiscordPreviewMessageId,
   isAlbionRegion,
   isDiscordServerInstalled,
   listServerFeedSummaries,
   patchDiscordFeedFilters,
+  recordDiscordPreviewMessage,
   setDiscordFeedChannel,
   trackGuildOnDiscordServer,
   untrackGuildOnDiscordServer,
@@ -17,6 +20,7 @@ import {
   botIsInGuild,
   listGuildRoles,
   listGuildTextChannels,
+  postOrEditBattlePreviewMessage,
   postTestMessage,
 } from "@/lib/discord-bot-api";
 
@@ -32,6 +36,7 @@ function invite(): string | null {
 function feedTypeFrom(value: unknown): DiscordFeedType | null {
   if (value === "kills" || value === FEED_GUILD_KILLS) return FEED_GUILD_KILLS;
   if (value === "deaths" || value === FEED_GUILD_DEATHS) return FEED_GUILD_DEATHS;
+  if (value === "battles" || value === FEED_GUILD_BATTLES) return FEED_GUILD_BATTLES;
   return null;
 }
 
@@ -166,6 +171,14 @@ export async function POST(request: Request, context: RouteContext) {
             : undefined,
       contentTypes: contentTypes === undefined ? undefined : contentTypes,
       paused: typeof body.paused === "boolean" ? body.paused : undefined,
+      minPlayers:
+        typeof body.minPlayers === "number"
+          ? body.minPlayers
+          : body.minPlayers === null
+            ? null
+            : undefined,
+      createThread:
+        typeof body.createThread === "boolean" ? body.createThread : undefined,
     });
     if (!ok) {
       return NextResponse.json({ error: "not_tracked" }, { status: 400 });
@@ -214,6 +227,23 @@ export async function POST(request: Request, context: RouteContext) {
     const feed = feeds.find((row) => row.feedType === feedType);
     if (!feed?.channelId) {
       return NextResponse.json({ error: "no_channel" }, { status: 400 });
+    }
+    if (feedType === FEED_GUILD_BATTLES) {
+      const existingMessageId = await getDiscordPreviewMessageId(feed.id);
+      const posted = await postOrEditBattlePreviewMessage({
+        channelId: feed.channelId,
+        region: feed.region,
+        trackedGuildName: feed.targetName ?? "Your guild",
+        existingMessageId,
+      });
+      if (!posted.ok) {
+        return NextResponse.json(
+          { error: "post_failed" },
+          { status: posted.status === 503 ? 503 : 502 }
+        );
+      }
+      await recordDiscordPreviewMessage(feed.id, posted.messageId);
+      return NextResponse.json({ ok: true, edited: posted.edited });
     }
     const posted = await postTestMessage(feed.channelId);
     if (!posted.ok) {

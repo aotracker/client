@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Card } from "@/components/ui/card";
 import { leaderboardRankHighlightClassName } from "@/components/leaderboards/leaderboard-rank-styles";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +43,7 @@ export function LeaderboardTableHeader({
   return (
     <div
       className={cn(
-        "hidden gap-x-3 border-b border-border/60 bg-muted/20 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground xl:grid",
+        "hidden gap-x-3 border-b border-border/60 bg-muted/20 px-3 py-2 text-label xl:grid",
         gridClassName
       )}
       aria-hidden
@@ -94,14 +95,7 @@ export function LeaderboardPanel({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-md border border-border/60 bg-card/40",
-        className
-      )}
-    >
-      {children}
-    </div>
+    <Card className={cn("overflow-hidden", className)}>{children}</Card>
   );
 }
 

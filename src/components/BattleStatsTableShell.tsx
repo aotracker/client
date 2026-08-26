@@ -93,10 +93,10 @@ export function BattleStatsTableShell<T>({
 }
 
 export const battleTableHeaderClass =
-  "px-2 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground first:pl-0 last:pr-0 sm:px-3";
+  "px-2 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground first:pl-0 last:pr-0 sm:px-3";
 
 export const battleTableHeaderNumericClass =
-  "w-12 px-1.5 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground last:pr-0 sm:w-14 sm:px-2";
+  "w-12 px-1.5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground last:pr-0 sm:w-14 sm:px-2";
 
 export const battleTableCellClass = "min-w-0 truncate px-2 py-2.5 first:pl-0 last:pr-0 sm:px-3";
 

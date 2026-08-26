@@ -6,6 +6,7 @@ import { LogOut, UserRound } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useSession } from "@/lib/auth-client";
 import { LoginButtons, DiscordIcon } from "@/components/auth/LoginButtons";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageSection";
 import { signOutWithPrefsSnapshot } from "@/lib/auth-prefs";
 import { isSocialLoginVisible } from "@/lib/auth-providers";
@@ -28,14 +29,15 @@ export function AccountPageHeader({
       }
       actions={
         session?.user ? (
-          <button
+          <Button
             type="button"
-            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            variant="outline"
+            size="sm"
             onClick={() => void signOutWithPrefsSnapshot(session.user.id)}
           >
             <LogOut className="h-3.5 w-3.5" aria-hidden />
             {t("signOut")}
-          </button>
+          </Button>
         ) : null
       }
     />
@@ -89,7 +91,7 @@ export function AccountSettingsNav({
                   "h-3.5 w-3.5",
                   active
                     ? item.id === "discord"
-                      ? "text-[#5865F2]"
+                      ? "text-discord"
                       : "text-primary"
                     : "text-muted-foreground"
                 )}

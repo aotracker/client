@@ -1,3 +1,9 @@
+import { createBattleOgImage } from "@/lib/og";
+import {
+  battlePreviewOgInput,
+  buildBattlePreviewMessageBody,
+} from "./discord-battle-preview";
+
 const DISCORD_API = "https://discord.com/api/v10";
 const USER_AGENT = "AOTracker (https://www.aotracker.net)";
 
@@ -149,4 +155,93 @@ export async function postTestMessage(
   if (!res.ok) return { ok: false, status: res.status };
   const data = (await res.json()) as { id?: string };
   return { ok: true, messageId: typeof data.id === "string" ? data.id : null };
+}
+
+async function battlePreviewPng(input: {
+  region: string;
+  trackedGuildName: string;
+}): Promise<Buffer | null> {
+  try {
+    const image = createBattleOgImage(battlePreviewOgInput(input));
+    return Buffer.from(await image.arrayBuffer());
+  } catch (err) {
+    console.warn(
+      "[discord] battle preview image skipped:",
+      err instanceof Error ? err.message : err
+    );
+    return null;
+  }
+}
+
+function battlePreviewFormData(
+  body: ReturnType<typeof buildBattlePreviewMessageBody>,
+  png: Buffer | null
+): FormData {
+  const payload = structuredClone(body);
+  if (png) {
+    payload.embeds[0] = {
+      ...payload.embeds[0],
+      image: { url: "attachment://battle.png" },
+    };
+    Object.assign(payload, {
+      attachments: [{ id: 0, filename: "battle.png" }],
+    });
+  }
+  const form = new FormData();
+  form.append("payload_json", JSON.stringify(payload));
+  if (png) {
+    form.append(
+      "files[0]",
+      new Blob([new Uint8Array(png)], { type: "image/png" }),
+      "battle.png"
+    );
+  }
+  return form;
+}
+
+export async function postOrEditBattlePreviewMessage(input: {
+  channelId: string;
+  region: string;
+  trackedGuildName: string;
+  existingMessageId?: string | null;
+}): Promise<
+  | { ok: true; messageId: string | null; edited: boolean }
+  | { ok: false; status: number }
+> {
+  const token = discordBotToken();
+  if (!token) return { ok: false, status: 503 };
+  const body = buildBattlePreviewMessageBody({
+    region: input.region,
+    trackedGuildName: input.trackedGuildName,
+  });
+  const png = await battlePreviewPng({
+    region: input.region,
+    trackedGuildName: input.trackedGuildName,
+  });
+  const form = battlePreviewFormData(body, png);
+  const headers = botHeaders(token);
+
+  if (input.existingMessageId) {
+    const edited = await fetch(
+      `${DISCORD_API}/channels/${input.channelId}/messages/${input.existingMessageId}`,
+      { method: "PATCH", headers, body: form }
+    );
+    if (edited.ok) {
+      return { ok: true, messageId: input.existingMessageId, edited: true };
+    }
+    if (edited.status !== 404) return { ok: false, status: edited.status };
+  }
+
+  const res = await fetch(`${DISCORD_API}/channels/${input.channelId}/messages`, {
+    method: "POST",
+    headers,
+    body: form,
+  });
+  if (!res.ok) return { ok: false, status: res.status };
+  const data = (await res.json()) as { id?: string };
+  return {
+    ok: true,
+    messageId: typeof data.id === "string" ? data.id : null,
+    edited: false,
+  };
 }

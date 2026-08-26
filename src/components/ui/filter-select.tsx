@@ -25,6 +25,37 @@ export function FilterBar({
   );
 }
 
+export function FilterCheckbox({
+  label,
+  checked,
+  onChange,
+  title,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  title?: string;
+}) {
+  const id = useId();
+
+  return (
+    <label
+      htmlFor={id}
+      title={title}
+      className="flex h-8 cursor-pointer items-center gap-2 text-sm"
+    >
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-4 w-4 shrink-0 rounded-sm border-border accent-primary"
+      />
+      {label}
+    </label>
+  );
+}
+
 export function FilterSelect<T extends string>({
   label,
   value,
@@ -81,14 +112,14 @@ export function FilterSelect<T extends string>({
       ref={rootRef}
       className={cn(
         "relative inline-block",
-        fit ? "w-fit" : "min-w-[9.5rem]",
+        fit ? "w-fit" : "min-w-40",
         className
       )}
     >
       {label ? (
         <p
           id={labelId}
-          className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          className="text-label mb-1.5"
         >
           {label}
         </p>

@@ -32,7 +32,7 @@ export function KillCardSkeleton({
   compactSize?: "default" | "large";
 }) {
   const large = compactSize === "large";
-  const icon = large ? "h-11 w-11 sm:h-16 sm:w-16" : "h-9 w-9";
+  const icon = large ? "h-11 w-11 sm:h-16 sm:w-16" : "size-8";
 
   return (
     <Card className="border-border/60">

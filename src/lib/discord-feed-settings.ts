@@ -4,16 +4,24 @@ import { getGuildByAlbionId } from "@/lib/db/queries/entities";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { isRegionEnabled } from "@/lib/albion/types";
 import {
+  FEED_GUILD_BATTLES,
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
+  GUILD_FEED_TYPES,
+  clampBattleMinPlayers,
+  isDiscordFeedType,
+  battlePreviewEventKey,
   type DiscordFeedFilters,
   type DiscordFeedType,
   type FeedSummary,
 } from "@/lib/discord-feed-types";
 
 export {
+  FEED_GUILD_BATTLES,
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
+  GUILD_FEED_TYPES,
+  isDiscordFeedType,
   type DiscordFeedFilters,
   type DiscordFeedType,
   type FeedSummary,
@@ -32,6 +40,8 @@ export function applyFeedFilterPatch(
     contentTypes?: string[] | null;
     paused?: boolean | null;
     pingRoleId?: string | null;
+    minPlayers?: number | null;
+    createThread?: boolean | null;
   }
 ): DiscordFeedFilters {
   const next = { ...current };
@@ -57,6 +67,15 @@ export function applyFeedFilterPatch(
   if ("pingRoleId" in patch) {
     if (patch.pingRoleId) next.pingRoleId = patch.pingRoleId;
     else delete next.pingRoleId;
+  }
+  if ("minPlayers" in patch) {
+    if (patch.minPlayers && patch.minPlayers > 0) {
+      next.minPlayers = clampBattleMinPlayers(patch.minPlayers);
+    } else delete next.minPlayers;
+  }
+  if ("createThread" in patch) {
+    if (patch.createThread) next.createThread = true;
+    else delete next.createThread;
   }
   return next;
 }
@@ -87,7 +106,8 @@ export async function listServerFeedSummaries(
                 rows.map((row) => row.id)
               ),
               isNotNull(schema.discordPostLog.discordMessageId),
-              sql`${schema.discordPostLog.discordMessageId} not like 'skipped:%'`
+              sql`${schema.discordPostLog.discordMessageId} not like 'skipped:%'`,
+              sql`(${schema.discordPostLog.eventKey} like 'kill:%' or ${schema.discordPostLog.eventKey} like 'battle:%')`
             )
           )
           .groupBy(schema.discordPostLog.feedId);
@@ -96,10 +116,16 @@ export async function listServerFeedSummaries(
     lastPosts.map((row) => [row.feedId, row.lastPostedAt.toISOString()])
   );
 
-  return rows
-    .filter(
-      (row): row is typeof row & { feedType: DiscordFeedType } =>
-        row.feedType === FEED_GUILD_KILLS || row.feedType === FEED_GUILD_DEATHS
+  await ensureGuildBattlesFeedFromRows(discordGuildId, rows);
+
+  const latest = await db
+    .select()
+    .from(schema.discordFeeds)
+    .where(eq(schema.discordFeeds.discordGuildId, discordGuildId));
+
+  return latest
+    .filter((row): row is typeof row & { feedType: DiscordFeedType } =>
+      isDiscordFeedType(row.feedType)
     )
     .map((row) => ({
       id: row.id,
@@ -123,6 +149,34 @@ export async function isDiscordServerInstalled(
     .where(eq(schema.discordServers.discordGuildId, discordGuildId))
     .limit(1);
   return Boolean(row && !row.leftAt);
+}
+
+async function ensureGuildBattlesFeedFromRows(
+  discordGuildId: string,
+  rows: (typeof schema.discordFeeds.$inferSelect)[]
+): Promise<void> {
+  const source = rows.find(
+    (row) =>
+      row.feedType === FEED_GUILD_KILLS || row.feedType === FEED_GUILD_DEATHS
+  );
+  if (!source) return;
+  if (rows.some((row) => row.feedType === FEED_GUILD_BATTLES)) return;
+
+  const now = new Date();
+  await db
+    .insert(schema.discordFeeds)
+    .values({
+      discordGuildId,
+      feedType: FEED_GUILD_BATTLES,
+      targetType: source.targetType,
+      targetAlbionId: source.targetAlbionId,
+      region: source.region,
+      targetName: source.targetName,
+      createdByUserId: source.createdByUserId,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .onConflictDoNothing();
 }
 
 export async function upsertDiscordServerRow(
@@ -161,10 +215,7 @@ export async function trackGuildOnDiscordServer(input: {
     .select()
     .from(schema.discordFeeds)
     .where(eq(schema.discordFeeds.discordGuildId, input.discordGuildId));
-  const prior = existing.filter(
-    (row) =>
-      row.feedType === FEED_GUILD_KILLS || row.feedType === FEED_GUILD_DEATHS
-  );
+  const prior = existing.filter((row) => isDiscordFeedType(row.feedType));
   const replaced =
     prior.length > 0 &&
     prior.some(
@@ -179,10 +230,7 @@ export async function trackGuildOnDiscordServer(input: {
       .where(
         and(
           eq(schema.discordFeeds.discordGuildId, input.discordGuildId),
-          inArray(schema.discordFeeds.feedType, [
-            FEED_GUILD_KILLS,
-            FEED_GUILD_DEATHS,
-          ])
+          inArray(schema.discordFeeds.feedType, [...GUILD_FEED_TYPES])
         )
       );
   }
@@ -211,6 +259,17 @@ export async function trackGuildOnDiscordServer(input: {
       createdAt: now,
       updatedAt: now,
     },
+    {
+      discordGuildId: input.discordGuildId,
+      feedType: FEED_GUILD_BATTLES,
+      targetType: "guild",
+      targetAlbionId: guild.albionId,
+      region: input.region,
+      targetName: guild.name,
+      createdByUserId: input.createdByUserId,
+      createdAt: now,
+      updatedAt: now,
+    },
   ]);
 
   return { ok: true, replaced };
@@ -224,10 +283,7 @@ export async function untrackGuildOnDiscordServer(
     .where(
       and(
         eq(schema.discordFeeds.discordGuildId, discordGuildId),
-        inArray(schema.discordFeeds.feedType, [
-          FEED_GUILD_KILLS,
-          FEED_GUILD_DEATHS,
-        ])
+        inArray(schema.discordFeeds.feedType, [...GUILD_FEED_TYPES])
       )
     )
     .returning({ id: schema.discordFeeds.id });
@@ -298,4 +354,39 @@ export async function patchDiscordFeedFilters(
 
 export function isAlbionRegion(value: string): value is AlbionRegion {
   return isRegionEnabled(value);
+}
+
+export async function getDiscordPreviewMessageId(
+  feedId: string
+): Promise<string | null> {
+  const [row] = await db
+    .select({ discordMessageId: schema.discordPostLog.discordMessageId })
+    .from(schema.discordPostLog)
+    .where(
+      and(
+        eq(schema.discordPostLog.feedId, feedId),
+        eq(schema.discordPostLog.eventKey, battlePreviewEventKey(feedId))
+      )
+    )
+    .limit(1);
+  const id = row?.discordMessageId;
+  if (!id || id.startsWith("skipped:")) return null;
+  return id;
+}
+
+export async function recordDiscordPreviewMessage(
+  feedId: string,
+  discordMessageId: string | null
+): Promise<void> {
+  await db
+    .insert(schema.discordPostLog)
+    .values({
+      feedId,
+      eventKey: battlePreviewEventKey(feedId),
+      discordMessageId,
+    })
+    .onConflictDoUpdate({
+      target: [schema.discordPostLog.feedId, schema.discordPostLog.eventKey],
+      set: { discordMessageId, postedAt: new Date() },
+    });
 }

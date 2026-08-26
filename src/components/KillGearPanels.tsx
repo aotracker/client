@@ -177,7 +177,7 @@ function ItemDisplay({
         fill
       />
       {(item.count ?? 1) > 1 && (
-        <span className="absolute bottom-0 right-0 rounded bg-background/90 px-0.5 text-[9px] font-bold leading-tight">
+        <span className="absolute bottom-0 right-0 rounded bg-background/90 px-0.5 text-xs font-bold leading-tight">
           {item.count}
         </span>
       )}
@@ -195,7 +195,7 @@ function ItemDisplay({
         {item.estSilver != null && item.estSilver > 0 && (
           <SilverValue
             amount={item.estSilver}
-            className="text-[10px] text-muted-foreground"
+            className="text-xs text-muted-foreground"
             iconClassName="size-2.5"
           />
         )}

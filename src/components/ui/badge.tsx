@@ -18,7 +18,7 @@ const variants = {
 
 const sizes = {
   default: "px-2 py-0.5 text-xs",
-  sm: "px-1.5 py-0 text-[11px] leading-tight",
+  sm: "px-1.5 py-0 text-xs leading-tight",
 };
 
 export function Badge({

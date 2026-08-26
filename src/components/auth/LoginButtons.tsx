@@ -8,6 +8,7 @@ import {
   type SocialAuthProvider,
 } from "@/lib/auth-providers";
 import { startSocialSignIn } from "@/lib/social-sign-in";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function DiscordIcon({ className }: { className?: string }) {
@@ -107,43 +108,40 @@ function LoginButtonsView({
     }
   }
 
-  const buttonClass = cn(
-    "inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background font-medium text-foreground transition-colors",
-    "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-    "disabled:pointer-events-none disabled:opacity-60",
-    size === "sm" ? "h-9 px-3 text-xs" : "h-11 px-4 text-sm"
-  );
-
   return (
-    <div className={cn("flex flex-col gap-2.5", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       {error ? (
         <p className="text-xs text-danger-foreground" role="alert">
           {error}
         </p>
       ) : null}
       {showDiscord ? (
-        <button
+        <Button
           type="button"
-          className={buttonClass}
+          variant="outline"
+          size={size}
+          className="w-full"
           disabled={pending !== null}
           onClick={() => void signIn("discord")}
         >
-          <DiscordIcon className="h-4 w-4 shrink-0 text-[#5865F2]" />
+          <DiscordIcon className="h-4 w-4 shrink-0 text-discord" />
           {pending === "discord"
             ? labels.signingIn
             : labels.signInWithDiscord}
-        </button>
+        </Button>
       ) : null}
       {showGoogle ? (
-        <button
+        <Button
           type="button"
-          className={buttonClass}
+          variant="outline"
+          size={size}
+          className="w-full"
           disabled={pending !== null}
           onClick={() => void signIn("google")}
         >
           <GoogleIcon className="h-4 w-4 shrink-0" />
           {pending === "google" ? labels.signingIn : labels.signInWithGoogle}
-        </button>
+        </Button>
       ) : null}
     </div>
   );

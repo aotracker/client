@@ -9,6 +9,7 @@ import {
   Pause,
   Swords,
   Skull,
+  Shield,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { authClient, useSession } from "@/lib/auth-client";
@@ -26,8 +27,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Input, Select } from "@/components/ui/input";
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
 import {
+  DEFAULT_BATTLE_FEED_MIN_PLAYERS,
+  FEED_GUILD_BATTLES,
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
   type DiscordFeedFilters,
@@ -62,7 +66,6 @@ type GuildHit = {
 };
 
 const CONTENT_OPTIONS = ["SOLO", "GROUP", "ZVZ"] as const;
-const ACCOUNT_CARD = "border-border/80 bg-card/80";
 
 function DiscordFeedsShell({ children }: { children: React.ReactNode }) {
   const tFeeds = useTranslations("Discord.feeds");
@@ -99,7 +102,7 @@ function GuildAvatar({
   guild: { id: string; name: string; icon: string | null };
   size?: "sm" | "md";
 }) {
-  const dim = size === "sm" ? "h-6 w-6 text-[10px]" : "h-10 w-10 text-sm";
+  const dim = size === "sm" ? "h-6 w-6 text-xs" : "h-10 w-10 text-sm";
   const url = guildIconUrl(guild);
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element
@@ -135,10 +138,8 @@ function StatusPill({
   muted?: boolean;
 }) {
   return (
-    <div className="min-w-0 rounded-lg border border-border/50 bg-muted/15 px-3 py-2.5">
-      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </p>
+    <Card variant="muted" className="min-w-0 px-3 py-2">
+      <p className="text-label">{label}</p>
       <div
         className={cn(
           "mt-1 truncate text-sm",
@@ -149,7 +150,7 @@ function StatusPill({
       >
         {value}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -352,8 +353,11 @@ export function DiscordFeedsPageClient() {
   const selected = guilds.find((guild) => guild.id === selectedId) ?? null;
   const kills = feedOf(detail?.feeds ?? [], FEED_GUILD_KILLS);
   const deaths = feedOf(detail?.feeds ?? [], FEED_GUILD_DEATHS);
-  const trackedName = kills?.targetName ?? deaths?.targetName ?? null;
-  const trackedRegion = kills?.region ?? deaths?.region ?? null;
+  const battles = feedOf(detail?.feeds ?? [], FEED_GUILD_BATTLES);
+  const trackedName =
+    kills?.targetName ?? deaths?.targetName ?? battles?.targetName ?? null;
+  const trackedRegion =
+    kills?.region ?? deaths?.region ?? battles?.region ?? null;
   const botReady = Boolean(selected?.botInstalled || detail?.botInstalled);
 
   const regionOptions = ENABLED_REGIONS.map((value) => ({
@@ -409,8 +413,8 @@ export function DiscordFeedsPageClient() {
   if (needsDiscord) {
     return (
       <DiscordFeedsShell>
-        <Card className={ACCOUNT_CARD}>
-          <CardContent className="space-y-3 p-5">
+        <Card>
+          <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">{t("linkDiscordBody")}</p>
             <Button type="button" onClick={() => void reconnectDiscord()}>
               {t("linkDiscord")}
@@ -424,8 +428,8 @@ export function DiscordFeedsPageClient() {
   if (needsReauth) {
     return (
       <DiscordFeedsShell>
-        <Card className={ACCOUNT_CARD}>
-          <CardContent className="space-y-3 p-5">
+        <Card>
+          <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">{t("reauthBody")}</p>
             <Button type="button" onClick={() => void reconnectDiscord()}>
               {t("reauth")}
@@ -445,7 +449,7 @@ export function DiscordFeedsPageClient() {
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:items-start">
-        <Card className={ACCOUNT_CARD}>
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="font-display text-base text-foreground/90">
               {t("serversTitle")}
@@ -486,7 +490,7 @@ export function DiscordFeedsPageClient() {
 
         <div className="min-w-0 space-y-4">
           {!selected ? (
-            <Card className={ACCOUNT_CARD}>
+            <Card>
               <CardContent className="flex min-h-40 items-center justify-center p-6">
                 <p className="text-center text-sm text-muted-foreground">
                   {t("pickServer")}
@@ -495,8 +499,8 @@ export function DiscordFeedsPageClient() {
             </Card>
           ) : (
             <>
-              <Card className={ACCOUNT_CARD}>
-                <CardContent className="space-y-4 p-5">
+              <Card>
+                <CardContent className="space-y-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <GuildAvatar guild={selected} />
@@ -511,12 +515,9 @@ export function DiscordFeedsPageClient() {
                       </div>
                     </div>
                     {!botReady && inviteUrl ? (
-                      <a
-                        href={inviteUrl}
-                        className="inline-flex h-9 shrink-0 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground"
-                      >
+                      <Button href={inviteUrl} size="sm" className="shrink-0">
                         {t("inviteBot")}
-                      </a>
+                      </Button>
                     ) : null}
                   </div>
 
@@ -526,7 +527,7 @@ export function DiscordFeedsPageClient() {
                     </p>
                   ) : null}
 
-                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                     <StatusPill
                       label={t("statusGuild")}
                       value={
@@ -569,6 +570,22 @@ export function DiscordFeedsPageClient() {
                       muted={!deaths?.channelId}
                     />
                     <StatusPill
+                      label={t("statusBattles")}
+                      value={
+                        <>
+                          {channelLabel(battles?.channelId, detail?.channels) ??
+                            t("channelUnset")}
+                          {battles?.filters.paused ? (
+                            <span className="ml-1 inline-flex items-center gap-0.5 text-xs text-muted-foreground">
+                              <Pause className="h-3 w-3" aria-hidden />
+                              {t("paused")}
+                            </span>
+                          ) : null}
+                        </>
+                      }
+                      muted={!battles?.channelId}
+                    />
+                    <StatusPill
                       label={t("statusLastActivity")}
                       muted
                       value={
@@ -591,6 +608,15 @@ export function DiscordFeedsPageClient() {
                               neverLabel={t("neverPosted")}
                             />
                           </span>
+                          <span>
+                            <span className="text-muted-foreground/80">
+                              {t("statusBattles")}:{" "}
+                            </span>
+                            <PostedAt
+                              value={battles?.lastPostedAt ?? null}
+                              neverLabel={t("neverPosted")}
+                            />
+                          </span>
                         </span>
                       }
                     />
@@ -598,7 +624,7 @@ export function DiscordFeedsPageClient() {
                 </CardContent>
               </Card>
 
-              <Card className={ACCOUNT_CARD}>
+              <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="font-display text-base text-foreground/90">
                     {t("trackTitle")}
@@ -606,7 +632,7 @@ export function DiscordFeedsPageClient() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {trackedName ? (
-                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/60 bg-muted/15 px-3 py-2.5">
+                    <Card variant="muted" className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground/90">
                           {trackedName}
@@ -624,10 +650,10 @@ export function DiscordFeedsPageClient() {
                       >
                         {t("untrack")}
                       </Button>
-                    </div>
+                    </Card>
                   ) : null}
 
-                  <div className="grid gap-3 sm:grid-cols-[9.5rem_minmax(0,1fr)]">
+                  <div className="grid gap-3 sm:grid-cols-[10rem_minmax(0,1fr)]">
                     <FilterSelect
                       aria-label={t("region")}
                       value={region}
@@ -639,7 +665,8 @@ export function DiscordFeedsPageClient() {
                         setPendingGuild(null);
                       }}
                     />
-                    <input
+                    <Input
+                      size="sm"
                       value={guildQuery}
                       onChange={(event) => {
                         setGuildQuery(event.target.value);
@@ -647,7 +674,6 @@ export function DiscordFeedsPageClient() {
                       }}
                       disabled={busy}
                       placeholder={t("guildSearch")}
-                      className="flex h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground disabled:opacity-60"
                       autoComplete="off"
                     />
                   </div>
@@ -690,10 +716,10 @@ export function DiscordFeedsPageClient() {
                 </CardContent>
               </Card>
 
-              {kills || deaths ? (
+              {kills || deaths || battles ? (
                 <>
                   {channelsWarning ? (
-                    <div className="flex gap-3 rounded-lg border border-border/60 bg-muted/20 px-4 py-3">
+                    <div className="flex gap-3 rounded-lg border border-warning-border/30 bg-warning/10 px-4 py-3">
                       <AlertTriangle
                         className="mt-0.5 h-4 w-4 shrink-0 text-warning-foreground"
                         aria-hidden
@@ -703,12 +729,12 @@ export function DiscordFeedsPageClient() {
                         {(detail?.channelsError === "bot_not_in_guild" ||
                           detail?.channelsError === "forbidden") &&
                         (detail.inviteUrl || inviteUrl) ? (
-                          <a
+                          <Button
                             href={detail.inviteUrl ?? inviteUrl ?? "#"}
-                            className="inline-flex h-8 items-center rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground"
+                            size="sm"
                           >
                             {t("inviteBot")}
-                          </a>
+                          </Button>
                         ) : null}
                       </div>
                     </div>
@@ -792,6 +818,37 @@ export function DiscordFeedsPageClient() {
                       }
                     />
                   </div>
+                  <BattleFeedEditor
+                    title={t("battlesTitle")}
+                    feed={battles}
+                    channelOptions={channelOptions}
+                    roles={detail?.roles ?? []}
+                    busy={busy}
+                    onChannel={(channelId) =>
+                      void postAction({
+                        action: "set-channel",
+                        feed: "battles",
+                        channelId,
+                      })
+                    }
+                    onFilters={(patch) =>
+                      void postAction({
+                        action: "filters",
+                        feed: "battles",
+                        ...patch,
+                      })
+                    }
+                    onPingRole={(roleId) =>
+                      void postAction({
+                        action: "ping-role",
+                        feed: "battles",
+                        roleId,
+                      })
+                    }
+                    onTest={() =>
+                      void postAction({ action: "test-post", feed: "battles" })
+                    }
+                  />
                 </>
               ) : null}
             </>
@@ -866,7 +923,7 @@ function FeedEditor({
   if (!feed) return null;
 
   return (
-    <Card className={cn(ACCOUNT_CARD, "h-full")}>
+    <Card className="h-full">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 font-display text-base text-foreground/90">
           <Icon className="h-4 w-4 text-muted-foreground" aria-hidden />
@@ -876,12 +933,11 @@ function FeedEditor({
       <CardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block space-y-1.5 text-sm sm:col-span-2">
-            <span className="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <span className="text-label inline-flex items-center gap-1">
               <Hash className="h-3 w-3" aria-hidden />
               {t("channel")}
             </span>
-            <select
-              className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+            <Select
               value={feed.channelId ?? ""}
               disabled={busy}
               onChange={(event) => {
@@ -893,38 +949,30 @@ function FeedEditor({
                   {option.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
           <label className="space-y-1.5 text-sm">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t("minFame")}
-            </span>
-            <input
+            <span className="text-label">{t("minFame")}</span>
+            <Input
               type="number"
               min={0}
               value={minFame}
               onChange={(event) => setMinFame(event.target.value)}
-              className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60"
             />
           </label>
           <label className="space-y-1.5 text-sm">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t("minSilver")}
-            </span>
-            <input
+            <span className="text-label">{t("minSilver")}</span>
+            <Input
               type="number"
               min={0}
               value={minSilver}
               onChange={(event) => setMinSilver(event.target.value)}
-              className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:opacity-60"
             />
           </label>
         </div>
 
         <div className="space-y-1.5">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {contentLabel}
-          </p>
+          <p className="text-label">{contentLabel}</p>
           <div className="flex flex-wrap gap-2">
             {CONTENT_OPTIONS.map((value) => (
               <Button
@@ -956,11 +1004,8 @@ function FeedEditor({
         </label>
 
         <label className="block space-y-1.5 text-sm">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t("pingRole")}
-          </span>
-          <select
-            className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+          <span className="text-label">{t("pingRole")}</span>
+          <Select
             value={filters.pingRoleId ?? ""}
             disabled={busy}
             onChange={(event) => onPingRole(event.target.value || null)}
@@ -971,7 +1016,7 @@ function FeedEditor({
                 {role.name}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
 
         <div className="flex flex-wrap gap-2 border-t border-border/60 pt-3">
@@ -998,6 +1043,153 @@ function FeedEditor({
             onClick={onTest}
           >
             {t("testPost")}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function BattleFeedEditor({
+  title,
+  feed,
+  channelOptions,
+  roles,
+  busy,
+  onChannel,
+  onFilters,
+  onPingRole,
+  onTest,
+}: {
+  title: string;
+  feed: FeedSummary | undefined;
+  channelOptions: Array<{ value: string; label: string }>;
+  roles: Array<{ id: string; name: string }>;
+  busy: boolean;
+  onChannel: (channelId: string) => void;
+  onFilters: (patch: {
+    minPlayers: number | null;
+    createThread: boolean;
+    paused: boolean;
+  }) => void;
+  onPingRole: (roleId: string | null) => void;
+  onTest: () => void;
+}) {
+  const t = useTranslations("Discord.feeds");
+  const filters: DiscordFeedFilters = feed?.filters ?? {};
+  const [minPlayers, setMinPlayers] = useState(
+    String(filters.minPlayers ?? DEFAULT_BATTLE_FEED_MIN_PLAYERS)
+  );
+  const [createThread, setCreateThread] = useState(Boolean(filters.createThread));
+  const [paused, setPaused] = useState(Boolean(filters.paused));
+
+  useEffect(() => {
+    setMinPlayers(String(filters.minPlayers ?? DEFAULT_BATTLE_FEED_MIN_PLAYERS));
+    setCreateThread(Boolean(filters.createThread));
+    setPaused(Boolean(filters.paused));
+  }, [feed?.id, filters.minPlayers, filters.createThread, filters.paused]);
+
+  if (!feed) return null;
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 font-display text-base text-foreground/90">
+          <Shield className="h-4 w-4 text-muted-foreground" aria-hidden />
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">{t("battlesHelp")}</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block space-y-1.5 text-sm sm:col-span-2">
+            <span className="text-label inline-flex items-center gap-1">
+              <Hash className="h-3 w-3" aria-hidden />
+              {t("channel")}
+            </span>
+            <Select
+              value={feed.channelId ?? ""}
+              disabled={busy}
+              onChange={(event) => {
+                if (event.target.value) onChannel(event.target.value);
+              }}
+            >
+              {channelOptions.map((option) => (
+                <option key={option.value || "none"} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="space-y-1.5 text-sm">
+            <span className="text-label">{t("minPlayers")}</span>
+            <Input
+              type="number"
+              min={1}
+              max={500}
+              value={minPlayers}
+              onChange={(event) => setMinPlayers(event.target.value)}
+            />
+          </label>
+        </div>
+
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={createThread}
+            onChange={(event) => setCreateThread(event.target.checked)}
+          />
+          {t("createThread")}
+        </label>
+
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={paused}
+            onChange={(event) => setPaused(event.target.checked)}
+          />
+          {t("paused")}
+        </label>
+
+        <label className="block space-y-1.5 text-sm">
+          <span className="text-label">{t("pingRole")}</span>
+          <Select
+            value={filters.pingRoleId ?? ""}
+            disabled={busy}
+            onChange={(event) => onPingRole(event.target.value || null)}
+          >
+            <option value="">{t("pingRoleNone")}</option>
+            {roles.map((role) => (
+              <option key={role.id} value={role.id}>
+                {role.name}
+              </option>
+            ))}
+          </Select>
+        </label>
+
+        <div className="flex flex-wrap gap-2 border-t border-border/60 pt-3">
+          <Button
+            type="button"
+            size="sm"
+            disabled={busy}
+            onClick={() =>
+              onFilters({
+                minPlayers: Number(minPlayers) || null,
+                createThread,
+                paused,
+              })
+            }
+          >
+            {t("saveFilters")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={busy || !feed.channelId}
+            onClick={onTest}
+          >
+            {t("testPreview")}
           </Button>
         </div>
       </CardContent>

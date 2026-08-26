@@ -21,18 +21,18 @@ export function ApiLogErrorCell({ log }: { log: ApiRequestLogRow }) {
     <div className="space-y-2 min-w-[16rem] max-w-3xl">
       <div className="flex flex-wrap items-center gap-1.5">
         {log.errorType && (
-          <Badge variant="outline" className="font-mono text-[10px]">
+          <Badge variant="outline" className="font-mono text-xs">
             {log.errorType}
           </Badge>
         )}
         {parsed.statusCode != null && (
-          <Badge variant="zvz" className="font-mono text-[10px]">
+          <Badge variant="zvz" className="font-mono text-xs">
             HTTP {parsed.statusCode}
             {parsed.statusText ? ` ${parsed.statusText}` : ""}
           </Badge>
         )}
         {parsed.attempt != null && parsed.maxAttempts != null && (
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             attempt {parsed.attempt}/{parsed.maxAttempts}
           </span>
         )}
@@ -48,14 +48,14 @@ export function ApiLogErrorCell({ log }: { log: ApiRequestLogRow }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-[11px] text-primary hover:underline"
+          className="text-xs text-primary hover:underline"
         >
           {expanded ? "Hide details" : "Show full details"}
         </button>
       )}
 
       {expanded && (
-        <dl className="rounded-md border border-border/50 bg-muted/20 p-3 text-[11px] space-y-2">
+        <dl className="rounded-md border border-border/50 bg-muted/20 p-3 text-xs space-y-2">
           {parsed.url && (
             <DetailRow label="URL">
               <a
@@ -86,7 +86,7 @@ export function ApiLogErrorCell({ log }: { log: ApiRequestLogRow }) {
           )}
           {parsed.responseBody && (
             <DetailRow label="Response body">
-              <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap break-all rounded bg-background/60 p-2 text-[10px]">
+              <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap break-all rounded bg-background/60 p-2 text-xs">
                 {parsed.responseBody}
               </pre>
             </DetailRow>
@@ -95,7 +95,7 @@ export function ApiLogErrorCell({ log }: { log: ApiRequestLogRow }) {
             typeof log.details === "object" &&
             Object.keys(log.details as object).length > 0 && (
               <DetailRow label="Raw details">
-                <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap break-all rounded bg-background/60 p-2 text-[10px]">
+                <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap break-all rounded bg-background/60 p-2 text-xs">
                   {JSON.stringify(log.details, null, 2)}
                 </pre>
               </DetailRow>

@@ -195,9 +195,11 @@ function describeJob(job: QueueJobSummary): {
     case "notify-discord":
       return {
         title: "Discord notify",
-        summary: eventId
-          ? `Post kill #${eventId} to Discord`
-          : "Post kill to Discord",
+        summary: battleId
+          ? `Post battle #${battleId} recap to Discord`
+          : eventId
+            ? `Post kill #${eventId} to Discord`
+            : "Post to Discord",
         details,
       };
     case "live-search":
@@ -271,7 +273,7 @@ function CountPill({
         active ? tone.active : tone.idle
       }`}
     >
-      <p className="text-[10px] uppercase tracking-wide opacity-80">{label}</p>
+      <p className="text-xs uppercase tracking-wide opacity-80">{label}</p>
       <p className="text-lg font-semibold tabular-nums">{value}</p>
     </button>
   );
@@ -337,11 +339,11 @@ function JobCard({ job }: { job: QueueJobSummary }) {
         <span className="text-sm font-medium">{info.title}</span>
         <span className="text-xs text-muted-foreground">{info.summary}</span>
         {timing && (
-          <span className="ml-auto text-[11px] text-muted-foreground">{timing}</span>
+          <span className="ml-auto text-xs text-muted-foreground">{timing}</span>
         )}
       </div>
 
-      <p className="mt-1 font-mono text-[10px] text-muted-foreground/80">
+      <p className="mt-1 font-mono text-xs text-muted-foreground/80">
         {job.queue}:{job.id}
         {job.state === "delayed" && job.runAt
           ? ` · runAt ${formatUtcTimeOfDay(job.runAt)}`
@@ -353,7 +355,7 @@ function JobCard({ job }: { job: QueueJobSummary }) {
       </p>
 
       {info.details.length > 0 && (
-        <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+        <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
           {info.details.map((detail) => (
             <span key={detail.label}>
               <span className="text-muted-foreground/70">{detail.label}:</span>{" "}
@@ -382,7 +384,7 @@ function JobCard({ job }: { job: QueueJobSummary }) {
 
       {(job.state === "failed" || job.state === "delayed") && job.failedReason && (
         <p
-          className={`mt-1.5 text-[11px] ${
+          className={`mt-1.5 text-xs ${
             job.state === "failed" ? "text-red-300" : "text-amber-200/80"
           }`}
         >
@@ -430,12 +432,12 @@ function WorkerStatusRow({ job }: { job: EnrichedWorkerJobStatus }) {
           {WORKER_DISPLAY_LABEL[job.displayStatus]}
         </Badge>
         <span className="text-sm font-medium">{job.label}</span>
-        <span className="font-mono text-[11px] text-muted-foreground">
+        <span className="font-mono text-xs text-muted-foreground">
           {job.path}
         </span>
       </div>
       {meta.length > 0 && (
-        <p className="text-[11px] text-muted-foreground sm:text-right">
+        <p className="text-xs text-muted-foreground sm:text-right">
           {meta.map((item, index) => (
             <span key={index}>
               {index > 0 ? " · " : null}
@@ -653,7 +655,7 @@ export function WorkerQueuesPanel({
               </p>
             ) : (
               <>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Showing {visibleJobs.length} job
                   {visibleJobs.length === 1 ? "" : "s"}
                   {statusFilter !== "all"
@@ -663,7 +665,7 @@ export function WorkerQueuesPanel({
                     ? " · completed within last 3 hours"
                     : ""}
                 </p>
-                <ul className="scrollbar-themed max-h-[32rem] space-y-2 overflow-y-auto">
+                <ul className="scrollbar-themed max-h-96 space-y-2 overflow-y-auto">
                   {visibleJobs.map((job) => (
                     <JobCard key={`${job.id}-${job.state}`} job={job} />
                   ))}

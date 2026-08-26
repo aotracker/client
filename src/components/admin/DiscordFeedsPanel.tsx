@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 type FeedFilters = {
   minFame?: number;
   minSilver?: number;
   contentTypes?: string[];
   paused?: boolean;
+  minPlayers?: number;
+  createThread?: boolean;
 };
 
 type DiscordFeedRow = {
@@ -98,13 +101,19 @@ function FeedEditor({
 }) {
   const [minFame, setMinFame] = useState(String(feed.filters.minFame ?? 0));
   const [minSilver, setMinSilver] = useState(String(feed.filters.minSilver ?? 0));
+  const [minPlayers, setMinPlayers] = useState(
+    String(feed.filters.minPlayers ?? 20)
+  );
   const [content, setContent] = useState(
     (feed.filters.contentTypes ?? []).join(",")
   );
   const [paused, setPaused] = useState(Boolean(feed.filters.paused));
+  const [createThread, setCreateThread] = useState(
+    Boolean(feed.filters.createThread)
+  );
 
   return (
-    <div className="space-y-2 rounded-md border border-border/60 p-3">
+    <Card variant="muted" className="space-y-2 p-3">
       <p className="text-sm font-medium">
         {feed.serverName ?? feed.discordGuildId} · {feed.targetName ?? "?"} ·{" "}
         {feed.feedType} · {feed.region}
@@ -112,31 +121,31 @@ function FeedEditor({
       <div className="grid gap-2 sm:grid-cols-4">
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">Min fame</span>
-          <input
+          <Input
             type="number"
             min={0}
+            size="sm"
             value={minFame}
             onChange={(event) => setMinFame(event.target.value)}
-            className="h-8 w-full rounded-md border border-border bg-background px-2"
           />
         </label>
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">Min silver</span>
-          <input
+          <Input
             type="number"
             min={0}
+            size="sm"
             value={minSilver}
             onChange={(event) => setMinSilver(event.target.value)}
-            className="h-8 w-full rounded-md border border-border bg-background px-2"
           />
         </label>
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">Content</span>
-          <input
+          <Input
+            size="sm"
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="SOLO,GROUP,ZVZ"
-            className="h-8 w-full rounded-md border border-border bg-background px-2"
           />
         </label>
         <label className="flex items-end gap-2 pb-1 text-xs">
@@ -146,6 +155,24 @@ function FeedEditor({
             onChange={(event) => setPaused(event.target.checked)}
           />
           Paused
+        </label>
+        <label className="space-y-1 text-xs">
+          <span className="text-muted-foreground">Min players</span>
+          <Input
+            type="number"
+            min={1}
+            size="sm"
+            value={minPlayers}
+            onChange={(event) => setMinPlayers(event.target.value)}
+          />
+        </label>
+        <label className="flex items-end gap-2 pb-1 text-xs">
+          <input
+            type="checkbox"
+            checked={createThread}
+            onChange={(event) => setCreateThread(event.target.checked)}
+          />
+          Thread per battle
         </label>
       </div>
       <Button
@@ -162,11 +189,13 @@ function FeedEditor({
               .map((value) => value.trim().toUpperCase())
               .filter(Boolean),
             paused,
+            minPlayers: Number(minPlayers) || 0,
+            createThread,
           })
         }
       >
         {saving ? "Saving…" : "Save filters"}
       </Button>
-    </div>
+    </Card>
   );
 }

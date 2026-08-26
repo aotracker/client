@@ -73,7 +73,7 @@ export function PageSection({
                   <p className="text-sm text-muted-foreground">{description}</p>
                 )}
                 {descriptionActions && (
-                  <div className="shrink-0 text-[11px] text-muted-foreground sm:text-right">
+                  <div className="shrink-0 text-xs text-muted-foreground sm:text-right">
                     {descriptionActions}
                   </div>
                 )}
