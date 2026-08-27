@@ -379,6 +379,10 @@
       "averageIp": "Average IP:",
       "estValue": "Est. value: {value}",
       "estimated": "Estimated value",
+      "estVictimValue": "Estimated victim gear + inventory",
+      "estGearValue": "Gear {value}",
+      "estLootValue": "Loot {value}",
+      "pricesProvidedBy": "Prices provided by <aodp>AODP</aodp>",
       "killFameWithUnit": "{value} kill fame",
       "membersCount": "{count} members",
       "showingRange": "Showing {start}–{end} of {total}",
@@ -680,6 +684,7 @@
     "victimLoot": "Victim's Inventory Loot",
     "itemsDropped": "{count, plural, one {# item dropped} other {# items dropped}}",
     "lootItems": "{count} loot items",
+    "assistItems": "{count, plural, one {# assist} other {# assists}}",
     "lootDescription": "Items {victimName} was carrying when killed",
     "pending": {
       "title": "Fetching kill details",

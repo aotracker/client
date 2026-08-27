@@ -379,6 +379,10 @@
       "averageIp": "PI media:",
       "estValue": "Valor est.: {value}",
       "estimated": "Valor estimado",
+      "estVictimValue": "Estimación de equipo + inventario de la víctima",
+      "estGearValue": "Equipo {value}",
+      "estLootValue": "Botín {value}",
+      "pricesProvidedBy": "Precios proporcionados por <aodp>AODP</aodp>",
       "killFameWithUnit": "{value} fama de kills",
       "membersCount": "{count} miembros",
       "showingRange": "Mostrando {start}–{end} de {total}",
@@ -680,6 +684,7 @@
     "victimLoot": "Botín del inventario de la víctima",
     "itemsDropped": "{count, plural, one {# objeto soltado} other {# objetos soltados}}",
     "lootItems": "{count} objetos de botín",
+    "assistItems": "{count, plural, one {# asistencia} other {# asistencias}}",
     "lootDescription": "Objetos que llevaba {victimName} al morir",
     "pending": {
       "title": "Obteniendo detalles de la baja",

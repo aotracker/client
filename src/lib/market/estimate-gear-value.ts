@@ -99,6 +99,63 @@ export async function estimateItemValues(
   return { totalSilver, pricedItemCount, itemCount, items: pricedItems };
 }
 
+/** Split one priced-item list back into the group sizes passed to a batched estimate. */
+export function splitPricedItemGroups(
+  groupSizes: number[],
+  pricedItems: ItemValueEstimate[]
+): GearValueEstimate[] {
+  let offset = 0;
+  return groupSizes.map((size) => {
+    const items = pricedItems.slice(offset, offset + size);
+    offset += size;
+    const totalSilver = items.reduce((sum, item) => sum + item.totalSilver, 0);
+    const pricedItemCount = items.filter((item) => item.totalSilver > 0).length;
+    return {
+      totalSilver,
+      pricedItemCount,
+      itemCount: size,
+      items,
+    };
+  });
+}
+
+/**
+ * Same pricing as `estimateItemValues`, one market lookup for many item groups.
+ */
+export async function estimateGroupedItemValues(
+  region: AlbionRegion,
+  groups: GearValueItem[][]
+): Promise<GearValueEstimate[]> {
+  if (groups.length === 0) return [];
+  const estimate = await estimateItemValues(region, groups.flat());
+  return splitPricedItemGroups(
+    groups.map((group) => group.length),
+    estimate.items
+  );
+}
+
+/** Prefer live AODP-backed totals when victim items are present; else stored ingest snapshots. */
+export function mergeLiveVictimSilver(opts: {
+  hasVictimItems: boolean;
+  storedGear: number | null | undefined;
+  storedLoot: number | null | undefined;
+  liveGear: number;
+  liveLoot: number;
+}): { gearEstSilver: number | null; lootEstSilver: number | null } {
+  const liveGear = Math.floor(opts.liveGear);
+  const liveLoot = Math.floor(opts.liveLoot);
+  if (opts.hasVictimItems && (liveGear > 0 || liveLoot > 0)) {
+    return {
+      gearEstSilver: liveGear > 0 ? liveGear : 0,
+      lootEstSilver: liveLoot > 0 ? liveLoot : 0,
+    };
+  }
+  return {
+    gearEstSilver: opts.storedGear ?? null,
+    lootEstSilver: opts.storedLoot ?? null,
+  };
+}
+
 /**
  * Estimate total market silver for equipped gear using AODP prices (cached).
  * Soft-fails to zeros if the market API is unavailable.

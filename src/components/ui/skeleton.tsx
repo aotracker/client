@@ -37,18 +37,24 @@ export function KillCardSkeleton({
   return (
     <Card className="border-border/60">
       <div className={cn("flex flex-col", large ? "gap-3 p-3 sm:p-4" : "gap-2 p-3")}>
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-5 w-12 rounded" />
-            <Skeleton className={cn("h-4", large ? "w-24" : "w-20")} />
+        <div className="flex items-start justify-between gap-3 border-b border-border/40 pb-2">
+          <div className="flex items-center gap-3">
+            <Skeleton className={cn("h-4", large ? "w-20" : "w-16")} />
+            <Skeleton className={cn("h-4", large ? "w-16" : "w-14")} />
           </div>
-          <Skeleton className="h-3 w-28" />
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-12 rounded" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <Skeleton className="h-3 w-28" />
+          </div>
         </div>
 
         <div
           className={cn(
-            "flex flex-col gap-2 border-t border-border/40 pt-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center",
-            large ? "sm:gap-2 sm:pt-3" : "sm:gap-1.5"
+            "flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center",
+            large ? "sm:gap-2" : "sm:gap-1.5"
           )}
         >
           <div className="flex min-w-0 items-center gap-2">

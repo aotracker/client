@@ -33,7 +33,7 @@ export function Tooltip({
   return (
     <span
       className={cn(
-        "group/tooltip relative max-w-full cursor-pointer",
+        "group/tooltip relative max-w-full cursor-help has-[a]:cursor-pointer has-[button]:cursor-pointer",
         block ? "block" : "inline-flex",
         className
       )}

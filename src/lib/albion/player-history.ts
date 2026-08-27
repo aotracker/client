@@ -39,6 +39,12 @@ export interface KillCardEvent {
   occurredAt: Date;
   contentType: string;
   totalVictimKillFame: number | null;
+  /** Albion `numberOfParticipants` (usually includes the killer). */
+  participantCount?: number | null;
+  /** Victim inventory estimated silver at ingest. */
+  lootEstSilver?: number | null;
+  /** Victim equipped-gear estimated silver at ingest. */
+  gearEstSilver?: number | null;
   killer?: {
     albionId: string;
     name: string;
@@ -59,6 +65,7 @@ export interface KillCardEvent {
     itemType: string;
     quality: number | null;
     category: string;
+    count?: number | null;
     /** Localized catalog names resolved on the server — not the full catalog. */
     displayNames?: Record<string, string>;
   }[];
@@ -66,6 +73,26 @@ export interface KillCardEvent {
     role: string;
     averageItemPower: string | null;
   }[];
+}
+
+/** Combined victim gear + inventory estimate; null when both are missing or zero. */
+export function combinedVictimEstSilver(
+  gearEstSilver?: number | null,
+  lootEstSilver?: number | null
+): number | null {
+  const gear = gearEstSilver != null && gearEstSilver > 0 ? gearEstSilver : 0;
+  const loot = lootEstSilver != null && lootEstSilver > 0 ? lootEstSilver : 0;
+  const total = gear + loot;
+  return total > 0 ? total : null;
+}
+
+/** Fame participants minus the killer. Null when there is nobody else to show. */
+export function assistCountFromParticipants(
+  participantCount?: number | null
+): number | null {
+  if (participantCount == null || !Number.isFinite(participantCount)) return null;
+  const assists = Math.max(0, Math.floor(participantCount) - 1);
+  return assists > 0 ? assists : null;
 }
 
 function extractDisplayItems(
@@ -84,6 +111,7 @@ function extractDisplayItems(
       slot,
       itemType: equipped.Type,
       quality: equipped.Quality ?? 0,
+      count: equipped.Count ?? 1,
       category: "equipment",
     });
   }
@@ -95,6 +123,7 @@ function extractDisplayItems(
         slot: null,
         itemType: item.Type,
         quality: item.Quality ?? 0,
+        count: item.Count ?? 1,
         category: "inventory",
       });
     }
@@ -167,6 +196,8 @@ export function albionEventToKillCard(
     occurredAt: new Date(event.TimeStamp),
     contentType,
     totalVictimKillFame: event.TotalVictimKillFame ?? null,
+    participantCount:
+      event.numberOfParticipants ?? event.Participants?.length ?? null,
     killer: event.Killer?.Id
       ? {
           albionId: event.Killer.Id,

@@ -10,6 +10,7 @@ export type KillCardItemSource = {
   itemType: string;
   quality: number | null;
   category: string;
+  count?: number | null;
 };
 
 export type KillEventCardSource = {
@@ -18,6 +19,9 @@ export type KillEventCardSource = {
   occurredAt: Date;
   contentType: string;
   totalVictimKillFame: number | null;
+  participantCount?: number | null;
+  lootEstSilver?: number | null;
+  gearEstSilver?: number | null;
   detailEvictedAt?: Date | null;
   killerGuildAlbionId?: string | null;
   killerGuildName?: string | null;
@@ -80,6 +84,9 @@ export function mapKillEventToCard(event: KillEventCardSource) {
     occurredAt: event.occurredAt,
     contentType: event.contentType,
     totalVictimKillFame: event.totalVictimKillFame,
+    participantCount: event.participantCount ?? extras?.participantCount ?? null,
+    lootEstSilver: event.lootEstSilver ?? null,
+    gearEstSilver: event.gearEstSilver ?? null,
     killer:
       event.killer || extras?.killer
         ? {

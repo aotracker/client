@@ -20,6 +20,9 @@ export type KillFeedEvent = {
   occurredAt: Date | string;
   contentType: string;
   totalVictimKillFame: number | null;
+  participantCount?: number | null;
+  lootEstSilver?: number | null;
+  gearEstSilver?: number | null;
   killer?: {
     albionId: string;
     name: string;

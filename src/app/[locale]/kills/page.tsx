@@ -6,6 +6,7 @@ import { KillFeedFilters } from "@/components/KillFeedFilters";
 import { KillsFeedSection } from "@/components/kills/KillsFeedSection";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageSection";
+import { AodpPriceCredit } from "@/components/AodpPriceCredit";
 import { FilterChipSkeleton } from "@/components/ui/skeleton";
 import { getKillFeed, type ContentTypeFilter } from "@/lib/db/queries";
 import {
@@ -117,6 +118,7 @@ export default async function KillsPage({
           pageSize={KILLS_FEED_PAGE_SIZE}
         />
       )}
+      <AodpPriceCredit />
     </div>
   );
 }

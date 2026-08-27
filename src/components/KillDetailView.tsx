@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatFame, formatItemPower } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
 import { RelativeTime } from "@/components/RelativeTime";
+import { AodpPriceCredit } from "@/components/AodpPriceCredit";
 import type { AlbionRegion } from "@/lib/albion/types";
 
 export type KillDetailItem = {
@@ -139,6 +140,7 @@ export async function KillDetailView(props: KillDetailViewProps) {
             estValueLabel={(value) => tLabels("estValue", { value })}
           />
         ))}
+      <AodpPriceCredit />
     </div>
   );
 }
