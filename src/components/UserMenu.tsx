@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import NextLink from "next/link";
 import { usePathname as useNextPathname } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
 import { LoginButtons } from "@/components/auth/LoginButtons";
 import { useTheme, type ThemePreference } from "@/components/ThemeProvider";
 import { useWatchlist } from "@/components/watchlist/useWatchlist";
@@ -27,7 +26,7 @@ import { LOCALE_DEFINITIONS, type AppLocale } from "@/i18n/locales";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { signOutWithPrefsSnapshot } from "@/lib/auth-prefs";
 import { isSocialLoginVisible } from "@/lib/auth-providers";
-import { toPublicAuthUser, type PublicAuthUser } from "@/lib/auth-user";
+import { useAuthUser, useHydrated } from "@/components/SessionSnapshotProvider";
 import { cn } from "@/lib/utils";
 
 const SERVER_CLOCK_PLACEHOLDER = "--:--:--";
@@ -73,61 +72,16 @@ const THEME_OPTIONS: {
   { value: "system", icon: Monitor, labelKey: "themeSystem" },
 ];
 
-function getHydratedSnapshot() {
-  return true;
-}
-
-function getServerHydratedSnapshot() {
-  return false;
-}
-
-function subscribeHydrated() {
-  return () => {};
-}
-
-/** False on the server and during hydration; true after the client commits. */
-function useHydrated() {
-  return useSyncExternalStore(
-    subscribeHydrated,
-    getHydratedSnapshot,
-    getServerHydratedSnapshot
-  );
-}
-
-function resolveMenuUser(
-  sessionUser:
-    | {
-        id: string;
-        name: string;
-        image?: string | null;
-        isAdmin?: boolean | null;
-      }
-    | null
-    | undefined,
-  initialUser: PublicAuthUser | null | undefined,
-  sessionPending: boolean,
-  hydrated: boolean
-): PublicAuthUser | null {
-  // During SSR/hydration always use the server snapshot so the DOM matches.
-  if (!hydrated) return initialUser ?? null;
-  if (sessionUser) return toPublicAuthUser(sessionUser);
-  if (sessionPending) return initialUser ?? null;
-  return null;
-}
-
 function AccountPanel({
   className,
   onAction,
-  initialUser,
 }: {
   className?: string;
   onAction?: () => void;
-  initialUser?: PublicAuthUser | null;
 }) {
   const tAuth = useTranslations("Auth");
   const tNav = useTranslations("Nav");
-  const { data: session, isPending } = useSession();
-  const hydrated = useHydrated();
+  const { user } = useAuthUser();
   const { theme, setTheme } = useTheme();
   const { entries, ready } = useWatchlist();
   const locale = useLocale();
@@ -144,7 +98,6 @@ function AccountPanel({
   const [providers, setProviders] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const user = resolveMenuUser(session?.user, initialUser, isPending, hydrated);
   const name = user?.name ?? tAuth("account");
   const image = user?.image;
   const watchCount = ready ? entries.length : 0;
@@ -450,20 +403,16 @@ export function UserMenu({
   className,
   onNavigate,
   variant = "dropdown",
-  initialUser,
 }: {
   className?: string;
   /** Close parent mobile sheet when an action completes. */
   onNavigate?: () => void;
   /** `panel` renders controls inline (mobile sheet); `dropdown` is the compact header control. */
   variant?: "dropdown" | "panel";
-  /** Server session snapshot so SSR matches the signed-in client. */
-  initialUser?: PublicAuthUser | null;
 }) {
   const tAuth = useTranslations("Auth");
   const tNav = useTranslations("Nav");
-  const { data: session, isPending } = useSession();
-  const hydrated = useHydrated();
+  const { user, isPending, hydrated } = useAuthUser();
   const { entries, ready } = useWatchlist();
   const pathname = usePathname();
   const listId = useId();
@@ -493,23 +442,15 @@ export function UserMenu({
   }, [open]);
 
   if (variant === "panel") {
-    return (
-      <AccountPanel
-        className={className}
-        onAction={onNavigate}
-        initialUser={initialUser}
-      />
-    );
+    return <AccountPanel className={className} onAction={onNavigate} />;
   }
 
-  const user = resolveMenuUser(session?.user, initialUser, isPending, hydrated);
   const name = user?.name ?? tAuth("account");
   const image = user?.image;
   const watchCount = hydrated && ready ? entries.length : 0;
   const watchlistActive = pathname.startsWith("/watchlist");
   const isAdmin = Boolean(user?.isAdmin);
-  const sessionUnresolved =
-    authEnabled && !user && !hydrated && initialUser === undefined;
+  const sessionUnresolved = authEnabled && !user && isPending;
   const triggerLabel =
     watchCount > 0
       ? tNav("accountMenuAriaWithWatchlist", { count: watchCount })
@@ -589,7 +530,7 @@ export function UserMenu({
           aria-label={tAuth("account")}
           className="absolute right-0 top-[calc(100%+0.375rem)] z-50 w-64"
         >
-          <AccountPanel onAction={close} initialUser={initialUser} />
+          <AccountPanel onAction={close} />
         </div>
       )}
     </div>

@@ -13,7 +13,8 @@ import {
   Trash2,
   Unlink,
 } from "lucide-react";
-import { authClient, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
+import { useAuthUser } from "@/components/SessionSnapshotProvider";
 import {
   DiscordIcon,
   GoogleIcon,
@@ -116,7 +117,7 @@ export function AccountPageClient() {
   const tRegions = useTranslations("Common.regions");
   const router = useRouter();
   const { toast } = useToast();
-  const { data: session, isPending } = useSession();
+  const { user: authUser, isPending } = useAuthUser();
   const [me, setMe] = useState<MeResponse | null>(null);
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [loadingMe, setLoadingMe] = useState(true);
@@ -160,7 +161,7 @@ export function AccountPageClient() {
 
   useEffect(() => {
     if (isPending) return;
-    if (!session?.user) {
+    if (!authUser) {
       setMe(null);
       setSessions([]);
       setLoadingMe(false);
@@ -168,7 +169,7 @@ export function AccountPageClient() {
     }
     void refreshMe();
     void refreshSessions();
-  }, [isPending, session?.user, refreshMe, refreshSessions]);
+  }, [isPending, authUser?.id, refreshMe, refreshSessions]);
 
   async function linkProvider(provider: SocialAuthProvider) {
     setLinkError(null);
@@ -227,7 +228,7 @@ export function AccountPageClient() {
       const res = await fetch("/api/user/account", { method: "DELETE" });
       if (!res.ok) throw new Error("clear failed");
       wipeLocalPrefs();
-      clearPrefsSyncFlag(session?.user?.id);
+      clearPrefsSyncFlag(authUser?.id);
       setStatusMessage(t("cleared"));
       await refreshMe();
     } catch {
@@ -336,7 +337,7 @@ export function AccountPageClient() {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("delete failed");
-      clearPrefsSyncFlag(session?.user?.id);
+      clearPrefsSyncFlag(authUser?.id);
       wipeLocalPrefs();
       await authClient.signOut();
       router.replace("/");
@@ -347,25 +348,25 @@ export function AccountPageClient() {
     }
   }
 
-  if (isPending || (session?.user && loadingMe && !me)) {
+  if (isPending || (authUser && loadingMe && !me)) {
     return (
-      <div className="space-y-6">
+      <div className="stagger-children space-y-6">
         <AccountPageHeader current="general" />
-        {session?.user ? <AccountSettingsNav current="general" /> : null}
+        {authUser ? <AccountSettingsNav current="general" /> : null}
         <p className="text-sm text-muted-foreground">{tAuth("signingIn")}</p>
       </div>
     );
   }
 
-  if (!session?.user) {
+  if (!authUser) {
     return <AccountSignInRequired callbackURL="/account" />;
   }
 
   const user = me?.user ?? {
-    id: session.user.id,
-    name: session.user.name,
+    id: authUser.id,
+    name: authUser.name,
     email: null,
-    image: session.user.image,
+    image: authUser.image,
   };
   const providers = me?.providers ?? [];
   const accounts = me?.accounts ?? [];

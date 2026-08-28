@@ -20,7 +20,6 @@ import {
 import { BrandLogo } from "@/components/BrandLogo";
 import { UserMenu } from "@/components/UserMenu";
 import type { AlbionRegion } from "@/lib/albion/types";
-import type { PublicAuthUser } from "@/lib/auth-user";
 import {
   appendFeedRegionToHref,
   feedNavHref,
@@ -36,7 +35,6 @@ import { cn } from "@/lib/utils";
 interface NavbarProps {
   regions: AlbionRegion[];
   preferredRegion: PreferredRegion | null;
-  initialUser?: PublicAuthUser | null;
 }
 
 interface FeedNavHrefs {
@@ -161,7 +159,7 @@ function NavbarMobileFeedLinks({
   );
 }
 
-export function Navbar({ regions, preferredRegion, initialUser = null }: NavbarProps) {
+export function Navbar({ regions, preferredRegion }: NavbarProps) {
   const t = useTranslations("Nav");
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -210,7 +208,7 @@ export function Navbar({ regions, preferredRegion, initialUser = null }: NavbarP
 
           <div className="hidden sm:block">
             <Suspense fallback={null}>
-              <UserMenu initialUser={initialUser} />
+              <UserMenu />
             </Suspense>
           </div>
 
@@ -265,11 +263,7 @@ export function Navbar({ regions, preferredRegion, initialUser = null }: NavbarP
 
             <div className="border-t border-border pt-3 sm:hidden">
               <Suspense fallback={null}>
-                <UserMenu
-                  variant="panel"
-                  initialUser={initialUser}
-                  onNavigate={closeMenu}
-                />
+                <UserMenu variant="panel" onNavigate={closeMenu} />
               </Suspense>
             </div>
           </nav>

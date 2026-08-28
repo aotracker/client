@@ -157,7 +157,7 @@ function FeedEditor({
           Paused
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Min players</span>
+          <span className="text-muted-foreground">Min guild players</span>
           <Input
             type="number"
             min={1}

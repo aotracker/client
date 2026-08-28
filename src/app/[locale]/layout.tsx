@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Navbar } from "@/components/Navbar";
 import { RegionPreferenceSync } from "@/components/RegionPreferenceSync";
+import { SessionSnapshotProvider } from "@/components/SessionSnapshotProvider";
 import { StatusBanner } from "@/components/StatusBanner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider } from "@/components/Toast";
@@ -79,19 +80,20 @@ export default async function LocaleLayout({
     <>
       <NextIntlClientProvider messages={messages}>
         <ThemeProvider>
-          <ToastProvider>
-            <RegionPreferenceSync />
-            <Navbar
-              regions={ENABLED_REGIONS}
-              preferredRegion={preferredRegion}
-              initialUser={initialUser}
-            />
-            <StatusBanner />
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
-              {children}
-            </main>
-            <Footer preferredRegion={preferredRegion} />
-          </ToastProvider>
+          <SessionSnapshotProvider user={initialUser}>
+            <ToastProvider>
+              <RegionPreferenceSync />
+              <Navbar
+                regions={ENABLED_REGIONS}
+                preferredRegion={preferredRegion}
+              />
+              <StatusBanner />
+              <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+                {children}
+              </main>
+              <Footer preferredRegion={preferredRegion} />
+            </ToastProvider>
+          </SessionSnapshotProvider>
         </ThemeProvider>
       </NextIntlClientProvider>
       <Suspense fallback={null}>

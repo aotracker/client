@@ -132,8 +132,8 @@
       },
       "battlesChannel": {
         "usage": "/battles-channel channel:#canal",
-        "summary": "Canal que recibe una imagen de resumen cuando el gremio seguido termina una batalla de más de N jugadores.",
-        "detail": "Elige un canal de texto o de anuncios. Ejecuta /track primero. El bot espera a que el marcador de Albion deje de cambiar y publica una imagen de resumen por batalla. El hilo opcional se configura en Notificaciones de Discord o con /feed-filters.",
+        "summary": "Canal que recibe una imagen de resumen cuando hay suficientes jugadores del gremio seguido en una batalla.",
+        "detail": "Elige un canal de texto o de anuncios. Ejecuta /track primero. El bot espera a que el marcador de Albion deje de cambiar y publica una imagen de resumen por batalla que cumple el mínimo de jugadores del gremio. El hilo opcional se configura en Notificaciones de Discord o con /feed-filters.",
         "example": "/battles-channel channel:#battles"
       },
       "untrack": {
@@ -151,7 +151,7 @@
       "feedFilters": {
         "usage": "/feed-filters min-fame:10000 min-silver:500000 content:SOLO,GROUP paused:false feed:kills",
         "summary": "Limita qué kills, muertes o batallas publica el bot.",
-        "detail": "Usa feed:kills, feed:deaths o feed:battles para cambiar una notificación, o omite feed para actualizar todas. En batallas, usa min-players y create-thread. Usa 0 en fama/plata para cualquiera, y omite content o usa all para todos los tamaños. Requiere Administrar servidor.",
+        "detail": "Usa feed:kills, feed:deaths o feed:battles para cambiar una notificación, o omite feed para actualizar todas. En batallas, usa min-players (jugadores del gremio seguido en el combate) y create-thread. Usa 0 en fama/plata para cualquiera, y omite content o usa all para todos los tamaños. Requiere Administrar servidor.",
         "example": "/feed-filters min-players:40 create-thread:true feed:battles"
       },
       "pingRole": {
@@ -197,7 +197,7 @@
       "feedKills": "Solo kills",
       "feedDeaths": "Solo muertes",
       "feedBattles": "Solo batallas",
-      "minPlayers": "Mínimo de jugadores",
+      "minPlayers": "Mínimo de jugadores del gremio en batalla",
       "createThread": "Hilo por batalla",
       "copy": "Copiar comando",
       "copied": "Copiado"
@@ -248,8 +248,9 @@
       "killsTitle": "Notificaciones de kills",
       "deathsTitle": "Notificaciones de muertes",
       "battlesTitle": "Notificaciones de batallas",
-      "battlesHelp": "Cuando el gremio seguido participa en una batalla de al menos N jugadores, AOTracker espera a que el combate deje de cambiar y publica una imagen de resumen con un enlace a la página.",
-      "minPlayers": "Mínimo de jugadores (N)",
+      "battlesHelp": "AOTracker publica un resumen cuando el gremio seguido tiene al menos este número de jugadores en una batalla, después de que el combate deje de cambiar.",
+      "minPlayers": "Mínimo de jugadores del gremio en batalla",
+      "minPlayersHelp": "La notificación se dispara cuando hay este número de jugadores del gremio seguido en el combate.",
       "createThread": "Crear un hilo de Discord por cada batalla",
       "channel": "Canal",
       "contentTypes": "Tamaño del combate",

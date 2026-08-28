@@ -12,7 +12,8 @@ import {
   Shield,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { authClient, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
+import { useAuthUser } from "@/components/SessionSnapshotProvider";
 import {
   AccountPageHeader,
   AccountSettingsNav,
@@ -166,7 +167,7 @@ export function DiscordFeedsPageClient() {
   const tAuth = useTranslations("Auth");
   const tRegions = useTranslations("Common.regions");
   const tContent = useTranslations("Common.contentTypes");
-  const { data: session, isPending } = useSession();
+  const { user, isPending } = useAuthUser();
   const [guilds, setGuilds] = useState<GuildListItem[]>([]);
   const [inviteUrl, setInviteUrl] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -251,12 +252,12 @@ export function DiscordFeedsPageClient() {
 
   useEffect(() => {
     if (isPending) return;
-    if (!session?.user) {
+    if (!user) {
       setLoadingList(false);
       return;
     }
     void loadList();
-  }, [isPending, session?.user, loadList]);
+  }, [isPending, user?.id, loadList]);
 
   useEffect(() => {
     if (!selectedId) {
@@ -390,15 +391,13 @@ export function DiscordFeedsPageClient() {
 
   if (isPending) {
     return (
-      <div className="space-y-6">
-        <AccountPageHeader current="discord" />
-        {session?.user ? <AccountSettingsNav current="discord" /> : null}
+      <DiscordFeedsShell>
         <p className="text-sm text-muted-foreground">{tAuth("signingIn")}</p>
-      </div>
+      </DiscordFeedsShell>
     );
   }
 
-  if (!session?.user) {
+  if (!user) {
     return <AccountSignInRequired callbackURL="/account/discord" />;
   }
 
@@ -1130,6 +1129,9 @@ function BattleFeedEditor({
               value={minPlayers}
               onChange={(event) => setMinPlayers(event.target.value)}
             />
+            <span className="block text-xs text-muted-foreground">
+              {t("minPlayersHelp")}
+            </span>
           </label>
         </div>
 

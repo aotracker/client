@@ -132,8 +132,8 @@
       },
       "battlesChannel": {
         "usage": "/battles-channel channel:#channel",
-        "summary": "Channel that receives a battle recap image when the tracked guild finishes a fight over N players.",
-        "detail": "Choose a text or announcement channel. Run /track first. The bot waits until the Albion board stops changing, then posts one recap image per battle. Optional thread-per-battle is set on Discord Notifications or with /feed-filters.",
+        "summary": "Channel that receives a battle recap image when enough of the tracked guild’s players are in a fight.",
+        "detail": "Choose a text or announcement channel. Run /track first. The bot waits until the Albion board stops changing, then posts one recap image per battle that meets the minimum guild-player threshold. Optional thread-per-battle is set on Discord Notifications or with /feed-filters.",
         "example": "/battles-channel channel:#battles"
       },
       "untrack": {
@@ -151,7 +151,7 @@
       "feedFilters": {
         "usage": "/feed-filters min-fame:10000 min-silver:500000 content:SOLO,GROUP paused:false feed:kills",
         "summary": "Limit which kills, deaths, or battles the bot posts.",
-        "detail": "Use feed:kills, feed:deaths, or feed:battles to change one notification, or omit feed to update all. For battles, set min-players and create-thread. Use 0 fame/silver for any, and omit content or use all for every fight size. Manage Server required.",
+        "detail": "Use feed:kills, feed:deaths, or feed:battles to change one notification, or omit feed to update all. For battles, set min-players (tracked guild players in the fight) and create-thread. Use 0 fame/silver for any, and omit content or use all for every fight size. Manage Server required.",
         "example": "/feed-filters min-players:40 create-thread:true feed:battles"
       },
       "pingRole": {
@@ -197,7 +197,7 @@
       "feedKills": "Kills only",
       "feedDeaths": "Deaths only",
       "feedBattles": "Battles only",
-      "minPlayers": "Min players",
+      "minPlayers": "Minimum guild players in battle",
       "createThread": "Thread per battle",
       "copy": "Copy command",
       "copied": "Copied"
@@ -248,8 +248,9 @@
       "killsTitle": "Kills notifications",
       "deathsTitle": "Deaths notifications",
       "battlesTitle": "Battle notifications",
-      "battlesHelp": "When the tracked guild is in a battle with at least N players, AOTracker waits until the fight stops changing, then posts one recap image and a link to the battle page.",
-      "minPlayers": "Min players (N)",
+      "battlesHelp": "AOTracker posts a recap when the tracked guild has at least this many players in a battle, after the fight stops changing.",
+      "minPlayers": "Minimum guild players in battle",
+      "minPlayersHelp": "Notification triggers when this many of the tracked guild’s players are in the fight.",
       "createThread": "Start a Discord thread for each battle",
       "channel": "Channel",
       "contentTypes": "Fight size",

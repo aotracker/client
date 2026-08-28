@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { LogOut, UserRound } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { useSession } from "@/lib/auth-client";
 import { LoginButtons, DiscordIcon } from "@/components/auth/LoginButtons";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageSection";
+import { useAuthUser } from "@/components/SessionSnapshotProvider";
 import { signOutWithPrefsSnapshot } from "@/lib/auth-prefs";
 import { isSocialLoginVisible } from "@/lib/auth-providers";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ export function AccountPageHeader({
 }) {
   const t = useTranslations("Account");
   const tFeeds = useTranslations("Discord.feeds");
-  const { data: session } = useSession();
+  const { user } = useAuthUser();
 
   return (
     <PageHeader
@@ -28,12 +28,12 @@ export function AccountPageHeader({
         current === "discord" ? tFeeds("description") : t("description")
       }
       actions={
-        session?.user ? (
+        user ? (
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => void signOutWithPrefsSnapshot(session.user.id)}
+            onClick={() => void signOutWithPrefsSnapshot(user.id)}
           >
             <LogOut className="h-3.5 w-3.5" aria-hidden />
             {t("signOut")}

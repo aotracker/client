@@ -690,7 +690,9 @@ export function createBattleOgImage(options: {
                 gap: 12,
                 borderTop: `1px solid ${COLORS.border}`,
                 paddingTop: 12,
-                background: isHighlight ? "rgba(245, 193, 74, 0.12)" : undefined,
+                background: isHighlight
+                  ? "rgba(245, 193, 74, 0.12)"
+                  : "transparent",
                 borderRadius: isHighlight ? 8 : 0,
               }}
             >
