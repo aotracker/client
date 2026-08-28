@@ -72,4 +72,49 @@ describe("aggregateUnitPrices", () => {
 
     expect(prices.get("T4_RUNE:1")).toBe(12);
   });
+
+  it("replaces a lone Excellent 100m listing with quality-1 for the same item", () => {
+    const itemId = "T4_SHOES_CLOTH_ROYAL@2";
+    const prices = aggregateUnitPrices([
+      {
+        item_id: itemId,
+        city: "Caerleon",
+        quality: 1,
+        sell_price_min: 94408,
+        buy_price_max: 80_000,
+      },
+      {
+        item_id: itemId,
+        city: "Thetford",
+        quality: 4,
+        sell_price_min: 100_190_000,
+        buy_price_max: 0,
+      },
+    ]);
+
+    expect(prices.get(`${itemId}:1`)).toBe(94408);
+    expect(prices.get(`${itemId}:4`)).toBe(94408);
+  });
+
+  it("keeps expensive 8.4 masterpiece prices within 20x of quality 1", () => {
+    const itemId = "T8_2H_DOUBLEBLADEDSTAFF_CRYSTAL@4";
+    const prices = aggregateUnitPrices([
+      {
+        item_id: itemId,
+        city: "Caerleon",
+        quality: 1,
+        sell_price_min: 80_000_000,
+        buy_price_max: 70_000_000,
+      },
+      {
+        item_id: itemId,
+        city: "Bridgewatch",
+        quality: 5,
+        sell_price_min: 200_000_000,
+        buy_price_max: 150_000_000,
+      },
+    ]);
+
+    expect(prices.get(`${itemId}:5`)).toBe(200_000_000);
+  });
 });
