@@ -1,15 +1,8 @@
 import { Link } from "@/i18n/navigation";
-import {
-  formatAllianceTag,
-  formatExactDateTime,
-  formatFame,
-  regionLabel,
-} from "@/lib/utils";
-import { EntityHeader } from "@/components/EntityHeader";
-import { ShareLinkButton } from "@/components/ShareLinkButton";
-import { WatchlistButton } from "@/components/watchlist/WatchlistButton";
+import { formatAllianceTag, formatFame, regionLabel } from "@/lib/utils";
+import { OrgHeader } from "@/components/OrgHeader";
 import { CardContent } from "@/components/ui/card";
-import { guildPath, playerPath } from "@/lib/seo";
+import { guildPath } from "@/lib/seo";
 
 interface AllianceHeaderProps {
   alliance: {
@@ -39,61 +32,24 @@ export function AllianceHeader({
     ? formatAllianceTag(alliance.name, alliance.tag)
     : null;
 
-  const affiliations = [
-    { key: "region", label: regionLabel(alliance.region) },
-    ...(tagLabel
-      ? [{ key: "tag", label: tagLabel, title: alliance.name }]
-      : []),
-  ];
-
-  const footerParts: React.ReactNode[] = [];
-  if (alliance.founderName) {
-    footerParts.push(
-      <span key="founder" className="min-w-0 break-words">
-        Founder:{" "}
-        {alliance.founderName ? (
-          <Link
-            href={playerPath(alliance.region, alliance.founderName)}
-            className="font-medium text-foreground hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            {alliance.founderName}
-          </Link>
-        ) : (
-          <span className="font-medium text-foreground">
-            {alliance.founderName}
-          </span>
-        )}
-      </span>
-    );
-  }
-  if (alliance.founded) {
-    footerParts.push(
-      <span key="founded" className="min-w-0 break-words">
-        Founded: {formatExactDateTime(alliance.founded)}
-      </span>
-    );
-  }
-
   return (
-    <EntityHeader
+    <OrgHeader
       title={alliance.name}
       kind="Alliance"
-      affiliations={affiliations}
-      actions={
-        alliance.albionId ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <WatchlistButton
-              type="alliance"
-              region={alliance.region}
-              albionId={alliance.albionId}
-              name={alliance.name}
-            />
-            {sharePath ? <ShareLinkButton path={sharePath} /> : null}
-          </div>
-        ) : sharePath ? (
-          <ShareLinkButton path={sharePath} />
-        ) : undefined
-      }
+      region={alliance.region}
+      albionId={alliance.albionId}
+      watchlistType="alliance"
+      sharePath={sharePath}
+      founderName={alliance.founderName}
+      founded={alliance.founded}
+      entityIdLabel="Albion alliance ID"
+      lastSyncedAt={alliance.lastSyncedAt}
+      affiliations={[
+        { key: "region", label: regionLabel(alliance.region) },
+        ...(tagLabel
+          ? [{ key: "tag", label: tagLabel, title: alliance.name }]
+          : []),
+      ]}
       stats={[
         {
           label: "Kill Fame",
@@ -118,16 +74,6 @@ export function AllianceHeader({
           variant: "neutral",
         },
       ]}
-      entityId={alliance.albionId}
-      entityIdLabel="Albion alliance ID"
-      lastUpdatedAt={alliance.lastSyncedAt}
-      footerMeta={
-        footerParts.length > 0 ? (
-          <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">
-            {footerParts}
-          </div>
-        ) : null
-      }
     >
       <CardContent className="space-y-2 border-t border-border/40 pt-4">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -149,6 +95,6 @@ export function AllianceHeader({
           </div>
         )}
       </CardContent>
-    </EntityHeader>
+    </OrgHeader>
   );
 }

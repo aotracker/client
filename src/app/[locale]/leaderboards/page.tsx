@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { LeaderboardFilters } from "@/components/leaderboards/LeaderboardFilters";
+import { LeaderboardFilters } from "@/components/leaderboards/leaderboard-filters";
 import { LeaderboardNavigationProvider } from "@/components/leaderboards/LeaderboardNavigation";
 import {
   LeaderboardResults,

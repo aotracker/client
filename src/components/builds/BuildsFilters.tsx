@@ -15,6 +15,7 @@ import {
   buildFeedHref,
   readFeedRegionParam,
   rememberFeedRegionSelection,
+  translatedFeedRegionLabel,
 } from "@/lib/region-params";
 import { FilterBar, FilterSelect } from "@/components/ui/filter-select";
 
@@ -46,14 +47,6 @@ export function BuildsFilters({
     router.push(buildFeedHref("/builds", searchParams, updates));
   }
 
-  const regionLabel = (value: AlbionRegion | "all") => {
-    if (value === "all") return tCommon("regions.all");
-    if (value === "americas") return tCommon("regions.americas");
-    if (value === "europe") return tCommon("regions.europe");
-    if (value === "asia") return tCommon("regions.asia");
-    return value;
-  };
-
   return (
     <FilterBar>
       <FilterSelect
@@ -61,7 +54,7 @@ export function BuildsFilters({
         value={region}
         options={regions.map((r) => ({
           value: r.value,
-          label: regionLabel(r.value),
+          label: translatedFeedRegionLabel(tCommon, r.value),
         }))}
         onChange={(next) => push({ region: next })}
       />

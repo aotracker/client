@@ -2,21 +2,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { PAIRS } from "./lib-drift-pairs.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const clientRoot = resolve(here, "..");
 const ingestRoot = resolve(clientRoot, "..", "ingest");
-
-const PAIRS = [
-  "src/lib/db/schema.ts",
-  "src/lib/albion/classify.ts",
-  "src/lib/albion/kills.ts",
-  "src/lib/db/battle-cache.ts",
-  "src/lib/db/battles-feed-preview.ts",
-  "src/lib/db/sync.ts",
-  "src/lib/db/queries-ingest.ts",
-  "src/lib/market/aggregate-unit-prices.ts",
-];
 
 if (!existsSync(join(ingestRoot, "package.json"))) {
   console.log("[drift] Skipping — sibling ingest/ not present.");

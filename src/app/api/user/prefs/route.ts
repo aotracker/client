@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireUser, parseJsonBody, jsonError } from "@/lib/api-route";
 import {
   getUserPreferredRegion,
   getUserRecentSearches,
@@ -13,36 +13,29 @@ import type { RecentSearch } from "@/lib/search/recent-searches";
 import { isPreferredRegion } from "@/lib/region-preference";
 
 export async function GET() {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
   const [watchlist, recentSearches, preferredRegion] = await Promise.all([
-    getUserWatchlist(session.user.id),
-    getUserRecentSearches(session.user.id),
-    getUserPreferredRegion(session.user.id),
+    getUserWatchlist(authz.userId),
+    getUserRecentSearches(authz.userId),
+    getUserPreferredRegion(authz.userId),
   ]);
 
   return NextResponse.json({ watchlist, recentSearches, preferredRegion });
 }
 
 export async function PUT(request: Request) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
-  let body: {
+  const parsed = await parseJsonBody<{
     watchlist?: WatchlistEntry[];
     recentSearches?: RecentSearch[];
     preferredRegion?: string | null;
-  };
-  try {
-    body = (await request.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  }>(request);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.body;
 
   const result: {
     watchlist?: WatchlistEntry[];
@@ -51,14 +44,11 @@ export async function PUT(request: Request) {
   } = {};
 
   if (Array.isArray(body.watchlist)) {
-    result.watchlist = await replaceUserWatchlist(
-      session.user.id,
-      body.watchlist
-    );
+    result.watchlist = await replaceUserWatchlist(authz.userId, body.watchlist);
   }
   if (Array.isArray(body.recentSearches)) {
     result.recentSearches = await replaceUserRecentSearches(
-      session.user.id,
+      authz.userId,
       body.recentSearches
     );
   }
@@ -74,15 +64,9 @@ export async function PUT(request: Request) {
       body.preferredRegion !== "" &&
       next === null
     ) {
-      return NextResponse.json(
-        { error: "Invalid preferredRegion" },
-        { status: 400 }
-      );
+      return jsonError("Invalid preferredRegion", 400);
     }
-    result.preferredRegion = await setUserPreferredRegion(
-      session.user.id,
-      next
-    );
+    result.preferredRegion = await setUserPreferredRegion(authz.userId, next);
   }
 
   return NextResponse.json(result);

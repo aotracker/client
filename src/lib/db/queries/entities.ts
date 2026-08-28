@@ -1,5 +1,4 @@
-import { and, count, desc, eq, gte, ilike, inArray, isNotNull, ne, or, sql, sum } from "drizzle-orm";
-import type { AnyColumn } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, inArray, isNotNull, ne, or, sql, sum, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { cache } from "react";
 import { buildPresentation, decorateBuildItem } from "@/lib/items/build-display";
@@ -592,6 +591,33 @@ export async function getPlayerAnalytics(
   };
 }
 
+async function loadTopKillsByKillerColumn(
+  region: AlbionRegion,
+  column:
+    | typeof schema.killEvents.killerGuildAlbionId
+    | typeof schema.killEvents.killerAllianceAlbionId,
+  albionId: string,
+  limit: number
+) {
+  const id = albionId.trim();
+  if (!id) return [];
+
+  const idRows = await db
+    .select({ id: schema.killEvents.id })
+    .from(schema.killEvents)
+    .where(
+      and(
+        eq(schema.killEvents.region, region),
+        eq(column, id),
+        killFamePositiveCondition()
+      )
+    )
+    .orderBy(desc(schema.killEvents.totalVictimKillFame))
+    .limit(limit);
+
+  return hydrateKillCardsByIds(idRows.map((row) => row.id));
+}
+
 /**
  * Highest-fame kills credited to this guild at the time of the kill,
  * not the killer's current membership.
@@ -601,23 +627,12 @@ export async function getGuildTopKillsFromDb(
   guildAlbionId: string,
   limit = 10
 ) {
-  const albionId = guildAlbionId.trim();
-  if (!albionId) return [];
-
-  const idRows = await db
-    .select({ id: schema.killEvents.id })
-    .from(schema.killEvents)
-    .where(
-      and(
-        eq(schema.killEvents.region, region),
-        eq(schema.killEvents.killerGuildAlbionId, albionId),
-        killFamePositiveCondition()
-      )
-    )
-    .orderBy(desc(schema.killEvents.totalVictimKillFame))
-    .limit(limit);
-
-  return hydrateKillCardsByIds(idRows.map((row) => row.id));
+  return loadTopKillsByKillerColumn(
+    region,
+    schema.killEvents.killerGuildAlbionId,
+    guildAlbionId,
+    limit
+  );
 }
 
 /**
@@ -629,23 +644,12 @@ export async function getAllianceTopKillsFromDb(
   allianceAlbionId: string,
   limit = 10
 ) {
-  const albionId = allianceAlbionId.trim();
-  if (!albionId) return [];
-
-  const idRows = await db
-    .select({ id: schema.killEvents.id })
-    .from(schema.killEvents)
-    .where(
-      and(
-        eq(schema.killEvents.region, region),
-        eq(schema.killEvents.killerAllianceAlbionId, albionId),
-        killFamePositiveCondition()
-      )
-    )
-    .orderBy(desc(schema.killEvents.totalVictimKillFame))
-    .limit(limit);
-
-  return hydrateKillCardsByIds(idRows.map((row) => row.id));
+  return loadTopKillsByKillerColumn(
+    region,
+    schema.killEvents.killerAllianceAlbionId,
+    allianceAlbionId,
+    limit
+  );
 }
 
 /** Sum kill/death fame from current member guilds (membership-now). */
@@ -672,29 +676,12 @@ export async function getAllianceFameFromMemberGuilds(
   };
 }
 
-/**
- * Recent kills between two guilds using kill-time guild columns
- * (guild at time of kill), not current player membership.
- */
-export async function getGuildFeudKillsFromDb(
+async function loadKillTimeFeudKills(
   region: AlbionRegion,
-  guildNameA: string,
-  guildNameB: string,
-  options: {
-    limit?: number;
-    excludeEventId?: number;
-    guildAId?: string | null;
-    guildBId?: string | null;
-  } = {}
+  pairCondition: SQL | null,
+  options: { limit?: number; excludeEventId?: number } = {}
 ) {
-  const { limit = 10, excludeEventId, guildAId, guildBId } = options;
-  const feudInput: GuildFeudInput = {
-    guildNameA,
-    guildNameB,
-    guildAId,
-    guildBId,
-  };
-  const pairCondition = guildFeudPairCondition(feudInput);
+  const { limit = 10, excludeEventId } = options;
   if (!pairCondition) return [];
 
   const rows = await db
@@ -717,6 +704,34 @@ export async function getGuildFeudKillsFromDb(
   if (ids.length === 0) return [];
 
   return hydrateKillCardsByIds(ids);
+}
+
+/**
+ * Recent kills between two guilds using kill-time guild columns
+ * (guild at time of kill), not current player membership.
+ */
+export async function getGuildFeudKillsFromDb(
+  region: AlbionRegion,
+  guildNameA: string,
+  guildNameB: string,
+  options: {
+    limit?: number;
+    excludeEventId?: number;
+    guildAId?: string | null;
+    guildBId?: string | null;
+  } = {}
+) {
+  const feudInput: GuildFeudInput = {
+    guildNameA,
+    guildNameB,
+    guildAId: options.guildAId,
+    guildBId: options.guildBId,
+  };
+  return loadKillTimeFeudKills(
+    region,
+    guildFeudPairCondition(feudInput),
+    options
+  );
 }
 
 async function loadGuildFeudKillsForCache(
@@ -810,34 +825,11 @@ export async function getAllianceFeudKillsFromDb(
   allianceIdB: string,
   options: { limit?: number; excludeEventId?: number } = {}
 ) {
-  const { limit = 10, excludeEventId } = options;
   const idA = allianceIdA.trim();
   const idB = allianceIdB.trim();
   if (!idA || !idB || idA === idB) return [];
 
-  const pairCondition = alliancePairCondition(idA, idB);
-  if (!pairCondition) return [];
-
-  const rows = await db
-    .select({ id: schema.killEvents.id })
-    .from(schema.killEvents)
-    .where(
-      and(
-        eq(schema.killEvents.region, region),
-        killFamePositiveCondition(),
-        excludeEventId != null
-          ? ne(schema.killEvents.eventId, excludeEventId)
-          : undefined,
-        pairCondition
-      )
-    )
-    .orderBy(desc(schema.killEvents.occurredAt))
-    .limit(limit);
-
-  const ids = rows.map((row) => row.id);
-  if (ids.length === 0) return [];
-
-  return hydrateKillCardsByIds(ids);
+  return loadKillTimeFeudKills(region, alliancePairCondition(idA, idB), options);
 }
 
 async function loadAllianceFeudKillsForCache(
@@ -877,10 +869,10 @@ export const getCachedAllianceFeudKillsFromDb = cache(
     )
 );
 
-export async function getAllianceFeudStats(
+async function loadKillTimeFeudStats(
   region: AlbionRegion,
-  allianceIdA: string,
-  allianceIdB: string
+  aKillsBCond: SQL | null,
+  bKillsACond: SQL | null
 ): Promise<GuildFeudStats> {
   const empty: GuildFeudStats = {
     aKillsB: 0,
@@ -888,73 +880,6 @@ export async function getAllianceFeudStats(
     aFameOnB: 0,
     bFameOnA: 0,
   };
-
-  const idA = allianceIdA.trim();
-  const idB = allianceIdB.trim();
-  if (!idA || !idB || idA === idB) return empty;
-
-  const aKillsBCond = allianceFeudAKillsBCondition(idA, idB);
-  const bKillsACond = allianceFeudBKillsACondition(idA, idB);
-  if (!aKillsBCond || !bKillsACond) return empty;
-
-  const [aKillsBRow, bKillsARow] = await Promise.all([
-    db
-      .select({
-        count: count(),
-        fame: sum(schema.killEvents.totalVictimKillFame),
-      })
-      .from(schema.killEvents)
-      .where(
-        and(
-          eq(schema.killEvents.region, region),
-          killFamePositiveCondition(),
-          allianceFeudAKillsBCondition(idA, idB)!
-        )
-      ),
-    db
-      .select({
-        count: count(),
-        fame: sum(schema.killEvents.totalVictimKillFame),
-      })
-      .from(schema.killEvents)
-      .where(
-        and(
-          eq(schema.killEvents.region, region),
-          killFamePositiveCondition(),
-          allianceFeudBKillsACondition(idA, idB)!
-        )
-      ),
-  ]);
-
-  return {
-    aKillsB: aKillsBRow[0]?.count ?? 0,
-    bKillsA: bKillsARow[0]?.count ?? 0,
-    aFameOnB: Number(aKillsBRow[0]?.fame ?? 0),
-    bFameOnA: Number(bKillsARow[0]?.fame ?? 0),
-  };
-}
-
-export async function getGuildFeudStats(
-  region: AlbionRegion,
-  guildNameA: string,
-  guildNameB: string,
-  options: { guildAId?: string | null; guildBId?: string | null } = {}
-): Promise<GuildFeudStats> {
-  const empty: GuildFeudStats = {
-    aKillsB: 0,
-    bKillsA: 0,
-    aFameOnB: 0,
-    bFameOnA: 0,
-  };
-
-  const feudInput: GuildFeudInput = {
-    guildNameA,
-    guildNameB,
-    guildAId: options.guildAId,
-    guildBId: options.guildBId,
-  };
-  const aKillsBCond = guildFeudAKillsBCondition(feudInput);
-  const bKillsACond = guildFeudBKillsACondition(feudInput);
   if (!aKillsBCond || !bKillsACond) return empty;
 
   const [aKillsBRow, bKillsARow] = await Promise.all([
@@ -992,6 +917,42 @@ export async function getGuildFeudStats(
     aFameOnB: Number(aKillsBRow[0]?.fame ?? 0),
     bFameOnA: Number(bKillsARow[0]?.fame ?? 0),
   };
+}
+
+export async function getAllianceFeudStats(
+  region: AlbionRegion,
+  allianceIdA: string,
+  allianceIdB: string
+): Promise<GuildFeudStats> {
+  const idA = allianceIdA.trim();
+  const idB = allianceIdB.trim();
+  if (!idA || !idB || idA === idB) {
+    return { aKillsB: 0, bKillsA: 0, aFameOnB: 0, bFameOnA: 0 };
+  }
+  return loadKillTimeFeudStats(
+    region,
+    allianceFeudAKillsBCondition(idA, idB),
+    allianceFeudBKillsACondition(idA, idB)
+  );
+}
+
+export async function getGuildFeudStats(
+  region: AlbionRegion,
+  guildNameA: string,
+  guildNameB: string,
+  options: { guildAId?: string | null; guildBId?: string | null } = {}
+): Promise<GuildFeudStats> {
+  const feudInput: GuildFeudInput = {
+    guildNameA,
+    guildNameB,
+    guildAId: options.guildAId,
+    guildBId: options.guildBId,
+  };
+  return loadKillTimeFeudStats(
+    region,
+    guildFeudAKillsBCondition(feudInput),
+    guildFeudBKillsACondition(feudInput)
+  );
 }
 
 export async function getPlayerAssociations(

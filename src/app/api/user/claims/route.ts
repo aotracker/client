@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireUser, parseJsonBody, jsonError } from "@/lib/api-route";
 import { isRegionEnabled } from "@/lib/albion/types";
 import {
   claimCharacter,
@@ -14,22 +14,18 @@ const CLAIM_LIMIT = 8;
 const CLAIM_WINDOW_MS = 10 * 60 * 1000;
 
 export async function GET() {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
-  const claims = await listClaimedCharacters(session.user.id);
+  const claims = await listClaimedCharacters(authz.userId);
   return NextResponse.json({ claims });
 }
 
 export async function PUT(request: Request) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
-  const key = `claim:${session.user.id}`;
+  const key = `claim:${authz.userId}`;
   if (!consumeRateLimit(key, CLAIM_LIMIT, CLAIM_WINDOW_MS)) {
     return NextResponse.json(
       { error: "rate_limited" },
@@ -42,32 +38,30 @@ export async function PUT(request: Request) {
     );
   }
 
-  let body: { region?: string; albionId?: string; name?: string };
-  try {
-    body = (await request.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  const parsed = await parseJsonBody<{
+    region?: string;
+    albionId?: string;
+    name?: string;
+  }>(request);
+  if (!parsed.ok) return parsed.response;
 
-  const result = await claimCharacter(session.user.id, body.region ?? "", {
-    albionId: body.albionId,
-    name: body.name,
+  const result = await claimCharacter(authz.userId, parsed.body.region ?? "", {
+    albionId: parsed.body.albionId,
+    name: parsed.body.name,
   });
   if (!result.ok) {
     const status =
       result.error === "invalid_region" || result.error === "not_found"
         ? 400
         : 409;
-    return NextResponse.json({ error: result.error }, { status });
+    return jsonError(result.error, status);
   }
   return NextResponse.json({ claim: result.claim });
 }
 
 export async function DELETE(request: Request) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
   const url = new URL(request.url);
   let region = url.searchParams.get("region") ?? "";
@@ -80,12 +74,12 @@ export async function DELETE(request: Request) {
     }
   }
   if (!isRegionEnabled(region)) {
-    return NextResponse.json({ error: "invalid_region" }, { status: 400 });
+    return jsonError("invalid_region", 400);
   }
 
-  const ok = await unclaimCharacter(session.user.id, region);
+  const ok = await unclaimCharacter(authz.userId, region);
   if (!ok) {
-    return NextResponse.json({ error: "not_found" }, { status: 404 });
+    return jsonError("not_found", 404);
   }
   return NextResponse.json({ ok: true });
 }

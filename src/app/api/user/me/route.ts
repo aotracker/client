@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getLinkedProviders, getSession } from "@/lib/auth";
 import { displayableAccountEmail } from "@/lib/auth-email";
+import { getLinkedProviders } from "@/lib/auth";
+import { requireUser } from "@/lib/api-route";
 import {
   getUserPreferredRegion,
   getUserSyncedCounts,
@@ -8,25 +9,23 @@ import {
 
 /** Current user profile + linked OAuth providers. Never returns Discord placeholder email. */
 export async function GET() {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
   const [providers, preferredRegion, counts] = await Promise.all([
-    getLinkedProviders(session.user.id),
-    getUserPreferredRegion(session.user.id),
-    getUserSyncedCounts(session.user.id),
+    getLinkedProviders(authz.userId),
+    getUserPreferredRegion(authz.userId),
+    getUserSyncedCounts(authz.userId),
   ]);
   const providerIds = providers.map((p) => p.providerId);
 
   return NextResponse.json({
     user: {
-      id: session.user.id,
-      name: session.user.name,
-      email: displayableAccountEmail(session.user.email, providerIds),
-      image: session.user.image,
-      isAdmin: Boolean((session.user as { isAdmin?: boolean }).isAdmin),
+      id: authz.userId,
+      name: authz.session.user.name,
+      email: displayableAccountEmail(authz.session.user.email, providerIds),
+      image: authz.session.user.image,
+      isAdmin: Boolean((authz.session.user as { isAdmin?: boolean }).isAdmin),
       preferredRegion,
     },
     providers: providerIds,

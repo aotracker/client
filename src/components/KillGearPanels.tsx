@@ -132,7 +132,7 @@ export async function LootGrid({
       {loot.map((item, i) => (
         <div
           key={`${item.itemType}-${i}`}
-          className="flex w-14 shrink-0 flex-col items-center rounded-md border border-border bg-muted/20 p-1"
+          className="flex w-16 shrink-0 flex-col items-center rounded-md border border-border bg-muted/20 p-1"
         >
           <ItemDisplay
             item={item}
@@ -158,7 +158,8 @@ function ItemDisplay({
   estValueLabel: (value: string) => string;
 }) {
   const quality = item.quality ?? 1;
-  const dim = layout === "fill" ? "h-full w-full" : "size-12";
+  const dim =
+    layout === "fill" ? "h-full w-full" : layout === "icon" ? "size-14" : "size-12";
   const tooltip = formatKillItemTooltip({
     itemType: item.itemType,
     locale,

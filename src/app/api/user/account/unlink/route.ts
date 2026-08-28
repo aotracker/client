@@ -1,39 +1,37 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireUser, parseJsonBody, jsonError } from "@/lib/api-route";
 import { unlinkSocialProvider } from "@/lib/db/user-data";
 
 const PROVIDERS = new Set(["discord", "google"]);
 
 /** Unlink Discord or Google. Refuses to remove the last sign-in method. */
 export async function POST(request: Request) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
-  let body: { provider?: unknown };
-  try {
-    body = (await request.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  const parsed = await parseJsonBody<{ provider?: unknown }>(request);
+  if (!parsed.ok) return parsed.response;
 
-  if (typeof body.provider !== "string" || !PROVIDERS.has(body.provider)) {
-    return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
+  if (
+    typeof parsed.body.provider !== "string" ||
+    !PROVIDERS.has(parsed.body.provider)
+  ) {
+    return jsonError("Invalid provider", 400);
   }
 
   const result = await unlinkSocialProvider(
-    session.user.id,
-    body.provider as "discord" | "google"
+    authz.userId,
+    parsed.body.provider as "discord" | "google"
   );
   if (result === "last") {
-    return NextResponse.json(
-      { error: "last_provider", message: "Cannot unlink the last sign-in method" },
-      { status: 400 }
+    return jsonError(
+      "last_provider",
+      400,
+      "Cannot unlink the last sign-in method"
     );
   }
   if (result === "missing") {
-    return NextResponse.json({ error: "Provider not linked" }, { status: 404 });
+    return jsonError("Provider not linked", 404);
   }
   return NextResponse.json({ ok: true });
 }

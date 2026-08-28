@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, parseJsonBody } from "@/lib/api-route";
 import { discordInviteUrl } from "@/lib/discord-invite";
 import { requireDiscordManageGuild } from "@/lib/discord-manage-auth";
 import {
@@ -52,7 +53,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const { guildId } = await context.params;
   const access = await requireDiscordManageGuild(guildId);
   if (!access.ok) {
-    return NextResponse.json({ error: access.error }, { status: access.status });
+    return jsonError(access.error, access.status);
   }
 
   const [feeds, channelsResult, rolesResult, installed] = await Promise.all([
@@ -81,15 +82,12 @@ export async function POST(request: Request, context: RouteContext) {
   const { guildId } = await context.params;
   const access = await requireDiscordManageGuild(guildId);
   if (!access.ok) {
-    return NextResponse.json({ error: access.error }, { status: access.status });
+    return jsonError(access.error, access.status);
   }
 
-  let body: Record<string, unknown>;
-  try {
-    body = (await request.json()) as Record<string, unknown>;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  const parsed = await parseJsonBody<Record<string, unknown>>(request);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.body;
 
   const action = typeof body.action === "string" ? body.action : "";
   const installed = await botInstalled(guildId);

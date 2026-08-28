@@ -1,6 +1,7 @@
 import {
   ENABLED_REGIONS,
   isRegionEnabled,
+  type AlbionRegion,
 } from "@/lib/albion/types";
 import { regionLabel } from "@/lib/utils";
 import {
@@ -18,6 +19,18 @@ export type FeedPath = (typeof FEED_PATHS)[number];
 
 export function isFeedPath(pathname: string): pathname is FeedPath {
   return (FEED_PATHS as readonly string[]).includes(pathname);
+}
+
+/** `Common.regions.*` labels for feed region filters. */
+export function translatedFeedRegionLabel(
+  tCommon: (key: string) => string,
+  value: AlbionRegion | "all"
+): string {
+  if (value === "all") return tCommon("regions.all");
+  if (value === "americas") return tCommon("regions.americas");
+  if (value === "europe") return tCommon("regions.europe");
+  if (value === "asia") return tCommon("regions.asia");
+  return value;
 }
 
 /**

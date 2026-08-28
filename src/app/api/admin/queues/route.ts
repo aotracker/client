@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api-route";
 import { verifyAdminRequest } from "@/lib/auth/admin";
 import { getEnrichedQueueStatuses } from "@/lib/jobs/queue";
 import { getEnrichedWorkerJobStatuses } from "@/lib/jobs/worker-status";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 /** Lightweight poll endpoint for worker queue panel. */
 export async function GET(request: Request) {
   if (!(await verifyAdminRequest(request)).ok) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("Unauthorized", 401);
   }
 
   try {

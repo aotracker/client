@@ -1,22 +1,19 @@
 import { NextResponse } from "next/server";
-import { getSession, getSessionRowId } from "@/lib/auth";
+import { getSessionRowId } from "@/lib/auth";
+import { requireUser, parseJsonBody, jsonError } from "@/lib/api-route";
 import {
   listUserSessions,
   revokeOtherUserSessions,
   revokeUserSession,
 } from "@/lib/db/user-data";
 
-function unauthorized() {
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-}
-
 /** List active sessions for the signed-in user. Never includes session tokens. */
 export async function GET() {
-  const session = await getSession();
-  if (!session?.user?.id) return unauthorized();
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
-  const currentId = getSessionRowId(session);
-  const sessions = await listUserSessions(session.user.id, currentId);
+  const currentId = getSessionRowId(authz.session);
+  const sessions = await listUserSessions(authz.userId, currentId);
   return NextResponse.json({
     sessions: sessions.map((row) => ({
       id: row.id,
@@ -32,43 +29,39 @@ export async function GET() {
 
 /** Revoke one other session (`id`) or every session except the current one. */
 export async function POST(request: Request) {
-  const session = await getSession();
-  if (!session?.user?.id) return unauthorized();
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
-  const currentId = getSessionRowId(session);
+  const currentId = getSessionRowId(authz.session);
   if (!currentId) {
-    return NextResponse.json({ error: "No session" }, { status: 400 });
+    return jsonError("No session", 400);
   }
 
-  let body: { id?: unknown; others?: unknown };
-  try {
-    body = (await request.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  const parsed = await parseJsonBody<{ id?: unknown; others?: unknown }>(
+    request
+  );
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.body;
 
   if (body.others === true) {
-    const revoked = await revokeOtherUserSessions(session.user.id, currentId);
+    const revoked = await revokeOtherUserSessions(authz.userId, currentId);
     return NextResponse.json({ ok: true, revoked });
   }
 
   if (typeof body.id !== "string" || body.id.trim().length === 0) {
-    return NextResponse.json({ error: "id is required" }, { status: 400 });
+    return jsonError("id is required", 400);
   }
 
   const result = await revokeUserSession(
-    session.user.id,
+    authz.userId,
     body.id.trim(),
     currentId
   );
   if (result === "current") {
-    return NextResponse.json(
-      { error: "Cannot revoke the current session" },
-      { status: 400 }
-    );
+    return jsonError("Cannot revoke the current session", 400);
   }
   if (result === "missing") {
-    return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    return jsonError("Session not found", 404);
   }
   return NextResponse.json({ ok: true });
 }

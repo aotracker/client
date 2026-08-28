@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, parseJsonBody } from "@/lib/api-route";
 import { verifyAdminRequest } from "@/lib/auth/admin";
 import {
   adminReassignCharacter,
@@ -9,33 +10,27 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   if (!(await verifyAdminRequest(request)).ok) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("Unauthorized", 401);
   }
 
-  let body: {
+  const parsed = await parseJsonBody<{
     userId?: string;
     action?: string;
     region?: string;
     albionId?: string;
     name?: string;
-  };
-  try {
-    body = (await request.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  }>(request);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.body;
 
   if (!body.userId || !body.region) {
-    return NextResponse.json(
-      { error: "userId and region are required" },
-      { status: 400 }
-    );
+    return jsonError("userId and region are required", 400);
   }
 
   if (body.action === "unclaim") {
     const ok = await adminUnclaimCharacter(body.userId, body.region);
     if (!ok) {
-      return NextResponse.json({ error: "not_found" }, { status: 404 });
+      return jsonError("not_found", 404);
     }
     return NextResponse.json({ ok: true });
   }
@@ -50,10 +45,10 @@ export async function POST(request: Request) {
         result.error === "invalid_region" || result.error === "not_found"
           ? 400
           : 409;
-      return NextResponse.json({ error: result.error }, { status });
+      return jsonError(result.error, status);
     }
     return NextResponse.json({ ok: true, claim: result.claim });
   }
 
-  return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+  return jsonError("Unknown action", 400);
 }

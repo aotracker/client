@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import { jsonError } from "@/lib/api-route";
 import { verifyAdminRequest } from "@/lib/auth/admin";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 import { db, schema } from "@/lib/db";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   if (!(await verifyAdminRequest(request)).ok) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("Unauthorized", 401);
   }
 
   const disabledRaw = process.env.DISABLED_REGIONS?.trim();

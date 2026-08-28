@@ -11,7 +11,7 @@ import {
   parseLeaderboardHour,
   type LeaderboardTab,
 } from "@/lib/leaderboards/params";
-import { readFeedRegionParam } from "@/lib/region-params";
+import { readFeedRegionParam, translatedFeedRegionLabel } from "@/lib/region-params";
 import {
   formatUtcHour,
   primeTimeHoursForFilter,
@@ -63,14 +63,6 @@ export function LeaderboardFilters({
     { value: "ZVZ", label: tFilters("contentZvz") },
   ];
 
-  const regionLabel = (value: AlbionRegion | "all") => {
-    if (value === "all") return tCommon("regions.all");
-    if (value === "americas") return tCommon("regions.americas");
-    if (value === "europe") return tCommon("regions.europe");
-    if (value === "asia") return tCommon("regions.asia");
-    return value;
-  };
-
   return (
     <Card>
       <nav
@@ -116,7 +108,7 @@ export function LeaderboardFilters({
           disabled={isPending}
           options={regions.map((r) => ({
             value: r.value,
-            label: regionLabel(r.value),
+            label: translatedFeedRegionLabel(tCommon, r.value),
           }))}
           onChange={(next) => {
             const nextHours = primeTimeHoursForFilter(next);

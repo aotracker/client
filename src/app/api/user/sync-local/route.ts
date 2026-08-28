@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { requireUser, parseJsonBody } from "@/lib/api-route";
 import {
   getUserPreferredRegion,
   getUserRecentSearches,
@@ -16,23 +16,18 @@ import { isPreferredRegion } from "@/lib/region-preference";
 
 /** Union-merge browser localStorage payload into the signed-in user's server prefs. */
 export async function POST(request: Request) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireUser();
+  if (!authz.ok) return authz.response;
 
-  let body: {
+  const parsed = await parseJsonBody<{
     watchlist?: WatchlistEntry[];
     recentSearches?: RecentSearch[];
     preferredRegion?: string | null;
-  };
-  try {
-    body = (await request.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  }>(request);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.body;
 
-  const userId = session.user.id;
+  const userId = authz.userId;
   const [serverWatchlist, serverRecent, serverRegion] = await Promise.all([
     getUserWatchlist(userId),
     getUserRecentSearches(userId),
@@ -58,7 +53,6 @@ export async function POST(request: Request) {
     typeof body.preferredRegion === "string" &&
     isPreferredRegion(body.preferredRegion)
   ) {
-    // Prefer existing server region; otherwise adopt the device preference.
     preferredRegion = serverRegion
       ? serverRegion
       : await setUserPreferredRegion(userId, body.preferredRegion);

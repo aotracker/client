@@ -8,9 +8,10 @@ import {
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
   GUILD_FEED_TYPES,
-  clampBattleMinPlayers,
+  applyFeedFilterPatch,
   isDiscordFeedType,
   battlePreviewEventKey,
+  parseFeedFilters,
   type DiscordFeedFilters,
   type DiscordFeedType,
   type FeedSummary,
@@ -21,64 +22,13 @@ export {
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
   GUILD_FEED_TYPES,
+  applyFeedFilterPatch,
   isDiscordFeedType,
+  parseFeedFilters,
   type DiscordFeedFilters,
   type DiscordFeedType,
   type FeedSummary,
 };
-
-export function parseFeedFilters(value: unknown): DiscordFeedFilters {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-  return value as DiscordFeedFilters;
-}
-
-export function applyFeedFilterPatch(
-  current: DiscordFeedFilters,
-  patch: {
-    minFame?: number | null;
-    minSilver?: number | null;
-    contentTypes?: string[] | null;
-    paused?: boolean | null;
-    pingRoleId?: string | null;
-    minPlayers?: number | null;
-    createThread?: boolean | null;
-  }
-): DiscordFeedFilters {
-  const next = { ...current };
-  if ("minFame" in patch) {
-    if (patch.minFame && patch.minFame > 0) next.minFame = patch.minFame;
-    else delete next.minFame;
-  }
-  if ("minSilver" in patch) {
-    if (patch.minSilver && patch.minSilver > 0) next.minSilver = patch.minSilver;
-    else delete next.minSilver;
-  }
-  if ("contentTypes" in patch) {
-    const types = (patch.contentTypes ?? []).filter(
-      (type) => type === "SOLO" || type === "GROUP" || type === "ZVZ"
-    );
-    if (types.length > 0) next.contentTypes = types;
-    else delete next.contentTypes;
-  }
-  if ("paused" in patch) {
-    if (patch.paused) next.paused = true;
-    else delete next.paused;
-  }
-  if ("pingRoleId" in patch) {
-    if (patch.pingRoleId) next.pingRoleId = patch.pingRoleId;
-    else delete next.pingRoleId;
-  }
-  if ("minPlayers" in patch) {
-    if (patch.minPlayers && patch.minPlayers > 0) {
-      next.minPlayers = clampBattleMinPlayers(patch.minPlayers);
-    } else delete next.minPlayers;
-  }
-  if ("createThread" in patch) {
-    if (patch.createThread) next.createThread = true;
-    else delete next.createThread;
-  }
-  return next;
-}
 
 export async function listServerFeedSummaries(
   discordGuildId: string

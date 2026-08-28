@@ -82,6 +82,53 @@ function guildFeudInput(
   };
 }
 
+export type FeudScope =
+  | {
+      kind: "guild";
+      nameA: string;
+      nameB: string;
+      guildAId?: string | null;
+      guildBId?: string | null;
+    }
+  | { kind: "alliance"; idA: string; idB: string };
+
+function feudConditions(scope: FeudScope) {
+  if (scope.kind === "guild") {
+    const input = guildFeudInput(
+      scope.nameA,
+      scope.nameB,
+      scope.guildAId,
+      scope.guildBId
+    );
+    return {
+      pair: guildFeudPairCondition(input),
+      aKillsB: guildFeudAKillsBCondition(input),
+      bKillsA: guildFeudBKillsACondition(input),
+    };
+  }
+  const idA = scope.idA.trim();
+  const idB = scope.idB.trim();
+  return {
+    pair: allianceFeudPairCondition(idA, idB),
+    aKillsB: allianceFeudAKillsBCondition(idA, idB),
+    bKillsA: allianceFeudBKillsACondition(idA, idB),
+  };
+}
+
+function guildFeudScope(
+  guildNameA: string,
+  guildNameB: string,
+  options: { guildAId?: string | null; guildBId?: string | null } = {}
+): FeudScope {
+  return {
+    kind: "guild",
+    nameA: guildNameA,
+    nameB: guildNameB,
+    guildAId: options.guildAId,
+    guildBId: options.guildBId,
+  };
+}
+
 async function loadFeudStats(
   region: AlbionRegion,
   aKillsBCond: SQL | null,
@@ -148,18 +195,10 @@ export async function getGuildFeudPageStats(
     guildBId?: string | null;
   } = {}
 ): Promise<FeudStats> {
-  const input = guildFeudInput(
-    guildNameA,
-    guildNameB,
-    options.guildAId,
-    options.guildBId
+  const { aKillsB, bKillsA } = feudConditions(
+    guildFeudScope(guildNameA, guildNameB, options)
   );
-  return loadFeudStats(
-    region,
-    guildFeudAKillsBCondition(input),
-    guildFeudBKillsACondition(input),
-    options.days ?? 7
-  );
+  return loadFeudStats(region, aKillsB, bKillsA, options.days ?? 7);
 }
 
 export async function getAllianceFeudPageStats(
@@ -168,14 +207,12 @@ export async function getAllianceFeudPageStats(
   allianceIdB: string,
   days: FeudDaysFilter = 7
 ): Promise<FeudStats> {
-  const idA = allianceIdA.trim();
-  const idB = allianceIdB.trim();
-  return loadFeudStats(
-    region,
-    allianceFeudAKillsBCondition(idA, idB),
-    allianceFeudBKillsACondition(idA, idB),
-    days
-  );
+  const { aKillsB, bKillsA } = feudConditions({
+    kind: "alliance",
+    idA: allianceIdA,
+    idB: allianceIdB,
+  });
+  return loadFeudStats(region, aKillsB, bKillsA, days);
 }
 
 async function loadFeudContentMix(
@@ -210,17 +247,10 @@ export async function getGuildFeudContentMix(
     guildBId?: string | null;
   } = {}
 ) {
-  const input = guildFeudInput(
-    guildNameA,
-    guildNameB,
-    options.guildAId,
-    options.guildBId
+  const { pair } = feudConditions(
+    guildFeudScope(guildNameA, guildNameB, options)
   );
-  return loadFeudContentMix(
-    region,
-    guildFeudPairCondition(input),
-    options.days ?? 7
-  );
+  return loadFeudContentMix(region, pair, options.days ?? 7);
 }
 
 export async function getAllianceFeudContentMix(
@@ -229,13 +259,12 @@ export async function getAllianceFeudContentMix(
   allianceIdB: string,
   days: FeudDaysFilter = 7
 ) {
-  const idA = allianceIdA.trim();
-  const idB = allianceIdB.trim();
-  return loadFeudContentMix(
-    region,
-    allianceFeudPairCondition(idA, idB),
-    days
-  );
+  const { pair } = feudConditions({
+    kind: "alliance",
+    idA: allianceIdA,
+    idB: allianceIdB,
+  });
+  return loadFeudContentMix(region, pair, days);
 }
 
 async function loadFeudTopKills(
@@ -267,15 +296,12 @@ export async function getGuildFeudTopKills(
     guildBId?: string | null;
   } = {}
 ) {
-  const input = guildFeudInput(
-    guildNameA,
-    guildNameB,
-    options.guildAId,
-    options.guildBId
+  const { pair } = feudConditions(
+    guildFeudScope(guildNameA, guildNameB, options)
   );
   return loadFeudTopKills(
     region,
-    guildFeudPairCondition(input),
+    pair,
     options.days ?? 7,
     options.limit ?? 10
   );
@@ -287,11 +313,14 @@ export async function getAllianceFeudTopKills(
   allianceIdB: string,
   options: { days?: FeudDaysFilter; limit?: number } = {}
 ) {
-  const idA = allianceIdA.trim();
-  const idB = allianceIdB.trim();
+  const { pair } = feudConditions({
+    kind: "alliance",
+    idA: allianceIdA,
+    idB: allianceIdB,
+  });
   return loadFeudTopKills(
     region,
-    allianceFeudPairCondition(idA, idB),
+    pair,
     options.days ?? 7,
     options.limit ?? 10
   );
@@ -417,16 +446,13 @@ export async function getGuildFeudTopPlayers(
     guildBId?: string | null;
   } = {}
 ): Promise<FeudTopPlayers> {
-  const input = guildFeudInput(
-    guildNameA,
-    guildNameB,
-    options.guildAId,
-    options.guildBId
+  const { aKillsB, bKillsA } = feudConditions(
+    guildFeudScope(guildNameA, guildNameB, options)
   );
   return loadFeudTopPlayers(
     region,
-    guildFeudAKillsBCondition(input),
-    guildFeudBKillsACondition(input),
+    aKillsB,
+    bKillsA,
     options.days ?? 7,
     options.limit ?? 5
   );
@@ -438,12 +464,15 @@ export async function getAllianceFeudTopPlayers(
   allianceIdB: string,
   options: { days?: FeudDaysFilter; limit?: number } = {}
 ): Promise<FeudTopPlayers> {
-  const idA = allianceIdA.trim();
-  const idB = allianceIdB.trim();
+  const { aKillsB, bKillsA } = feudConditions({
+    kind: "alliance",
+    idA: allianceIdA,
+    idB: allianceIdB,
+  });
   return loadFeudTopPlayers(
     region,
-    allianceFeudAKillsBCondition(idA, idB),
-    allianceFeudBKillsACondition(idA, idB),
+    aKillsB,
+    bKillsA,
     options.days ?? 7,
     options.limit ?? 5
   );
@@ -548,17 +577,14 @@ export async function getGuildFeudSharedBattles(
     guildBId?: string | null;
   } = {}
 ) {
-  const input = guildFeudInput(
-    guildNameA,
-    guildNameB,
-    options.guildAId,
-    options.guildBId
+  const { pair, aKillsB, bKillsA } = feudConditions(
+    guildFeudScope(guildNameA, guildNameB, options)
   );
   return loadFeudSharedBattles(
     region,
-    guildFeudPairCondition(input),
-    guildFeudAKillsBCondition(input),
-    guildFeudBKillsACondition(input),
+    pair,
+    aKillsB,
+    bKillsA,
     options.days ?? 7,
     options.limit ?? 10
   );
@@ -570,13 +596,16 @@ export async function getAllianceFeudSharedBattles(
   allianceIdB: string,
   options: { days?: FeudDaysFilter; limit?: number } = {}
 ) {
-  const idA = allianceIdA.trim();
-  const idB = allianceIdB.trim();
+  const { pair, aKillsB, bKillsA } = feudConditions({
+    kind: "alliance",
+    idA: allianceIdA,
+    idB: allianceIdB,
+  });
   return loadFeudSharedBattles(
     region,
-    allianceFeudPairCondition(idA, idB),
-    allianceFeudAKillsBCondition(idA, idB),
-    allianceFeudBKillsACondition(idA, idB),
+    pair,
+    aKillsB,
+    bKillsA,
     options.days ?? 7,
     options.limit ?? 10
   );
@@ -626,15 +655,12 @@ export async function getGuildFeudKillsPage(
     guildBId?: string | null;
   } = {}
 ): Promise<FeudKillsPage> {
-  const input = guildFeudInput(
-    guildNameA,
-    guildNameB,
-    options.guildAId,
-    options.guildBId
+  const { pair } = feudConditions(
+    guildFeudScope(guildNameA, guildNameB, options)
   );
   return loadFeudKillsPage(
     region,
-    guildFeudPairCondition(input),
+    pair,
     options.days ?? 7,
     options.limit ?? 25,
     options.offset ?? 0
@@ -651,11 +677,14 @@ export async function getAllianceFeudKillsPage(
     offset?: number;
   } = {}
 ): Promise<FeudKillsPage> {
-  const idA = allianceIdA.trim();
-  const idB = allianceIdB.trim();
+  const { pair } = feudConditions({
+    kind: "alliance",
+    idA: allianceIdA,
+    idB: allianceIdB,
+  });
   return loadFeudKillsPage(
     region,
-    allianceFeudPairCondition(idA, idB),
+    pair,
     options.days ?? 7,
     options.limit ?? 25,
     options.offset ?? 0

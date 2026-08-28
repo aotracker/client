@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/api-route";
 import { verifyCronRequest } from "@/lib/jobs/cron-auth";
 import { getQueueStatuses } from "@/lib/jobs/queue";
 
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(request: Request) {
   if (!verifyCronRequest(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("Unauthorized", 401);
   }
 
   try {
