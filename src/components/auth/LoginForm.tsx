@@ -36,6 +36,11 @@ export function LoginForm({
 
         <p className="text-xs leading-relaxed text-muted-foreground">
           {t.rich("loginLegal", {
+            terms: (chunks) => (
+              <Link href="/terms" className="text-primary hover:underline">
+                {chunks}
+              </Link>
+            ),
             privacy: (chunks) => (
               <Link href="/privacy" className="text-primary hover:underline">
                 {chunks}

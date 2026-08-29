@@ -97,6 +97,25 @@ export default async function ContactPage({ params }: ContactPageProps) {
           })}
         </p>
       </section>
+
+      <section className="space-y-2 text-sm text-muted-foreground">
+        <h2 className="font-display text-lg font-semibold text-foreground">
+          {t("sections.termsTitle")}
+        </h2>
+        <p>
+          {t.rich("sections.termsBody", {
+            siteName: SITE_NAME,
+            termsLink: (chunks) => (
+              <Link
+                href="/terms"
+                className="text-foreground underline underline-offset-2"
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
+        </p>
+      </section>
     </div>
   );
 }

@@ -46,6 +46,7 @@ describe("staticSitemapEntries", () => {
 
   it("omits noindex and utility pages", () => {
     expect(urls.some((url) => url.includes("/privacy"))).toBe(false);
+    expect(urls.some((url) => url.includes("/terms"))).toBe(false);
     expect(urls.some((url) => url.includes("/watchlist"))).toBe(false);
     expect(urls.some((url) => url.includes("/contact"))).toBe(false);
     expect(urls.some((url) => url.includes("/search"))).toBe(false);
