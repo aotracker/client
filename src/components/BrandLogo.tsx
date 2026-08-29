@@ -1,9 +1,10 @@
 import { Link } from "@/i18n/navigation";
+import { BrandMarkGlyph } from "@/components/BrandMarkGlyph";
 import { Tooltip } from "@/components/ui/tooltip";
 import { SITE_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-/** Compact AOT monogram. */
+/** Compact radar ping. */
 export function BrandMark({
   className,
   title,
@@ -14,12 +15,12 @@ export function BrandMark({
   const mark = (
     <span
       className={cn(
-        "inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card font-display text-xs font-bold tracking-wide text-foreground",
+        "inline-flex size-8 shrink-0 items-center justify-center text-primary",
         className
       )}
       aria-hidden={title ? undefined : true}
     >
-      AOT
+      <BrandMarkGlyph className="size-full" />
     </span>
   );
 
@@ -43,11 +44,7 @@ export function BrandLogo({
 }: BrandLogoProps) {
   const content = (
     <>
-      <BrandMark
-        className={cn(
-          size === "sm" ? "size-7 text-xs" : "size-8 text-xs"
-        )}
-      />
+      <BrandMark className={size === "sm" ? "size-7" : "size-8"} />
       {!markOnly && (
         <span
           className={cn(
@@ -64,7 +61,7 @@ export function BrandLogo({
 
   if (!href) {
     return (
-      <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <span className={cn("inline-flex items-center gap-2", className)}>
         {content}
       </span>
     );
@@ -74,7 +71,7 @@ export function BrandLogo({
     <Link
       href={href}
       className={cn(
-        "inline-flex shrink-0 items-center gap-2.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "inline-flex shrink-0 items-center gap-2 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         className
       )}
       aria-label={SITE_NAME}

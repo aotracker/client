@@ -372,6 +372,7 @@ export function LootSection({
               <SilverValue
                 amount={lootEstSilver}
                 prefix={estValueLabel("").trim()}
+                iconClassName="size-4"
               />
             ) : null}
             <span>{itemsDropped}</span>

@@ -265,9 +265,10 @@ function KillValueStrip({
     ? `${estVictimValueLabel}\n${breakdown}`
     : estVictimValueLabel;
   const statClass = cn(
-    "inline-flex items-center gap-1 font-bold tabular-nums",
+    "inline-flex items-center gap-1.5 font-bold tabular-nums",
     large ? "text-base lg:text-lg" : "text-sm"
   );
+  const statIconClass = large ? "size-5" : "size-4";
   const showFightMeta = assistCount != null || lootCount > 0;
 
   return (
@@ -291,14 +292,14 @@ function KillValueStrip({
             aria-label={fameLabel}
             className={cn(statClass, "text-stat-fame hover:underline")}
           >
-            <AlbionKillboardIcon icon="fame" className="size-3.5" />
+            <AlbionKillboardIcon icon="fame" className={statIconClass} />
             <span>{formatFame(fame)}</span>
           </Link>
         </Tooltip>
         {combined != null ? (
           <Tooltip content={silverTooltip}>
             <span className={cn(statClass, "text-foreground")} aria-label={estVictimValueLabel}>
-              <AlbionKillboardIcon icon="silver" className="size-3.5" />
+              <AlbionKillboardIcon icon="silver" className={statIconClass} />
               <span>{formatSilver(combined)}</span>
             </span>
           </Tooltip>

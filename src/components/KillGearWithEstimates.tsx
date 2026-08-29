@@ -24,6 +24,7 @@ export async function KillEquipmentValue({
     <SilverValue
       amount={totalSilver}
       className="text-sm text-muted-foreground"
+      iconClassName="size-4"
     />
   );
 }

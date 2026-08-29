@@ -48,6 +48,12 @@ function withRequestLocale(request: NextRequest, destination: string): string {
 
 export default function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
+
+  // File-based metadata at the app root must not be locale-prefixed.
+  if (pathname === "/icon" || pathname === "/apple-icon") {
+    return NextResponse.next();
+  }
+
   const stripped = stripLocalePrefix(pathname);
 
   const aliasDestination = resolveRegionAliasRedirect(stripped);

@@ -197,7 +197,7 @@ function ItemDisplay({
           <SilverValue
             amount={item.estSilver}
             className="text-xs text-muted-foreground"
-            iconClassName="size-2.5"
+            iconClassName="size-3"
           />
         )}
       </div>
