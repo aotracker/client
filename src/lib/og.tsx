@@ -526,7 +526,6 @@ export function createBattleOgImage(options: {
 }): ImageResponse {
   const rows = options.rows.slice(0, 4);
   const isGuilds = options.mode === "guilds";
-  const tableTitle = isGuilds ? "Guilds" : "Alliances";
   const badge = options.badge ?? "Albion Battle";
   const highlight = options.highlightName?.trim().toLowerCase() ?? "";
 
@@ -536,7 +535,7 @@ export function createBattleOgImage(options: {
         display: "flex",
         flex,
         justifyContent: "flex-end",
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: 600,
         letterSpacing: "0.06em",
         textTransform: "uppercase",
@@ -553,8 +552,8 @@ export function createBattleOgImage(options: {
         display: "flex",
         flex,
         justifyContent: "flex-end",
-        fontSize: 24,
-        fontWeight: 600,
+        fontSize: 30,
+        fontWeight: 700,
         color,
       }}
     >
@@ -570,18 +569,24 @@ export function createBattleOgImage(options: {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "48px 56px",
+          padding: "24px 36px 28px",
           background: "linear-gradient(145deg, #0c0f14 0%, #151a22 55%, #1a2330 100%)",
           color: "#f4f6f8",
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 6,
+          }}
+        >
           <div
             style={{
               display: "flex",
-              fontSize: 26,
+              fontSize: 20,
               fontWeight: 700,
               letterSpacing: "-0.02em",
               color: "#e8edf2",
@@ -592,30 +597,43 @@ export function createBattleOgImage(options: {
           <div
             style={{
               display: "flex",
-              fontSize: 20,
+              fontSize: 15,
               color: "#9aa7b5",
               border: `1px solid ${COLORS.border}`,
               borderRadius: 999,
-              padding: "8px 18px",
+              padding: "5px 14px",
             }}
           >
             {badge}
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            marginBottom: 14,
+          }}
+        >
           <div
             style={{
               display: "flex",
-              fontSize: 48,
+              fontSize: 24,
               fontWeight: 700,
-              lineHeight: 1.1,
-              letterSpacing: "-0.03em",
+              letterSpacing: "-0.02em",
+              color: "#e8edf2",
             }}
           >
             {options.title}
           </div>
-          <div style={{ display: "flex", fontSize: 24, color: "#9aa7b5" }}>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 18,
+              color: "#9aa7b5",
+            }}
+          >
             {options.subtitle}
           </div>
         </div>
@@ -624,30 +642,19 @@ export function createBattleOgImage(options: {
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 12,
+            flex: 1,
             border: `1px solid ${COLORS.border}`,
             borderRadius: 16,
             background: "rgba(12, 15, 20, 0.55)",
-            padding: "22px 28px",
+            padding: "18px 24px 12px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              fontSize: 22,
-              fontWeight: 700,
-              color: "#e8edf2",
-            }}
-          >
-            {tableTitle}
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
             <div
               style={{
                 display: "flex",
                 flex: isGuilds ? 1.35 : 1.6,
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: 600,
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
@@ -660,8 +667,8 @@ export function createBattleOgImage(options: {
               <div
                 style={{
                   display: "flex",
-                  flex: 1.2,
-                  fontSize: 16,
+                  flex: 1.15,
+                  fontSize: 15,
                   fontWeight: 600,
                   letterSpacing: "0.06em",
                   textTransform: "uppercase",
@@ -686,33 +693,33 @@ export function createBattleOgImage(options: {
               key={`${row.name}-${row.alliance ?? ""}`}
               style={{
                 display: "flex",
+                flex: 1,
                 alignItems: "center",
                 gap: 12,
-                borderTop: `1px solid ${COLORS.border}`,
-                paddingTop: 12,
+                padding: "0 8px",
                 background: isHighlight
-                  ? "rgba(245, 193, 74, 0.12)"
+                  ? "rgba(245, 193, 74, 0.14)"
                   : "transparent",
-                borderRadius: isHighlight ? 8 : 0,
+                borderRadius: 10,
               }}
             >
               <div
                 style={{
                   display: "flex",
                   flex: isGuilds ? 1.35 : 1.6,
-                  fontSize: 24,
-                  fontWeight: 600,
-                  color: isHighlight ? COLORS.fame : COLORS.text,
+                  fontSize: 30,
+                  fontWeight: 700,
+                  color: isHighlight ? COLORS.fame : "#e8edf2",
                 }}
               >
-                {truncateLabel(row.name, isGuilds ? 16 : 20)}
+                {truncateLabel(row.name, isGuilds ? 18 : 22)}
               </div>
               {isGuilds ? (
                 <div
                   style={{
                     display: "flex",
-                    flex: 1.2,
-                    fontSize: 22,
+                    flex: 1.15,
+                    fontSize: 24,
                     color: COLORS.muted,
                   }}
                 >

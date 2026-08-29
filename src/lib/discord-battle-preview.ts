@@ -1,6 +1,8 @@
 import type { BattleOgTableRow } from "@/lib/og";
 
 const COLOR_BATTLE = 0xd4a84b;
+/** Preview recaps use a sample battle id so links go to `/battle/{region}/{id}`. */
+const PREVIEW_BATTLE_ID = 99;
 
 function appPublicUrl(): string {
   return (
@@ -110,8 +112,6 @@ type PreviewEmbed = {
   color: number;
   title: string;
   url: string;
-  description: string;
-  footer: { text: string };
   image?: { url: string };
 };
 
@@ -120,21 +120,11 @@ export function buildBattlePreviewMessageBody(input: {
   trackedGuildName: string;
 }) {
   const name = input.trackedGuildName.trim() || "Your guild";
-  const guilds = sampleGuilds(name);
-  const url = `${appPublicUrl()}/battles?region=${encodeURIComponent(input.region)}`;
-  const when = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
-  const tracked = guilds[0]!;
+  const url = `${appPublicUrl()}/battle/${input.region}/${PREVIEW_BATTLE_ID}`;
   const embed: PreviewEmbed = {
     color: COLOR_BATTLE,
     title: `${name} battle recap`,
     url,
-    description: [
-      "**Preview** — sample recap, not a real fight.",
-      `${regionLabel(input.region)} · ${when}`,
-      "84 players · 61 kills · 2.5m fame",
-      `**${tracked.name}**  ${tracked.kills}/${tracked.deaths}  ${formatFame(tracked.killFame)} fame  ${tracked.players} players`,
-    ].join("\n"),
-    footer: { text: "AOTracker · preview (not a live battle)" },
   };
 
   return {
@@ -147,7 +137,7 @@ export function buildBattlePreviewMessageBody(input: {
           {
             type: 2,
             style: 5,
-            label: "Battles on AOTracker",
+            label: "View Battle on AOTracker",
             url,
           },
         ],
