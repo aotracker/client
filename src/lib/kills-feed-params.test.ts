@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  JUICY_HIGHLIGHT_MIN_SILVER,
   JUICY_MIN_SILVER,
+  isJuicyHighValueKill,
   parseJuicyFlag,
   parseMinFame,
   parseWatchlistFlag,
@@ -24,6 +26,14 @@ describe("parseJuicyFlag", () => {
 describe("juicy threshold", () => {
   it("is 20 million silver", () => {
     expect(JUICY_MIN_SILVER).toBe(20_000_000);
+  });
+
+  it("highlights juicy kills over 150m total estimated value", () => {
+    expect(JUICY_HIGHLIGHT_MIN_SILVER).toBe(150_000_000);
+    expect(isJuicyHighValueKill(130_000_000, 25_000_000)).toBe(true);
+    expect(isJuicyHighValueKill(130_000_000, 20_000_000)).toBe(false);
+    expect(isJuicyHighValueKill(200_000_000, 5_000_000)).toBe(false);
+    expect(isJuicyHighValueKill(null, 20_000_000)).toBe(false);
   });
 });
 

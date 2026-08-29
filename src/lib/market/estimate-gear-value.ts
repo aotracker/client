@@ -166,3 +166,93 @@ export async function estimateEquipmentValue(
 ): Promise<GearValueEstimate> {
   return estimateItemValues(region, items);
 }
+
+export type KillCardLiveSilverFields = {
+  region: string;
+  items?: Array<{
+    ownerRole: string;
+    category: string;
+    itemType: string;
+    quality?: number | null;
+    count?: number | null;
+  }>;
+  gearEstSilver?: number | null;
+  lootEstSilver?: number | null;
+};
+
+function toGearItems(
+  items: NonNullable<KillCardLiveSilverFields["items"]>,
+  category: string
+): GearValueItem[] {
+  return items
+    .filter((item) => item.category === category)
+    .map((item) => ({
+      itemType: item.itemType,
+      quality: item.quality,
+      count: item.count,
+    }));
+}
+
+/**
+ * Replace stored ingest silver on list cards with live AODP totals when
+ * victim items are still present (same path as the kill detail page).
+ */
+export async function applyLiveVictimSilverToKillCards<
+  T extends KillCardLiveSilverFields,
+>(cards: T[]): Promise<T[]> {
+  if (cards.length === 0) return cards;
+
+  const next = cards.slice();
+  const byRegion = new Map<AlbionRegion, number[]>();
+  for (let index = 0; index < cards.length; index++) {
+    const region = cards[index].region;
+    if (region !== "americas" && region !== "europe" && region !== "asia") {
+      continue;
+    }
+    const list = byRegion.get(region) ?? [];
+    list.push(index);
+    byRegion.set(region, list);
+  }
+
+  await Promise.all(
+    [...byRegion.entries()].map(async ([region, indexes]) => {
+      const groups: GearValueItem[][] = [];
+      const cardIndexes: number[] = [];
+      for (const index of indexes) {
+        const victimItems = (cards[index].items ?? []).filter(
+          (item) => item.ownerRole === "victim"
+        );
+        if (victimItems.length === 0) continue;
+        cardIndexes.push(index);
+        groups.push(
+          toGearItems(victimItems, "equipment"),
+          toGearItems(victimItems, "inventory")
+        );
+      }
+      if (groups.length === 0) return;
+
+      let estimates: GearValueEstimate[];
+      try {
+        estimates = await estimateGroupedItemValues(region, groups);
+      } catch {
+        return;
+      }
+
+      cardIndexes.forEach((cardIndex, groupIndex) => {
+        const liveGear = estimates[groupIndex * 2]?.totalSilver ?? 0;
+        const liveLoot = estimates[groupIndex * 2 + 1]?.totalSilver ?? 0;
+        const card = next[cardIndex];
+        const merged = mergeLiveVictimSilver({
+          hasVictimItems: true,
+          storedGear: card.gearEstSilver,
+          storedLoot: card.lootEstSilver,
+          liveGear,
+          liveLoot,
+        });
+        next[cardIndex] = { ...card, ...merged };
+      });
+    })
+  );
+
+  return next;
+}

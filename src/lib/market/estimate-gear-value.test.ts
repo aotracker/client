@@ -77,4 +77,19 @@ describe("mergeLiveVictimSilver", () => {
       lootEstSilver: 12_000,
     });
   });
+
+  it("replaces troll ingest snapshots when live AODP totals are available", () => {
+    expect(
+      mergeLiveVictimSilver({
+        hasVictimItems: true,
+        storedGear: 516_000_000,
+        storedLoot: 8_900_000,
+        liveGear: 1_200_000,
+        liveLoot: 7_400_000,
+      })
+    ).toEqual({
+      gearEstSilver: 1_200_000,
+      lootEstSilver: 7_400_000,
+    });
+  });
 });

@@ -11,6 +11,7 @@ import {
   cachedQuery,
 } from "@/lib/cache";
 import { getCatalogItemName } from "@/lib/items/catalog";
+import { applyLiveVictimSilverToKillCards } from "@/lib/market/estimate-gear-value";
 import { formatItemName } from "@/lib/utils";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { db, schema } from "@/lib/db";
@@ -79,7 +80,7 @@ export function mapKillEventToCard(
 const KILL_CARD_SIDES = ["killer", "victim"] as const;
 
 /** Load list-card fields for already-ranked kill IDs. Never selects JSONB.
- *  Uses stored gear/loot silver — live AODP is not on the list path. */
+ *  Overlays live AODP silver when victim items are still present. */
 export async function hydrateKillCardsByIds(ids: string[]) {
   if (ids.length === 0) return [];
 
@@ -135,7 +136,7 @@ export async function hydrateKillCardsByIds(ids: string[]) {
     .map((id) => byId.get(id))
     .filter((event): event is NonNullable<typeof event> => event != null)
     .map(mapKillEventToCard);
-  return cards;
+  return applyLiveVictimSilverToKillCards(cards);
 }
 
 function watchlistCondition(watch: KillFeedWatchResolved) {

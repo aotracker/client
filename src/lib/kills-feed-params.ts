@@ -6,6 +6,19 @@ export const KILLS_FEED_PAGE_SIZE = 25;
 export const MIN_FAME_OPTIONS = [0, 10_000, 25_000, 50_000, 100_000] as const;
 /** Victim inventory estimated silver that counts as a juicy kill. */
 export const JUICY_MIN_SILVER = 20_000_000;
+/** Combined victim gear + loot that gets a highlight on juicy kill cards. */
+export const JUICY_HIGHLIGHT_MIN_SILVER = 150_000_000;
+
+/** Juicy loot (20m+) and total estimated victim value over 150m. */
+export function isJuicyHighValueKill(
+  gearEstSilver?: number | null,
+  lootEstSilver?: number | null
+): boolean {
+  const loot = lootEstSilver != null && lootEstSilver > 0 ? lootEstSilver : 0;
+  if (loot < JUICY_MIN_SILVER) return false;
+  const gear = gearEstSilver != null && gearEstSilver > 0 ? gearEstSilver : 0;
+  return gear + loot > JUICY_HIGHLIGHT_MIN_SILVER;
+}
 
 export type WatchlistFeedRef = {
   region: AlbionRegion;

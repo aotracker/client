@@ -22,6 +22,7 @@ import {
   KILL_CARD_PRIMARY_SLOTS,
   KILL_CARD_SECONDARY_SLOTS,
 } from "@/lib/albion/player-history";
+import { isJuicyHighValueKill } from "@/lib/kills-feed-params";
 
 type KillCardItem = {
   ownerRole: string;
@@ -88,6 +89,7 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
   const tCommon = useTranslations("Common");
   const killHref = `/kill/${event.region}/${event.eventId}`;
   const large = compact && compactSize === "large";
+  const highValue = isJuicyHighValueKill(event.gearEstSilver, event.lootEstSilver);
 
   const borderClass =
     rank != null && rank <= 3
@@ -96,7 +98,9 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
       ? "border-stat-kill/40 hover:border-stat-kill/60"
       : fameVariant === "death"
         ? "border-stat-death/40 hover:border-stat-death/60"
-        : "hover:border-primary/40";
+        : highValue
+          ? "border-warning/40 bg-warning/10 hover:border-warning/60"
+          : "hover:border-primary/40";
 
   const killerEquipment = itemsForRole(event.items, "killer");
   const victimEquipment = itemsForRole(event.items, "victim");
@@ -127,6 +131,9 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
           lootEstSilver={event.lootEstSilver}
           lootCount={lootCount}
           assistCount={assistCount}
+          highValue={highValue}
+          highValueLabel={t("highValue")}
+          highValueHint={t("highValueHint")}
           contentType={event.contentType}
           region={event.region}
           occurredAt={event.occurredAt}
@@ -216,6 +223,9 @@ function KillValueStrip({
   lootEstSilver,
   lootCount,
   assistCount,
+  highValue,
+  highValueLabel,
+  highValueHint,
   contentType,
   region,
   occurredAt,
@@ -237,6 +247,9 @@ function KillValueStrip({
   lootEstSilver?: number | null;
   lootCount: number;
   assistCount: number | null;
+  highValue: boolean;
+  highValueLabel: string;
+  highValueHint: string;
   contentType: string;
   region: string;
   occurredAt: Date | string;
@@ -298,10 +311,26 @@ function KillValueStrip({
         </Tooltip>
         {combined != null ? (
           <Tooltip content={silverTooltip}>
-            <span className={cn(statClass, "text-foreground")} aria-label={estVictimValueLabel}>
+            <span
+              className={cn(
+                statClass,
+                highValue ? "text-warning" : "text-foreground"
+              )}
+              aria-label={estVictimValueLabel}
+            >
               <AlbionKillboardIcon icon="silver" className={statIconClass} />
               <span>{formatSilver(combined)}</span>
             </span>
+          </Tooltip>
+        ) : null}
+        {highValue ? (
+          <Tooltip content={highValueHint}>
+            <Badge
+              size="sm"
+              className="border-warning/40 bg-warning/15 text-warning"
+            >
+              {highValueLabel}
+            </Badge>
           </Tooltip>
         ) : null}
       </div>

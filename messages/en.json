@@ -680,6 +680,8 @@
     "victimLoot": "Victim's Inventory Loot",
     "itemsDropped": "{count, plural, one {# item dropped} other {# items dropped}}",
     "lootItems": "{count} loot items",
+    "highValue": "150m+",
+    "highValueHint": "Victim gear + loot over 150m silver",
     "assistItems": "{count, plural, one {# assist} other {# assists}}",
     "lootDescription": "Items {victimName} was carrying when killed",
     "pending": {

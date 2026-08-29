@@ -680,6 +680,8 @@
     "victimLoot": "Botín del inventario de la víctima",
     "itemsDropped": "{count, plural, one {# objeto soltado} other {# objetos soltados}}",
     "lootItems": "{count} objetos de botín",
+    "highValue": "150 M+",
+    "highValueHint": "Equipo + botín de la víctima por más de 150 M de plata",
     "assistItems": "{count, plural, one {# asistencia} other {# asistencias}}",
     "lootDescription": "Objetos que llevaba {victimName} al morir",
     "pending": {
