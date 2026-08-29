@@ -14,6 +14,7 @@ import {
   killFamePositiveCondition,
   leaderboardConditions,
   loadPlayersWithGuildNames,
+  playerDayStatsConditions,
 } from "./shared";
 
 export interface TopAllianceEntry {
@@ -91,27 +92,20 @@ async function loadTopKillers(
   days: number,
   contentType: ContentTypeFilter
 ) {
-  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-
-  const conditions = [
-    ...leaderboardConditions({ region, days, contentType, limit }, cutoff),
-    isNotNull(schema.killEvents.killerId),
-  ];
+  const conditions = playerDayStatsConditions({ region, days, contentType });
 
   const rows = await db
     .select({
-      killerId: schema.killEvents.killerId,
-      killCount: count(),
+      killerId: schema.playerDayStats.playerId,
+      killCount: sum(schema.playerDayStats.killCount),
     })
-    .from(schema.killEvents)
+    .from(schema.playerDayStats)
     .where(and(...conditions))
-    .groupBy(schema.killEvents.killerId)
-    .orderBy(desc(count()))
+    .groupBy(schema.playerDayStats.playerId)
+    .orderBy(desc(sum(schema.playerDayStats.killCount)))
     .limit(limit);
 
-  const killerIds = rows
-    .map((r) => r.killerId)
-    .filter((id): id is string => id != null);
+  const killerIds = rows.map((r) => r.killerId);
 
   if (killerIds.length === 0) return [];
 
@@ -119,13 +113,12 @@ async function loadTopKillers(
   const playerById = new Map(players.map((p) => [p.id, p]));
 
   return rows.reduce<TopKillerEntry[]>((acc, row, index) => {
-    if (!row.killerId) return acc;
     const player = playerById.get(row.killerId);
     if (!player) return acc;
 
     acc.push({
       rank: index + 1,
-      killCount: row.killCount,
+      killCount: Number(row.killCount ?? 0),
       player: {
         albionId: player.albionId,
         name: player.name,
@@ -164,28 +157,21 @@ async function loadTopPlayersByKillFame(
   days: number,
   contentType: ContentTypeFilter
 ) {
-  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-
-  const conditions = [
-    ...leaderboardConditions({ region, days, contentType, limit }, cutoff),
-    isNotNull(schema.killEvents.killerId),
-  ];
+  const conditions = playerDayStatsConditions({ region, days, contentType });
 
   const rows = await db
     .select({
-      killerId: schema.killEvents.killerId,
-      killFame: sum(schema.killEvents.totalVictimKillFame),
-      killCount: count(),
+      killerId: schema.playerDayStats.playerId,
+      killFame: sum(schema.playerDayStats.killFame),
+      killCount: sum(schema.playerDayStats.killCount),
     })
-    .from(schema.killEvents)
+    .from(schema.playerDayStats)
     .where(and(...conditions))
-    .groupBy(schema.killEvents.killerId)
-    .orderBy(desc(sum(schema.killEvents.totalVictimKillFame)))
+    .groupBy(schema.playerDayStats.playerId)
+    .orderBy(desc(sum(schema.playerDayStats.killFame)))
     .limit(limit);
 
-  const killerIds = rows
-    .map((r) => r.killerId)
-    .filter((id): id is string => id != null);
+  const killerIds = rows.map((r) => r.killerId);
 
   if (killerIds.length === 0) return [];
 
@@ -193,14 +179,13 @@ async function loadTopPlayersByKillFame(
   const playerById = new Map(players.map((p) => [p.id, p]));
 
   return rows.reduce<TopFameEntry[]>((acc, row, index) => {
-    if (!row.killerId) return acc;
     const player = playerById.get(row.killerId);
     if (!player) return acc;
 
     acc.push({
       rank: index + 1,
       killFame: Number(row.killFame ?? 0),
-      killCount: row.killCount,
+      killCount: Number(row.killCount ?? 0),
       player: {
         albionId: player.albionId,
         name: player.name,

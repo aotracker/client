@@ -1,4 +1,4 @@
-import { count, inArray } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
 import { HEALTH_CACHE_REVALIDATE_SECONDS, cachedQuery } from "@/lib/cache";
@@ -22,57 +22,29 @@ export interface RegionEntityCounts {
 async function loadRegionEntityCounts(): Promise<RegionEntityCounts[]> {
   if (ENABLED_REGIONS.length === 0) return [];
 
-  const [playerRows, guildRows, killRows, battleRows] = await Promise.all([
-    db
-      .select({
-        region: schema.players.region,
-        count: count(),
-      })
-      .from(schema.players)
-      .where(inArray(schema.players.region, ENABLED_REGIONS))
-      .groupBy(schema.players.region),
-    db
-      .select({
-        region: schema.guilds.region,
-        count: count(),
-      })
-      .from(schema.guilds)
-      .where(inArray(schema.guilds.region, ENABLED_REGIONS))
-      .groupBy(schema.guilds.region),
-    db
-      .select({
-        region: schema.killEvents.region,
-        count: count(),
-      })
-      .from(schema.killEvents)
-      .where(inArray(schema.killEvents.region, ENABLED_REGIONS))
-      .groupBy(schema.killEvents.region),
-    db
-      .select({
-        region: schema.battles.region,
-        count: count(),
-      })
-      .from(schema.battles)
-      .where(inArray(schema.battles.region, ENABLED_REGIONS))
-      .groupBy(schema.battles.region),
-  ]);
+  const rows = await db
+    .select({
+      region: schema.apiSyncState.region,
+      players: schema.apiSyncState.playerCount,
+      guilds: schema.apiSyncState.guildCount,
+      kills: schema.apiSyncState.killCount,
+      battles: schema.apiSyncState.battleCount,
+    })
+    .from(schema.apiSyncState)
+    .where(inArray(schema.apiSyncState.region, ENABLED_REGIONS));
 
-  const playersByRegion = new Map(
-    playerRows.map((row) => [row.region, row.count])
-  );
-  const guildsByRegion = new Map(guildRows.map((row) => [row.region, row.count]));
-  const killsByRegion = new Map(killRows.map((row) => [row.region, row.count]));
-  const battlesByRegion = new Map(
-    battleRows.map((row) => [row.region, row.count])
-  );
+  const byRegion = new Map(rows.map((row) => [row.region, row]));
 
-  return ENABLED_REGIONS.map((region) => ({
-    region,
-    players: playersByRegion.get(region) ?? 0,
-    guilds: guildsByRegion.get(region) ?? 0,
-    kills: killsByRegion.get(region) ?? 0,
-    battles: battlesByRegion.get(region) ?? 0,
-  }));
+  return ENABLED_REGIONS.map((region) => {
+    const row = byRegion.get(region);
+    return {
+      region,
+      players: row?.players ?? 0,
+      guilds: row?.guilds ?? 0,
+      kills: row?.kills ?? 0,
+      battles: row?.battles ?? 0,
+    };
+  });
 }
 
 const cachedRegionEntityCounts = cachedQuery(

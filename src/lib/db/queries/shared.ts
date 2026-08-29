@@ -7,6 +7,7 @@ import {
 } from "@/lib/builds/fingerprint";
 import { db, schema } from "@/lib/db";
 import { JUICY_MIN_SILVER } from "@/lib/kills-feed-params";
+import { UI_LOOKBACK_DAYS } from "@/lib/db/retention";
 
 export type { PlayerBuildItem } from "@/lib/builds/fingerprint";
 export {
@@ -102,6 +103,32 @@ export function leaderboardConditions(
   if (regionFilter) conditions.push(regionFilter);
   if (contentType !== "all") {
     conditions.push(eq(schema.killEvents.contentType, contentType));
+  }
+  return conditions;
+}
+
+/** UTC calendar date `days` ago (`YYYY-MM-DD`), clamped to the UI lookback. */
+export function lookbackUtcDate(days: number, now = new Date()): string {
+  const clamped = Math.min(Math.max(Math.floor(days) || 7, 1), UI_LOOKBACK_DAYS);
+  return new Date(now.getTime() - clamped * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+}
+
+export function playerDayStatsConditions(filters: LeaderboardFilters) {
+  const { region = "all", contentType = "all", days = 7 } = filters;
+  const conditions = [
+    gte(schema.playerDayStats.utcDate, lookbackUtcDate(days)),
+  ];
+  if (region !== "all") {
+    conditions.push(eq(schema.playerDayStats.region, region));
+  } else if (ENABLED_REGIONS.length === 0) {
+    conditions.push(sql`false`);
+  } else if (ENABLED_REGIONS.length < ALL_REGIONS.length) {
+    conditions.push(inArray(schema.playerDayStats.region, ENABLED_REGIONS));
+  }
+  if (contentType !== "all") {
+    conditions.push(eq(schema.playerDayStats.contentType, contentType));
   }
   return conditions;
 }

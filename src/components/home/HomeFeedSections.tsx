@@ -10,7 +10,6 @@ import { TopFameList } from "@/components/leaderboards/TopFameList";
 import { PageSection } from "@/components/PageSection";
 import {
   getKillFeed,
-  getRecentJuicyKills,
   getTopKillers,
   getTopPlayersByKillFame,
   type ContentTypeFilter,
@@ -44,13 +43,15 @@ export async function JuicyKillsSection({
   const t = await getTranslations("Home");
   const tCommon = await getTranslations("Common");
 
-  let juicyKills: Awaited<ReturnType<typeof getRecentJuicyKills>> = [];
+  let juicyKills: Awaited<ReturnType<typeof getKillFeed>> = [];
   let error: string | null = null;
 
   try {
-    juicyKills = await getRecentJuicyKills({
+    juicyKills = await getKillFeed({
       region,
+      juicy: true,
       limit: HOME_JUICY_LIMIT,
+      offset: 0,
     });
   } catch (e) {
     error = e instanceof Error ? e.message : t("errorJuicy");
@@ -73,7 +74,7 @@ export async function JuicyKillsSection({
       description={t("sections.juicyKillsDescription")}
       actions={
         <Link
-          href={appendFeedRegionToHref("/leaderboards", region, { tab: "kills" })}
+          href={appendFeedRegionToHref("/kills", region, { juicy: "1" })}
           className="text-sm text-primary hover:underline"
         >
           {tCommon("buttons.viewAll")}

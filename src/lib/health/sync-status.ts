@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { max, inArray } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { HEALTH_CACHE_REVALIDATE_SECONDS, cachedQuery } from "@/lib/cache";
 import { db, schema } from "@/lib/db";
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
@@ -198,12 +198,11 @@ export async function getLatestKillAtByRegion(): Promise<
 
   const rows = await db
     .select({
-      region: schema.killEvents.region,
-      latestKillAt: max(schema.killEvents.occurredAt),
+      region: schema.apiSyncState.region,
+      latestKillAt: schema.apiSyncState.latestKillAt,
     })
-    .from(schema.killEvents)
-    .where(inArray(schema.killEvents.region, ENABLED_REGIONS))
-    .groupBy(schema.killEvents.region);
+    .from(schema.apiSyncState)
+    .where(inArray(schema.apiSyncState.region, ENABLED_REGIONS));
 
   return new Map(
     rows
@@ -237,12 +236,14 @@ function reviveGlobalSyncStatus(status: GlobalSyncStatus): GlobalSyncStatus {
 async function loadGlobalSyncStatus(): Promise<GlobalSyncStatus> {
   const nowMs = Date.now();
 
-  const [syncRows, latestKills] = await Promise.all([
-    db.query.apiSyncState.findMany({
-      where: inArray(schema.apiSyncState.region, ENABLED_REGIONS),
-    }),
-    getLatestKillAtByRegion(),
-  ]);
+  const syncRows = await db.query.apiSyncState.findMany({
+    where: inArray(schema.apiSyncState.region, ENABLED_REGIONS),
+  });
+  const latestKills = new Map(
+    syncRows
+      .filter((row) => row.latestKillAt)
+      .map((row) => [row.region, row.latestKillAt as Date])
+  );
 
   if (syncRows.length === 0 && ENABLED_REGIONS.length > 0) {
     return {

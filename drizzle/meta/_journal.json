@@ -183,6 +183,13 @@
       "when": 1787700000000,
       "tag": "0030_user_claimed_characters",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1788000000000,
+      "tag": "0033_page_perf_rollups",
+      "breakpoints": true
     }
   ]
 }

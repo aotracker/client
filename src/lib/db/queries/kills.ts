@@ -16,11 +16,6 @@ import type { AlbionRegion } from "@/lib/albion/types";
 import { db, schema } from "@/lib/db";
 import { uiLookbackCutoff } from "@/lib/db/retention";
 import {
-  estimateGroupedItemValues,
-  mergeLiveVictimSilver,
-  type GearValueItem,
-} from "@/lib/market/estimate-gear-value";
-import {
   type ContentTypeFilter,
   type RegionFilters,
   coveringRegionCondition,
@@ -83,7 +78,8 @@ export function mapKillEventToCard(
 
 const KILL_CARD_SIDES = ["killer", "victim"] as const;
 
-/** Load list-card fields for already-ranked kill IDs. Never selects JSONB. */
+/** Load list-card fields for already-ranked kill IDs. Never selects JSONB.
+ *  Uses stored gear/loot silver — live AODP is not on the list path. */
 export async function hydrateKillCardsByIds(ids: string[]) {
   if (ids.length === 0) return [];
 
@@ -139,73 +135,7 @@ export async function hydrateKillCardsByIds(ids: string[]) {
     .map((id) => byId.get(id))
     .filter((event): event is NonNullable<typeof event> => event != null)
     .map(mapKillEventToCard);
-  return withLiveVictimSilver(cards);
-}
-
-function victimValueItems(
-  items: KillCardItemSource[] | undefined,
-  category: "equipment" | "inventory"
-): GearValueItem[] {
-  return (
-    items
-      ?.filter(
-        (item) => item.ownerRole === "victim" && item.category === category
-      )
-      .map((item) => ({
-        itemType: item.itemType,
-        quality: item.quality,
-        count: item.count ?? 1,
-      })) ?? []
-  );
-}
-
-async function withLiveVictimSilver<
-  T extends {
-    region: string;
-    items?: KillCardItemSource[];
-    gearEstSilver?: number | null;
-    lootEstSilver?: number | null;
-  },
->(cards: T[]): Promise<T[]> {
-  if (cards.length === 0) return cards;
-
-  const byRegion = new Map<AlbionRegion, number[]>();
-  cards.forEach((card, index) => {
-    const region = card.region as AlbionRegion;
-    const list = byRegion.get(region) ?? [];
-    list.push(index);
-    byRegion.set(region, list);
-  });
-
-  const next = cards.slice();
-  for (const [region, indexes] of byRegion) {
-    const groups = indexes.flatMap((index) => [
-      victimValueItems(next[index].items, "equipment"),
-      victimValueItems(next[index].items, "inventory"),
-    ]);
-    const estimates = await estimateGroupedItemValues(region, groups).catch(
-      () => null
-    );
-    if (!estimates) continue;
-
-    indexes.forEach((cardIndex, groupIndex) => {
-      const card = next[cardIndex];
-      const gear = estimates[groupIndex * 2];
-      const loot = estimates[groupIndex * 2 + 1];
-      const merged = mergeLiveVictimSilver({
-        hasVictimItems: (card.items ?? []).some(
-          (item) => item.ownerRole === "victim"
-        ),
-        storedGear: card.gearEstSilver,
-        storedLoot: card.lootEstSilver,
-        liveGear: gear?.totalSilver ?? 0,
-        liveLoot: loot?.totalSilver ?? 0,
-      });
-      next[cardIndex] = { ...card, ...merged };
-    });
-  }
-
-  return next;
+  return cards;
 }
 
 function watchlistCondition(watch: KillFeedWatchResolved) {

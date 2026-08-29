@@ -513,8 +513,8 @@
     "sections": {
       "recentKillsTitle": "Recent Kills (10)",
       "recentKillsDescription": "The 10 most recent kills in tracked PvP data",
-      "juicyKillsTitle": "Top 10 Juicy Kills",
-      "juicyKillsDescription": "Highest fame kills in the last 7 days",
+      "juicyKillsTitle": "Recent Juicy Kills",
+      "juicyKillsDescription": "Victim loot worth 20m+ silver",
       "topKillersTitle": "Top 10 Killers",
       "topKillersDescription": "Most PvP kills in the last 7 days",
       "topFameTitle": "Top 10 Fame Earners",
