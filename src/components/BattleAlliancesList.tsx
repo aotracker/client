@@ -28,6 +28,7 @@ export function BattleAlliancesList({
       searchAriaLabel="Search alliances"
       emptyMessage="No alliance data for this battle"
       noMatchMessage={(query) => `No alliances match “${query}”`}
+      compactNameColumn
     />
   );
 }

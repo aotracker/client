@@ -95,13 +95,17 @@ export function BattleStatsTableShell<T>({
 export const battleTableHeaderClass =
   "px-2 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground first:pl-0 last:pr-0 sm:px-3";
 
+export const battleTableAllianceTagColumnClass = "w-[4.75rem] sm:w-20";
+
+export const battleTableNumericColumnClass = "w-12 sm:w-14";
+
 export const battleTableHeaderNumericClass =
-  "w-12 px-1.5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground last:pr-0 sm:w-14 sm:px-2";
+  "px-1.5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground last:pr-0 sm:px-2";
 
 export const battleTableCellClass = "min-w-0 truncate px-2 py-2.5 first:pl-0 last:pr-0 sm:px-3";
 
 export const battleTableCellNumericClass =
-  "w-12 px-1.5 py-2.5 text-right tabular-nums whitespace-nowrap last:pr-0 sm:w-14 sm:px-2";
+  "px-1.5 py-2.5 text-right tabular-nums whitespace-nowrap last:pr-0 sm:px-2";
 
 export const battleTableRowClass =
   "border-b border-border/40 transition-colors hover:bg-muted/30 last:border-0";

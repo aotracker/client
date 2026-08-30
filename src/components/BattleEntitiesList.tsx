@@ -3,10 +3,12 @@
 import { Link } from "@/i18n/navigation";
 import {
   BattleStatsTableShell,
+  battleTableAllianceTagColumnClass,
   battleTableCellClass,
   battleTableCellNumericClass,
   battleTableHeaderClass,
   battleTableHeaderNumericClass,
+  battleTableNumericColumnClass,
   battleTableRowClass,
 } from "@/components/BattleStatsTableShell";
 import { statHeaderClass, statVariantClass } from "@/components/StatValue";
@@ -34,6 +36,7 @@ export function BattleEntitiesList({
   noMatchMessage,
   nameHeader,
   showAllianceColumn = false,
+  compactNameColumn = false,
 }: {
   title: string;
   items: BattleEntityRow[];
@@ -43,7 +46,16 @@ export function BattleEntitiesList({
   noMatchMessage: (query: string) => string;
   nameHeader: string;
   showAllianceColumn?: boolean;
+  compactNameColumn?: boolean;
 }) {
+  const nameColumnClass = compactNameColumn
+    ? "w-[18%]"
+    : undefined;
+  const statColumnClass = compactNameColumn
+    ? "w-[16.4%]"
+    : battleTableNumericColumnClass;
+  const ipColumnClass = compactNameColumn ? "w-[16.4%]" : "w-14 sm:w-16";
+
   return (
     <BattleStatsTableShell
       title={title}
@@ -61,29 +73,51 @@ export function BattleEntitiesList({
         <>
           <thead>
             <tr>
-              <th className={battleTableHeaderClass}>{nameHeader}</th>
+              <th className={cn(battleTableHeaderClass, nameColumnClass)}>
+                {nameHeader}
+              </th>
               {showAllianceColumn ? (
-                <th className={cn(battleTableHeaderClass, "w-[4.75rem] sm:w-20")}>
+                <th className={cn(battleTableHeaderClass, battleTableAllianceTagColumnClass)}>
                   Alliance
                 </th>
               ) : null}
-              <th className={battleTableHeaderNumericClass}>Players</th>
-              <th className={cn(battleTableHeaderNumericClass, statHeaderClass("kill"))}>
+              <th className={cn(battleTableHeaderNumericClass, statColumnClass)}>
+                Players
+              </th>
+              <th
+                className={cn(
+                  battleTableHeaderNumericClass,
+                  statColumnClass,
+                  statHeaderClass("kill")
+                )}
+              >
                 Kills
               </th>
-              <th className={cn(battleTableHeaderNumericClass, statHeaderClass("death"))}>
+              <th
+                className={cn(
+                  battleTableHeaderNumericClass,
+                  statColumnClass,
+                  statHeaderClass("death")
+                )}
+              >
                 Deaths
               </th>
               <th
                 className={cn(
                   battleTableHeaderNumericClass,
-                  "w-14 sm:w-16",
+                  ipColumnClass,
                   statHeaderClass("ip")
                 )}
               >
                 Avg IP
               </th>
-              <th className={cn(battleTableHeaderNumericClass, statHeaderClass("fame"))}>
+              <th
+                className={cn(
+                  battleTableHeaderNumericClass,
+                  statColumnClass,
+                  statHeaderClass("fame")
+                )}
+              >
                 Fame
               </th>
             </tr>
@@ -91,7 +125,7 @@ export function BattleEntitiesList({
           <tbody>
             {paged.map((item) => (
               <tr key={item.id} className={battleTableRowClass}>
-                <td className={battleTableCellClass}>
+                <td className={cn(battleTableCellClass, nameColumnClass)}>
                   <Link
                     href={item.href}
                     className="block truncate font-medium hover:text-primary hover:underline"
@@ -100,7 +134,7 @@ export function BattleEntitiesList({
                   </Link>
                 </td>
                 {showAllianceColumn ? (
-                  <td className={cn(battleTableCellClass, "w-[4.75rem] sm:w-20")}>
+                  <td className={cn(battleTableCellClass, battleTableAllianceTagColumnClass)}>
                     {item.allianceName && item.allianceHref ? (
                       <Link
                         href={item.allianceHref}
@@ -113,19 +147,49 @@ export function BattleEntitiesList({
                     )}
                   </td>
                 ) : null}
-                <td className={cn(battleTableCellNumericClass, statVariantClass("neutral"))}>
+                <td
+                  className={cn(
+                    battleTableCellNumericClass,
+                    statColumnClass,
+                    statVariantClass("neutral")
+                  )}
+                >
                   {item.players?.toLocaleString() ?? "—"}
                 </td>
-                <td className={cn(battleTableCellNumericClass, statVariantClass("kill"))}>
+                <td
+                  className={cn(
+                    battleTableCellNumericClass,
+                    statColumnClass,
+                    statVariantClass("kill")
+                  )}
+                >
                   {item.kills.toLocaleString()}
                 </td>
-                <td className={cn(battleTableCellNumericClass, statVariantClass("death"))}>
+                <td
+                  className={cn(
+                    battleTableCellNumericClass,
+                    statColumnClass,
+                    statVariantClass("death")
+                  )}
+                >
                   {item.deaths.toLocaleString()}
                 </td>
-                <td className={cn(battleTableCellNumericClass, statVariantClass("ip"))}>
+                <td
+                  className={cn(
+                    battleTableCellNumericClass,
+                    ipColumnClass,
+                    statVariantClass("ip")
+                  )}
+                >
                   {formatItemPower(item.averageIp) ?? "—"}
                 </td>
-                <td className={cn(battleTableCellNumericClass, statVariantClass("fame"))}>
+                <td
+                  className={cn(
+                    battleTableCellNumericClass,
+                    statColumnClass,
+                    statVariantClass("fame")
+                  )}
+                >
                   {formatFame(item.killFame)}
                 </td>
               </tr>
