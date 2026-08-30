@@ -10,6 +10,7 @@ import {
   KillEquipmentValueFallback,
 } from "@/components/KillGearWithEstimates";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
+import { KillWatchAround } from "@/components/media/KillWatchAround";
 import { StatValue, ItemPowerValue } from "@/components/StatValue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SilverValue } from "@/components/SilverValue";
@@ -113,6 +114,15 @@ export async function KillDetailView(props: KillDetailViewProps) {
         regionLabelText={
           tRegions.has(props.region) ? tRegions(props.region) : props.region
         }
+      />
+
+      <KillWatchAround
+        region={props.region}
+        occurredAt={new Date(props.occurredAt)}
+        killerAlbionId={props.killer.albionId}
+        victimAlbionId={props.victim.albionId}
+        killerName={props.killer.name}
+        victimName={props.victim.name}
       />
 
       {!props.compacted && (

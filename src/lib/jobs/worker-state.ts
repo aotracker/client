@@ -8,6 +8,7 @@ import {
   HEALTH_ALIVE_MS,
   INGEST_ALIVE_MS,
   LIVE_EVENTS_ALIVE_MS,
+  MEDIA_LIVE_ALIVE_MS,
   PROCESS_JOBS_ALIVE_MS,
   WORKER_JOB_DEFINITIONS,
   type CronJobKey,
@@ -22,6 +23,7 @@ export {
   HEALTH_ALIVE_MS,
   INGEST_ALIVE_MS,
   LIVE_EVENTS_ALIVE_MS,
+  MEDIA_LIVE_ALIVE_MS,
   PROCESS_JOBS_ALIVE_MS,
   WORKER_JOB_DEFINITIONS,
   type CronJobKey,
@@ -35,6 +37,7 @@ const ALIVE_MS_BY_JOB_KEY: Record<WorkerJobKey, number> = {
   health: HEALTH_ALIVE_MS,
   "live-events": LIVE_EVENTS_ALIVE_MS,
   "discord-catchup": DISCORD_CATCHUP_ALIVE_MS,
+  "media-live": MEDIA_LIVE_ALIVE_MS,
   "process-jobs": PROCESS_JOBS_ALIVE_MS,
 };
 

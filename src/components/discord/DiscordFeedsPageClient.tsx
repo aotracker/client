@@ -7,6 +7,7 @@ import {
   Bot,
   Hash,
   Pause,
+  Radio,
   Swords,
   Skull,
   Shield,
@@ -35,6 +36,7 @@ import {
   FEED_GUILD_BATTLES,
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
+  FEED_GUILD_LIVE,
   type DiscordFeedFilters,
   type FeedSummary,
 } from "@/lib/discord-feed-types";
@@ -355,10 +357,15 @@ export function DiscordFeedsPageClient() {
   const kills = feedOf(detail?.feeds ?? [], FEED_GUILD_KILLS);
   const deaths = feedOf(detail?.feeds ?? [], FEED_GUILD_DEATHS);
   const battles = feedOf(detail?.feeds ?? [], FEED_GUILD_BATTLES);
+  const live = feedOf(detail?.feeds ?? [], FEED_GUILD_LIVE);
   const trackedName =
-    kills?.targetName ?? deaths?.targetName ?? battles?.targetName ?? null;
+    kills?.targetName ??
+    deaths?.targetName ??
+    battles?.targetName ??
+    live?.targetName ??
+    null;
   const trackedRegion =
-    kills?.region ?? deaths?.region ?? battles?.region ?? null;
+    kills?.region ?? deaths?.region ?? battles?.region ?? live?.region ?? null;
   const botReady = Boolean(selected?.botInstalled || detail?.botInstalled);
 
   const regionOptions = ENABLED_REGIONS.map((value) => ({
@@ -715,7 +722,7 @@ export function DiscordFeedsPageClient() {
                 </CardContent>
               </Card>
 
-              {kills || deaths || battles ? (
+              {kills || deaths || battles || live ? (
                 <>
                   {channelsWarning ? (
                     <div className="flex gap-3 rounded-lg border border-warning-border/30 bg-warning/10 px-4 py-3">
@@ -846,6 +853,44 @@ export function DiscordFeedsPageClient() {
                     }
                     onTest={() =>
                       void postAction({ action: "test-post", feed: "battles" })
+                    }
+                  />
+                  <FeedEditor
+                    title={t("liveTitle")}
+                    icon={Radio}
+                    feed={live}
+                    channelOptions={channelOptions}
+                    roles={detail?.roles ?? []}
+                    contentLabel={t("contentTypes")}
+                    contentLabels={{
+                      SOLO: tContent("SOLO"),
+                      GROUP: tContent("GROUP"),
+                      ZVZ: tContent("ZVZ"),
+                    }}
+                    busy={busy}
+                    onChannel={(channelId) =>
+                      void postAction({
+                        action: "set-channel",
+                        feed: "live",
+                        channelId,
+                      })
+                    }
+                    onFilters={(patch) =>
+                      void postAction({
+                        action: "filters",
+                        feed: "live",
+                        ...patch,
+                      })
+                    }
+                    onPingRole={(roleId) =>
+                      void postAction({
+                        action: "ping-role",
+                        feed: "live",
+                        roleId,
+                      })
+                    }
+                    onTest={() =>
+                      void postAction({ action: "test-post", feed: "live" })
                     }
                   />
                 </>

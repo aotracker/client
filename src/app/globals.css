@@ -35,6 +35,8 @@
     --danger-foreground: 0 86% 78%;
     --danger-border: 0 72% 55%;
     --discord: 235 86% 65%;
+    --twitch: 264 100% 64%;
+    --youtube: 0 72% 51%;
   }
 
   html.light {
@@ -66,6 +68,8 @@
     --danger-foreground: 0 63% 28%;
     --danger-border: 0 70% 45%;
     --discord: 235 78% 52%;
+    --twitch: 264 89% 52%;
+    --youtube: 0 72% 42%;
     color-scheme: light;
   }
 

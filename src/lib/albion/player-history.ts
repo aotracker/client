@@ -73,6 +73,8 @@ export interface KillCardEvent {
     role: string;
     averageItemPower: string | null;
   }[];
+  /** Timestamped Twitch VOD for this kill when a linked stream covers it. */
+  twitchVodUrl?: string;
 }
 
 /** Combined victim gear + inventory estimate; null when both are missing or zero. */

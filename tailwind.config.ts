@@ -60,6 +60,8 @@ const config: Config = {
         group: "#f59e0b",
         solo: "#3b82f6",
         discord: "hsl(var(--discord))",
+        twitch: "hsl(var(--twitch))",
+        youtube: "hsl(var(--youtube))",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -1,7 +1,8 @@
 export const INGEST_POLL_INTERVAL_MS = 25 * 60 * 1000;
 export const HEALTH_CHECK_INTERVAL_MS = 5 * 60 * 1000;
-export const LIVE_EVENTS_INTERVAL_MS = 45 * 1000;
+export const LIVE_EVENTS_INTERVAL_MS = 2 * 60 * 1000;
 export const DISCORD_CATCHUP_INTERVAL_MS = 5 * 60 * 1000;
+export const MEDIA_LIVE_INTERVAL_MS = 60 * 1000;
 
 export const WORKER_JOB_DEFINITIONS = [
   {
@@ -20,13 +21,19 @@ export const WORKER_JOB_DEFINITIONS = [
     jobKey: "live-events",
     label: "Live events poll",
     path: "ingest-scheduler",
-    schedule: `Every ${LIVE_EVENTS_INTERVAL_MS / 1000} seconds (BullMQ repeatable)`,
+    schedule: `Every ${LIVE_EVENTS_INTERVAL_MS / 60_000} minutes (BullMQ repeatable)`,
   },
   {
     jobKey: "discord-catchup",
     label: "Discord guild catch-up",
     path: "ingest-scheduler",
     schedule: `Every ${DISCORD_CATCHUP_INTERVAL_MS / 60_000} minutes (BullMQ repeatable)`,
+  },
+  {
+    jobKey: "media-live",
+    label: "Twitch live poll",
+    path: "ingest-scheduler",
+    schedule: `Every ${MEDIA_LIVE_INTERVAL_MS / 1000} seconds (BullMQ repeatable)`,
   },
   {
     jobKey: "process-jobs",
@@ -43,6 +50,7 @@ export const SCHEDULER_JOB_KEYS = [
   "health",
   "live-events",
   "discord-catchup",
+  "media-live",
 ] as const satisfies readonly WorkerJobKey[];
 
 export function isSchedulerJobKey(jobKey: WorkerJobKey): boolean {
@@ -57,10 +65,12 @@ export const CRON_JOB_DEFINITIONS = WORKER_JOB_DEFINITIONS;
 export const INGEST_ALIVE_MS = 30 * 60 * 1000;
 /** Health check runs every 5 minutes — allow a little slack. */
 export const HEALTH_ALIVE_MS = 8 * 60 * 1000;
-/** Live events poll runs every 45 seconds — allow a slow multi-region pass. */
-export const LIVE_EVENTS_ALIVE_MS = 2 * 60 * 1000;
+/** Live events poll runs every 2 minutes — allow a slow multi-region pass plus one missed tick. */
+export const LIVE_EVENTS_ALIVE_MS = 5 * 60 * 1000;
 /** Discord catch-up runs every 5 minutes — same slack as health. */
 export const DISCORD_CATCHUP_ALIVE_MS = 8 * 60 * 1000;
+/** Twitch live poll runs every 60s — allow a slow Helix pass plus one missed tick. */
+export const MEDIA_LIVE_ALIVE_MS = 3 * 60 * 1000;
 /** BullMQ job processors should heartbeat on every completed job. */
 export const PROCESS_JOBS_ALIVE_MS = 90_000;
 

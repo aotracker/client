@@ -18,7 +18,8 @@
     "vm:icons:cache": "tsx --env-file=.env ../deploy/vm/scripts/cache-item-icons.ts",
     "vm:icons:push": "bash ../deploy/vm/scripts/commit-push-icon-cache.sh",
     "vm:items:catalog": "tsx ../deploy/vm/scripts/build-item-catalog.ts",
-    "vm:db:reclassify": "tsx --env-file=.env ../deploy/vm/scripts/reclassify-kills.ts"
+    "vm:db:reclassify": "tsx --env-file=.env ../deploy/vm/scripts/reclassify-kills.ts",
+    "media:import": "tsx --env-file=.env scripts/import-player-media.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.1",

@@ -34,6 +34,7 @@ import {
   GuildActivitySection,
 } from "@/components/guild/GuildActivitySection";
 import { GuildProfileNav } from "@/components/guild/GuildProfileNav";
+import { GuildMediaSection } from "@/components/media/GuildMediaSection";
 import {
   decodeEntitySegment,
   getEntityResolveJobStateForPending,
@@ -315,6 +316,12 @@ export default async function GuildProfilePage({ params }: PageProps) {
             guildId={albionId}
             guildName={header.name}
           />
+        </Suspense>
+      </div>
+
+      <div id="media" className="scroll-mt-28">
+        <Suspense fallback={null}>
+          <GuildMediaSection region={albionRegion} guildAlbionId={albionId} />
         </Suspense>
       </div>
     </div>

@@ -7,6 +7,7 @@ import {
   FEED_GUILD_BATTLES,
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
+  FEED_GUILD_LIVE,
   GUILD_FEED_TYPES,
   applyFeedFilterPatch,
   isDiscordFeedType,
@@ -21,6 +22,7 @@ export {
   FEED_GUILD_BATTLES,
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
+  FEED_GUILD_LIVE,
   GUILD_FEED_TYPES,
   applyFeedFilterPatch,
   isDiscordFeedType,
@@ -105,19 +107,19 @@ async function ensureGuildBattlesFeedFromRows(
   discordGuildId: string,
   rows: (typeof schema.discordFeeds.$inferSelect)[]
 ): Promise<void> {
-  const source = rows.find(
-    (row) =>
-      row.feedType === FEED_GUILD_KILLS || row.feedType === FEED_GUILD_DEATHS
+  const source = rows.find((row) =>
+    (GUILD_FEED_TYPES as readonly string[]).includes(row.feedType)
   );
   if (!source) return;
-  if (rows.some((row) => row.feedType === FEED_GUILD_BATTLES)) return;
+  const have = new Set(rows.map((row) => row.feedType));
+  const missing = GUILD_FEED_TYPES.filter((type) => !have.has(type));
+  if (missing.length === 0) return;
 
   const now = new Date();
-  await db
-    .insert(schema.discordFeeds)
-    .values({
+  await db.insert(schema.discordFeeds).values(
+    missing.map((feedType) => ({
       discordGuildId,
-      feedType: FEED_GUILD_BATTLES,
+      feedType,
       targetType: source.targetType,
       targetAlbionId: source.targetAlbionId,
       region: source.region,
@@ -125,8 +127,8 @@ async function ensureGuildBattlesFeedFromRows(
       createdByUserId: source.createdByUserId,
       createdAt: now,
       updatedAt: now,
-    })
-    .onConflictDoNothing();
+    }))
+  ).onConflictDoNothing();
 }
 
 export async function upsertDiscordServerRow(
@@ -212,6 +214,17 @@ export async function trackGuildOnDiscordServer(input: {
     {
       discordGuildId: input.discordGuildId,
       feedType: FEED_GUILD_BATTLES,
+      targetType: "guild",
+      targetAlbionId: guild.albionId,
+      region: input.region,
+      targetName: guild.name,
+      createdByUserId: input.createdByUserId,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      discordGuildId: input.discordGuildId,
+      feedType: FEED_GUILD_LIVE,
       targetType: "guild",
       targetAlbionId: guild.albionId,
       region: input.region,

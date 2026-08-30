@@ -60,6 +60,7 @@ export function OrgHeader({
   entityIdLabel,
   lastSyncedAt,
   children,
+  extraActions,
 }: {
   title: string;
   kind: "Guild" | "Alliance";
@@ -74,6 +75,7 @@ export function OrgHeader({
   entityIdLabel: string;
   lastSyncedAt?: Date | null;
   children?: ReactNode;
+  extraActions?: ReactNode;
 }) {
   return (
     <EntityHeader
@@ -81,18 +83,19 @@ export function OrgHeader({
       kind={kind}
       affiliations={affiliations}
       actions={
-        albionId ? (
+        albionId || sharePath || extraActions ? (
           <div className="flex flex-wrap items-center gap-2">
-            <WatchlistButton
-              type={watchlistType}
-              region={region}
-              albionId={albionId}
-              name={title}
-            />
+            {extraActions}
+            {albionId ? (
+              <WatchlistButton
+                type={watchlistType}
+                region={region}
+                albionId={albionId}
+                name={title}
+              />
+            ) : null}
             {sharePath ? <ShareLinkButton path={sharePath} /> : null}
           </div>
-        ) : sharePath ? (
-          <ShareLinkButton path={sharePath} />
         ) : undefined
       }
       stats={stats}

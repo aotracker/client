@@ -12,6 +12,11 @@ import {
   resolveLiveSearchRegions,
 } from "@/lib/search/live-search";
 import { Badge } from "@/components/ui/badge";
+import { LiveBadge } from "@/components/media/LiveBadge";
+import {
+  getLiveStateForChannels,
+  getPlayerMediaLinksForPlayers,
+} from "@/lib/db/queries/media";
 import { Card, CardContent } from "@/components/ui/card";
 import { InlineAlert } from "@/components/InlineAlert";
 import { PageHeader, PageSection } from "@/components/PageSection";
@@ -46,6 +51,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   setRequestLocale(locale);
   const t = await getTranslations("Search");
   const tCommon = await getTranslations("Common");
+  const tMedia = await getTranslations("Media");
 
   const search = await searchParams;
   const query = search.q?.trim() ?? "";
@@ -102,6 +108,41 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
     localResults.guilds.length > 0 ||
     localResults.alliances.length > 0;
 
+  const playerMedia = await getPlayerMediaLinksForPlayers(
+    localResults.players.map((player) => ({
+      region: player.region,
+      albionId: player.albionId,
+    }))
+  );
+  const mediaByPlayer = new Map(
+    playerMedia.map((link) => [
+      `${link.region}:${link.playerAlbionId}:${link.platform}`,
+      link,
+    ])
+  );
+  const liveRows = await getLiveStateForChannels(
+    playerMedia
+      .filter((link) => link.platform === "twitch")
+      .map((link) => ({
+        platform: link.platform,
+        channelId: link.channelId,
+      }))
+  );
+  const liveChannels = new Set(
+    liveRows
+      .filter((row) => row.isLive)
+      .map((row) => `${row.platform}:${row.channelId}`)
+  );
+  const livePlayerKeys = new Set(
+    playerMedia
+      .filter(
+        (link) =>
+          link.platform === "twitch" &&
+          liveChannels.has(`twitch:${link.channelId}`)
+      )
+      .map((link) => `${link.region}:${link.playerAlbionId}`)
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -149,6 +190,27 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                     >
                       {player.name}
                     </Link>
+                    {mediaByPlayer.has(`${player.region}:${player.albionId}:twitch`) ? (
+                      <Badge
+                        variant="outline"
+                        size="sm"
+                        className="border-twitch/40 text-twitch"
+                      >
+                        {tMedia("twitch")}
+                      </Badge>
+                    ) : null}
+                    {livePlayerKeys.has(`${player.region}:${player.albionId}`) ? (
+                      <LiveBadge label={tMedia("live")} />
+                    ) : null}
+                    {mediaByPlayer.has(`${player.region}:${player.albionId}:youtube`) ? (
+                      <Badge
+                        variant="outline"
+                        size="sm"
+                        className="border-youtube/40 text-youtube"
+                      >
+                        {tMedia("youtube")}
+                      </Badge>
+                    ) : null}
                     <Badge variant="outline">{tCommon("labels.cached")}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">

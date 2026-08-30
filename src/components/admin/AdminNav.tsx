@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   AlertTriangle,
   LayoutDashboard,
+  Radio,
   ScrollText,
   Server,
   Settings,
@@ -25,6 +26,7 @@ const NAV_ITEMS: Array<{
   { href: "/admin/api-logs", label: "API Logs", icon: ScrollText },
   { href: "/admin/system", label: "System", icon: Server },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/media", label: "Media", icon: Radio },
   { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/actions", label: "Actions", icon: Zap },
 ];

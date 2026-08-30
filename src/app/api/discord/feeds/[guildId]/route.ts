@@ -6,6 +6,7 @@ import {
   FEED_GUILD_BATTLES,
   FEED_GUILD_DEATHS,
   FEED_GUILD_KILLS,
+  FEED_GUILD_LIVE,
   getDiscordPreviewMessageId,
   isAlbionRegion,
   isDiscordServerInstalled,
@@ -38,6 +39,7 @@ function feedTypeFrom(value: unknown): DiscordFeedType | null {
   if (value === "kills" || value === FEED_GUILD_KILLS) return FEED_GUILD_KILLS;
   if (value === "deaths" || value === FEED_GUILD_DEATHS) return FEED_GUILD_DEATHS;
   if (value === "battles" || value === FEED_GUILD_BATTLES) return FEED_GUILD_BATTLES;
+  if (value === "live" || value === FEED_GUILD_LIVE) return FEED_GUILD_LIVE;
   return null;
 }
 

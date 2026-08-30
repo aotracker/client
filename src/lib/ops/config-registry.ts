@@ -12,6 +12,8 @@ import {
   INGEST_POLL_INTERVAL_MS,
   LIVE_EVENTS_ALIVE_MS,
   LIVE_EVENTS_INTERVAL_MS,
+  MEDIA_LIVE_ALIVE_MS,
+  MEDIA_LIVE_INTERVAL_MS,
   PROCESS_JOBS_ALIVE_MS,
 } from "@/lib/jobs/worker-types";
 import {
@@ -51,7 +53,7 @@ export function getConfigRegistry(): ConfigRegistryGroup[] {
         },
         {
           name: "Live events poll interval",
-          value: `${LIVE_EVENTS_INTERVAL_MS / 1000}s`,
+          value: `${LIVE_EVENTS_INTERVAL_MS / 60_000} min`,
           source: "ingest/src/lib/jobs/worker-state.ts",
         },
         {
@@ -62,6 +64,11 @@ export function getConfigRegistry(): ConfigRegistryGroup[] {
         {
           name: "Discord guild catch-up interval",
           value: `${DISCORD_CATCHUP_INTERVAL_MS / 60_000} min`,
+          source: "ingest/src/lib/jobs/worker-state.ts",
+        },
+        {
+          name: "Twitch live poll interval",
+          value: `${MEDIA_LIVE_INTERVAL_MS / 1000}s`,
           source: "ingest/src/lib/jobs/worker-state.ts",
         },
       ],
@@ -104,6 +111,11 @@ export function getConfigRegistry(): ConfigRegistryGroup[] {
         {
           name: "Discord catch-up alive slack",
           value: `${DISCORD_CATCHUP_ALIVE_MS / 60_000} min`,
+          source: "client/src/lib/jobs/worker-types.ts",
+        },
+        {
+          name: "Twitch live poll alive slack",
+          value: `${MEDIA_LIVE_ALIVE_MS / 60_000} min`,
           source: "client/src/lib/jobs/worker-types.ts",
         },
         {

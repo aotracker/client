@@ -24,6 +24,7 @@ export interface WorkerConnectivitySnapshot {
     healthCheck: boolean;
     liveEventsPoll?: boolean;
     discordCatchup?: boolean;
+    mediaLivePoll?: boolean;
   };
   processorJobsActive: boolean;
   fetchedAt: string;
@@ -68,6 +69,9 @@ export function isJobRunningNow(
   }
   if (jobKey === "discord-catchup") {
     return connectivity.schedulerJobActive.discordCatchup ?? false;
+  }
+  if (jobKey === "media-live") {
+    return connectivity.schedulerJobActive.mediaLivePoll ?? false;
   }
   return connectivity.processorJobsActive;
 }

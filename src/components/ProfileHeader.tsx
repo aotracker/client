@@ -8,6 +8,12 @@ import { guildPath } from "@/lib/seo";
 import { EntityHeader } from "@/components/EntityHeader";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { WatchlistButton } from "@/components/watchlist/WatchlistButton";
+import { LiveBadge } from "@/components/media/LiveBadge";
+import { MediaChannelLinks } from "@/components/media/MediaChannelLinks";
+import {
+  getLiveStateForChannels,
+  getPlayerMediaLinks,
+} from "@/lib/db/queries/media";
 import { CardContent } from "@/components/ui/card";
 
 interface ProfileHeaderProps {
@@ -39,6 +45,19 @@ export async function ProfileHeader({ player, sharePath }: ProfileHeaderProps) {
   const tStats = await getTranslations("Common.stats");
   const tLabels = await getTranslations("Common.labels");
   const tRegions = await getTranslations("Common.regions");
+  const tMedia = await getTranslations("Media");
+
+  const mediaLinks = await getPlayerMediaLinks(
+    player.region as "americas" | "europe" | "asia",
+    player.albionId
+  );
+  const liveState = await getLiveStateForChannels(
+    mediaLinks.map((link) => ({
+      platform: link.platform,
+      channelId: link.channelId,
+    }))
+  );
+  const isLive = liveState.some((row) => row.platform === "twitch" && row.isLive);
 
   const allianceId = player.guild?.allianceId ?? player.allianceId;
   const allianceName = player.guild?.allianceName ?? player.allianceName;
@@ -98,6 +117,12 @@ export async function ProfileHeader({ player, sharePath }: ProfileHeaderProps) {
       affiliations={affiliations}
       actions={
         <div className="flex flex-wrap items-center gap-2">
+          {isLive ? <LiveBadge label={tMedia("live")} /> : null}
+          <MediaChannelLinks
+            links={mediaLinks}
+            twitchLabel={tMedia("twitch")}
+            youtubeLabel={tMedia("youtube")}
+          />
           <WatchlistButton
             type="player"
             region={player.region}

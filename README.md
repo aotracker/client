@@ -105,6 +105,7 @@ Local item icons in `public/item-icons/` are used automatically in development. 
 | `npm run db:migrate` | Apply tracked migrations (local dev only) |
 | `npm run db:generate` | Generate migrations from schema |
 | `npm run db:studio` | Drizzle Studio |
+| `npm run media:import` | Dry-run Twitch player media seed (`--apply` to write; skips existing links) |
 
 **Production schema changes** are applied from **ingest on the OVH VM** (`npm run db:apply-pending` in `/home/ubuntu/ingest`). Vercel does not run migrations. See [ingest/deploy/vm/README.md](../ingest/deploy/vm/README.md).
 

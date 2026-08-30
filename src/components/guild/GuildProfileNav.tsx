@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Activity, Swords } from "lucide-react";
+import { Activity, Radio, Swords } from "lucide-react";
 import {
   ProfileSectionNav,
   type ProfileNavSection,
@@ -15,6 +15,7 @@ export function GuildProfileNav() {
     { id: "kills", label: t("kills"), icon: Swords },
     { id: "battles", label: t("battles"), icon: Swords },
     { id: "rivals", label: t("rivals"), icon: Swords },
+    { id: "media", label: t("media"), icon: Radio },
   ];
 
   return <ProfileSectionNav sections={sections} />;

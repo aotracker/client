@@ -108,7 +108,7 @@
     "commandGroups": {
       "tracking": {
         "title": "Tracking",
-        "description": "Bind a guild and set kill, death, and battle channels. Manage Server required."
+        "description": "Bind a guild and set kill, death, battle, and live channels. Manage Server required."
       },
       "notifications": {
         "title": "Notifications",
@@ -146,10 +146,16 @@
         "detail": "Choose a text or announcement channel. Run /track first. The bot waits until the Albion board stops changing, then posts one recap image per battle that meets the minimum guild-player threshold. Optional thread-per-battle is set on Discord Notifications or with /feed-filters.",
         "example": "/battles-channel channel:#battles"
       },
+      "liveChannel": {
+        "usage": "/live-channel channel:#channel",
+        "summary": "Channel that receives a ping when a linked guild member goes live on Twitch playing Albion Online.",
+        "detail": "Choose a text or announcement channel. Run /track first. Admins attach Twitch channels to player profiles; the bot posts only when that player’s current guild is the tracked guild.",
+        "example": "/live-channel channel:#streams"
+      },
       "untrack": {
         "usage": "/untrack",
-        "summary": "Stop posting kills, deaths, and battles in this server.",
-        "detail": "Removes guild kill, death, and battle notifications. The bot stays in the server. Run /track again to start over. Does not delete old Discord messages.",
+        "summary": "Stop posting kills, deaths, battles, and live pings in this server.",
+        "detail": "Removes guild kill, death, battle, and live notifications. The bot stays in the server. Run /track again to start over. Does not delete old Discord messages.",
         "example": "/untrack"
       },
       "status": {
@@ -258,6 +264,7 @@
       "killsTitle": "Kills notifications",
       "deathsTitle": "Deaths notifications",
       "battlesTitle": "Battle notifications",
+      "liveTitle": "Live stream notifications",
       "battlesHelp": "AOTracker posts a recap when the tracked guild has at least this many players in a battle, after the fight stops changing.",
       "minPlayers": "Minimum guild players in battle",
       "minPlayersHelp": "Notification triggers when this many of the tracked guild’s players are in the fight.",
@@ -547,7 +554,8 @@
     "nav": {
       "activity": "Activity",
       "analytics": "Analytics",
-      "allies": "Allies"
+      "allies": "Allies",
+      "media": "Media"
     },
     "activity": {
       "title": "Recent Activity",
@@ -594,13 +602,38 @@
       "killDetails": "Kill Details"
     }
   },
+  "Media": {
+    "live": "LIVE",
+    "twitch": "Twitch",
+    "youtube": "YouTube",
+    "watch": "Watch",
+    "watchVod": "Watch VOD",
+    "watchYoutube": "YouTube",
+    "official": "Official",
+    "albionOnline": "Albion Online",
+    "whoIsLive": "Who's live",
+    "whoIsLiveDescription": "Linked streamers currently playing Albion Online on Twitch.",
+    "playerSectionTitle": "Streams and videos",
+    "playerSectionDescription": "Twitch and YouTube attached to this character.",
+    "playerEmpty": "No recent broadcasts yet. They appear after the next Albion stream.",
+    "guildSectionTitle": "Media",
+    "guildSectionDescription": "Official channels and members currently live on Twitch.",
+    "guildEmpty": "No linked streams for this guild yet.",
+    "liveMembers": "Members live now",
+    "recentBroadcasts": "Recent broadcasts",
+    "recentUploads": "Recent uploads",
+    "untitledBroadcast": "Broadcast",
+    "watchAroundKill": "Watch {name} around this kill",
+    "watchLiveInstead": "{name} was live — watch the stream"
+  },
   "Guild": {
     "kind": "Guild",
     "nav": {
       "activity": "Activity",
       "kills": "Kills",
       "rivals": "Rivals",
-      "battles": "Battles"
+      "battles": "Battles",
+      "media": "Media"
     },
     "activity": {
       "title": "Guild Activity",

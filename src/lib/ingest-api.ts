@@ -253,6 +253,7 @@ export type WorkerConnectivitySnapshot = {
     healthCheck: boolean;
     liveEventsPoll?: boolean;
     discordCatchup?: boolean;
+    mediaLivePoll?: boolean;
   };
   processorJobsActive: boolean;
   fetchedAt: string;

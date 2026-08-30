@@ -108,7 +108,7 @@
     "commandGroups": {
       "tracking": {
         "title": "Seguimiento",
-        "description": "Vincula un gremio y configura los canales de kills, muertes y batallas. Se requiere Administrar servidor."
+        "description": "Vincula un gremio y configura los canales de kills, muertes, batallas y directos. Se requiere Administrar servidor."
       },
       "notifications": {
         "title": "Notificaciones",
@@ -146,10 +146,16 @@
         "detail": "Elige un canal de texto o de anuncios. Ejecuta /track primero. El bot espera a que el marcador de Albion deje de cambiar y publica una imagen de resumen por batalla que cumple el mínimo de jugadores del gremio. El hilo opcional se configura en Notificaciones de Discord o con /feed-filters.",
         "example": "/battles-channel channel:#battles"
       },
+      "liveChannel": {
+        "usage": "/live-channel channel:#canal",
+        "summary": "Canal que recibe un aviso cuando un miembro vinculado del gremio entra en directo en Twitch jugando Albion Online.",
+        "detail": "Elige un canal de texto o de anuncios. Ejecuta /track primero. Los administradores vinculan canales de Twitch a perfiles de jugador; el bot publica solo si el gremio actual de ese jugador es el gremio seguido.",
+        "example": "/live-channel channel:#streams"
+      },
       "untrack": {
         "usage": "/untrack",
-        "summary": "Deja de publicar kills, muertes y batallas en este servidor.",
-        "detail": "Quita las notificaciones de kills, muertes y batallas del gremio. El bot sigue en el servidor. Vuelve a usar /track para empezar de nuevo. No borra mensajes antiguos de Discord.",
+        "summary": "Deja de publicar kills, muertes, batallas y avisos de directo en este servidor.",
+        "detail": "Quita las notificaciones de kills, muertes, batallas y directos del gremio. El bot sigue en el servidor. Vuelve a usar /track para empezar de nuevo. No borra mensajes antiguos de Discord.",
         "example": "/untrack"
       },
       "status": {
@@ -258,6 +264,7 @@
       "killsTitle": "Notificaciones de kills",
       "deathsTitle": "Notificaciones de muertes",
       "battlesTitle": "Notificaciones de batallas",
+      "liveTitle": "Notificaciones de directos",
       "battlesHelp": "AOTracker publica un resumen cuando el gremio seguido tiene al menos este número de jugadores en una batalla, después de que el combate deje de cambiar.",
       "minPlayers": "Mínimo de jugadores del gremio en batalla",
       "minPlayersHelp": "La notificación se dispara cuando hay este número de jugadores del gremio seguido en el combate.",
@@ -547,7 +554,8 @@
     "nav": {
       "activity": "Actividad",
       "analytics": "Analíticas",
-      "allies": "Aliados"
+      "allies": "Aliados",
+      "media": "Medios"
     },
     "activity": {
       "title": "Actividad reciente",
@@ -594,13 +602,38 @@
       "killDetails": "Detalles de la baja"
     }
   },
+  "Media": {
+    "live": "EN DIRECTO",
+    "twitch": "Twitch",
+    "youtube": "YouTube",
+    "watch": "Ver",
+    "watchVod": "Ver VOD",
+    "watchYoutube": "YouTube",
+    "official": "Oficial",
+    "albionOnline": "Albion Online",
+    "whoIsLive": "Quién está en directo",
+    "whoIsLiveDescription": "Streamers vinculados que están jugando Albion Online en Twitch.",
+    "playerSectionTitle": "Directos y vídeos",
+    "playerSectionDescription": "Twitch y YouTube vinculados a este personaje.",
+    "playerEmpty": "Aún no hay emisiones recientes. Aparecerán tras el próximo directo de Albion.",
+    "guildSectionTitle": "Medios",
+    "guildSectionDescription": "Canales oficiales y miembros en directo en Twitch.",
+    "guildEmpty": "Este gremio aún no tiene streams vinculados.",
+    "liveMembers": "Miembros en directo",
+    "recentBroadcasts": "Emisiones recientes",
+    "recentUploads": "Subidas recientes",
+    "untitledBroadcast": "Emisión",
+    "watchAroundKill": "Ver a {name} alrededor de esta baja",
+    "watchLiveInstead": "{name} estaba en directo — ver el stream"
+  },
   "Guild": {
     "kind": "Gremio",
     "nav": {
       "activity": "Actividad",
       "kills": "Bajas",
       "rivals": "Rivales",
-      "battles": "Batallas"
+      "battles": "Batallas",
+      "media": "Medios"
     },
     "activity": {
       "title": "Actividad del gremio",

@@ -12,6 +12,7 @@ import {
 } from "@/lib/cache";
 import { getCatalogItemName } from "@/lib/items/catalog";
 import { applyLiveVictimSilverToKillCards } from "@/lib/market/estimate-gear-value";
+import { attachTwitchVodsToKillCards } from "./kill-vods";
 import { formatItemName } from "@/lib/utils";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { db, schema } from "@/lib/db";
@@ -136,7 +137,12 @@ export async function hydrateKillCardsByIds(ids: string[]) {
     .map((id) => byId.get(id))
     .filter((event): event is NonNullable<typeof event> => event != null)
     .map(mapKillEventToCard);
-  return applyLiveVictimSilverToKillCards(cards);
+  const withSilver = await applyLiveVictimSilverToKillCards(cards);
+  try {
+    return await attachTwitchVodsToKillCards(withSilver);
+  } catch {
+    return withSilver;
+  }
 }
 
 function watchlistCondition(watch: KillFeedWatchResolved) {

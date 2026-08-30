@@ -30,6 +30,7 @@ import {
   PlayerAssociationsSection,
 } from "@/components/player/PlayerAssociationsSection";
 import { PlayerProfileNav } from "@/components/player/PlayerProfileNav";
+import { PlayerMediaSection } from "@/components/media/PlayerMediaSection";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { JsonLd, playerJsonLd } from "@/components/JsonLd";
@@ -246,6 +247,12 @@ export default async function PlayerProfilePage({ params }: PageProps) {
             region={albionRegion}
             playerId={albionId}
           />
+        </Suspense>
+      </div>
+
+      <div id="media" className="scroll-mt-28">
+        <Suspense fallback={null}>
+          <PlayerMediaSection region={albionRegion} playerAlbionId={albionId} />
         </Suspense>
       </div>
     </div>

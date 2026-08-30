@@ -47,6 +47,7 @@ export type KillFeedEvent = {
     role: string;
     averageItemPower: string | null;
   }[];
+  twitchVodUrl?: string;
 };
 
 interface KillFeedListProps {

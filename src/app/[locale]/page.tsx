@@ -13,6 +13,7 @@ import {
   TopFameEarnersFallback,
   TopFameEarnersSection,
 } from "@/components/home/HomeFeedSections";
+import { WhoIsLiveSection } from "@/components/media/WhoIsLiveSection";
 import type { ContentTypeFilter } from "@/lib/db/queries";
 import { feedRegionFilterOptions } from "@/lib/region-params";
 import { resolveServerFeedRegion } from "@/lib/region-preference-server";
@@ -106,6 +107,10 @@ export default async function HomePage({ params, searchParams }: HomeProps) {
           activeRegion={region}
           show="all"
         />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <WhoIsLiveSection region={region} />
       </Suspense>
 
       <HomeFeedGrid>

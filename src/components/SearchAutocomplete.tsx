@@ -42,6 +42,20 @@ interface SearchAutocompleteProps {
 const DEBOUNCE_MS = 250;
 const MIN_CHARS = 2;
 
+function recentDisplayLabel(item: RecentSearch): string {
+  const q = item.q.trim();
+  if (q && !q.startsWith("/") && !/^https?:\/\//i.test(q)) return q;
+  const fromPath = item.path?.split("/").filter(Boolean)[2];
+  if (fromPath) {
+    try {
+      return decodeURIComponent(fromPath);
+    } catch {
+      return fromPath;
+    }
+  }
+  return q || item.path || "";
+}
+
 export function SearchAutocomplete({
   region,
   initialQuery = "",
@@ -97,33 +111,35 @@ export function SearchAutocomplete({
 
   const recentItems: SuggestItem[] = useMemo(
     () =>
-      recent.map((item, i) => {
-        const pathKind = item.path?.startsWith("/alliance/")
-          ? "alliance"
-          : item.path?.startsWith("/guild/")
-            ? "guild"
-            : item.path?.startsWith("/player/")
-              ? "player"
-              : null;
-        const kind =
-          item.type === "alliance" ||
-          item.type === "guild" ||
-          item.type === "player"
-            ? item.type
-            : pathKind ?? "recent";
+      recent
+        .filter((item) => item.type !== "path")
+        .map((item, i) => {
+          const pathKind = item.path?.startsWith("/alliance/")
+            ? "alliance"
+            : item.path?.startsWith("/guild/")
+              ? "guild"
+              : item.path?.startsWith("/player/")
+                ? "player"
+                : null;
+          const kind =
+            item.type === "alliance" ||
+            item.type === "guild" ||
+            item.type === "player"
+              ? item.type
+              : pathKind ?? "recent";
 
-        return {
-          key: `recent-${i}-${item.path ?? item.q}`,
-          label: item.path ? item.path : item.q,
-          href: item.path
-            ? item.path
-            : `/search?q=${encodeURIComponent(item.q)}&region=${item.region}`,
-          meta: item.path ? tCommon("labels.deepLink") : regionLabel(item.region),
-          badge: "Recent" as const,
-          kind,
-        };
-      }),
-    [recent, tCommon]
+          return {
+            key: `recent-${i}-${item.path ?? item.q}`,
+            label: recentDisplayLabel(item),
+            href: item.path
+              ? item.path
+              : `/search?q=${encodeURIComponent(item.q)}&region=${item.region}`,
+            meta: regionLabel(item.region),
+            badge: "Recent" as const,
+            kind,
+          };
+        }),
+    [recent]
   );
 
   const visibleItems: SuggestItem[] = useMemo(() => {
@@ -274,21 +290,27 @@ export function SearchAutocomplete({
     if (!trimmed) return;
 
     if (deepLink) {
-      navigateTo(deepLink.path, {
-        q: trimmed,
-        region,
-        type: "path",
-        path: deepLink.path,
-      });
+      navigateTo(deepLink.path);
       return;
     }
 
     if (activeIndex >= 0 && visibleItems[activeIndex]) {
       const item = visibleItems[activeIndex];
+      if (item.kind === "path") {
+        navigateTo(item.href);
+        return;
+      }
       navigateTo(item.href, {
         q: item.kind === "recent" ? trimmed || item.label : item.label,
         region,
-        type: item.kind === "guild" ? "guild" : item.kind === "path" ? "path" : "player",
+        type:
+          item.kind === "guild"
+            ? "guild"
+            : item.kind === "alliance"
+              ? "alliance"
+              : item.kind === "recent"
+                ? "query"
+                : "player",
         path: item.href.startsWith("/search") ? undefined : item.href,
       });
       return;
@@ -374,8 +396,11 @@ export function SearchAutocomplete({
           id={listId}
           role="listbox"
           className={cn(
-            "absolute z-50 mt-1 max-h-80 min-w-0 overflow-x-hidden overflow-y-auto rounded-md border border-border bg-card shadow-lg",
-            "w-full max-sm:left-[calc(50%-50vw+1rem)] max-sm:w-[calc(100vw-2rem)]"
+            "absolute z-50 mt-1 max-h-80 overflow-x-hidden overflow-y-auto rounded-md border border-border bg-card shadow-lg",
+            "w-full max-sm:left-[calc(50%-50vw+1rem)] max-sm:w-[calc(100vw-2rem)]",
+            compact
+              ? "min-w-96 max-sm:min-w-0 sm:right-0"
+              : "min-w-0"
           )}
         >
           {loading && suggestions.length === 0 && !deepLink && query.trim() && (
@@ -400,21 +425,26 @@ export function SearchAutocomplete({
               )}
               onMouseEnter={() => setActiveIndex(index)}
               onClick={() =>
-                navigateTo(item.href, {
-                  q: item.kind === "recent" ? item.label : item.label,
-                  region,
-                  type:
-                    item.kind === "guild"
-                      ? "guild"
-                      : item.kind === "alliance"
-                        ? "alliance"
-                        : item.kind === "path"
-                          ? "path"
-                          : item.kind === "recent"
-                            ? "query"
-                            : "player",
-                  path: item.href.startsWith("/search") ? undefined : item.href,
-                })
+                navigateTo(
+                  item.href,
+                  item.kind === "path"
+                    ? undefined
+                    : {
+                        q: item.label,
+                        region,
+                        type:
+                          item.kind === "guild"
+                            ? "guild"
+                            : item.kind === "alliance"
+                              ? "alliance"
+                              : item.kind === "recent"
+                                ? "query"
+                                : "player",
+                        path: item.href.startsWith("/search")
+                          ? undefined
+                          : item.href,
+                      }
+                )
               }
             >
               {item.badge === "Recent" ? (

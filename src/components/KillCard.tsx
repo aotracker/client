@@ -14,6 +14,8 @@ import { parseItemType } from "@/lib/item-icons";
 import { guildPath, playerPath } from "@/lib/seo";
 import { leaderboardKillCardHighlightClassName } from "@/components/leaderboards/leaderboard-rank-styles";
 import { ItemIcon } from "@/components/ItemIcon";
+import { TwitchIcon } from "@/components/media/TwitchIcon";
+import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { RelativeTime } from "@/components/RelativeTime";
 import {
@@ -60,6 +62,7 @@ interface KillCardProps {
       role: string;
       averageItemPower: string | null;
     }[];
+    twitchVodUrl?: string;
   };
   /** Stacked layout for narrow containers (e.g. homepage sidebar column). */
   compact?: boolean;
@@ -87,6 +90,7 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
   const t = useTranslations("Kill");
   const tPlayer = useTranslations("Player.killCard");
   const tCommon = useTranslations("Common");
+  const tMedia = useTranslations("Media");
   const killHref = `/kill/${event.region}/${event.eventId}`;
   const large = compact && compactSize === "large";
   const highValue = isJuicyHighValueKill(event.gearEstSilver, event.lootEstSilver);
@@ -139,6 +143,8 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
           occurredAt={event.occurredAt}
           fameVariant={fameVariant}
           large={large}
+          twitchVodUrl={event.twitchVodUrl}
+          vodLabel={tMedia("watchVod")}
           killDetailsLabel={tPlayer("killDetails")}
           fameLabel={tCommon("labels.killFameWithUnit", {
             value: formatFame(event.totalVictimKillFame),
@@ -231,6 +237,8 @@ function KillValueStrip({
   occurredAt,
   fameVariant,
   large,
+  twitchVodUrl,
+  vodLabel,
   killDetailsLabel,
   fameLabel,
   lootLabel,
@@ -255,6 +263,8 @@ function KillValueStrip({
   occurredAt: Date | string;
   fameVariant?: "kill" | "death";
   large: boolean;
+  twitchVodUrl?: string;
+  vodLabel: string;
   killDetailsLabel: string;
   fameLabel: string;
   lootLabel: string;
@@ -331,6 +341,21 @@ function KillValueStrip({
             >
               {highValueLabel}
             </Badge>
+          </Tooltip>
+        ) : null}
+        {twitchVodUrl ? (
+          <Tooltip content={vodLabel}>
+            <Button
+              href={twitchVodUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              size="sm"
+              variant="ghost"
+              className="px-2 text-twitch hover:bg-twitch/15 hover:text-twitch"
+              aria-label={vodLabel}
+            >
+              <TwitchIcon className={statIconClass} />
+            </Button>
           </Tooltip>
         ) : null}
       </div>

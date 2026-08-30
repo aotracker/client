@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Inbox, Star, Trash2 } from "lucide-react";
+import { LiveBadge } from "@/components/media/LiveBadge";
 import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { InlineAlert } from "@/components/InlineAlert";
@@ -21,10 +22,13 @@ import { useWatchlist } from "./useWatchlist";
 export function WatchlistPageContent() {
   const t = useTranslations("Watchlist");
   const tCommon = useTranslations("Common");
+  const tMedia = useTranslations("Media");
   const { entries, ready, remove } = useWatchlist();
   const searchParams = useSearchParams();
   const juicy = parseJuicyFlag(searchParams.get("juicy") ?? undefined);
   const [activity, setActivity] = useState<KillCardEvent[]>([]);
+  const [liveIds, setLiveIds] = useState<Set<string>>(new Set());
+  const [liveGuildIds, setLiveGuildIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,6 +38,8 @@ export function WatchlistPageContent() {
   ) => {
     if (list.length === 0) {
       setActivity([]);
+      setLiveIds(new Set());
+      setLiveGuildIds(new Set());
       return;
     }
     if (!options?.silent) setLoading(true);
@@ -58,6 +64,36 @@ export function WatchlistPageContent() {
       if (!res.ok) throw new Error(t("failedActivity"));
       const data = (await res.json()) as { events: KillCardEvent[] };
       setActivity(data.events ?? []);
+      const liveRes = await fetch("/api/media/live", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          players: list
+            .filter((e) => e.type === "player")
+            .map((e) => ({ region: e.region, albionId: e.albionId })),
+          guilds: list
+            .filter((e) => e.type === "guild")
+            .map((e) => ({ region: e.region, albionId: e.albionId })),
+        }),
+      });
+      if (liveRes.ok) {
+        const liveData = (await liveRes.json()) as {
+          live?: Array<{ region: string; albionId: string }>;
+          liveGuilds?: Array<{ region: string; albionId: string }>;
+        };
+        setLiveIds(
+          new Set(
+            (liveData.live ?? []).map((row) => `${row.region}:${row.albionId}`)
+          )
+        );
+        setLiveGuildIds(
+          new Set(
+            (liveData.liveGuilds ?? []).map(
+              (row) => `${row.region}:${row.albionId}`
+            )
+          )
+        );
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : t("failedActivity"));
       setActivity([]);
@@ -111,12 +147,20 @@ export function WatchlistPageContent() {
               className="flex items-center justify-between gap-3 px-3 py-2.5"
             >
               <div className="min-w-0">
-                <Link
-                  href={entityHref(entry)}
-                  className="truncate text-sm font-medium hover:text-primary hover:underline"
-                >
-                  {entry.name}
-                </Link>
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <Link
+                    href={entityHref(entry)}
+                    className="truncate text-sm font-medium hover:text-primary hover:underline"
+                  >
+                    {entry.name}
+                  </Link>
+                  {(entry.type === "player" &&
+                    liveIds.has(`${entry.region}:${entry.albionId}`)) ||
+                  (entry.type === "guild" &&
+                    liveGuildIds.has(`${entry.region}:${entry.albionId}`)) ? (
+                    <LiveBadge label={tMedia("live")} />
+                  ) : null}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   {entry.type === "player"
                     ? t("typePlayer")
