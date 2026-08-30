@@ -47,14 +47,6 @@ export async function countSitemapAlliances(): Promise<number> {
   return row?.value ?? 0;
 }
 
-export async function countSitemapKills(): Promise<number> {
-  const [row] = await db
-    .select({ value: count() })
-    .from(schema.killEvents)
-    .where(gte(schema.killEvents.occurredAt, lookbackCutoff()));
-  return row?.value ?? 0;
-}
-
 export async function countSitemapBattles(): Promise<number> {
   const [row] = await db
     .select({ value: count() })
@@ -84,14 +76,6 @@ export async function maxSitemapAlliancesUpdatedAt(): Promise<Date | null> {
     .select({ value: max(schema.alliances.updatedAt) })
     .from(schema.alliances)
     .where(isNotNull(schema.alliances.lastSyncedAt));
-  return row?.value ?? null;
-}
-
-export async function maxSitemapKillsUpdatedAt(): Promise<Date | null> {
-  const [row] = await db
-    .select({ value: max(schema.killEvents.occurredAt) })
-    .from(schema.killEvents)
-    .where(gte(schema.killEvents.occurredAt, lookbackCutoff()));
   return row?.value ?? null;
 }
 
@@ -160,23 +144,6 @@ export async function listSitemapAlliances(
     .from(schema.alliances)
     .where(isNotNull(schema.alliances.lastSyncedAt))
     .orderBy(desc(schema.alliances.updatedAt))
-    .offset(offset)
-    .limit(limit);
-}
-
-export async function listSitemapKills(
-  offset: number,
-  limit: number
-): Promise<SitemapNumericEntityRow[]> {
-  return db
-    .select({
-      entityId: schema.killEvents.eventId,
-      region: schema.killEvents.region,
-      updatedAt: schema.killEvents.occurredAt,
-    })
-    .from(schema.killEvents)
-    .where(gte(schema.killEvents.occurredAt, lookbackCutoff()))
-    .orderBy(desc(schema.killEvents.totalVictimKillFame), desc(schema.killEvents.occurredAt))
     .offset(offset)
     .limit(limit);
 }

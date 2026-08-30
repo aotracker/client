@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildPageMetadata,
   languageAlternates,
+  NOINDEX_FOLLOW,
   openGraphImagePath,
 } from "./seo";
 
@@ -65,5 +66,16 @@ describe("buildPageMetadata", () => {
     );
     expect(metadata.openGraph?.locale).toBe("es_ES");
     expect(metadata.openGraph?.alternateLocale).toEqual(["en_US"]);
+  });
+
+  it("supports noindex follow for high-cardinality pages", () => {
+    const metadata = buildPageMetadata({
+      title: "Kill",
+      description: "Desc",
+      canonicalPath: "/kill/americas/1",
+      robots: NOINDEX_FOLLOW,
+    });
+
+    expect(metadata.robots).toEqual({ index: false, follow: true });
   });
 });

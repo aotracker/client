@@ -5,17 +5,14 @@ vi.mock("@/lib/db/queries", () => ({
   countSitemapPlayers: async () => 0,
   countSitemapGuilds: async () => 0,
   countSitemapAlliances: async () => 0,
-  countSitemapKills: async () => 0,
   countSitemapBattles: async () => 0,
   listSitemapPlayers: async () => [],
   listSitemapGuilds: async () => [],
   listSitemapAlliances: async () => [],
-  listSitemapKills: async () => [],
   listSitemapBattles: async () => [],
   maxSitemapPlayersUpdatedAt: async () => null,
   maxSitemapGuildsUpdatedAt: async () => null,
   maxSitemapAlliancesUpdatedAt: async () => null,
-  maxSitemapKillsUpdatedAt: async () => null,
   maxSitemapBattlesUpdatedAt: async () => null,
 }));
 
@@ -50,6 +47,11 @@ describe("staticSitemapEntries", () => {
     expect(urls.some((url) => url.includes("/watchlist"))).toBe(false);
     expect(urls.some((url) => url.includes("/contact"))).toBe(false);
     expect(urls.some((url) => url.includes("/search"))).toBe(false);
+  });
+
+  it("lists the kills feed but not individual kill details", () => {
+    expect(urls.some((url) => /\/kills(?:\/|$|\?)/.test(url))).toBe(true);
+    expect(urls.some((url) => /\/kill\//.test(url))).toBe(false);
   });
 
   it("omits lastModified on static URLs", () => {
@@ -91,6 +93,8 @@ describe("sitemap part paths", () => {
       bucket: "static",
       page: 0,
     });
+    expect(parseSitemapPartId("kills-0")).toBeNull();
+    expect(parseSitemapPartId("kills-0.xml")).toBeNull();
   });
 
   it("keeps entity x locale expansion under Google's URL cap", () => {

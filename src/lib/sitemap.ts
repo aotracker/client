@@ -3,17 +3,14 @@ import {
   countSitemapAlliances,
   countSitemapBattles,
   countSitemapGuilds,
-  countSitemapKills,
   countSitemapPlayers,
   listSitemapAlliances,
   listSitemapBattles,
   listSitemapGuilds,
-  listSitemapKills,
   listSitemapPlayers,
   maxSitemapAlliancesUpdatedAt,
   maxSitemapBattlesUpdatedAt,
   maxSitemapGuildsUpdatedAt,
-  maxSitemapKillsUpdatedAt,
   maxSitemapPlayersUpdatedAt,
 } from "@/lib/db/queries";
 import { absoluteUrl, entityPath, type EntityType } from "@/lib/seo";
@@ -31,11 +28,11 @@ export const ENTITIES_PER_SITEMAP = 20_000;
 
 export const URLS_PER_SITEMAP = ENTITIES_PER_SITEMAP;
 
+/** Kill details are noindex (crawl budget) and never listed here. */
 const ENTITY_BUCKETS = [
   "players",
   "guilds",
   "alliances",
-  "kills",
   "battles",
 ] as const;
 
@@ -88,7 +85,7 @@ function mapEntityRows(
 }
 
 function mapNumericRows(
-  type: "kill" | "battle",
+  type: "battle",
   rows: { entityId: number; region: string; updatedAt: Date | null }[]
 ): MetadataRoute.Sitemap {
   return rows.flatMap((row) => {
@@ -123,7 +120,7 @@ export function parseSitemapPartId(raw: string): SitemapSlice | null {
     return { id: "static", bucket: "static", page: 0 };
   }
 
-  const match = /^(players|guilds|alliances|kills|battles)-(\d+)$/.exec(
+  const match = /^(players|guilds|alliances|battles)-(\d+)$/.exec(
     normalized
   );
   if (!match) return null;
@@ -135,11 +132,10 @@ export function parseSitemapPartId(raw: string): SitemapSlice | null {
 }
 
 export async function buildSitemapSlices(): Promise<SitemapSlice[]> {
-  const [players, guilds, alliances, kills, battles] = await Promise.all([
+  const [players, guilds, alliances, battles] = await Promise.all([
     countSitemapPlayers(),
     countSitemapGuilds(),
     countSitemapAlliances(),
-    countSitemapKills(),
     countSitemapBattles(),
   ]);
 
@@ -151,7 +147,6 @@ export async function buildSitemapSlices(): Promise<SitemapSlice[]> {
     players,
     guilds,
     alliances,
-    kills,
     battles,
   };
 
@@ -181,8 +176,6 @@ export async function getSitemapBucketLastmod(
       return maxSitemapGuildsUpdatedAt();
     case "alliances":
       return maxSitemapAlliancesUpdatedAt();
-    case "kills":
-      return maxSitemapKillsUpdatedAt();
     case "battles":
       return maxSitemapBattlesUpdatedAt();
     default:
@@ -225,8 +218,6 @@ export async function getSitemapEntriesForSlice(
         "alliance",
         await listSitemapAlliances(offset, limit)
       );
-    case "kills":
-      return mapNumericRows("kill", await listSitemapKills(offset, limit));
     case "battles":
       return mapNumericRows("battle", await listSitemapBattles(offset, limit));
     default:
