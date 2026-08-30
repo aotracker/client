@@ -31,7 +31,9 @@
     "themeSystem": "Auto",
     "language": "Idioma",
     "watchlistEmpty": "Vacía",
-    "accountMenuAriaWithWatchlist": "Menú de cuenta, {count} en la lista de seguimiento"
+    "accountMenuAriaWithWatchlist": "Menú de cuenta, {count} en la lista de seguimiento",
+    "discordBot": "Bot de Discord",
+    "discordBotTooltip": "Bot de notificaciones de Discord para Albion"
   },
   "Auth": {
     "signIn": "Iniciar sesión",
@@ -68,7 +70,6 @@
     "privacyPolicy": "Política de privacidad",
     "termsOfService": "Términos de servicio",
     "contact": "Contacto",
-    "discordBot": "Bot de Discord",
     "getAlbion": "Obtener Albion"
   },
   "Contact": {
@@ -88,7 +89,7 @@
     }
   },
   "Discord": {
-    "title": "Bot de Discord",
+    "title": "Bot de Discord de Albion Online",
     "metaDescription": "Añade el bot de Discord de {siteName} para publicar kills, muertes y batallas de gremio. Inicia sesión con Discord, invítalo desde tu cuenta y configura el seguimiento en el navegador.",
     "description": "El bot publica las kills, muertes y batallas grandes de un gremio de Albion en los canales de Discord que elijas: instantáneas de kill, imágenes de resumen de batalla y enlaces a {siteName}.",
     "invite": "Añadir a Discord",
@@ -103,7 +104,21 @@
     "setupTrackTitle": "3. Sigue un gremio y configura las notificaciones",
     "setupTrackBody": "Busca un gremio que ya esté en AOTracker. Asigna canales de kills, muertes y batallas, luego filtros y un rol de ping si quieres. Los combates nuevos se publican solos; los antiguos no se rellenan.",
     "commandsTitle": "Comandos slash",
-    "commandsIntro": "Puedes hacer la misma configuración en Discord. Escribe / y rellena las opciones. Cualquiera puede usar /status, /whoami, /lookup, /feud y /watchlist-add. Solo Administrar servidor puede cambiar el seguimiento, los canales, los filtros o el rol de ping.",
+    "commandsIntro": "Puedes hacer la misma configuración en Discord. Escribe / y rellena las opciones. Cualquiera puede usar los comandos de consulta. Solo Administrar servidor puede cambiar el seguimiento, los canales, los filtros o el rol de ping.",
+    "commandGroups": {
+      "tracking": {
+        "title": "Seguimiento",
+        "description": "Vincula un gremio y configura los canales de kills, muertes y batallas. Se requiere Administrar servidor."
+      },
+      "notifications": {
+        "title": "Notificaciones",
+        "description": "Filtra qué combates se publican y, si quieres, menciona un rol. Se requiere Administrar servidor."
+      },
+      "lookups": {
+        "title": "Consultas",
+        "description": "Cualquiera en el servidor puede usarlos."
+      }
+    },
     "usageLabel": "Formato",
     "exampleLabel": "Ejemplo",
     "commands": {

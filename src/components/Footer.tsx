@@ -39,12 +39,6 @@ export function Footer({
             {t("systemStatus")}
           </Link>
           <Link
-            href="/discord"
-            className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            {t("discordBot")}
-          </Link>
-          <Link
             href="/contact"
             className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >

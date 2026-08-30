@@ -17,8 +17,11 @@ import {
   NavbarRegionSelector,
   useActiveFeedRegion,
 } from "@/components/NavbarRegionIndicator";
+import { DiscordIcon } from "@/components/auth/LoginButtons";
 import { BrandLogo } from "@/components/BrandLogo";
 import { UserMenu } from "@/components/UserMenu";
+import { buttonClassName } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import type { AlbionRegion } from "@/lib/albion/types";
 import {
   appendFeedRegionToHref,
@@ -159,6 +162,63 @@ function NavbarMobileFeedLinks({
   );
 }
 
+function NavbarDiscordButton({
+  onNavigate,
+  variant = "header",
+}: {
+  onNavigate?: () => void;
+  variant?: "header" | "menu";
+}) {
+  const t = useTranslations("Nav");
+  const pathname = usePathname();
+  const active = pathname.startsWith("/discord");
+  const label = t("discordBot");
+  const tooltip = t("discordBotTooltip");
+
+  if (variant === "menu") {
+    return (
+      <Link
+        href="/discord"
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "inline-flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+          active
+            ? "bg-accent font-medium text-foreground"
+            : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+        )}
+        onClick={onNavigate}
+      >
+        <DiscordIcon className="h-4 w-4 shrink-0 text-discord" />
+        {label}
+      </Link>
+    );
+  }
+
+  return (
+    <Tooltip content={tooltip} side="bottom" className="shrink-0">
+      <Link
+        href="/discord"
+        aria-label={tooltip}
+        aria-current={active ? "page" : undefined}
+        className={buttonClassName({
+          variant: "outline",
+          size: "sm",
+          className: cn(
+            "shrink-0 w-8 px-0 lg:w-auto lg:px-3",
+            "border-discord/30 hover:border-discord/50 hover:bg-discord/10",
+            active && "border-discord/50 bg-discord/10 text-foreground"
+          ),
+        })}
+        onClick={onNavigate}
+      >
+        <DiscordIcon className="h-3.5 w-3.5 text-discord" />
+        <span className="hidden lg:inline">{label}</span>
+      </Link>
+    </Tooltip>
+  );
+}
+
 export function Navbar({ regions, preferredRegion }: NavbarProps) {
   const t = useTranslations("Nav");
   const pathname = usePathname();
@@ -206,6 +266,8 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
             />
           </Suspense>
 
+          <NavbarDiscordButton onNavigate={closeMenu} />
+
           <div className="hidden sm:block">
             <Suspense fallback={null}>
               <UserMenu />
@@ -250,10 +312,11 @@ export function Navbar({ regions, preferredRegion }: NavbarProps) {
               />
             </Suspense>
 
-            <div className="flex flex-col gap-0.5 border-t border-border pt-3 sm:hidden">
+            <div className="flex flex-col gap-0.5 border-t border-border pt-3">
+              <NavbarDiscordButton variant="menu" onNavigate={closeMenu} />
               <Link
                 href="/search"
-                className="inline-flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="inline-flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
                 onClick={closeMenu}
               >
                 <Search className="h-4 w-4 shrink-0" aria-hidden />

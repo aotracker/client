@@ -31,7 +31,9 @@
     "themeSystem": "Auto",
     "language": "Language",
     "watchlistEmpty": "Empty",
-    "accountMenuAriaWithWatchlist": "Account menu, {count} on watchlist"
+    "accountMenuAriaWithWatchlist": "Account menu, {count} on watchlist",
+    "discordBot": "Discord bot",
+    "discordBotTooltip": "Albion Discord notification bot"
   },
   "Auth": {
     "signIn": "Sign in",
@@ -68,7 +70,6 @@
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
     "contact": "Contact",
-    "discordBot": "Discord bot",
     "getAlbion": "Get Albion"
   },
   "Contact": {
@@ -88,7 +89,7 @@
     }
   },
   "Discord": {
-    "title": "Discord bot",
+    "title": "Albion Online Discord bot",
     "metaDescription": "Add the {siteName} Discord bot to post guild kills, deaths, and battles. Sign in with Discord, invite it from your account, and set tracking in the browser.",
     "description": "The bot posts a tracked Albion guild’s new kills, deaths, and large battles into Discord channels you choose — kill snapshots, battle recap images, and links back to {siteName}.",
     "invite": "Add to Discord",
@@ -103,7 +104,21 @@
     "setupTrackTitle": "3. Track a guild and set notifications",
     "setupTrackBody": "Search a guild already on AOTracker. Set kills, deaths, and battle channels, then filters and an optional ping role. New fights post automatically; older ones are not backfilled.",
     "commandsTitle": "Slash commands",
-    "commandsIntro": "You can do the same setup in Discord. Type / and fill in the options. Anyone can run /status, /whoami, /lookup, /feud, and /watchlist-add. Only Manage Server can change tracking, channels, filters, or ping roles.",
+    "commandsIntro": "You can do the same setup in Discord. Type / and fill in the options. Anyone can run lookup commands. Only Manage Server can change tracking, channels, filters, or ping roles.",
+    "commandGroups": {
+      "tracking": {
+        "title": "Tracking",
+        "description": "Bind a guild and set kill, death, and battle channels. Manage Server required."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Filter which fights post and optionally ping a role. Manage Server required."
+      },
+      "lookups": {
+        "title": "Lookups",
+        "description": "Anyone in the server can run these."
+      }
+    },
     "usageLabel": "Format",
     "exampleLabel": "Example",
     "commands": {
