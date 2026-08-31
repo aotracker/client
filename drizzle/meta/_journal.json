@@ -190,6 +190,13 @@
       "when": 1788000000000,
       "tag": "0033_page_perf_rollups",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1788100000000,
+      "tag": "0034_kill_is_orange_zone",
+      "breakpoints": true
     }
   ]
 }

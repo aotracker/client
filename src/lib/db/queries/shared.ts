@@ -28,10 +28,15 @@ export {
 
 /**
  * SQL filter matching `hasKillFame`: positive victim kill fame only.
- * Null/0 fame kills (empty drops / Depths-style) stay out of public lists.
+ * Null/0 fame kills (empty drops / orange-zone empty-bag) stay out of public lists.
  */
 export function killFamePositiveCondition() {
   return gt(schema.killEvents.totalVictimKillFame, 0);
+}
+
+/** Orange PvP (inventory-only) stays off public kill feeds. */
+export function notOrangeZoneCondition() {
+  return eq(schema.killEvents.isOrangeZone, false);
 }
 
 /** Victim inventory estimated silver ≥ 20m. */

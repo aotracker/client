@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { AlbionKillboardIcon } from "@/components/AlbionKillboardIcon";
 import { BackLink } from "@/components/BackLink";
 import { ContentBadge } from "@/components/ContentBadge";
+import { OrangeZoneBadge } from "@/components/OrangeZoneBadge";
 import { EquipmentGrid, LootGrid } from "@/components/KillGearPanels";
 import {
   KillEquipmentValue,
@@ -47,6 +48,7 @@ export type KillDetailViewProps = {
   eventId: number;
   sharePath: string;
   contentType: string;
+  isOrangeZone?: boolean;
   occurredAt: string;
   totalVictimKillFame: number | null;
   battleTotalPlayers: number | null;
@@ -111,6 +113,8 @@ export async function KillDetailView(props: KillDetailViewProps) {
         killedLabel={t("killedHeading")}
         killFameLabel={t("killFame")}
         healingLabel={t("healing")}
+        orangeZoneLabel={t("orangeZone")}
+        orangeZoneHint={t("orangeZoneHint")}
         regionLabelText={
           tRegions.has(props.region) ? tRegions(props.region) : props.region
         }
@@ -161,6 +165,8 @@ function KillMatchCard({
   killedLabel,
   killFameLabel,
   healingLabel,
+  orangeZoneLabel,
+  orangeZoneHint,
   regionLabelText,
   ...props
 }: KillDetailViewProps & {
@@ -169,6 +175,8 @@ function KillMatchCard({
   killedLabel: string;
   killFameLabel: string;
   healingLabel: string;
+  orangeZoneLabel: string;
+  orangeZoneHint: string;
   regionLabelText: string;
 }) {
   const showEquipment = !props.compacted;
@@ -204,6 +212,9 @@ function KillMatchCard({
             killFameLabel={killFameLabel}
             fame={props.totalVictimKillFame}
             contentType={props.contentType}
+            isOrangeZone={props.isOrangeZone === true}
+            orangeZoneLabel={orangeZoneLabel}
+            orangeZoneHint={orangeZoneHint}
             regionLabelText={regionLabelText}
             occurredAt={props.occurredAt}
           />
@@ -240,6 +251,9 @@ function MatchMeta({
   killFameLabel,
   fame,
   contentType,
+  isOrangeZone,
+  orangeZoneLabel,
+  orangeZoneHint,
   regionLabelText,
   occurredAt,
 }: {
@@ -247,6 +261,9 @@ function MatchMeta({
   killFameLabel: string;
   fame: number | null;
   contentType: string;
+  isOrangeZone: boolean;
+  orangeZoneLabel: string;
+  orangeZoneHint: string;
   regionLabelText: string;
   occurredAt: string;
 }) {
@@ -272,6 +289,12 @@ function MatchMeta({
           size="header"
         />
         <div className="mt-3 flex flex-wrap justify-center gap-2">
+          {isOrangeZone ? (
+            <OrangeZoneBadge
+              label={orangeZoneLabel}
+              hint={orangeZoneHint}
+            />
+          ) : null}
           <ContentBadge type={contentType} />
         </div>
         <p className="mt-2 text-center text-xs text-muted-foreground">

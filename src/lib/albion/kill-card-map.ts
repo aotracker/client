@@ -22,6 +22,7 @@ export type KillEventCardSource = {
   participantCount?: number | null;
   lootEstSilver?: number | null;
   gearEstSilver?: number | null;
+  isOrangeZone?: boolean | null;
   detailEvictedAt?: Date | null;
   killerGuildAlbionId?: string | null;
   killerGuildName?: string | null;
@@ -87,6 +88,7 @@ export function mapKillEventToCard(event: KillEventCardSource) {
     participantCount: event.participantCount ?? extras?.participantCount ?? null,
     lootEstSilver: event.lootEstSilver ?? null,
     gearEstSilver: event.gearEstSilver ?? null,
+    isOrangeZone: event.isOrangeZone ?? extras?.isOrangeZone ?? false,
     killer:
       event.killer || extras?.killer
         ? {

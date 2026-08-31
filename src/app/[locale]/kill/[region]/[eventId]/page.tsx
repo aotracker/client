@@ -227,6 +227,7 @@ export default async function KillDetailPage({ params }: PageProps) {
           eventId={event.eventId}
           sharePath={sharePath}
           contentType={event.contentType}
+          isOrangeZone={event.isOrangeZone}
           occurredAt={
             event.occurredAt instanceof Date
               ? event.occurredAt.toISOString()

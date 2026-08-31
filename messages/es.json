@@ -732,6 +732,8 @@
     "lootItems": "{count} objetos de botín",
     "highValue": "150 M+",
     "highValueHint": "Equipo + botín de la víctima por más de 150 M de plata",
+    "orangeZone": "Zona naranja",
+    "orangeZoneHint": "Muerte de inventario — el equipo equipado no se pierde",
     "assistItems": "{count, plural, one {# asistencia} other {# asistencias}}",
     "lootDescription": "Objetos que llevaba {victimName} al morir",
     "pending": {

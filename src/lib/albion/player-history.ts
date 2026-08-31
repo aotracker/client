@@ -1,4 +1,5 @@
 import { classifyContentType } from "./classify";
+import { isOrangeZoneEvent } from "./orange-zone";
 import {
   type AlbionEvent,
   type AlbionPlayerRef,
@@ -45,6 +46,8 @@ export interface KillCardEvent {
   lootEstSilver?: number | null;
   /** Victim equipped-gear estimated silver at ingest. */
   gearEstSilver?: number | null;
+  /** Orange PvP (inventory-only death). */
+  isOrangeZone?: boolean;
   killer?: {
     albionId: string;
     name: string;
@@ -197,6 +200,7 @@ export function albionEventToKillCard(
     region,
     occurredAt: new Date(event.TimeStamp),
     contentType,
+    isOrangeZone: isOrangeZoneEvent(event),
     totalVictimKillFame: event.TotalVictimKillFame ?? null,
     participantCount:
       event.numberOfParticipants ?? event.Participants?.length ?? null,

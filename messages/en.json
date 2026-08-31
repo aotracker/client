@@ -732,6 +732,8 @@
     "lootItems": "{count} loot items",
     "highValue": "150m+",
     "highValueHint": "Victim gear + loot over 150m silver",
+    "orangeZone": "Orange Zone",
+    "orangeZoneHint": "Inventory-only death — equipped gear does not drop",
     "assistItems": "{count, plural, one {# assist} other {# assists}}",
     "lootDescription": "Items {victimName} was carrying when killed",
     "pending": {

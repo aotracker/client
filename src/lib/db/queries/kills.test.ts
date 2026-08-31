@@ -117,6 +117,19 @@ describe("mapKillEventToCard", () => {
     expect(card.participantCount).toBe(4);
   });
 
+  it("passes through stored orange-zone flag", () => {
+    const card = mapKillEventToCard({
+      ...baseEvent(),
+      isOrangeZone: true,
+    });
+    expect(card.isOrangeZone).toBe(true);
+  });
+
+  it("defaults orange-zone to false when unset", () => {
+    const card = mapKillEventToCard(baseEvent());
+    expect(card.isOrangeZone).toBe(false);
+  });
+
   it("ignores payload after detail eviction and uses stored kill-time guilds", () => {
     const payload: AlbionEvent = {
       EventId: 1,

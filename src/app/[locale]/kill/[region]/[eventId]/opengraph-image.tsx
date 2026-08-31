@@ -70,7 +70,9 @@ export default async function Image({ params }: Props) {
       ip: formatItemPower(victimParticipant?.averageItemPower),
     },
     subtitle: `${regionLabel(event.region)} · ${formatExactDateTime(event.occurredAt)}`,
-    badge: contentTypeLabel(event.contentType),
+    badge: event.isOrangeZone
+      ? `Orange Zone · ${contentTypeLabel(event.contentType)}`
+      : contentTypeLabel(event.contentType),
     fame: formatFame(event.totalVictimKillFame),
     players:
       event.contentType !== "SOLO" &&

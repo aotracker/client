@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { Swords } from "lucide-react";
 import { AlbionKillboardIcon } from "@/components/AlbionKillboardIcon";
 import { ContentBadge } from "@/components/ContentBadge";
+import { OrangeZoneBadge } from "@/components/OrangeZoneBadge";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ItemPowerValue } from "@/components/StatValue";
@@ -45,6 +46,7 @@ interface KillCardProps {
     participantCount?: number | null;
     lootEstSilver?: number | null;
     gearEstSilver?: number | null;
+    isOrangeZone?: boolean;
     killer?: {
       albionId: string;
       name: string;
@@ -139,6 +141,9 @@ export const KillCard = memo(function KillCard({ event, compact = false, compact
           highValueLabel={t("highValue")}
           highValueHint={t("highValueHint")}
           contentType={event.contentType}
+          isOrangeZone={event.isOrangeZone === true}
+          orangeZoneLabel={t("orangeZone")}
+          orangeZoneHint={t("orangeZoneHint")}
           region={event.region}
           occurredAt={event.occurredAt}
           fameVariant={fameVariant}
@@ -233,6 +238,9 @@ function KillValueStrip({
   highValueLabel,
   highValueHint,
   contentType,
+  isOrangeZone,
+  orangeZoneLabel,
+  orangeZoneHint,
   region,
   occurredAt,
   fameVariant,
@@ -259,6 +267,9 @@ function KillValueStrip({
   highValueLabel: string;
   highValueHint: string;
   contentType: string;
+  isOrangeZone: boolean;
+  orangeZoneLabel: string;
+  orangeZoneHint: string;
   region: string;
   occurredAt: Date | string;
   fameVariant?: "kill" | "death";
@@ -361,6 +372,12 @@ function KillValueStrip({
       </div>
       <div className="flex flex-col gap-1 sm:items-end">
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          {isOrangeZone ? (
+            <OrangeZoneBadge
+              label={orangeZoneLabel}
+              hint={orangeZoneHint}
+            />
+          ) : null}
           <ContentBadge type={contentType} />
           {showFightMeta ? (
             <span className="text-xs text-muted-foreground">

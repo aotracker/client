@@ -23,6 +23,7 @@ import {
   coveringRegionCondition,
   juicyLootCondition,
   killFamePositiveCondition,
+  notOrangeZoneCondition,
   leaderboardConditions,
 } from "./shared";
 
@@ -97,6 +98,7 @@ export async function hydrateKillCardsByIds(ids: string[]) {
       participantCount: true,
       lootEstSilver: true,
       gearEstSilver: true,
+      isOrangeZone: true,
       detailEvictedAt: true,
       killerGuildAlbionId: true,
       killerGuildName: true,
@@ -211,7 +213,7 @@ async function loadKillFeed(filters: {
     watch,
   } = filters;
 
-  const conditions = [killFamePositiveCondition()];
+  const conditions = [killFamePositiveCondition(), notOrangeZoneCondition()];
   conditions.push(gte(schema.killEvents.occurredAt, uiLookbackCutoff()));
   const regionFilter = coveringRegionCondition(region);
   if (regionFilter) conditions.push(regionFilter);
@@ -321,10 +323,13 @@ async function loadRecentJuicyKills(
 ) {
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-  const conditions = leaderboardConditions(
-    { region, days, contentType, limit },
-    cutoff
-  );
+  const conditions = [
+    ...leaderboardConditions(
+      { region, days, contentType, limit },
+      cutoff
+    ),
+    notOrangeZoneCondition(),
+  ];
 
   const idRows = await db
     .select({ id: schema.killEvents.id })
