@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { DocumentLang } from "@/components/DocumentLang";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { Footer } from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Navbar } from "@/components/Navbar";
@@ -46,6 +47,7 @@ export default async function RootNotFound() {
               </div>
             </main>
             <Footer preferredRegion={preferredRegion} />
+            <CookieConsentBanner />
           </ToastProvider>
         </ThemeProvider>
       </NextIntlClientProvider>

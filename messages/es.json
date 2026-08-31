@@ -70,6 +70,7 @@
     "privacyPolicy": "Política de privacidad",
     "termsOfService": "Términos de servicio",
     "contact": "Contacto",
+    "cookieSettings": "Ajustes de cookies",
     "getAlbion": "Obtener Albion"
   },
   "Contact": {
@@ -614,16 +615,17 @@
     "whoIsLive": "Quién está en directo",
     "whoIsLiveDescription": "Streamers vinculados que están jugando Albion Online en Twitch.",
     "playerSectionTitle": "Directos y vídeos",
-    "playerSectionDescription": "Twitch y YouTube vinculados a este personaje.",
+    "playerSectionDescription": "Clips de Twitch, emisiones de Albion y YouTube vinculados a este personaje.",
     "playerEmpty": "Aún no hay emisiones recientes. Aparecerán tras el próximo directo de Albion.",
     "guildSectionTitle": "Medios",
     "guildSectionDescription": "Canales oficiales y miembros en directo en Twitch.",
     "guildEmpty": "Este gremio aún no tiene streams vinculados.",
     "liveMembers": "Miembros en directo",
     "recentBroadcasts": "Emisiones recientes",
-    "recentUploads": "Subidas recientes",
+    "recentClips": "Clips recientes de Twitch",
+    "recentUploads": "Vídeos recientes de YouTube",
     "untitledBroadcast": "Emisión",
-    "watchAroundKill": "Ver a {name} alrededor de esta baja",
+    "watchAroundKill": "Ver el VOD de {name} de esta baja/muerte",
     "watchLiveInstead": "{name} estaba en directo — ver el stream"
   },
   "Guild": {
@@ -1047,9 +1049,15 @@
     "awaitingHealthCheck": "Esperando comprobación de salud",
     "databaseUnavailable": "Base de datos no disponible"
   },
+  "CookieConsent": {
+    "title": "Cookies",
+    "body": "Las cookies necesarias hacen funcionar el sitio. Las cookies de analítica opcionales (Google Analytics) nos ayudan a entender el tráfico. Consulta la <privacyLink>Política de privacidad</privacyLink>. Puedes aceptar o rechazar las cookies de analítica y cambiar tu elección en cualquier momento.",
+    "accept": "Aceptar",
+    "reject": "Rechazar"
+  },
   "Privacy": {
     "title": "Política de privacidad",
-    "lastUpdated": "Última actualización: 23 de agosto de 2026",
+    "lastUpdated": "Última actualización: 30 de agosto de 2026",
     "metaDescription": "Política de privacidad de {siteName}.",
     "intro": "{siteName} («nosotros», «nuestro») ofrece seguimiento de bajas y perfiles de Albion Online. Esta página explica qué información tratamos cuando usas el sitio.",
     "sections": {
@@ -1062,10 +1070,10 @@
       "accountsBody4": "Puedes vincular o desvincular Discord y Google en la misma cuenta del sitio desde Ajustes de cuenta cuando ambos proveedores estén disponibles (debe quedar al menos un método de inicio de sesión). Puedes revisar las sesiones activas, exportar una copia de tu lista de seguimiento y búsquedas recientes sincronizadas, borrar esos datos sincronizados, o eliminar tu cuenta y los datos de inicio de sesión asociados, desde Ajustes de cuenta. Las herramientas de operador/admin y los trabajos programados son independientes de tus preferencias personales.",
       "logsTitle": "Registros y analíticas",
       "logsBody1": "Nuestro proveedor de alojamiento puede recopilar automáticamente registros de solicitud estándar (por ejemplo, dirección IP, agente de usuario y páginas solicitadas) por motivos de seguridad, fiabilidad y rendimiento. No vendemos información personal.",
-      "logsBody2": "Usamos Google Analytics 4 para comprender el tráfico agregado y cómo se usan las páginas (por ejemplo, vistas de página, ubicación aproximada, tipo de dispositivo y referentes). Google puede establecer cookies o tecnologías similares y tratar estos datos según <googlePrivacyLink>Política de privacidad de Google</googlePrivacyLink>. Puedes limitar las cookies de analítica mediante la configuración del navegador o las herramientas de exclusión de Google.",
+      "logsBody2": "Usamos Google Analytics 4 para comprender el tráfico agregado y cómo se usan las páginas (por ejemplo, vistas de página, ubicación aproximada, tipo de dispositivo y referentes) solo si aceptas las cookies de analítica. Google puede establecer cookies o tecnologías similares y tratar estos datos según <googlePrivacyLink>Política de privacidad de Google</googlePrivacyLink>. Puedes aceptar o rechazar las cookies de analítica en el aviso de cookies, o cambiar tu elección más tarde desde Ajustes de cookies en el pie de página.",
       "googlePrivacyPolicy": "Política de privacidad de Google",
       "cookiesTitle": "Cookies y almacenamiento local",
-      "cookiesBody1": "El sitio puede usar cookies o tecnologías similares necesarias para el funcionamiento básico, de nuestra plataforma de alojamiento, de Google Analytics (cuando esté activado) o para mantener tu sesión iniciada. También podemos guardar tu región preferida en una cookie para que las páginas renderizadas en el servidor coincidan con tu elección. Puedes controlar las cookies desde la configuración de tu navegador.",
+      "cookiesBody1": "Las cookies necesarias y el almacenamiento similar hacen funcionar el sitio: tu sesión iniciada, tu región preferida para que las páginas renderizadas en el servidor coincidan con tu elección, y tu preferencia de cookies. Las cookies de Google Analytics son opcionales y solo se establecen si las aceptas en el aviso de cookies. Puedes cambiar esa elección en cualquier momento desde Ajustes de cookies en el pie de página, o controlar las cookies en tu navegador.",
       "cookiesBody2": "La preferencia de tema y, cuando no has iniciado sesión, el autocompletado de búsqueda, tu lista de seguimiento y preferencias relacionadas pueden guardarse en el almacenamiento local de tu navegador. Cuando has iniciado sesión, almacenamos tu lista de seguimiento, búsquedas recientes y región de feed preferida en nuestros servidores para sincronizarlas entre dispositivos. La preferencia de tema permanece en tu dispositivo. Cuando filtras bajas por lista de seguimiento o abres la página de actividad de la lista, los IDs de entidades de Albion de tu lista se envían a nuestros servidores para ejecutar esa solicitud.",
       "thirdPartyTitle": "Enlaces de terceros",
       "thirdPartyBody": "Los enlaces a Albion Online, Discord, Google u otros sitios externos se ofrecen por comodidad. Sus prácticas de privacidad se rigen por sus propias políticas. El inicio de sesión con Discord o Google también está sujeto a los términos y políticas de privacidad de esos proveedores.",

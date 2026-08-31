@@ -6,6 +6,8 @@ import {
   parseYoutubeChannelInput,
   twitchVodOffsetForKill,
   twitchVodUrl,
+  youtubeThumbnailUrl,
+  sizedTwitchThumbnail,
 } from "./urls";
 
 describe("parseTwitchLogin", () => {
@@ -36,6 +38,32 @@ describe("twitch offsets", () => {
     expect(twitchVodUrl("123", 90)).toBe(
       "https://www.twitch.tv/videos/123?t=1m30s"
     );
+  });
+
+  it("builds YouTube thumbnail urls", () => {
+    expect(youtubeThumbnailUrl("abcdefghijk")).toBe(
+      "https://i.ytimg.com/vi/abcdefghijk/mqdefault.jpg"
+    );
+  });
+
+  it("sizes Twitch thumbnail templates", () => {
+    expect(
+      sizedTwitchThumbnail(
+        "https://static-cdn.jtvnw.net/previews-ttv/live_user_x-{width}x{height}.jpg",
+        160,
+        90
+      )
+    ).toBe(
+      "https://static-cdn.jtvnw.net/previews-ttv/live_user_x-160x90.jpg"
+    );
+    expect(
+      sizedTwitchThumbnail(
+        "https://static-cdn.jtvnw.net/cf_vods/x/thumb/%{width}x%{height}.jpg",
+        440,
+        248
+      )
+    ).toBe("https://static-cdn.jtvnw.net/cf_vods/x/thumb/440x248.jpg");
+    expect(sizedTwitchThumbnail(null)).toBeNull();
   });
 
   it("rewinds 30s before the kill and does not go before stream start", () => {

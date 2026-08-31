@@ -18,6 +18,9 @@ export const HEALTH_CACHE_REVALIDATE_SECONDS = 30;
 /** Cross-request TTL for Who’s live / profile live badges. */
 export const MEDIA_LIVE_CACHE_REVALIDATE_SECONDS = 30;
 
+/** Cross-request TTL for profile Twitch clips and VOD thumbnails. */
+export const MEDIA_CONTENT_CACHE_REVALIDATE_SECONDS = 900;
+
 /**
  * Request-scoped memoization stub — Next.js wraps with `react` cache at the
  * app layer when needed. Prefer `cachedQuery` for cross-request page data.

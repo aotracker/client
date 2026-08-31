@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Activity } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { openCookieConsentSettings } from "@/lib/cookie-consent";
 import { ALBION_REF_URL, SITE_NAME } from "@/lib/site";
 import { feedNavHref } from "@/lib/region-params";
 import type { PreferredRegion } from "@/lib/region-preference";
@@ -56,6 +57,13 @@ export function Footer({
           >
             {t("privacyPolicy")}
           </Link>
+          <button
+            type="button"
+            className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            onClick={() => openCookieConsentSettings()}
+          >
+            {t("cookieSettings")}
+          </button>
           <Button
             href={ALBION_REF_URL}
             target="_blank"

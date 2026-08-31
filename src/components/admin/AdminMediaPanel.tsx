@@ -421,9 +421,9 @@ export function AdminMediaPanel() {
                         · {regionLabel(first.region)}
                       </span>
                     </p>
-                    <ul className="space-y-2">
+                    <ul className="grid grid-cols-2 gap-2">
                       {group.map((link) => (
-                        <li key={link.id}>
+                        <li key={link.id} className="min-w-0">
                           <Card variant="muted">
                             <CardContent className="flex flex-wrap items-center justify-between gap-3 py-2.5">
                               <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -482,9 +482,9 @@ export function AdminMediaPanel() {
                         · {regionLabel(first.region)}
                       </span>
                     </p>
-                    <ul className="space-y-2">
+                    <ul className="grid grid-cols-2 gap-2">
                       {group.map((pin) => (
-                        <li key={pin.id}>
+                        <li key={pin.id} className="min-w-0">
                           <Card variant="muted">
                             <CardContent className="flex flex-wrap items-center justify-between gap-3 py-2.5">
                               <div className="flex min-w-0 flex-wrap items-center gap-2">

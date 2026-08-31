@@ -70,6 +70,7 @@
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
     "contact": "Contact",
+    "cookieSettings": "Cookie settings",
     "getAlbion": "Get Albion"
   },
   "Contact": {
@@ -614,16 +615,17 @@
     "whoIsLive": "Who's live",
     "whoIsLiveDescription": "Linked streamers currently playing Albion Online on Twitch.",
     "playerSectionTitle": "Streams and videos",
-    "playerSectionDescription": "Twitch and YouTube attached to this character.",
+    "playerSectionDescription": "Twitch clips, Albion broadcasts, and YouTube attached to this character.",
     "playerEmpty": "No recent broadcasts yet. They appear after the next Albion stream.",
     "guildSectionTitle": "Media",
     "guildSectionDescription": "Official channels and members currently live on Twitch.",
     "guildEmpty": "No linked streams for this guild yet.",
     "liveMembers": "Members live now",
     "recentBroadcasts": "Recent broadcasts",
-    "recentUploads": "Recent uploads",
+    "recentClips": "Recent Twitch Clips",
+    "recentUploads": "Recent YouTube Videos",
     "untitledBroadcast": "Broadcast",
-    "watchAroundKill": "Watch {name} around this kill",
+    "watchAroundKill": "Watch {name}'s VOD for this kill/death",
     "watchLiveInstead": "{name} was live — watch the stream"
   },
   "Guild": {
@@ -1047,9 +1049,15 @@
     "awaitingHealthCheck": "Awaiting health check",
     "databaseUnavailable": "Database unavailable"
   },
+  "CookieConsent": {
+    "title": "Cookies",
+    "body": "Necessary cookies keep the site working. Optional analytics cookies (Google Analytics) help us understand traffic. See the <privacyLink>Privacy Policy</privacyLink>. You can accept or reject analytics cookies, and change your choice anytime.",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
   "Privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: August 23, 2026",
+    "lastUpdated": "Last updated: August 30, 2026",
     "metaDescription": "Privacy policy for {siteName}.",
     "intro": "{siteName} (“we”, “our”) provides Albion Online kill and profile tracking. This page explains what information we handle when you use the site.",
     "sections": {
@@ -1062,10 +1070,10 @@
       "accountsBody4": "You can link or unlink Discord and Google on the same site account from Account settings when both providers are available (at least one sign-in method must remain). You can review active sessions, export a copy of your synced watchlist and recent searches, clear that synced data, or delete your account and associated sign-in data, from Account settings. Operator/admin tooling and scheduled jobs are separate from your personal account preferences.",
       "logsTitle": "Logs and analytics",
       "logsBody1": "Our hosting provider may automatically collect standard request logs (for example IP address, user agent, and pages requested) for security, reliability, and performance. We do not sell personal information.",
-      "logsBody2": "We use Google Analytics 4 to understand aggregate traffic and how pages are used (for example page views, approximate location, device type, and referrers). Google may set cookies or use similar technologies and process this data according to <googlePrivacyLink>Google's Privacy Policy</googlePrivacyLink>. You can limit analytics cookies through your browser settings or Google's opt-out tools.",
+      "logsBody2": "We use Google Analytics 4 to understand aggregate traffic and how pages are used (for example page views, approximate location, device type, and referrers) only if you accept analytics cookies. Google may set cookies or use similar technologies and process this data according to <googlePrivacyLink>Google's Privacy Policy</googlePrivacyLink>. You can accept or reject analytics cookies in the cookie banner, or change your choice later from Cookie settings in the footer.",
       "googlePrivacyPolicy": "Google's Privacy Policy",
       "cookiesTitle": "Cookies and local storage",
-      "cookiesBody1": "The site may use cookies or similar technologies required for basic operation, by our hosting platform, by Google Analytics (when enabled), or to maintain your signed-in session. We may also store your preferred region in a cookie so server-rendered pages match your choice. You can control cookies through your browser settings.",
+      "cookiesBody1": "Necessary cookies and similar storage keep the site working: your signed-in session, your preferred region so server-rendered pages match your choice, and your cookie preference. Google Analytics cookies are optional and are only set if you accept them in the cookie banner. You can change that choice anytime from Cookie settings in the footer, or control cookies in your browser.",
       "cookiesBody2": "Theme preference and, when you are not signed in, search autocomplete, your watchlist, and related preferences may be stored in your browser's local storage on your device. When you are signed in, we store your watchlist, recent searches, and preferred feed region on our servers so they sync across devices. Theme preference stays on your device. When you filter kills by watchlist or open the watchlist activity page, the Albion entity IDs in your watchlist are sent to our servers to run that request.",
       "thirdPartyTitle": "Third-party links",
       "thirdPartyBody": "Links to Albion Online, Discord, Google, or other external sites are provided for convenience. Their privacy practices are governed by their own policies. Sign-in with Discord or Google is also subject to those providers’ terms and privacy policies.",

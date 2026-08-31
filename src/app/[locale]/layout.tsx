@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { Footer } from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Navbar } from "@/components/Navbar";
@@ -92,6 +93,7 @@ export default async function LocaleLayout({
                 {children}
               </main>
               <Footer preferredRegion={preferredRegion} />
+              <CookieConsentBanner />
             </ToastProvider>
           </SessionSnapshotProvider>
         </ThemeProvider>
