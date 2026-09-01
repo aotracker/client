@@ -13,6 +13,8 @@ import {
 } from "@/lib/search/live-search";
 import { Badge } from "@/components/ui/badge";
 import { LiveBadge } from "@/components/media/LiveBadge";
+import { TwitchIcon } from "@/components/media/TwitchIcon";
+import { CachedSourceIcon } from "@/components/search/CachedSourceIcon";
 import {
   getLiveStateForChannels,
   getPlayerMediaLinksForPlayers,
@@ -194,8 +196,9 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                       <Badge
                         variant="outline"
                         size="sm"
-                        className="border-twitch/40 text-twitch"
+                        className="gap-0.5 border-twitch/40 text-twitch"
                       >
+                        <TwitchIcon className="size-2.5 shrink-0" />
                         {tMedia("twitch")}
                       </Badge>
                     ) : null}
@@ -211,7 +214,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                         {tMedia("youtube")}
                       </Badge>
                     ) : null}
-                    <Badge variant="outline">{tCommon("labels.cached")}</Badge>
+                    <CachedSourceIcon label={tCommon("labels.cached")} />
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {regionLabel(player.region)}
@@ -263,7 +266,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                 <CardContent className="py-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-medium">{guild.name}</p>
-                    <Badge variant="outline">{tCommon("labels.cached")}</Badge>
+                    <CachedSourceIcon label={tCommon("labels.cached")} />
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {regionLabel(guild.region)} ·{" "}
@@ -300,10 +303,13 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                         ? `[${alliance.tag}] ${alliance.name}`
                         : alliance.name}
                     </p>
-                    <Badge variant="outline">{tCommon("labels.cached")}</Badge>
+                    <CachedSourceIcon label={tCommon("labels.cached")} />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {regionLabel(alliance.region)}
+                    {regionLabel(alliance.region)} ·{" "}
+                    {tCommon("labels.killFameWithUnit", {
+                      value: formatFame(alliance.killFame),
+                    })}
                     {alliance.memberCount != null
                       ? ` · ${tCommon("labels.membersCount", {
                           count: alliance.memberCount.toLocaleString(),

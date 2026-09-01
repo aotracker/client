@@ -7,6 +7,7 @@ import { Clock, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CachedSourceIcon } from "@/components/search/CachedSourceIcon";
 import { cn, regionLabel } from "@/lib/utils";
 import { guildPath, playerPath } from "@/lib/seo";
 import { parseDeepLink } from "@/lib/search/parse-deep-link";
@@ -71,6 +72,7 @@ export function SearchAutocomplete({
   const router = useRouter();
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const highlightFromKeyboardRef = useRef(false);
   const [query, setQuery] = useState(initialQuery);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -240,6 +242,7 @@ export function SearchAutocomplete({
 
         setSuggestions(items.slice(0, 10));
         setActiveIndex(-1);
+        highlightFromKeyboardRef.current = false;
 
         if (data.liveSearch?.searching && !cancelled) {
           setLoading(true);
@@ -284,35 +287,32 @@ export function SearchAutocomplete({
     [onNavigate, pushRecent, router]
   );
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function goToSuggestion(item: SuggestItem) {
+    if (item.kind === "path") {
+      navigateTo(item.href);
+      return;
+    }
+    navigateTo(item.href, {
+      q: item.label,
+      region,
+      type:
+        item.kind === "guild"
+          ? "guild"
+          : item.kind === "alliance"
+            ? "alliance"
+            : item.kind === "recent"
+              ? "query"
+              : "player",
+      path: item.href.startsWith("/search") ? undefined : item.href,
+    });
+  }
+
+  function submitQuery() {
     const trimmed = query.trim();
     if (!trimmed) return;
 
     if (deepLink) {
       navigateTo(deepLink.path);
-      return;
-    }
-
-    if (activeIndex >= 0 && visibleItems[activeIndex]) {
-      const item = visibleItems[activeIndex];
-      if (item.kind === "path") {
-        navigateTo(item.href);
-        return;
-      }
-      navigateTo(item.href, {
-        q: item.kind === "recent" ? trimmed || item.label : item.label,
-        region,
-        type:
-          item.kind === "guild"
-            ? "guild"
-            : item.kind === "alliance"
-              ? "alliance"
-              : item.kind === "recent"
-                ? "query"
-                : "player",
-        path: item.href.startsWith("/search") ? undefined : item.href,
-      });
       return;
     }
 
@@ -324,7 +324,23 @@ export function SearchAutocomplete({
     });
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    submitQuery();
+  }
+
   function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter") {
+      if (
+        highlightFromKeyboardRef.current &&
+        activeIndex >= 0 &&
+        visibleItems[activeIndex]
+      ) {
+        e.preventDefault();
+        goToSuggestion(visibleItems[activeIndex]);
+      }
+      return;
+    }
     if (!open && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
       setOpen(true);
       return;
@@ -332,13 +348,16 @@ export function SearchAutocomplete({
     if (e.key === "Escape") {
       setOpen(false);
       setActiveIndex(-1);
+      highlightFromKeyboardRef.current = false;
       return;
     }
     if (e.key === "ArrowDown") {
       e.preventDefault();
+      highlightFromKeyboardRef.current = true;
       setActiveIndex((i) => Math.min(i + 1, visibleItems.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
+      highlightFromKeyboardRef.current = true;
       setActiveIndex((i) => Math.max(i - 1, -1));
     }
   }
@@ -352,7 +371,13 @@ export function SearchAutocomplete({
             compact && "sm:max-w-none"
           )}
         >
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            className={cn(
+              "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground",
+              !showSubmitButton && "hidden sm:block"
+            )}
+            aria-hidden
+          />
           <Input
             placeholder={resolvedPlaceholder}
             value={query}
@@ -360,10 +385,13 @@ export function SearchAutocomplete({
               setQuery(e.target.value);
               setOpen(true);
               setActiveIndex(-1);
+              highlightFromKeyboardRef.current = false;
             }}
             onFocus={() => setOpen(true)}
             onKeyDown={onKeyDown}
-            className="pl-9"
+            className={
+              showSubmitButton ? "pl-9" : "pr-10 sm:pl-9 sm:pr-24"
+            }
             name="q"
             autoFocus={autoFocus}
             aria-label={tCommon("a11y.searchPlayersOrGuilds")}
@@ -372,6 +400,17 @@ export function SearchAutocomplete({
             aria-expanded={open}
             role="combobox"
           />
+          {!showSubmitButton && (
+            <Button
+              type="submit"
+              size="sm"
+              className="absolute right-1 top-1/2 -translate-y-1/2 px-2 sm:px-3"
+              aria-label={tCommon("buttons.search")}
+            >
+              <Search className="h-4 w-4 sm:hidden" aria-hidden />
+              <span className="hidden sm:inline">{tCommon("buttons.search")}</span>
+            </Button>
+          )}
         </div>
         {showSubmitButton && (
           <>
@@ -423,29 +462,11 @@ export function SearchAutocomplete({
                 "flex w-full min-w-0 items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent/50",
                 index === activeIndex && "bg-accent/50"
               )}
-              onMouseEnter={() => setActiveIndex(index)}
-              onClick={() =>
-                navigateTo(
-                  item.href,
-                  item.kind === "path"
-                    ? undefined
-                    : {
-                        q: item.label,
-                        region,
-                        type:
-                          item.kind === "guild"
-                            ? "guild"
-                            : item.kind === "alliance"
-                              ? "alliance"
-                              : item.kind === "recent"
-                                ? "query"
-                                : "player",
-                        path: item.href.startsWith("/search")
-                          ? undefined
-                          : item.href,
-                      }
-                )
-              }
+              onMouseEnter={() => {
+                highlightFromKeyboardRef.current = false;
+                setActiveIndex(index);
+              }}
+              onClick={() => goToSuggestion(item)}
             >
               {item.badge === "Recent" ? (
                 <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -463,11 +484,13 @@ export function SearchAutocomplete({
                   {item.meta}
                 </span>
               )}
-              {item.badge && item.badge !== "Recent" && (
+              {item.badge === "Cached" ? (
+                <CachedSourceIcon label={badgeLabel("Cached")} />
+              ) : item.badge && item.badge !== "Recent" ? (
                 <Badge variant={item.badge === "Live" ? "default" : "outline"}>
                   {badgeLabel(item.badge)}
                 </Badge>
-              )}
+              ) : null}
             </button>
           ))}
         </div>
