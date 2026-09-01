@@ -7,10 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
+import { BattleListPagination } from "@/components/BattleListPagination";
 import { MediaPlatformIcon } from "@/components/media/MediaPlatformIcon";
+import { Link } from "@/i18n/navigation";
 import { ENABLED_REGIONS, type AlbionRegion } from "@/lib/albion/types";
+import {
+  twitchChannelUrl,
+  youtubeChannelUrl,
+  type MediaPlatform,
+} from "@/lib/media/urls";
+import { guildPath, playerPath } from "@/lib/seo";
 import { regionLabel } from "@/lib/utils";
-import type { MediaPlatform } from "@/lib/media/urls";
+
+const PLAYER_LINKS_PAGE_SIZE = 10;
 
 type ResolvedChannel = {
   platform: MediaPlatform;
@@ -61,6 +70,12 @@ function platformLabel(platform: MediaPlatform): string {
   return platform === "twitch" ? "Twitch" : "YouTube";
 }
 
+function channelHref(platform: MediaPlatform, login: string, channelId: string): string {
+  return platform === "twitch"
+    ? twitchChannelUrl(login)
+    : youtubeChannelUrl(channelId);
+}
+
 function groupByEntity<T extends { platform: MediaPlatform }>(
   rows: T[],
   entityKey: (row: T) => string
@@ -101,6 +116,7 @@ export function AdminMediaPanel() {
   const [platform, setPlatform] = useState<MediaPlatform>("twitch");
   const [channelQuery, setChannelQuery] = useState("");
   const [preview, setPreview] = useState<ResolvedChannel | null>(null);
+  const [playerPage, setPlayerPage] = useState(1);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/admin/media", { cache: "no-store" });
@@ -202,6 +218,7 @@ export function AdminMediaPanel() {
       }
       setChannelQuery("");
       setPreview(null);
+      setPlayerPage(1);
       await load();
     } catch {
       setError("Attach failed.");
@@ -237,6 +254,19 @@ export function AdminMediaPanel() {
     guilds,
     (pin) => `${pin.region}:${pin.guildAlbionId}`
   );
+  const playerTotalPages = Math.max(
+    1,
+    Math.ceil(playerGroups.length / PLAYER_LINKS_PAGE_SIZE)
+  );
+  const safePlayerPage = Math.min(playerPage, playerTotalPages);
+  const pagedPlayerGroups = playerGroups.slice(
+    (safePlayerPage - 1) * PLAYER_LINKS_PAGE_SIZE,
+    safePlayerPage * PLAYER_LINKS_PAGE_SIZE
+  );
+
+  useEffect(() => {
+    if (playerPage > playerTotalPages) setPlayerPage(playerTotalPages);
+  }, [playerPage, playerTotalPages]);
 
   return (
     <div className="space-y-6">
@@ -407,8 +437,9 @@ export function AdminMediaPanel() {
           {playerGroups.length === 0 ? (
             <p className="text-sm text-muted-foreground">No player channels yet.</p>
           ) : (
+            <>
             <ul className="divide-y divide-border/60">
-              {playerGroups.map((group) => {
+              {pagedPlayerGroups.map((group) => {
                 const first = group[0];
                 return (
                   <li
@@ -416,7 +447,14 @@ export function AdminMediaPanel() {
                     className="space-y-2 py-2.5"
                   >
                     <p className="truncate text-sm font-medium">
-                      {first.playerName}{" "}
+                      <Link
+                        href={playerPath(first.region, first.playerName)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary hover:underline"
+                      >
+                        {first.playerName}
+                      </Link>{" "}
                       <span className="text-muted-foreground">
                         · {regionLabel(first.region)}
                       </span>
@@ -426,15 +464,24 @@ export function AdminMediaPanel() {
                         <li key={link.id} className="min-w-0">
                           <Card variant="muted">
                             <CardContent className="flex flex-wrap items-center justify-between gap-3 py-2.5">
-                              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                              <a
+                                href={channelHref(
+                                  link.platform,
+                                  link.login,
+                                  link.channelId
+                                )}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex min-w-0 flex-wrap items-center gap-2 hover:text-primary"
+                              >
                                 <MediaPlatformIcon
                                   platform={link.platform}
                                   label={platformLabel(link.platform)}
                                 />
-                                <p className="min-w-0 truncate text-sm text-muted-foreground">
+                                <p className="min-w-0 truncate text-sm text-muted-foreground hover:underline">
                                   {link.displayName} ({link.login})
                                 </p>
-                              </div>
+                              </a>
                               <Button
                                 type="button"
                                 size="sm"
@@ -454,6 +501,14 @@ export function AdminMediaPanel() {
                 );
               })}
             </ul>
+            <BattleListPagination
+              page={safePlayerPage}
+              totalPages={playerTotalPages}
+              totalItems={playerGroups.length}
+              pageSize={PLAYER_LINKS_PAGE_SIZE}
+              onPageChange={setPlayerPage}
+            />
+            </>
           )}
         </CardContent>
       </Card>
@@ -477,7 +532,14 @@ export function AdminMediaPanel() {
                     className="space-y-2 py-2.5"
                   >
                     <p className="truncate text-sm font-medium">
-                      {first.guildName}{" "}
+                      <Link
+                        href={guildPath(first.region, first.guildName)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary hover:underline"
+                      >
+                        {first.guildName}
+                      </Link>{" "}
                       <span className="text-muted-foreground">
                         · {regionLabel(first.region)}
                       </span>
@@ -487,15 +549,24 @@ export function AdminMediaPanel() {
                         <li key={pin.id} className="min-w-0">
                           <Card variant="muted">
                             <CardContent className="flex flex-wrap items-center justify-between gap-3 py-2.5">
-                              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                              <a
+                                href={channelHref(
+                                  pin.platform,
+                                  pin.login,
+                                  pin.channelId
+                                )}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex min-w-0 flex-wrap items-center gap-2 hover:text-primary"
+                              >
                                 <MediaPlatformIcon
                                   platform={pin.platform}
                                   label={platformLabel(pin.platform)}
                                 />
-                                <p className="min-w-0 truncate text-sm text-muted-foreground">
+                                <p className="min-w-0 truncate text-sm text-muted-foreground hover:underline">
                                   {pin.displayName} ({pin.login})
                                 </p>
-                              </div>
+                              </a>
                               <Button
                                 type="button"
                                 size="sm"

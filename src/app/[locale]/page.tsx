@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { KillFeedFilters } from "@/components/KillFeedFilters";
+import { HomeAboutSection } from "@/components/home/HomeAboutSection";
 import {
   HomeFeedGrid,
   JuicyKillsFallback,
@@ -127,6 +128,8 @@ export default async function HomePage({ params, searchParams }: HomeProps) {
           <TopFameEarnersSection region={region} />
         </Suspense>
       </HomeFeedGrid>
+
+      <HomeAboutSection region={region} />
     </div>
   );
 }

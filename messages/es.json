@@ -548,7 +548,9 @@
     "errorRecent": "El feed de bajas no está disponible temporalmente.",
     "errorJuicy": "Las bajas jugosas no están disponibles temporalmente.",
     "errorTopKillers": "Los mejores asesinos no están disponibles temporalmente.",
-    "errorTopFame": "Los líderes de fama no están disponibles temporalmente."
+    "errorTopFame": "Los líderes de fama no están disponibles temporalmente.",
+    "aboutTitle": "Sobre {siteName}",
+    "aboutBody": "{siteName} es un rastreador JcJ de Albion Online en vivo para Américas, Europa y Asia. Consulta las <kills>bajas recientes</kills> y el botín de alto valor, busca perfiles de jugadores, gremios y alianzas, y revisa <battles>batallas</battles> con equipo, fama e historial de combates. Las <leaderboards>clasificaciones</leaderboards> ordenan a los mejores asesinos y a quienes más fama obtienen, las <builds>builds meta</builds> muestran las equipaciones más usadas en 1v1, grupo y ZvZ, y un <discord>bot de Discord</discord> puede publicar alertas de bajas y batallas en tu servidor."
   },
   "Player": {
     "kind": "Jugador",

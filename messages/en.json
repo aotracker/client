@@ -548,7 +548,9 @@
     "errorRecent": "Kill feed temporarily unavailable.",
     "errorJuicy": "Juicy kills temporarily unavailable.",
     "errorTopKillers": "Top killers temporarily unavailable.",
-    "errorTopFame": "Top fame earners temporarily unavailable."
+    "errorTopFame": "Top fame earners temporarily unavailable.",
+    "aboutTitle": "About {siteName}",
+    "aboutBody": "{siteName} is a live Albion Online PvP tracker for Americas, Europe, and Asia. Browse <kills>recent kills</kills> and high-value loot, look up player, guild, and alliance profiles, and review <battles>battles</battles> with gear, fame, and fight history. <leaderboards>Leaderboards</leaderboards> rank top killers and fame earners, <builds>meta builds</builds> show the most-used loadouts in 1v1, group, and ZvZ, and a <discord>Discord bot</discord> can post kill and battle alerts to your server."
   },
   "Player": {
     "kind": "Player",
