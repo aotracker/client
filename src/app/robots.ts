@@ -11,19 +11,25 @@ export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl();
 
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: [
-        "/api/",
-        "/admin",
-        "/status",
-        "/health",
-        "/privacy",
-        "/terms",
-        ...KILL_DETAIL_DISALLOW,
-      ],
-    },
+    rules: [
+      {
+        userAgent: "AhrefsBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/admin",
+          "/status",
+          "/health",
+          "/privacy",
+          "/terms",
+          ...KILL_DETAIL_DISALLOW,
+        ],
+      },
+    ],
     sitemap: absoluteUrl("/sitemap.xml"),
     host: siteUrl,
   };
