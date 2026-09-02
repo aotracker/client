@@ -1,6 +1,6 @@
 import { Swords } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
-import { KillCard } from "@/components/KillCard";
+import { KillCardServer } from "@/components/KillCardServer";
 import type { LeaderboardPodiumEntry } from "@/components/leaderboards/leaderboard-rank-styles";
 import { LeaderboardTopThree } from "@/components/leaderboards/LeaderboardTopThree";
 import { LEADERBOARD_PODIUM_COUNT } from "@/components/leaderboards/leaderboard-layout";
@@ -42,7 +42,7 @@ export function LeaderboardKillsList({ kills }: LeaderboardKillsListProps) {
       <LeaderboardTopThree entries={killsToPodium(kills)} />
       <div className="space-y-3">
         {kills.slice(LEADERBOARD_PODIUM_COUNT).map((event, index) => (
-          <KillCard
+          <KillCardServer
             key={`${event.region}-${event.eventId}`}
             event={event}
             compact

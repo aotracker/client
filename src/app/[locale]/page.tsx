@@ -85,6 +85,7 @@ export default async function HomePage({ params, searchParams }: HomeProps) {
   const contentType = parseContentType(search.type);
   const filterRegions = feedRegionFilterOptions();
   const t = await getTranslations("Home");
+  const tCommon = await getTranslations("Common");
   const tSeo = await getTranslations("Seo");
 
   return (
@@ -115,16 +116,49 @@ export default async function HomePage({ params, searchParams }: HomeProps) {
       </Suspense>
 
       <HomeFeedGrid>
-        <Suspense fallback={<RecentKillsFallback />}>
+        <Suspense
+          fallback={
+            <RecentKillsFallback
+              title={t("sections.recentKillsTitle")}
+              description={t("sections.recentKillsDescription")}
+              loadingLabel={tCommon("a11y.loadingRecentKills")}
+              autoUpdatesLabel={t("autoUpdates")}
+            />
+          }
+        >
           <RecentKillsSection region={region} contentType={contentType} />
         </Suspense>
-        <Suspense fallback={<JuicyKillsFallback />}>
+        <Suspense
+          fallback={
+            <JuicyKillsFallback
+              title={t("sections.juicyKillsTitle")}
+              description={t("sections.juicyKillsDescription")}
+              loadingLabel={tCommon("a11y.loadingJuicyKills")}
+            />
+          }
+        >
           <JuicyKillsSection region={region} />
         </Suspense>
-        <Suspense fallback={<TopKillersFallback />}>
+        <Suspense
+          fallback={
+            <TopKillersFallback
+              title={t("sections.topKillersTitle")}
+              description={t("sections.topKillersDescription")}
+              loadingLabel={tCommon("a11y.loadingTopKillers")}
+            />
+          }
+        >
           <TopKillersSection region={region} />
         </Suspense>
-        <Suspense fallback={<TopFameEarnersFallback />}>
+        <Suspense
+          fallback={
+            <TopFameEarnersFallback
+              title={t("sections.topFameTitle")}
+              description={t("sections.topFameDescription")}
+              loadingLabel={tCommon("a11y.loadingTopFameEarners")}
+            />
+          }
+        >
           <TopFameEarnersSection region={region} />
         </Suspense>
       </HomeFeedGrid>

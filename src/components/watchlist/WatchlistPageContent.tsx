@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Inbox, Star, Trash2 } from "lucide-react";
@@ -19,18 +19,35 @@ import { entityHref, type WatchlistEntry } from "@/lib/watchlist";
 import { regionLabel } from "@/lib/utils";
 import { useWatchlist } from "./useWatchlist";
 
-export function WatchlistPageContent() {
+export function WatchlistPageContent({
+  initialEntries,
+  initialActivity,
+  initialLiveIds,
+  initialLiveGuildIds,
+}: {
+  initialEntries?: WatchlistEntry[];
+  initialActivity?: KillCardEvent[];
+  initialLiveIds?: string[];
+  initialLiveGuildIds?: string[];
+}) {
   const t = useTranslations("Watchlist");
   const tCommon = useTranslations("Common");
   const tMedia = useTranslations("Media");
   const { entries, ready, remove } = useWatchlist();
   const searchParams = useSearchParams();
   const juicy = parseJuicyFlag(searchParams.get("juicy") ?? undefined);
-  const [activity, setActivity] = useState<KillCardEvent[]>([]);
-  const [liveIds, setLiveIds] = useState<Set<string>>(new Set());
-  const [liveGuildIds, setLiveGuildIds] = useState<Set<string>>(new Set());
+  const [activity, setActivity] = useState<KillCardEvent[]>(
+    initialActivity ?? []
+  );
+  const [liveIds, setLiveIds] = useState<Set<string>>(
+    () => new Set(initialLiveIds ?? [])
+  );
+  const [liveGuildIds, setLiveGuildIds] = useState<Set<string>>(
+    () => new Set(initialLiveGuildIds ?? [])
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const skipFirstFetch = useRef(Boolean(initialActivity));
 
   const loadActivity = useCallback(async (
     list: WatchlistEntry[],
@@ -104,7 +121,9 @@ export function WatchlistPageContent() {
 
   useEffect(() => {
     if (!ready) return;
-    void loadActivity(entries);
+    const silent = skipFirstFetch.current;
+    skipFirstFetch.current = false;
+    void loadActivity(entries, { silent });
     const id = window.setInterval(() => {
       if (document.visibilityState !== "visible") return;
       void loadActivity(entries, { silent: true });
@@ -112,7 +131,9 @@ export function WatchlistPageContent() {
     return () => window.clearInterval(id);
   }, [ready, entries, loadActivity]);
 
-  if (!ready) {
+  const visibleEntries = ready ? entries : (initialEntries ?? []);
+
+  if (!ready && visibleEntries.length === 0) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -122,7 +143,7 @@ export function WatchlistPageContent() {
     );
   }
 
-  if (entries.length === 0) {
+  if (visibleEntries.length === 0) {
     return (
       <Card>
         <CardContent className="py-8">
@@ -138,10 +159,10 @@ export function WatchlistPageContent() {
     <div className="space-y-6">
       <section>
         <h2 className="mb-3 text-lg font-semibold">
-          {t("pinned", { count: entries.length })}
+          {t("pinned", { count: visibleEntries.length })}
         </h2>
         <ul className="divide-y divide-border/60 overflow-hidden rounded-md border border-border/60 bg-card/40">
-          {entries.map((entry) => (
+          {visibleEntries.map((entry) => (
             <li
               key={`${entry.type}-${entry.region}-${entry.albionId}`}
               className="flex items-center justify-between gap-3 px-3 py-2.5"

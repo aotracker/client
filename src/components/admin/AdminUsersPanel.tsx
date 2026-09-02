@@ -9,7 +9,7 @@ import {
   Star,
   Users,
 } from "lucide-react";
-import { DiscordIcon, GoogleIcon } from "@/components/auth/LoginButtons";
+import { DiscordIcon, GoogleIcon } from "@/components/auth/AuthIcons";
 import { PageHeader } from "@/components/PageSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

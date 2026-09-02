@@ -1,7 +1,7 @@
 import { getGuildTopKillsFromDb } from "@/lib/db/queries";
 import { isSyncStale, HISTORY_SYNC_STALE_MS } from "@/lib/db/sync";
 import type { AlbionRegion } from "@/lib/albion/types";
-import { KillCard } from "@/components/KillCard";
+import { KillCardServer } from "@/components/KillCardServer";
 import { PageSection } from "@/components/PageSection";
 import { Card, CardContent } from "@/components/ui/card";
 import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
@@ -35,7 +35,7 @@ export async function GuildTopKillsSection({
           </Card>
         ) : (
           topKills.map((event) => (
-            <KillCard
+            <KillCardServer
               key={`top-${event.eventId}`}
               event={event}
               compact

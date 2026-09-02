@@ -7,8 +7,20 @@ import { WatchlistPageContent } from "@/components/watchlist/WatchlistPageConten
 import { WatchlistSignInBanner } from "@/components/watchlist/WatchlistSignInBanner";
 import { useWatchlist } from "@/components/watchlist/useWatchlist";
 import { KillCardSkeleton } from "@/components/ui/skeleton";
+import type { KillCardEvent } from "@/lib/albion/player-history";
+import type { WatchlistEntry } from "@/lib/watchlist";
 
-export function WatchlistPageClient() {
+export function WatchlistPageClient({
+  initialEntries,
+  initialActivity,
+  initialLiveIds,
+  initialLiveGuildIds,
+}: {
+  initialEntries?: WatchlistEntry[];
+  initialActivity?: KillCardEvent[];
+  initialLiveIds?: string[];
+  initialLiveGuildIds?: string[];
+}) {
   const t = useTranslations("Watchlist");
   const { signedIn, ready } = useWatchlist();
 
@@ -28,7 +40,12 @@ export function WatchlistPageClient() {
           </div>
         }
       >
-        <WatchlistPageContent />
+        <WatchlistPageContent
+          initialEntries={initialEntries}
+          initialActivity={initialActivity}
+          initialLiveIds={initialLiveIds}
+          initialLiveGuildIds={initialLiveGuildIds}
+        />
       </Suspense>
     </div>
   );

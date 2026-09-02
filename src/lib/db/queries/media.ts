@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { and, desc, eq, gt, inArray, isNotNull, isNull, lte, or } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import type { AlbionRegion } from "@/lib/albion/types";
@@ -99,7 +100,7 @@ export async function listGuildMediaPins(): Promise<GuildMediaPinRow[]> {
   return rows.map(toGuildPin);
 }
 
-export async function getPlayerMediaLinks(
+export const getPlayerMediaLinks = cache(async function getPlayerMediaLinks(
   region: AlbionRegion,
   playerAlbionId: string
 ): Promise<PlayerMediaLinkRow[]> {
@@ -113,7 +114,7 @@ export async function getPlayerMediaLinks(
       )
     );
   return rows.map(toPlayerLink);
-}
+});
 
 export async function getPlayerMediaLinksForPlayers(
   keys: Array<{ region: AlbionRegion; albionId: string }>

@@ -41,7 +41,7 @@ const PlayerAnalyticsDynamic = dynamic(
     import("./PlayerAnalytics").then((mod) => ({
       default: mod.PlayerAnalytics,
     })),
-  { loading: () => <AnalyticsLoading />, ssr: false }
+  { loading: () => <AnalyticsLoading /> }
 );
 
 export function PlayerAnalyticsLazy({ data }: { data: PlayerAnalyticsData }) {

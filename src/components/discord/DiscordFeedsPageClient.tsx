@@ -164,20 +164,32 @@ function PostedAt({ value, neverLabel }: { value: string | null; neverLabel: str
   return <RelativeTime date={date} />;
 }
 
-export function DiscordFeedsPageClient() {
+export function DiscordFeedsPageClient({
+  hasInitialList = false,
+  initialGuilds = [],
+  initialInviteUrl = null,
+  initialListError = null,
+  initialErrorMessage = null,
+}: {
+  hasInitialList?: boolean;
+  initialGuilds?: GuildListItem[];
+  initialInviteUrl?: string | null;
+  initialListError?: "not_linked" | "needs_reauth" | "rate_limited" | "load_error" | null;
+  initialErrorMessage?: string | null;
+}) {
   const t = useTranslations("Discord.feeds");
   const tAuth = useTranslations("Auth");
   const tRegions = useTranslations("Common.regions");
   const tContent = useTranslations("Common.contentTypes");
   const { user, isPending } = useAuthUser();
-  const [guilds, setGuilds] = useState<GuildListItem[]>([]);
-  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  const [guilds, setGuilds] = useState<GuildListItem[]>(initialGuilds);
+  const [inviteUrl, setInviteUrl] = useState<string | null>(initialInviteUrl);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<GuildDetail | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [needsReauth, setNeedsReauth] = useState(false);
-  const [needsDiscord, setNeedsDiscord] = useState(false);
-  const [loadingList, setLoadingList] = useState(true);
+  const [error, setError] = useState<string | null>(initialErrorMessage);
+  const [needsReauth, setNeedsReauth] = useState(initialListError === "needs_reauth");
+  const [needsDiscord, setNeedsDiscord] = useState(initialListError === "not_linked");
+  const [loadingList, setLoadingList] = useState(!hasInitialList);
   const [busy, setBusy] = useState(false);
 
   const [region, setRegion] = useState<AlbionRegion>(ENABLED_REGIONS[0] ?? "americas");
@@ -258,8 +270,9 @@ export function DiscordFeedsPageClient() {
       setLoadingList(false);
       return;
     }
+    if (hasInitialList) return;
     void loadList();
-  }, [isPending, user?.id, loadList]);
+  }, [isPending, user?.id, loadList, hasInitialList]);
 
   useEffect(() => {
     if (!selectedId) {

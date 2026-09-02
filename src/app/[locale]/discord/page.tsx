@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { DiscordIcon } from "@/components/auth/LoginButtons";
+import { DiscordIcon } from "@/components/auth/AuthIcons";
 import { DiscordFeedFiltersBuilder } from "@/components/discord/DiscordFeedFiltersBuilder";
 import { DiscordSlashCommands } from "@/components/discord/DiscordSlashCommands";
 import { PageHeader, PageSection } from "@/components/PageSection";

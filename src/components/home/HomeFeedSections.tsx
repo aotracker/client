@@ -3,7 +3,7 @@ import { Swords } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { InlineAlert } from "@/components/InlineAlert";
-import { KillCard } from "@/components/KillCard";
+import { KillCardServer } from "@/components/KillCardServer";
 import { RecentKillsFeedSection } from "@/components/home/RecentKillsFeedSection";
 import { TopKillersList } from "@/components/TopKillersList";
 import { TopFameList } from "@/components/leaderboards/TopFameList";
@@ -86,7 +86,7 @@ export async function JuicyKillsSection({
       ) : (
         <div className="space-y-2 stagger-children">
           {juicyKills.map((event) => (
-            <KillCard
+            <KillCardServer
               key={`${event.region}-${event.eventId}`}
               event={event}
               compact

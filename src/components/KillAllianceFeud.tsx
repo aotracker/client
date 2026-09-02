@@ -1,5 +1,5 @@
 import { Link } from "@/i18n/navigation";
-import { KillCard } from "@/components/KillCard";
+import { KillCardServer } from "@/components/KillCardServer";
 import { PageSection } from "@/components/PageSection";
 import { buttonClassName } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -81,7 +81,7 @@ export async function KillAllianceFeud({
           </Card>
         ) : (
           feudKills.map((feudEvent) => (
-            <KillCard
+            <KillCardServer
               key={`alliance-feud-${feudEvent.eventId}`}
               event={feudEvent}
               compact

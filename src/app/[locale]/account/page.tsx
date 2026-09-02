@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountPageClient } from "@/components/account/AccountPageClient";
+import { getSession } from "@/lib/auth";
+import { getAccountOverview } from "@/lib/account-overview";
 import { buildPageMetadata, NOINDEX_FOLLOW } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
 
@@ -27,5 +29,13 @@ export default async function AccountPage({ params }: AccountPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <AccountPageClient />;
+  const session = await getSession().catch(() => null);
+  const overview = session?.user ? await getAccountOverview(session) : null;
+
+  return (
+    <AccountPageClient
+      initialMe={overview?.me ?? null}
+      initialSessions={overview?.sessions ?? []}
+    />
+  );
 }

@@ -3,7 +3,7 @@ import {
   getAllianceTopKillsFromDb,
 } from "@/lib/db/queries";
 import type { AlbionRegion } from "@/lib/albion/types";
-import { KillCard } from "@/components/KillCard";
+import { KillCardServer } from "@/components/KillCardServer";
 import { Card, CardContent } from "@/components/ui/card";
 import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
 
@@ -33,7 +33,7 @@ export async function AllianceTopKillsSection({
           </Card>
         ) : (
           topKills.map((event) => (
-            <KillCard
+            <KillCardServer
               key={`${event.region}-${event.eventId}`}
               event={event}
               compact

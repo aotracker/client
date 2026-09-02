@@ -26,7 +26,7 @@ import { LOCALE_DEFINITIONS, type AppLocale } from "@/i18n/locales";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { signOutWithPrefsSnapshot } from "@/lib/auth-prefs";
 import { isSocialLoginVisible } from "@/lib/auth-providers";
-import { useAuthUser, useHydrated } from "@/components/SessionSnapshotProvider";
+import { useAuthUser } from "@/components/SessionSnapshotProvider";
 import { cn } from "@/lib/utils";
 
 const SERVER_CLOCK_PLACEHOLDER = "--:--:--";
@@ -95,8 +95,6 @@ function AccountPanel({
     getClockSnapshot,
     getServerClockSnapshot
   );
-  const [providers, setProviders] = useState<string[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   const name = user?.name ?? tAuth("account");
   const image = user?.image;
@@ -104,35 +102,8 @@ function AccountPanel({
   const watchlistActive = pathname.startsWith("/watchlist");
   const accountActive = pathname.startsWith("/account");
   const onAdminRoute = nextPathname.startsWith("/admin");
-  const sessionIsAdmin = Boolean(user?.isAdmin);
-
-  useEffect(() => {
-    if (!user?.id) {
-      setProviders([]);
-      setIsAdmin(false);
-      return;
-    }
-    setIsAdmin(sessionIsAdmin);
-    let cancelled = false;
-    void fetch("/api/user/me", { cache: "no-store" })
-      .then(async (res) => {
-        if (!res.ok) return;
-        const data = (await res.json()) as {
-          providers?: string[];
-          user?: { isAdmin?: boolean };
-        };
-        if (!cancelled) {
-          setProviders(data.providers ?? []);
-          setIsAdmin(Boolean(data.user?.isAdmin) || sessionIsAdmin);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setProviders([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.id, sessionIsAdmin]);
+  const isAdmin = Boolean(user?.isAdmin);
+  const providers = user?.providers ?? [];
 
   function signedInLabel(): string {
     const hasDiscord = providers.includes("discord");

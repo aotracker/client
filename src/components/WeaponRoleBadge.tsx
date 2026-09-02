@@ -1,5 +1,3 @@
-"use client";
-
 import type { LucideIcon } from "lucide-react";
 import { Heart, Shield, Sparkles, Swords } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

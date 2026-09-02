@@ -41,10 +41,25 @@ export function useAuthUser() {
     useSession();
   const hydrated = useHydrated();
 
+  const fromSession = session?.user
+    ? toPublicAuthUser(session.user)
+    : null;
+  const merged =
+    fromSession && initialUser && fromSession.id === initialUser.id
+      ? {
+          ...fromSession,
+          isAdmin: fromSession.isAdmin || initialUser.isAdmin,
+          providers:
+            fromSession.providers.length > 0
+              ? fromSession.providers
+              : initialUser.providers,
+        }
+      : fromSession;
+
   const user = !hydrated
     ? (initialUser ?? null)
-    : session?.user
-      ? toPublicAuthUser(session.user)
+    : merged
+      ? merged
       : isPending
         ? (initialUser ?? null)
         : null;

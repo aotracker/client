@@ -4,6 +4,7 @@ export type PublicAuthUser = {
   name: string;
   image: string | null;
   isAdmin: boolean;
+  providers: string[];
 };
 
 export function toPublicAuthUser(
@@ -15,7 +16,8 @@ export function toPublicAuthUser(
         isAdmin?: boolean | null;
       }
     | null
-    | undefined
+    | undefined,
+  providers: string[] = []
 ): PublicAuthUser | null {
   if (!user) return null;
   return {
@@ -23,5 +25,6 @@ export function toPublicAuthUser(
     name: user.name,
     image: user.image ?? null,
     isAdmin: Boolean(user.isAdmin),
+    providers,
   };
 }

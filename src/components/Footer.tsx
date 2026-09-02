@@ -1,21 +1,19 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Activity } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
-import { openCookieConsentSettings } from "@/lib/cookie-consent";
+import { CookieSettingsButton } from "@/components/CookieSettingsButton";
 import { ALBION_REF_URL, SITE_NAME } from "@/lib/site";
 import { feedNavHref } from "@/lib/region-params";
 import type { PreferredRegion } from "@/lib/region-preference";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 
-export function Footer({
+export async function Footer({
   preferredRegion = null,
 }: {
   preferredRegion?: PreferredRegion | null;
 }) {
-  const t = useTranslations("Footer");
+  const t = await getTranslations("Footer");
   const year = new Date().getFullYear();
 
   return (
@@ -57,13 +55,7 @@ export function Footer({
           >
             {t("privacyPolicy")}
           </Link>
-          <button
-            type="button"
-            className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            onClick={() => openCookieConsentSettings()}
-          >
-            {t("cookieSettings")}
-          </button>
+          <CookieSettingsButton label={t("cookieSettings")} />
           <Button
             href={ALBION_REF_URL}
             target="_blank"

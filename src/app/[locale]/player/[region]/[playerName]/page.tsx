@@ -31,6 +31,7 @@ import {
 } from "@/components/player/PlayerAssociationsSection";
 import { PlayerProfileNav } from "@/components/player/PlayerProfileNav";
 import { PlayerMediaSection } from "@/components/media/PlayerMediaSection";
+import { getPlayerMediaLinks } from "@/lib/db/queries/media";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { JsonLd, playerJsonLd } from "@/components/JsonLd";
@@ -188,6 +189,8 @@ export default async function PlayerProfilePage({ params }: PageProps) {
   const canonicalPath = entityPath("player", albionRegion, player.name);
   const locale = await getLocale();
   const regionName = await translatedRegionLabel(albionRegion, locale);
+  const mediaLinks = await getPlayerMediaLinks(albionRegion, albionId);
+  const hasMedia = mediaLinks.length > 0;
 
   return (
     <div className="space-y-6">
@@ -223,7 +226,7 @@ export default async function PlayerProfilePage({ params }: PageProps) {
         sharePath={canonicalPath}
       />
 
-      <PlayerProfileNav />
+      <PlayerProfileNav hasMedia={hasMedia} />
 
       <div id="activity" className="scroll-mt-28">
         <Suspense fallback={<PlayerHistoryFallback />}>
@@ -250,11 +253,13 @@ export default async function PlayerProfilePage({ params }: PageProps) {
         </Suspense>
       </div>
 
-      <div id="media" className="scroll-mt-28">
-        <Suspense fallback={null}>
-          <PlayerMediaSection region={albionRegion} playerAlbionId={albionId} />
-        </Suspense>
-      </div>
+      {hasMedia ? (
+        <div id="media" className="scroll-mt-28">
+          <Suspense fallback={null}>
+            <PlayerMediaSection region={albionRegion} playerAlbionId={albionId} />
+          </Suspense>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,3 @@
-"use client";
-
 import { Database } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 

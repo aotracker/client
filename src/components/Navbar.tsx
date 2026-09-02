@@ -17,7 +17,7 @@ import {
   NavbarRegionSelector,
   useActiveFeedRegion,
 } from "@/components/NavbarRegionIndicator";
-import { DiscordIcon } from "@/components/auth/LoginButtons";
+import { DiscordIcon } from "@/components/auth/AuthIcons";
 import { BrandLogo } from "@/components/BrandLogo";
 import { UserMenu } from "@/components/UserMenu";
 import { buttonClassName } from "@/components/ui/button";

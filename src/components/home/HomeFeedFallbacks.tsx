@@ -1,6 +1,3 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import { PageSection } from "@/components/PageSection";
 import { KillCardSkeleton, Skeleton } from "@/components/ui/skeleton";
 
@@ -9,20 +6,18 @@ const HOME_JUICY_LIMIT = 10;
 const HOME_KILLERS_LIMIT = 10;
 const HOME_FAME_LIMIT = 10;
 
-export function JuicyKillsFallback() {
-  const t = useTranslations("Home");
-  const tCommon = useTranslations("Common");
-
+export function JuicyKillsFallback({
+  title,
+  description,
+  loadingLabel,
+}: {
+  title: string;
+  description: string;
+  loadingLabel: string;
+}) {
   return (
-    <PageSection
-      title={t("sections.juicyKillsTitle")}
-      description={t("sections.juicyKillsDescription")}
-    >
-      <div
-        className="space-y-2"
-        aria-busy="true"
-        aria-label={tCommon("a11y.loadingJuicyKills")}
-      >
+    <PageSection title={title} description={description}>
+      <div className="space-y-2" aria-busy="true" aria-label={loadingLabel}>
         {Array.from({ length: HOME_JUICY_LIMIT }).map((_, i) => (
           <KillCardSkeleton key={i} compactSize="default" />
         ))}
@@ -31,19 +26,21 @@ export function JuicyKillsFallback() {
   );
 }
 
-export function TopKillersFallback() {
-  const t = useTranslations("Home");
-  const tCommon = useTranslations("Common");
-
+export function TopKillersFallback({
+  title,
+  description,
+  loadingLabel,
+}: {
+  title: string;
+  description: string;
+  loadingLabel: string;
+}) {
   return (
-    <PageSection
-      title={t("sections.topKillersTitle")}
-      description={t("sections.topKillersDescription")}
-    >
+    <PageSection title={title} description={description}>
       <div
         className="grid grid-cols-1 gap-2.5"
         aria-busy="true"
-        aria-label={tCommon("a11y.loadingTopKillers")}
+        aria-label={loadingLabel}
       >
         {Array.from({ length: HOME_KILLERS_LIMIT }).map((_, i) => (
           <div
@@ -63,19 +60,21 @@ export function TopKillersFallback() {
   );
 }
 
-export function TopFameEarnersFallback() {
-  const t = useTranslations("Home");
-  const tCommon = useTranslations("Common");
-
+export function TopFameEarnersFallback({
+  title,
+  description,
+  loadingLabel,
+}: {
+  title: string;
+  description: string;
+  loadingLabel: string;
+}) {
   return (
-    <PageSection
-      title={t("sections.topFameTitle")}
-      description={t("sections.topFameDescription")}
-    >
+    <PageSection title={title} description={description}>
       <div
         className="grid grid-cols-1 gap-2.5"
         aria-busy="true"
-        aria-label={tCommon("a11y.loadingTopFameEarners")}
+        aria-label={loadingLabel}
       >
         {Array.from({ length: HOME_FAME_LIMIT }).map((_, i) => (
           <div
@@ -95,22 +94,22 @@ export function TopFameEarnersFallback() {
   );
 }
 
-export function RecentKillsFallback() {
-  const t = useTranslations("Home");
-  const tCommon = useTranslations("Common");
-
+export function RecentKillsFallback({
+  title,
+  description,
+  loadingLabel,
+  autoUpdatesLabel,
+}: {
+  title: string;
+  description: string;
+  loadingLabel: string;
+  autoUpdatesLabel: string;
+}) {
   return (
-    <PageSection
-      title={t("sections.recentKillsTitle")}
-      description={t("sections.recentKillsDescription")}
-    >
-      <div
-        className="space-y-3"
-        aria-busy="true"
-        aria-label={tCommon("a11y.loadingRecentKills")}
-      >
+    <PageSection title={title} description={description}>
+      <div className="space-y-3" aria-busy="true" aria-label={loadingLabel}>
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs text-muted-foreground">{t("autoUpdates")}</p>
+          <p className="text-xs text-muted-foreground">{autoUpdatesLabel}</p>
           <Skeleton className="h-8 w-[4.75rem]" />
         </div>
         <div className="space-y-2">

@@ -13,7 +13,7 @@ import { StatusBanner } from "@/components/StatusBanner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider } from "@/components/Toast";
 import { ENABLED_REGIONS } from "@/lib/albion/types";
-import { getSession } from "@/lib/auth";
+import { getLinkedProviders, getSession } from "@/lib/auth";
 import { toPublicAuthUser } from "@/lib/auth-user";
 import { getServerPreferredRegion } from "@/lib/region-preference-server";
 import { SITE_NAME } from "@/lib/site";
@@ -75,7 +75,13 @@ export default async function LocaleLayout({
     getServerPreferredRegion(),
     getSession().catch(() => null),
   ]);
-  const initialUser = toPublicAuthUser(session?.user);
+  const linkedProviders = session?.user
+    ? await getLinkedProviders(session.user.id)
+    : [];
+  const initialUser = toPublicAuthUser(
+    session?.user,
+    linkedProviders.map((row) => row.providerId)
+  );
 
   return (
     <>

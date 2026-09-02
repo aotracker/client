@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import {
@@ -15,10 +15,7 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useAuthUser } from "@/components/SessionSnapshotProvider";
-import {
-  DiscordIcon,
-  GoogleIcon,
-} from "@/components/auth/LoginButtons";
+import { DiscordIcon, GoogleIcon } from "@/components/auth/AuthIcons";
 import { RelativeTime } from "@/components/RelativeTime";
 import { useToast } from "@/components/Toast";
 import { Button, buttonClassName } from "@/components/ui/button";
@@ -64,6 +61,7 @@ type MeResponse = {
     name: string;
     email: string | null;
     image?: string | null;
+    isAdmin?: boolean;
     preferredRegion?: string | null;
   };
   providers: string[];
@@ -110,7 +108,13 @@ function sessionDeviceLabel(
   return parsed.browser ?? parsed.os ?? unknownLabel;
 }
 
-export function AccountPageClient() {
+export function AccountPageClient({
+  initialMe = null,
+  initialSessions = [],
+}: {
+  initialMe?: MeResponse | null;
+  initialSessions?: SessionSummary[];
+}) {
   const t = useTranslations("Account");
   const tAuth = useTranslations("Auth");
   const tNav = useTranslations("Nav");
@@ -118,9 +122,10 @@ export function AccountPageClient() {
   const router = useRouter();
   const { toast } = useToast();
   const { user: authUser, isPending } = useAuthUser();
-  const [me, setMe] = useState<MeResponse | null>(null);
-  const [sessions, setSessions] = useState<SessionSummary[]>([]);
-  const [loadingMe, setLoadingMe] = useState(true);
+  const [me, setMe] = useState<MeResponse | null>(initialMe);
+  const [sessions, setSessions] = useState<SessionSummary[]>(initialSessions);
+  const [loadingMe, setLoadingMe] = useState(!initialMe);
+  const skipInitialFetch = useRef(Boolean(initialMe));
   const [linkPending, setLinkPending] = useState<SocialAuthProvider | null>(
     null
   );
@@ -165,6 +170,10 @@ export function AccountPageClient() {
       setMe(null);
       setSessions([]);
       setLoadingMe(false);
+      return;
+    }
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
       return;
     }
     void refreshMe();
