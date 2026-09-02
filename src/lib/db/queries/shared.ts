@@ -1,4 +1,4 @@
-import { and, eq, gt, gte, inArray, isNull, or, sql } from "drizzle-orm";
+import { eq, gt, gte, inArray, sql } from "drizzle-orm";
 import type { AlbionRegion, ContentType } from "@/lib/albion/types";
 import { ALL_REGIONS, ENABLED_REGIONS } from "@/lib/albion/types";
 import {
@@ -157,10 +157,20 @@ export async function loadPlayersWithGuildNames(playerIds: string[]) {
   });
 }
 
+function sqlUuidArray(ids: string[]) {
+  return sql`ARRAY[${sql.join(
+    ids.map((id) => sql`${id}::uuid`),
+    sql`, `
+  )}]`;
+}
+
 /**
- * Equipment for sampled participants. Uses kill_items_event_idx, then keeps
- * rows attributed to those participants (new ingest) or killer/victim rows
- * that predate participant_id (legacy).
+ * Equipment for sampled participants.
+ *
+ * Postgres flattens a plain join / LATERAL into a hash join that seq-scans
+ * ~160M `kill_items` rows (~40s). `OFFSET 0` is an optimization fence so the
+ * LATERAL stays correlated; `SET LOCAL` disables hash/merge so the only legal
+ * plan is a nested loop into `kill_items_event_idx`.
  */
 export async function loadAttributedEquipmentItems(
   eventIds: string[],
@@ -168,44 +178,64 @@ export async function loadAttributedEquipmentItems(
 ): Promise<Map<string, KillItemBuildSource[]>> {
   if (eventIds.length === 0) return new Map();
 
-  const attribution =
-    participantIds.length > 0
-      ? or(
-          inArray(schema.killItems.participantId, participantIds),
-          and(
-            isNull(schema.killItems.participantId),
-            inArray(schema.killItems.ownerRole, [...UNIQUE_BUILD_OWNER_ROLES])
-          )
-        )
-      : and(
-          isNull(schema.killItems.participantId),
-          inArray(schema.killItems.ownerRole, [...UNIQUE_BUILD_OWNER_ROLES])
-        );
+  const uniqueEventIds = [...new Set(eventIds)];
+  const uniqueParticipantIds = [
+    ...new Set(participantIds.filter((id) => id.length > 0)),
+  ];
 
-  const rows = await db
-    .select({
-      eventId: schema.killItems.eventId,
-      participantId: schema.killItems.participantId,
-      ownerRole: schema.killItems.ownerRole,
-      category: schema.killItems.category,
-      slot: schema.killItems.slot,
-      itemType: schema.killItems.itemType,
-      quality: schema.killItems.quality,
-    })
-    .from(schema.killItems)
-    .where(
-      and(
-        inArray(schema.killItems.eventId, eventIds),
-        eq(schema.killItems.category, "equipment"),
-        attribution
-      )
-    );
+  const uniqueOwnerRolesSql = sql.join(
+    UNIQUE_BUILD_OWNER_ROLES.map((role) => sql`${role}`),
+    sql`, `
+  );
+  const attribution =
+    uniqueParticipantIds.length > 0
+      ? sql`(inner_ki.participant_id = ANY(${sqlUuidArray(uniqueParticipantIds)}) OR (inner_ki.participant_id IS NULL AND inner_ki.owner_role IN (${uniqueOwnerRolesSql})))`
+      : sql`(inner_ki.participant_id IS NULL AND inner_ki.owner_role IN (${uniqueOwnerRolesSql}))`;
+
+  const result = await db.transaction(async (tx) => {
+    await tx.execute(sql`SET LOCAL enable_hashjoin = off`);
+    await tx.execute(sql`SET LOCAL enable_mergejoin = off`);
+    return tx.execute(sql`
+      SELECT
+        ki.event_id,
+        ki.participant_id,
+        ki.owner_role,
+        ki.category,
+        ki.slot,
+        ki.item_type,
+        ki.quality
+      FROM unnest(${sqlUuidArray(uniqueEventIds)}) AS ev(event_id)
+      CROSS JOIN LATERAL (
+        SELECT
+          inner_ki.event_id,
+          inner_ki.participant_id,
+          inner_ki.owner_role,
+          inner_ki.category,
+          inner_ki.slot,
+          inner_ki.item_type,
+          inner_ki.quality
+        FROM kill_items AS inner_ki
+        WHERE inner_ki.event_id = ev.event_id
+          AND inner_ki.category = 'equipment'
+          AND ${attribution}
+        OFFSET 0
+      ) AS ki
+    `);
+  });
 
   const byEvent = new Map<string, KillItemBuildSource[]>();
-  for (const row of rows) {
-    const list = byEvent.get(row.eventId) ?? [];
-    list.push(row);
-    byEvent.set(row.eventId, list);
+  for (const row of result) {
+    const eventId = String(row.event_id);
+    const list = byEvent.get(eventId) ?? [];
+    list.push({
+      ownerRole: String(row.owner_role),
+      category: String(row.category),
+      slot: (row.slot as string | null) ?? null,
+      itemType: String(row.item_type),
+      quality: (row.quality as number | null) ?? null,
+      participantId: (row.participant_id as string | null) ?? null,
+    });
+    byEvent.set(eventId, list);
   }
   return byEvent;
 }
