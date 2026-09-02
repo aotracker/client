@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { LiveBadge } from "@/components/media/LiveBadge";
 import { TwitchIcon } from "@/components/media/TwitchIcon";
+import { YoutubeIcon } from "@/components/media/YoutubeIcon";
 import { CachedSourceIcon } from "@/components/search/CachedSourceIcon";
 import {
   getLiveStateForChannels,
@@ -209,8 +210,9 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                       <Badge
                         variant="outline"
                         size="sm"
-                        className="border-youtube/40 text-youtube"
+                        className="gap-0.5 border-youtube/40 text-youtube"
                       >
+                        <YoutubeIcon className="size-2.5 shrink-0" />
                         {tMedia("youtube")}
                       </Badge>
                     ) : null}

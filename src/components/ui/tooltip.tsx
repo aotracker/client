@@ -7,7 +7,7 @@ interface TooltipProps {
   content?: string | null;
   children: ReactNode;
   className?: string;
-  side?: "top" | "bottom";
+  side?: "top" | "bottom" | "left" | "right";
   align?: "start" | "center" | "end";
   block?: boolean;
   style?: CSSProperties;
@@ -18,6 +18,24 @@ const ALIGN_CLASS = {
   center: "left-1/2 -translate-x-1/2 text-center",
   end: "right-0 translate-x-0 text-left",
 } as const;
+
+function sideClass(
+  side: NonNullable<TooltipProps["side"]>,
+  align: NonNullable<TooltipProps["align"]>
+): string {
+  if (side === "left") {
+    return "right-[calc(100%+0.375rem)] top-1/2 -translate-y-1/2";
+  }
+  if (side === "right") {
+    return "left-[calc(100%+0.375rem)] top-1/2 -translate-y-1/2";
+  }
+  return cn(
+    ALIGN_CLASS[align],
+    side === "top"
+      ? "bottom-[calc(100%+0.375rem)]"
+      : "top-[calc(100%+0.375rem)]"
+  );
+}
 
 export function Tooltip({
   content,
@@ -49,10 +67,7 @@ export function Tooltip({
           "whitespace-pre-line",
           "opacity-0 transition-opacity duration-150",
           "group-hover/tooltip:opacity-100 group-focus-within/tooltip:opacity-100",
-          ALIGN_CLASS[align],
-          side === "top"
-            ? "bottom-[calc(100%+0.375rem)]"
-            : "top-[calc(100%+0.375rem)]"
+          sideClass(side, align)
         )}
       >
         {content}

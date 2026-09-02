@@ -371,13 +371,12 @@ export function SearchAutocomplete({
             compact && "sm:max-w-none"
           )}
         >
-          <Search
-            className={cn(
-              "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground",
-              !showSubmitButton && "hidden sm:block"
-            )}
-            aria-hidden
-          />
+          {showSubmitButton && (
+            <Search
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+          )}
           <Input
             placeholder={resolvedPlaceholder}
             value={query}
@@ -389,9 +388,7 @@ export function SearchAutocomplete({
             }}
             onFocus={() => setOpen(true)}
             onKeyDown={onKeyDown}
-            className={
-              showSubmitButton ? "pl-9" : "pr-10 sm:pl-9 sm:pr-24"
-            }
+            className={showSubmitButton ? "pl-9" : "pr-10"}
             name="q"
             autoFocus={autoFocus}
             aria-label={tCommon("a11y.searchPlayersOrGuilds")}
@@ -404,11 +401,10 @@ export function SearchAutocomplete({
             <Button
               type="submit"
               size="sm"
-              className="absolute right-1 top-1/2 -translate-y-1/2 px-2 sm:px-3"
+              className="absolute right-1 top-1/2 -translate-y-1/2 px-2"
               aria-label={tCommon("buttons.search")}
             >
-              <Search className="h-4 w-4 sm:hidden" aria-hidden />
-              <span className="hidden sm:inline">{tCommon("buttons.search")}</span>
+              <Search className="h-4 w-4" aria-hidden />
             </Button>
           )}
         </div>
@@ -485,7 +481,10 @@ export function SearchAutocomplete({
                 </span>
               )}
               {item.badge === "Cached" ? (
-                <CachedSourceIcon label={badgeLabel("Cached")} />
+                <CachedSourceIcon
+                  label={badgeLabel("Cached")}
+                  tooltipSide="left"
+                />
               ) : item.badge && item.badge !== "Recent" ? (
                 <Badge variant={item.badge === "Live" ? "default" : "outline"}>
                   {badgeLabel(item.badge)}

@@ -3,7 +3,7 @@ import {
   itemIconIdentifier,
   normalizeItemQuality,
   parseItemType,
-} from "@/lib/item-icon-keys";
+} from "./item-icon-keys";
 
 export {
   ITEM_QUALITY_EXCELLENT,
@@ -11,7 +11,7 @@ export {
   itemIconIdentifier,
   normalizeItemQuality,
   parseItemType,
-} from "@/lib/item-icon-keys";
+} from "./item-icon-keys";
 
 const RENDER_ITEM_BASE = "https://render.albiononline.com/v1/item";
 const RENDER_SPELL_BASE = "https://render.albiononline.com/v1/spell";
