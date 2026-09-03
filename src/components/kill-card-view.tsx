@@ -78,6 +78,8 @@ export interface KillCardViewProps {
   fameVariant?: "kill" | "death";
   /** Leaderboard rank for top-3 highlight styling. */
   rank?: number;
+  /** Live feed: linger highlight after a newly inserted kill. */
+  fresh?: boolean;
 }
 
 function itemDisplayName(item: { itemType: string; displayNames?: Record<string, string> }, locale: string) {
@@ -100,6 +102,7 @@ export const KillCardView = memo(function KillCardView({
   home = false,
   fameVariant,
   rank,
+  fresh = false,
 }: KillCardViewProps) {
   const killHref = `/kill/${event.region}/${event.eventId}`;
   const large = compact && compactSize === "large";
@@ -131,7 +134,7 @@ export const KillCardView = memo(function KillCardView({
   const assistCount = assistCountFromParticipants(event.participantCount);
 
   return (
-    <Card className={cn("transition-colors", borderClass)}>
+    <Card className={cn("transition-colors", borderClass, fresh && "feed-fresh")}>
       <div
         className={cn(
           "flex flex-col",

@@ -13,6 +13,7 @@ import {
   watchlistRefsByType,
 } from "@/lib/kills-feed-params";
 import { useWatchlist } from "@/components/watchlist/useWatchlist";
+import { cn } from "@/lib/utils";
 
 export type KillFeedEvent = {
   eventId: number;
@@ -72,6 +73,69 @@ interface KillFeedListProps {
 
 const POLL_MS = 20_000;
 const MAX_EVENTS = 150;
+/** Keep in sync with `.feed-fresh::after` linger in globals.css */
+const FRESH_LINGER_MS = 4_500;
+/** Keep in sync with `.animate-feed-expand` in globals.css */
+const FEED_EXPAND_MS = 420;
+const FEED_STAGGER_MS = 90;
+const FEED_STAGGER_MAX = 5;
+
+function feedStaggerDelayMs(index: number): number {
+  return Math.min(index, FEED_STAGGER_MAX) * FEED_STAGGER_MS;
+}
+
+function freshStaggerIndexes(
+  events: KillFeedEvent[],
+  ids: Set<string>
+): Map<string, number> {
+  const indexes = new Map<string, number>();
+  let order = 0;
+  for (const event of events) {
+    const key = eventKey(event);
+    if (!ids.has(key)) continue;
+    indexes.set(key, order);
+    order += 1;
+  }
+  return indexes;
+}
+
+function FeedEnterSlot({
+  fresh,
+  staggerIndex,
+  children,
+}: {
+  fresh: boolean;
+  staggerIndex: number;
+  children: ReactNode;
+}) {
+  const [expanding, setExpanding] = useState(fresh);
+  const delayMs = fresh ? feedStaggerDelayMs(staggerIndex) : 0;
+
+  useEffect(() => {
+    if (!expanding) return;
+    const id = window.setTimeout(
+      () => setExpanding(false),
+      FEED_EXPAND_MS + delayMs
+    );
+    return () => window.clearTimeout(id);
+  }, [delayMs, expanding]);
+
+  return (
+    <div
+      className={cn("feed-expand", expanding && "animate-feed-expand")}
+      style={expanding ? { animationDelay: `${delayMs}ms` } : undefined}
+    >
+      <div className="feed-expand-inner">
+        <div
+          className={fresh ? "animate-feed-enter" : undefined}
+          style={fresh ? { animationDelay: `${delayMs}ms` } : undefined}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function eventKey(event: KillFeedEvent): string {
   return `${event.region}-${event.eventId}`;
@@ -113,6 +177,7 @@ export function KillFeedList({
   const [hovering, setHovering] = useState(false);
   const loadingRef = useRef(false);
   const listTopRef = useRef<HTMLDivElement>(null);
+  const freshTimersRef = useRef<Map<string, number>>(new Map());
   const eventsRef = useRef(events);
   const nearTopRef = useRef(nearTop);
   const pausedRef = useRef(paused);
@@ -135,6 +200,37 @@ export function KillFeedList({
   useEffect(() => {
     hoveringRef.current = hovering;
   }, [hovering]);
+
+  useEffect(() => {
+    const timers = freshTimersRef.current;
+    return () => {
+      for (const id of timers.values()) window.clearTimeout(id);
+      timers.clear();
+    };
+  }, []);
+
+  const markFresh = useCallback((keys: string[]) => {
+    if (keys.length === 0) return;
+    setFreshIds((prev) => {
+      const next = new Set(prev);
+      for (const key of keys) next.add(key);
+      return next;
+    });
+    for (const key of keys) {
+      const existing = freshTimersRef.current.get(key);
+      if (existing) window.clearTimeout(existing);
+      const id = window.setTimeout(() => {
+        freshTimersRef.current.delete(key);
+        setFreshIds((prev) => {
+          if (!prev.has(key)) return prev;
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        });
+      }, FRESH_LINGER_MS);
+      freshTimersRef.current.set(key, id);
+    }
+  }, []);
 
   useEffect(() => {
     function onScroll() {
@@ -202,9 +298,7 @@ export function KillFeedList({
         preview || hoveringRef.current || !nearTopRef.current;
 
       if (!shouldBuffer) {
-        const freshKeys = fresh.map(eventKey);
-        setFreshIds(new Set(freshKeys));
-        window.setTimeout(() => setFreshIds(new Set()), 400);
+        markFresh(fresh.map(eventKey));
         setEvents((prev) => {
           const keys = new Set(prev.map(eventKey));
           const merged = [...fresh.filter((e) => !keys.has(eventKey(e))), ...prev];
@@ -227,7 +321,7 @@ export function KillFeedList({
     } catch {
       // soft-fail polls
     }
-  }, [appendFeedParams, maxEvents, onPollAtChange, preview, watchlistReady]);
+  }, [appendFeedParams, markFresh, maxEvents, onPollAtChange, preview, watchlistReady]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -283,9 +377,7 @@ export function KillFeedList({
 
   function revealPending() {
     if (pendingNew.length === 0) return;
-    const freshKeys = pendingNew.map(eventKey);
-    setFreshIds(new Set(freshKeys));
-    window.setTimeout(() => setFreshIds(new Set()), 400);
+    markFresh(pendingNew.map(eventKey));
     setEvents((prev) => {
       const keys = new Set(prev.map(eventKey));
       const merged = [
@@ -337,6 +429,8 @@ export function KillFeedList({
     );
   }
 
+  const staggerByKey = freshStaggerIndexes(events, freshIds);
+
   return (
     <div
       className="space-y-3"
@@ -379,14 +473,13 @@ export function KillFeedList({
         </div>
       </div>
 
-      <div className="space-y-2 stagger-children">
+      <div className="space-y-2">
         {events.map((event) => {
           const key = eventKey(event);
+          const isFresh = freshIds.has(key);
+          const staggerIndex = staggerByKey.get(key) ?? 0;
           return (
-            <div
-              key={key}
-              className={freshIds.has(key) ? "animate-feed-enter" : undefined}
-            >
+            <FeedEnterSlot key={key} fresh={isFresh} staggerIndex={staggerIndex}>
               <KillCard
                 event={{
                   ...event,
@@ -395,8 +488,9 @@ export function KillFeedList({
                 compact={!home}
                 compactSize={compactSize}
                 home={home}
+                fresh={isFresh}
               />
-            </div>
+            </FeedEnterSlot>
           );
         })}
       </div>
