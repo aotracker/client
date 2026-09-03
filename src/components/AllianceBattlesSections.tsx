@@ -6,6 +6,7 @@ import {
 import {
   guildBattleListNeedsRefresh,
   hasBattleKillFame,
+  isMultiMemberGuildBattle,
   unwrapGuildBattleListCache,
 } from "@/lib/albion/battles";
 import type { AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
@@ -55,35 +56,37 @@ function applyAllianceParticipation(
   battles: GuildBattleSummary[],
   known: Map<number, AllianceBattleHydration>
 ): GuildBattleSummary[] {
-  return battles.map((battle) => {
-    const participation = known.get(battle.id);
-    if (!participation) return battle;
-    return {
-      ...battle,
-      guildKillFame:
-        battle.guildKillFame != null && battle.guildKillFame > 0
-          ? battle.guildKillFame
-          : (participation.killFame ?? battle.guildKillFame),
-      guildKills:
-        battle.guildKills != null && battle.guildKills > 0
-          ? battle.guildKills
-          : (participation.kills ?? battle.guildKills),
-      guildDeaths:
-        battle.guildDeaths != null && battle.guildDeaths > 0
-          ? battle.guildDeaths
-          : (participation.deaths ?? battle.guildDeaths),
-      guildMembers:
-        battle.guildMembers > 0 ? battle.guildMembers : participation.members,
-      alliances:
-        battle.alliances && battle.alliances.length > 0
-          ? battle.alliances
-          : participation.alliances,
-      allianceCount:
-        battle.allianceCount && battle.allianceCount > 0
-          ? battle.allianceCount
-          : participation.allianceCount,
-    };
-  });
+  return battles
+    .map((battle) => {
+      const participation = known.get(battle.id);
+      if (!participation) return battle;
+      return {
+        ...battle,
+        guildKillFame:
+          battle.guildKillFame != null && battle.guildKillFame > 0
+            ? battle.guildKillFame
+            : (participation.killFame ?? battle.guildKillFame),
+        guildKills:
+          battle.guildKills != null && battle.guildKills > 0
+            ? battle.guildKills
+            : (participation.kills ?? battle.guildKills),
+        guildDeaths:
+          battle.guildDeaths != null && battle.guildDeaths > 0
+            ? battle.guildDeaths
+            : (participation.deaths ?? battle.guildDeaths),
+        guildMembers:
+          battle.guildMembers > 0 ? battle.guildMembers : participation.members,
+        alliances:
+          battle.alliances && battle.alliances.length > 0
+            ? battle.alliances
+            : participation.alliances,
+        allianceCount:
+          battle.allianceCount && battle.allianceCount > 0
+            ? battle.allianceCount
+            : participation.allianceCount,
+      };
+    })
+    .filter(isMultiMemberGuildBattle);
 }
 
 export async function AllianceBattlesSections({

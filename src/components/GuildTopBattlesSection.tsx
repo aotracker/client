@@ -2,6 +2,7 @@ import { getGuildByAlbionId } from "@/lib/db/queries";
 import {
   guildBattleListNeedsRefresh,
   hasBattleKillFame,
+  isMultiMemberGuildBattle,
   unwrapGuildBattleListCache,
 } from "@/lib/albion/battles";
 import type { AlbionRegion, GuildBattleSummary } from "@/lib/albion/types";
@@ -37,7 +38,8 @@ function parseBattles(payload: unknown): GuildBattleSummary[] {
       guildKillFame: item.guildKillFame ?? null,
       guildKills: item.guildKills ?? null,
       guildDeaths: item.guildDeaths ?? null,
-    }));
+    }))
+    .filter(isMultiMemberGuildBattle);
 }
 
 /** Recent + Top Battles from DB cache; background worker refreshes stale data. */

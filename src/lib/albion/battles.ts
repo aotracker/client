@@ -63,15 +63,38 @@ function sumListedPlayers(
   );
 }
 
+function listedGuildPlayers(
+  guilds: AlbionBattle["guilds"],
+  guildId: string
+): number {
+  if (!guilds) return 0;
+  const entry = guilds[guildId] ?? Object.values(guilds).find((g) => g.id === guildId);
+  return typeof entry?.players === "number" && entry.players > 0 ? entry.players : 0;
+}
+
+/** Players from this guild in the fight. Prefer the player list; fall back to guild stats. */
+export function countGuildMembersInBattle(
+  battle: Pick<AlbionBattle, "players" | "guilds">,
+  guildId: string
+): number {
+  const fromPlayers = battle.players
+    ? Object.values(battle.players).filter((player) => player.guildId === guildId)
+        .length
+    : 0;
+  if (fromPlayers > 0) return fromPlayers;
+  return listedGuildPlayers(battle.guilds, guildId);
+}
+
 export function toGuildBattleSummary(
   battle: AlbionBattle,
   guildId: string
 ): GuildBattleSummary {
-  const players = battle.players;
-  const guildMembers = players
-    ? Object.values(players).filter((player) => player.guildId === guildId).length
-    : 0;
-  const guildEntry = battle.guilds?.[guildId];
+  const guildMembers = countGuildMembersInBattle(battle, guildId);
+  const guildEntry =
+    battle.guilds?.[guildId] ??
+    (battle.guilds
+      ? Object.values(battle.guilds).find((g) => g.id === guildId)
+      : undefined);
   const guildPreview = battleGuildPreview(battle);
 
   return {
@@ -186,7 +209,7 @@ export function hasBattleKillFame(
   return (battle.totalFame ?? 0) > 0;
 }
 
-/** Recent guild battles need more than one member from the guild. */
+/** Guild/alliance profile lists need more than one member from that entity. */
 export function isMultiMemberGuildBattle(
   battle: Pick<GuildBattleSummary, "guildMembers">
 ): boolean {
