@@ -30,13 +30,13 @@ export function CookieConsentBanner() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] p-4"
+      className="pointer-events-none fixed bottom-0 left-0 z-[90] w-full max-w-md p-4"
       role="region"
       aria-labelledby="cookie-consent-title"
       aria-describedby="cookie-consent-body"
     >
-      <Card className="pointer-events-auto mx-auto max-w-6xl animate-slide-up p-4 shadow-lg">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <Card className="pointer-events-auto animate-slide-up p-4 shadow-lg">
+        <div className="flex flex-col gap-3">
           <div className="min-w-0 space-y-1">
             <h2
               id="cookie-consent-title"
@@ -60,7 +60,7 @@ export function CookieConsentBanner() {
               })}
             </p>
           </div>
-          <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex gap-2">
             <Button
               type="button"
               variant="outline"
