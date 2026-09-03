@@ -622,6 +622,9 @@
     "guildSectionTitle": "Medios",
     "guildSectionDescription": "Canales oficiales y miembros en directo en Twitch.",
     "guildEmpty": "Este gremio aún no tiene streams vinculados.",
+    "allianceSectionTitle": "Medios",
+    "allianceSectionDescription": "Miembros en directo en Twitch.",
+    "allianceEmpty": "Esta alianza aún no tiene streams vinculados.",
     "liveMembers": "Miembros en directo",
     "recentBroadcasts": "Emisiones recientes",
     "recentClips": "Clips recientes de Twitch",
@@ -688,7 +691,8 @@
     "kind": "Alianza",
     "nav": {
       "kills": "Bajas",
-      "battles": "Batallas"
+      "battles": "Batallas",
+      "media": "Medios"
     },
     "memberGuilds": "Gremios miembros ({count})",
     "noGuilds": "No hay gremios en esta alianza",

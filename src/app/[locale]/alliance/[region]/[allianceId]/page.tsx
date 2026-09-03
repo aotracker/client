@@ -27,6 +27,8 @@ import {
   AllianceTopKillsSection,
 } from "@/components/alliance/AllianceTopKillsSection";
 import { AllianceProfileNav } from "@/components/alliance/AllianceProfileNav";
+import { AllianceMediaSection } from "@/components/media/AllianceMediaSection";
+import { allianceHasAttachedMedia } from "@/lib/db/queries/media";
 import { EntityHeaderSkeleton } from "@/components/ui/skeleton";
 import { notFound } from "next/navigation";
 import { formatFame } from "@/lib/utils";
@@ -148,6 +150,7 @@ export default async function AllianceProfilePage({ params }: PageProps) {
     (await getAllianceFameFromMemberGuilds(albionRegion, allianceId)).killFame;
   const locale = await getLocale();
   const regionName = await translatedRegionLabel(albionRegion, locale);
+  const hasMedia = await allianceHasAttachedMedia(albionRegion, allianceId);
 
   return (
     <div className="space-y-6">
@@ -175,7 +178,7 @@ export default async function AllianceProfilePage({ params }: PageProps) {
         />
       </Suspense>
 
-      <AllianceProfileNav />
+      <AllianceProfileNav hasMedia={hasMedia} />
 
       <div id="kills" className="scroll-mt-28">
         <Suspense fallback={<AllianceTopKillsFallback />}>
@@ -194,6 +197,14 @@ export default async function AllianceProfilePage({ params }: PageProps) {
           />
         </Suspense>
       </div>
+
+      {hasMedia ? (
+        <div id="media" className="scroll-mt-28">
+          <Suspense fallback={null}>
+            <AllianceMediaSection region={albionRegion} allianceId={allianceId} />
+          </Suspense>
+        </div>
+      ) : null}
     </div>
   );
 }

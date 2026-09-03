@@ -622,6 +622,9 @@
     "guildSectionTitle": "Media",
     "guildSectionDescription": "Official channels and members currently live on Twitch.",
     "guildEmpty": "No linked streams for this guild yet.",
+    "allianceSectionTitle": "Media",
+    "allianceSectionDescription": "Members currently live on Twitch.",
+    "allianceEmpty": "No linked streams for this alliance yet.",
     "liveMembers": "Members live now",
     "recentBroadcasts": "Recent broadcasts",
     "recentClips": "Recent Twitch Clips",
@@ -688,7 +691,8 @@
     "kind": "Alliance",
     "nav": {
       "kills": "Kills",
-      "battles": "Battles"
+      "battles": "Battles",
+      "media": "Media"
     },
     "memberGuilds": "Member guilds ({count})",
     "noGuilds": "No guilds in this alliance",

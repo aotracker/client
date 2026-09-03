@@ -53,6 +53,7 @@ export function RecentKillsFeedSection({
         contentType={contentType}
         pageSize={pageSize}
         preview
+        home
         onPollAtChange={setLastPollAt}
         onPausedChange={setPaused}
         liveStatus={

@@ -19,7 +19,7 @@ export function JuicyKillsFallback({
     <PageSection title={title} description={description}>
       <div className="space-y-2" aria-busy="true" aria-label={loadingLabel}>
         {Array.from({ length: HOME_JUICY_LIMIT }).map((_, i) => (
-          <KillCardSkeleton key={i} compactSize="default" />
+          <KillCardSkeleton key={i} home />
         ))}
       </div>
     </PageSection>
@@ -114,7 +114,7 @@ export function RecentKillsFallback({
         </div>
         <div className="space-y-2">
           {Array.from({ length: HOME_RECENT_LIMIT }).map((_, i) => (
-            <KillCardSkeleton key={i} compactSize="default" />
+            <KillCardSkeleton key={i} home />
           ))}
         </div>
       </div>

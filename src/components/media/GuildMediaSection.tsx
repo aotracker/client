@@ -10,44 +10,43 @@ import { MediaChannelLinks } from "@/components/media/MediaChannelLinks";
 import { TwitchWatchButton } from "@/components/media/TwitchWatchButton";
 import {
   getGuildMediaPins,
+  listLiveAllianceMembers,
   listLiveGuildMembers,
+  listRecentAllianceMemberSessions,
   listRecentGuildMemberSessions,
   listRecentSessionsForChannels,
+  type GuildMediaPinRow,
+  type GuildMemberSession,
+  type LivePlayerCard,
+  type MediaStreamSessionRow,
 } from "@/lib/db/queries/media";
 import { fetchYoutubeUploads } from "@/lib/youtube";
 import { playerPath } from "@/lib/seo";
 import { twitchChannelUrl, twitchVodUrl } from "@/lib/media/urls";
 import type { AlbionRegion } from "@/lib/albion/types";
 
-export async function GuildMediaSection({
-  region,
-  guildAlbionId,
+type YoutubeUpload = { videoId: string; url: string; title: string };
+
+async function OrgMediaBody({
+  title,
+  description,
+  emptyLabel,
+  pins,
+  liveMembers,
+  sessions,
+  memberVods,
+  uploads,
 }: {
-  region: AlbionRegion;
-  guildAlbionId: string;
+  title: string;
+  description: string;
+  emptyLabel: string;
+  pins: GuildMediaPinRow[];
+  liveMembers: LivePlayerCard[];
+  sessions: MediaStreamSessionRow[];
+  memberVods: GuildMemberSession[];
+  uploads: YoutubeUpload[];
 }) {
   const t = await getTranslations("Media");
-  const [pins, liveMembers, memberSessions] = await Promise.all([
-    getGuildMediaPins(region, guildAlbionId),
-    listLiveGuildMembers(region, guildAlbionId),
-    listRecentGuildMemberSessions(region, guildAlbionId, 8),
-  ]);
-
-  const twitchPin = pins.find((pin) => pin.platform === "twitch");
-  const youtubePin = pins.find((pin) => pin.platform === "youtube");
-  const sessions = twitchPin
-    ? await listRecentSessionsForChannels(
-        [{ platform: "twitch", channelId: twitchPin.channelId }],
-        4
-      )
-    : [];
-  const memberVods = memberSessions.filter(
-    (session) => session.channelId !== twitchPin?.channelId
-  );
-  const uploads = youtubePin
-    ? await fetchYoutubeUploads(youtubePin.channelId, 4)
-    : [];
-
   const empty =
     pins.length === 0 &&
     liveMembers.length === 0 &&
@@ -56,14 +55,14 @@ export async function GuildMediaSection({
     uploads.length === 0;
   if (empty) {
     return (
-      <PageSection title={t("guildSectionTitle")} description={t("guildSectionDescription")}>
-        <EmptyState icon={Radio}>{t("guildEmpty")}</EmptyState>
+      <PageSection title={title} description={description}>
+        <EmptyState icon={Radio}>{emptyLabel}</EmptyState>
       </PageSection>
     );
   }
 
   return (
-    <PageSection title={t("guildSectionTitle")} description={t("guildSectionDescription")}>
+    <PageSection title={title} description={description}>
       <div className="space-y-4">
         {pins.length > 0 ? (
           <div className="flex flex-wrap items-center gap-2">
@@ -175,5 +174,75 @@ export async function GuildMediaSection({
         ) : null}
       </div>
     </PageSection>
+  );
+}
+
+export async function GuildMediaSection({
+  region,
+  guildAlbionId,
+}: {
+  region: AlbionRegion;
+  guildAlbionId: string;
+}) {
+  const t = await getTranslations("Media");
+  const [pins, liveMembers, memberSessions] = await Promise.all([
+    getGuildMediaPins(region, guildAlbionId),
+    listLiveGuildMembers(region, guildAlbionId),
+    listRecentGuildMemberSessions(region, guildAlbionId, 8),
+  ]);
+
+  const twitchPin = pins.find((pin) => pin.platform === "twitch");
+  const youtubePin = pins.find((pin) => pin.platform === "youtube");
+  const sessions = twitchPin
+    ? await listRecentSessionsForChannels(
+        [{ platform: "twitch", channelId: twitchPin.channelId }],
+        4
+      )
+    : [];
+  const memberVods = memberSessions.filter(
+    (session) => session.channelId !== twitchPin?.channelId
+  );
+  const uploads = youtubePin
+    ? await fetchYoutubeUploads(youtubePin.channelId, 4)
+    : [];
+
+  return (
+    <OrgMediaBody
+      title={t("guildSectionTitle")}
+      description={t("guildSectionDescription")}
+      emptyLabel={t("guildEmpty")}
+      pins={pins}
+      liveMembers={liveMembers}
+      sessions={sessions}
+      memberVods={memberVods}
+      uploads={uploads}
+    />
+  );
+}
+
+export async function AllianceMediaSection({
+  region,
+  allianceId,
+}: {
+  region: AlbionRegion;
+  allianceId: string;
+}) {
+  const t = await getTranslations("Media");
+  const [liveMembers, memberVods] = await Promise.all([
+    listLiveAllianceMembers(region, allianceId),
+    listRecentAllianceMemberSessions(region, allianceId, 8),
+  ]);
+
+  return (
+    <OrgMediaBody
+      title={t("allianceSectionTitle")}
+      description={t("allianceSectionDescription")}
+      emptyLabel={t("allianceEmpty")}
+      pins={[]}
+      liveMembers={liveMembers}
+      sessions={[]}
+      memberVods={memberVods}
+      uploads={[]}
+    />
   );
 }

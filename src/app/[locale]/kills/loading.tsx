@@ -23,7 +23,7 @@ export default function KillsLoading() {
         </div>
         <div className="space-y-2">
           {Array.from({ length: 8 }).map((_, i) => (
-            <KillCardSkeleton key={i} compactSize="default" />
+            <KillCardSkeleton key={i} />
           ))}
         </div>
       </div>

@@ -136,7 +136,7 @@ export async function getPlayerMediaLinksForPlayers(
   return rows.map(toPlayerLink);
 }
 
-export async function getGuildMediaPins(
+export const getGuildMediaPins = cache(async function getGuildMediaPins(
   region: AlbionRegion,
   guildAlbionId: string
 ): Promise<GuildMediaPinRow[]> {
@@ -150,7 +150,58 @@ export async function getGuildMediaPins(
       )
     );
   return rows.map(toGuildPin);
-}
+});
+
+export const guildHasAttachedMedia = cache(async function guildHasAttachedMedia(
+  region: AlbionRegion,
+  guildAlbionId: string
+): Promise<boolean> {
+  const pins = await getGuildMediaPins(region, guildAlbionId);
+  if (pins.length > 0) return true;
+
+  const guild = await getGuildByAlbionId(region, guildAlbionId);
+  if (!guild) return false;
+
+  const rows = await db
+    .select({ id: schema.playerMediaLinks.id })
+    .from(schema.playerMediaLinks)
+    .innerJoin(
+      schema.players,
+      and(
+        eq(schema.players.region, schema.playerMediaLinks.region),
+        eq(schema.players.albionId, schema.playerMediaLinks.playerAlbionId),
+        eq(schema.players.guildId, guild.id)
+      )
+    )
+    .limit(1);
+  return rows.length > 0;
+});
+
+export const allianceHasAttachedMedia = cache(async function allianceHasAttachedMedia(
+  region: AlbionRegion,
+  allianceAlbionId: string
+): Promise<boolean> {
+  const rows = await db
+    .select({ id: schema.playerMediaLinks.id })
+    .from(schema.playerMediaLinks)
+    .innerJoin(
+      schema.players,
+      and(
+        eq(schema.players.region, schema.playerMediaLinks.region),
+        eq(schema.players.albionId, schema.playerMediaLinks.playerAlbionId)
+      )
+    )
+    .innerJoin(
+      schema.guilds,
+      and(
+        eq(schema.guilds.id, schema.players.guildId),
+        eq(schema.guilds.region, region),
+        eq(schema.guilds.allianceId, allianceAlbionId)
+      )
+    )
+    .limit(1);
+  return rows.length > 0;
+});
 
 export async function getLiveStateForChannels(
   channels: Array<{ platform: MediaPlatform; channelId: string }>
@@ -289,6 +340,57 @@ export async function listLiveGuildMembers(
   }));
 }
 
+export async function listLiveAllianceMembers(
+  region: AlbionRegion,
+  allianceAlbionId: string
+): Promise<LivePlayerCard[]> {
+  const rows = await db
+    .select({
+      region: schema.playerMediaLinks.region,
+      playerAlbionId: schema.playerMediaLinks.playerAlbionId,
+      playerName: schema.playerMediaLinks.playerName,
+      login: schema.playerMediaLinks.login,
+      displayName: schema.playerMediaLinks.displayName,
+      avatarUrl: schema.playerMediaLinks.avatarUrl,
+      title: schema.mediaLiveState.title,
+      viewerCount: schema.mediaLiveState.viewerCount,
+      startedAt: schema.mediaLiveState.startedAt,
+      thumbnailUrl: schema.mediaLiveState.thumbnailUrl,
+      guildName: schema.guilds.name,
+    })
+    .from(schema.playerMediaLinks)
+    .innerJoin(
+      schema.players,
+      and(
+        eq(schema.players.region, schema.playerMediaLinks.region),
+        eq(schema.players.albionId, schema.playerMediaLinks.playerAlbionId)
+      )
+    )
+    .innerJoin(
+      schema.guilds,
+      and(
+        eq(schema.guilds.id, schema.players.guildId),
+        eq(schema.guilds.region, region),
+        eq(schema.guilds.allianceId, allianceAlbionId)
+      )
+    )
+    .innerJoin(
+      schema.mediaLiveState,
+      and(
+        eq(schema.mediaLiveState.platform, schema.playerMediaLinks.platform),
+        eq(schema.mediaLiveState.channelId, schema.playerMediaLinks.channelId),
+        eq(schema.mediaLiveState.isLive, true)
+      )
+    )
+    .where(eq(schema.playerMediaLinks.platform, "twitch"))
+    .orderBy(desc(schema.mediaLiveState.viewerCount));
+
+  return rows.map((row) => ({
+    ...row,
+    guildName: row.guildName,
+  }));
+}
+
 export type GuildMemberSession = MediaStreamSessionRow & {
   playerName: string;
   login: string;
@@ -336,6 +438,77 @@ export async function listRecentGuildMemberSessions(
         eq(schema.players.region, schema.playerMediaLinks.region),
         eq(schema.players.albionId, schema.playerMediaLinks.playerAlbionId),
         eq(schema.players.guildId, guild.id)
+      )
+    )
+    .where(
+      and(
+        eq(schema.mediaStreamSessions.platform, "twitch"),
+        isNotNull(schema.mediaStreamSessions.vodId)
+      )
+    )
+    .orderBy(desc(schema.mediaStreamSessions.startedAt))
+    .limit(limit);
+
+  return rows.map((row) => ({
+    id: row.id,
+    platform: row.platform as MediaPlatform,
+    channelId: row.channelId,
+    startedAt: row.startedAt,
+    endedAt: row.endedAt,
+    vodId: row.vodId,
+    vodDurationSeconds: row.vodDurationSeconds,
+    title: row.title,
+    playerName: row.playerName,
+    login: row.login,
+  }));
+}
+
+export async function listRecentAllianceMemberSessions(
+  region: AlbionRegion,
+  allianceAlbionId: string,
+  limit = 8
+): Promise<GuildMemberSession[]> {
+  const rows = await db
+    .select({
+      id: schema.mediaStreamSessions.id,
+      platform: schema.mediaStreamSessions.platform,
+      channelId: schema.mediaStreamSessions.channelId,
+      startedAt: schema.mediaStreamSessions.startedAt,
+      endedAt: schema.mediaStreamSessions.endedAt,
+      vodId: schema.mediaStreamSessions.vodId,
+      vodDurationSeconds: schema.mediaStreamSessions.vodDurationSeconds,
+      title: schema.mediaStreamSessions.title,
+      playerName: schema.playerMediaLinks.playerName,
+      login: schema.playerMediaLinks.login,
+    })
+    .from(schema.mediaStreamSessions)
+    .innerJoin(
+      schema.playerMediaLinks,
+      and(
+        eq(
+          schema.playerMediaLinks.platform,
+          schema.mediaStreamSessions.platform
+        ),
+        eq(
+          schema.playerMediaLinks.channelId,
+          schema.mediaStreamSessions.channelId
+        ),
+        eq(schema.playerMediaLinks.region, region)
+      )
+    )
+    .innerJoin(
+      schema.players,
+      and(
+        eq(schema.players.region, schema.playerMediaLinks.region),
+        eq(schema.players.albionId, schema.playerMediaLinks.playerAlbionId)
+      )
+    )
+    .innerJoin(
+      schema.guilds,
+      and(
+        eq(schema.guilds.id, schema.players.guildId),
+        eq(schema.guilds.region, region),
+        eq(schema.guilds.allianceId, allianceAlbionId)
       )
     )
     .where(

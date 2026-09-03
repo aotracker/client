@@ -35,6 +35,7 @@ import {
 } from "@/components/guild/GuildActivitySection";
 import { GuildProfileNav } from "@/components/guild/GuildProfileNav";
 import { GuildMediaSection } from "@/components/media/GuildMediaSection";
+import { guildHasAttachedMedia } from "@/lib/db/queries/media";
 import {
   decodeEntitySegment,
   getEntityResolveJobStateForPending,
@@ -267,6 +268,7 @@ export default async function GuildProfilePage({ params }: PageProps) {
   const canonicalPath = entityPath("guild", albionRegion, header.name);
   const locale = await getLocale();
   const regionName = await translatedRegionLabel(albionRegion, locale);
+  const hasMedia = await guildHasAttachedMedia(albionRegion, albionId);
 
   return (
     <div className="space-y-6">
@@ -285,7 +287,7 @@ export default async function GuildProfilePage({ params }: PageProps) {
 
       <GuildHeader guild={header} sharePath={canonicalPath} />
 
-      <GuildProfileNav />
+      <GuildProfileNav hasMedia={hasMedia} />
 
       <div id="activity" className="scroll-mt-28">
         <Suspense fallback={<GuildActivityFallback />}>
@@ -319,11 +321,13 @@ export default async function GuildProfilePage({ params }: PageProps) {
         </Suspense>
       </div>
 
-      <div id="media" className="scroll-mt-28">
-        <Suspense fallback={null}>
-          <GuildMediaSection region={albionRegion} guildAlbionId={albionId} />
-        </Suspense>
-      </div>
+      {hasMedia ? (
+        <div id="media" className="scroll-mt-28">
+          <Suspense fallback={null}>
+            <GuildMediaSection region={albionRegion} guildAlbionId={albionId} />
+          </Suspense>
+        </div>
+      ) : null}
     </div>
   );
 }

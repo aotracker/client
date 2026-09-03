@@ -36,6 +36,7 @@ export function KillsFeedSection({
       region={region}
       contentType={contentType}
       pageSize={pageSize}
+      compactSize="large"
       minFame={minFame}
       watchlistOnly={watchlistOnly}
       juicy={juicy}

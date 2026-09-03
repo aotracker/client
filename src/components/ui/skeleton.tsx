@@ -28,9 +28,47 @@ export function FilterChipSkeleton({ count = 3 }: { count?: number }) {
 
 export function KillCardSkeleton({
   compactSize = "large",
+  home = false,
 }: {
   compactSize?: "default" | "large";
+  home?: boolean;
 }) {
+  if (home) {
+    return (
+      <Card className="border-border/60">
+        <div className="flex flex-col gap-1.5 p-3">
+          <div className="flex items-start justify-between gap-3 border-b border-border/40 pb-2">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-3.5 w-14" />
+              <Skeleton className="h-3.5 w-12" />
+            </div>
+            <div className="flex flex-col items-end gap-1">
+              <Skeleton className="h-5 w-12 rounded" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </div>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5">
+              <Skeleton className="size-10 shrink-0 rounded" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <Skeleton className="h-3.5 w-24" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+            <Skeleton className="h-3 w-10 shrink-0" />
+            <div className="flex min-w-0 flex-1 items-center gap-1.5">
+              <Skeleton className="size-10 shrink-0 rounded" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <Skeleton className="h-3.5 w-24" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   const large = compactSize === "large";
   const icon = large ? "h-11 w-11 sm:h-16 sm:w-16" : "size-8";
 

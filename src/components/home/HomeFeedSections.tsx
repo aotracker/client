@@ -89,7 +89,7 @@ export async function JuicyKillsSection({
             <KillCardServer
               key={`${event.region}-${event.eventId}`}
               event={event}
-              compact
+              home
             />
           ))}
         </div>

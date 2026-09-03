@@ -72,6 +72,8 @@ export interface KillCardViewProps {
   compact?: boolean;
   /** Slightly larger compact layout for player profile kill/death lists. */
   compactSize?: "default" | "large";
+  /** Home feed layout optimized for half-width columns. */
+  home?: boolean;
   /** Border color for player profile kill/death lists. */
   fameVariant?: "kill" | "death";
   /** Leaderboard rank for top-3 highlight styling. */
@@ -95,11 +97,13 @@ export const KillCardView = memo(function KillCardView({
   locale,
   compact = false,
   compactSize = "default",
+  home = false,
   fameVariant,
   rank,
 }: KillCardViewProps) {
   const killHref = `/kill/${event.region}/${event.eventId}`;
   const large = compact && compactSize === "large";
+  const isHome = home;
   const highValue = isJuicyHighValueKill(event.gearEstSilver, event.lootEstSilver);
 
   const borderClass =
@@ -131,7 +135,13 @@ export const KillCardView = memo(function KillCardView({
       <div
         className={cn(
           "flex flex-col",
-          large ? "gap-3 p-3 sm:p-4" : compact ? "gap-2 p-3" : "gap-3 p-4"
+          large
+            ? "gap-3 p-3 sm:p-4"
+            : isHome
+              ? "gap-1.5 p-3"
+              : compact
+                ? "gap-2 p-3"
+                : "gap-3 p-4"
         )}
       >
         <KillValueStrip
@@ -152,6 +162,7 @@ export const KillCardView = memo(function KillCardView({
           occurredAt={event.occurredAt}
           fameVariant={fameVariant}
           large={large}
+          home={home}
           twitchVodUrl={event.twitchVodUrl}
           vodLabel={copy.vodLabel}
           killDetailsLabel={copy.killDetails}
@@ -165,6 +176,29 @@ export const KillCardView = memo(function KillCardView({
           estLootLabel={copy.estLootValue(formatSilver(event.lootEstSilver))}
         />
 
+        {home ? (
+          <HomeFightRow
+            killer={{
+              name: event.killer?.name ?? copy.unknown,
+              guild: event.killer?.guild,
+              allianceTag: event.killer?.allianceTag,
+              albionId: event.killer?.albionId,
+              itemPower: killerIp,
+              weapon: killerMainHand,
+            }}
+            victim={{
+              name: event.victim?.name ?? copy.unknown,
+              guild: event.victim?.guild,
+              allianceTag: event.victim?.allianceTag,
+              albionId: event.victim?.albionId,
+              itemPower: victimIp,
+              weapon: victimMainHand,
+            }}
+            region={event.region}
+            locale={locale}
+            killedLabel={copy.killed}
+          />
+        ) : (
         <div
           className={cn(
             "flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-start",
@@ -222,6 +256,7 @@ export const KillCardView = memo(function KillCardView({
             copy={copy}
           />
         </div>
+        )}
       </div>
     </Card>
   );
@@ -245,6 +280,7 @@ function KillValueStrip({
   occurredAt,
   fameVariant,
   large,
+  home = false,
   twitchVodUrl,
   vodLabel,
   killDetailsLabel,
@@ -274,6 +310,7 @@ function KillValueStrip({
   occurredAt: Date | string;
   fameVariant?: "kill" | "death";
   large: boolean;
+  home?: boolean;
   twitchVodUrl?: string;
   vodLabel: string;
   killDetailsLabel: string;
@@ -298,11 +335,12 @@ function KillValueStrip({
   const silverTooltip = breakdown
     ? `${estVictimValueLabel}\n${breakdown}`
     : estVictimValueLabel;
+  const isHome = home;
   const statClass = cn(
     "inline-flex items-center gap-1.5 font-bold tabular-nums",
-    large ? "text-base lg:text-lg" : "text-sm"
+    large ? "text-base lg:text-lg" : isHome ? "text-xs" : "text-sm"
   );
-  const statIconClass = large ? "size-5" : "size-4";
+  const statIconClass = large ? "size-5" : isHome ? "size-3.5" : "size-4";
   const showFightMeta = assistCount != null || lootCount > 0;
 
   return (
@@ -623,6 +661,181 @@ function PlayerBlock({
           ) : (
             <p className="truncate text-xs text-muted-foreground">{guild.name}</p>
           ))}
+      </div>
+    </div>
+  );
+}
+
+type HomeFightWeapon = {
+  itemType: string;
+  quality: number | null;
+  displayNames?: Record<string, string>;
+} | null | undefined;
+
+function KillCardNameLine({
+  name,
+  allianceTag,
+  region,
+  albionId,
+  itemPower,
+  isVictim = false,
+  className,
+}: {
+  name: string;
+  allianceTag?: string | null;
+  region: string;
+  albionId?: string;
+  itemPower?: string | null;
+  isVictim?: boolean;
+  className?: string;
+}) {
+  const nameClassName = cn(
+    "font-semibold hover:underline",
+    isVictim ? "text-stat-death" : "text-stat-kill"
+  );
+  const tag = allianceTag?.trim() || null;
+
+  return (
+    <p className={cn("truncate leading-snug", className)}>
+      {tag ? (
+        <span className="font-medium text-muted-foreground">[{tag}] </span>
+      ) : null}
+      {albionId ? (
+        <Link href={playerPath(region, name)} className={nameClassName}>
+          {name}
+        </Link>
+      ) : (
+        <span className={nameClassName}>{name}</span>
+      )}
+      {itemPower ? (
+        <>
+          {" "}
+          <span className="text-xs font-medium leading-none text-stat-ip">
+            (<ItemPowerValue value={itemPower} className="font-medium" />)
+          </span>
+        </>
+      ) : null}
+    </p>
+  );
+}
+
+function KillCardGuildLine({
+  guild,
+  region,
+  className,
+}: {
+  guild?: { name: string; albionId?: string } | null;
+  region: string;
+  className?: string;
+}) {
+  if (!guild?.name) return null;
+
+  return (
+    <p className={cn("truncate text-xs leading-tight text-muted-foreground", className)}>
+      {guild.albionId ? (
+        <Link
+          href={guildPath(region, guild.name)}
+          className="hover:text-primary hover:underline"
+        >
+          {guild.name}
+        </Link>
+      ) : (
+        guild.name
+      )}
+    </p>
+  );
+}
+
+function HomeWeaponIcon({
+  weapon,
+  locale,
+  className,
+}: {
+  weapon: HomeFightWeapon;
+  locale: string;
+  className?: string;
+}) {
+  if (!weapon) return null;
+
+  return (
+    <div className={cn("relative shrink-0 size-10", className)}>
+      <ItemIcon
+        itemType={weapon.itemType}
+        quality={weapon.quality ?? 1}
+        alt="weapon"
+        tooltip={itemDisplayName(weapon, locale)}
+        fill
+      />
+    </div>
+  );
+}
+
+function HomeFightDivider({ label }: { label: string }) {
+  return (
+    <span className="shrink-0 px-0.5 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      {label}
+    </span>
+  );
+}
+
+function HomeFightRow({
+  killer,
+  victim,
+  region,
+  locale,
+  killedLabel,
+}: {
+  killer: {
+    name: string;
+    guild?: { name: string; albionId?: string } | null;
+    allianceTag?: string | null;
+    albionId?: string;
+    itemPower?: string | null;
+    weapon: HomeFightWeapon;
+  };
+  victim: {
+    name: string;
+    guild?: { name: string; albionId?: string } | null;
+    allianceTag?: string | null;
+    albionId?: string;
+    itemPower?: string | null;
+    weapon: HomeFightWeapon;
+  };
+  region: string;
+  locale: string;
+  killedLabel: string;
+}) {
+  return (
+    <div className="flex min-w-0 items-center gap-1.5">
+      <div className="flex min-w-0 flex-1 items-center gap-1.5">
+        <HomeWeaponIcon weapon={killer.weapon} locale={locale} />
+        <div className="min-w-0 flex-1">
+          <KillCardNameLine
+            name={killer.name}
+            allianceTag={killer.allianceTag}
+            region={region}
+            albionId={killer.albionId}
+            itemPower={killer.itemPower}
+            className="text-xs"
+          />
+          <KillCardGuildLine guild={killer.guild} region={region} />
+        </div>
+      </div>
+      <HomeFightDivider label={killedLabel} />
+      <div className="flex min-w-0 flex-1 items-center gap-1.5">
+        <HomeWeaponIcon weapon={victim.weapon} locale={locale} />
+        <div className="min-w-0 flex-1">
+          <KillCardNameLine
+            name={victim.name}
+            allianceTag={victim.allianceTag}
+            region={region}
+            albionId={victim.albionId}
+            itemPower={victim.itemPower}
+            isVictim
+            className="text-xs"
+          />
+          <KillCardGuildLine guild={victim.guild} region={region} />
+        </div>
       </div>
     </div>
   );

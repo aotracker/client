@@ -64,6 +64,10 @@ interface KillFeedListProps {
   onPausedChange?: (paused: boolean) => void;
   /** When set, shown on the left of the pause control (full /kills feed). */
   liveStatus?: ReactNode;
+  /** Larger cards with full killer/victim loadouts (e.g. /kills). Home preview stays default. */
+  compactSize?: "default" | "large";
+  /** Home column layout; mutually exclusive with full compact loadout cards. */
+  home?: boolean;
 }
 
 const POLL_MS = 20_000;
@@ -89,6 +93,8 @@ export function KillFeedList({
   onPollAtChange,
   onPausedChange,
   liveStatus,
+  compactSize = "default",
+  home = false,
 }: KillFeedListProps) {
   const t = useTranslations("Kill.feed");
   const { entries, ready } = useWatchlist();
@@ -386,7 +392,9 @@ export function KillFeedList({
                   ...event,
                   occurredAt: toDate(event.occurredAt),
                 }}
-                compact
+                compact={!home}
+                compactSize={compactSize}
+                home={home}
               />
             </div>
           );
