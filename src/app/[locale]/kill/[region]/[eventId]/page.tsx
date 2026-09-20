@@ -28,7 +28,7 @@ import {
   entityCanonical,
   entityPath,
   guildPath,
-  NOINDEX_FOLLOW,
+  NOINDEX_NOFOLLOW,
   notFoundMetadata,
   playerPath,
 } from "@/lib/seo";
@@ -100,8 +100,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ),
     canonicalPath: path,
     openGraphType: "article",
-    // Shareable, but not a search destination; follow so player/guild links stay crawlable.
-    robots: NOINDEX_FOLLOW,
+    // Shareable, but not a search destination — keep crawl budget off kill details.
+    robots: NOINDEX_NOFOLLOW,
     locale,
   });
 }

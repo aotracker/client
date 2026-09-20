@@ -28,7 +28,7 @@ export const ENTITIES_PER_SITEMAP = 20_000;
 
 export const URLS_PER_SITEMAP = ENTITIES_PER_SITEMAP;
 
-/** Kill details are noindex (crawl budget) and never listed here. */
+/** Kill details are noindex/nofollow (crawl budget) and never listed here. */
 const ENTITY_BUCKETS = [
   "players",
   "guilds",
