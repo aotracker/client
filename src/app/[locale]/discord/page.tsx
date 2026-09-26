@@ -4,9 +4,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { DiscordIcon } from "@/components/auth/AuthIcons";
 import { DiscordFeedFiltersBuilder } from "@/components/discord/DiscordFeedFiltersBuilder";
+import { DiscordSetupSignIn } from "@/components/discord/DiscordSetupSignIn";
 import { DiscordSlashCommands } from "@/components/discord/DiscordSlashCommands";
 import { PageHeader, PageSection } from "@/components/PageSection";
 import { Button, buttonClassName } from "@/components/ui/button";
+import { getLinkedProviders, getSession } from "@/lib/auth";
 import { discordInviteUrl } from "@/lib/discord-invite";
 import { buildPageMetadata } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
@@ -46,6 +48,16 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
   const t = await getTranslations("Discord");
   const clientId = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID?.trim();
   const inviteHref = clientId ? discordInviteUrl(clientId) : null;
+  const session = await getSession().catch(() => null);
+  const providers = session?.user
+    ? await getLinkedProviders(session.user.id).catch(() => [])
+    : [];
+  const hasDiscord = providers.some((row) => row.providerId === "discord");
+  const signInMode = !session?.user
+    ? "sign-in"
+    : hasDiscord
+      ? "open"
+      : "link";
 
   return (
     <div className="space-y-8">
@@ -63,16 +75,20 @@ export default async function DiscordPage({ params }: DiscordPageProps) {
               </h3>
               <p>{t.rich("setupSignInBody", { notificationsLink })}</p>
             </div>
-            <Link
-              href="/account/discord"
-              className={buttonClassName({
-                size: "sm",
-                className: "shrink-0",
-              })}
-            >
-              <DiscordIcon className="h-4 w-4 text-discord" />
-              {t("openNotifications")}
-            </Link>
+            {signInMode === "open" ? (
+              <Link
+                href="/account/discord"
+                className={buttonClassName({
+                  size: "sm",
+                  className: "shrink-0",
+                })}
+              >
+                <DiscordIcon className="h-4 w-4 text-discord" />
+                {t("openNotifications")}
+              </Link>
+            ) : (
+              <DiscordSetupSignIn mode={signInMode} />
+            )}
           </div>
           <div className="space-y-3">
             <div className="space-y-1.5">

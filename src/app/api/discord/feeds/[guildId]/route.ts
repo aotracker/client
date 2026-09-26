@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { jsonError, parseJsonBody } from "@/lib/api-route";
+import { getDiscordAccountId } from "@/lib/auth";
 import { discordInviteUrl } from "@/lib/discord-invite";
 import { requireDiscordManageGuild } from "@/lib/discord-manage-auth";
 import {
@@ -107,12 +108,17 @@ export async function POST(request: Request, context: RouteContext) {
     if (!isAlbionRegion(region) || !albionGuildId) {
       return NextResponse.json({ error: "invalid_guild" }, { status: 400 });
     }
+    const discordUserId = await getDiscordAccountId(access.userId);
+    if (!discordUserId) {
+      return jsonError("not_linked", 403);
+    }
     const result = await trackGuildOnDiscordServer({
       discordGuildId: guildId,
       discordGuildName: access.guild.name,
       region,
       albionGuildId,
       createdByUserId: access.userId,
+      createdByDiscordUserId: discordUserId,
     });
     if (!result.ok) {
       return NextResponse.json({ error: "not_found" }, { status: 400 });

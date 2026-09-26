@@ -197,6 +197,13 @@
       "when": 1788100000000,
       "tag": "0034_kill_is_orange_zone",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1788200000000,
+      "tag": "0035_discord_feed_owner",
+      "breakpoints": true
     }
   ]
 }

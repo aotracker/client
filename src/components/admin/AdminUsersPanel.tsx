@@ -48,6 +48,11 @@ type AdminUser = {
     name: string;
     claimedAt: string | Date;
   }>;
+  trackedGuilds: Array<{
+    name: string;
+    region: string;
+    albionId: string;
+  }>;
   watchlistCount: number;
   recentSearchCount: number;
   lastActiveAt: string | Date | null;
@@ -462,6 +467,29 @@ export function AdminUsersPanel() {
                               No linked providers
                             </span>
                           ) : null}
+                        </div>
+
+                        <div className="space-y-2 rounded-md border border-border/70 bg-muted/10 px-2.5 py-2">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Discord feeds
+                          </p>
+                          {(user.trackedGuilds ?? []).length === 0 ? (
+                            <p className="text-xs text-muted-foreground">None</p>
+                          ) : (
+                            <ul className="space-y-1">
+                              {(user.trackedGuilds ?? []).map((guild) => (
+                                <li
+                                  key={`${guild.region}:${guild.albionId}`}
+                                  className="text-xs text-foreground"
+                                >
+                                  {guild.name}{" "}
+                                  <span className="text-muted-foreground">
+                                    ({regionLabel(guild.region)})
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
 
                         <div className="space-y-2 rounded-md border border-border/70 bg-muted/10 px-2.5 py-2">

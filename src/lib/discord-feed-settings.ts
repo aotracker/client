@@ -125,6 +125,7 @@ async function ensureGuildBattlesFeedFromRows(
       region: source.region,
       targetName: source.targetName,
       createdByUserId: source.createdByUserId,
+      createdByDiscordUserId: source.createdByDiscordUserId,
       createdAt: now,
       updatedAt: now,
     }))
@@ -157,6 +158,7 @@ export async function trackGuildOnDiscordServer(input: {
   region: AlbionRegion;
   albionGuildId: string;
   createdByUserId: string;
+  createdByDiscordUserId: string;
 }): Promise<{ ok: true; replaced: boolean } | { ok: false; error: "not_found" }> {
   const guild = await getGuildByAlbionId(input.region, input.albionGuildId);
   if (!guild) return { ok: false, error: "not_found" };
@@ -197,6 +199,7 @@ export async function trackGuildOnDiscordServer(input: {
       region: input.region,
       targetName: guild.name,
       createdByUserId: input.createdByUserId,
+      createdByDiscordUserId: input.createdByDiscordUserId,
       createdAt: now,
       updatedAt: now,
     },
@@ -208,6 +211,7 @@ export async function trackGuildOnDiscordServer(input: {
       region: input.region,
       targetName: guild.name,
       createdByUserId: input.createdByUserId,
+      createdByDiscordUserId: input.createdByDiscordUserId,
       createdAt: now,
       updatedAt: now,
     },
@@ -219,6 +223,7 @@ export async function trackGuildOnDiscordServer(input: {
       region: input.region,
       targetName: guild.name,
       createdByUserId: input.createdByUserId,
+      createdByDiscordUserId: input.createdByDiscordUserId,
       createdAt: now,
       updatedAt: now,
     },
@@ -230,6 +235,7 @@ export async function trackGuildOnDiscordServer(input: {
       region: input.region,
       targetName: guild.name,
       createdByUserId: input.createdByUserId,
+      createdByDiscordUserId: input.createdByDiscordUserId,
       createdAt: now,
       updatedAt: now,
     },

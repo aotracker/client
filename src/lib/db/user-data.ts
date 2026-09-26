@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt, ne, max, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, isNotNull, ne, max, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import type { AlbionRegion } from "@/lib/albion/types";
 import { isRegionEnabled } from "@/lib/albion/types";
@@ -644,7 +644,7 @@ export async function listUsersForAdmin(options?: {
     .orderBy(desc(schema.user.createdAt))
     .limit(limit);
 
-  const [accounts, watchlistCounts, recentSearchCounts, sessionStats, claims] =
+  const [accounts, watchlistCounts, recentSearchCounts, sessionStats, claims, feedRows] =
     await Promise.all([
       db
         .select({
@@ -693,6 +693,20 @@ export async function listUsersForAdmin(options?: {
           and(
             eq(schema.players.region, schema.userClaimedCharacters.region),
             eq(schema.players.albionId, schema.userClaimedCharacters.albionId)
+          )
+        ),
+      db
+        .select({
+          userId: schema.discordFeeds.createdByUserId,
+          name: schema.discordFeeds.targetName,
+          region: schema.discordFeeds.region,
+          albionId: schema.discordFeeds.targetAlbionId,
+        })
+        .from(schema.discordFeeds)
+        .where(
+          and(
+            eq(schema.discordFeeds.enabled, 1),
+            isNotNull(schema.discordFeeds.createdByUserId)
           )
         ),
     ]);
@@ -747,6 +761,27 @@ export async function listUsersForAdmin(options?: {
     });
     claimsByUser.set(claim.userId, list);
   }
+  const feedsByUser = new Map<
+    string,
+    Array<{ name: string; region: string; albionId: string }>
+  >();
+  for (const feed of feedRows) {
+    if (!feed.userId) continue;
+    const list = feedsByUser.get(feed.userId) ?? [];
+    if (
+      list.some(
+        (row) => row.albionId === feed.albionId && row.region === feed.region
+      )
+    ) {
+      continue;
+    }
+    list.push({
+      name: feed.name ?? feed.albionId,
+      region: feed.region,
+      albionId: feed.albionId,
+    });
+    feedsByUser.set(feed.userId, list);
+  }
 
   const filtered = q
     ? users.filter((u) => {
@@ -785,6 +820,7 @@ export async function listUsersForAdmin(options?: {
       ...user,
       providers: providersByUser.get(user.id) ?? [],
       claims: claimsByUser.get(user.id) ?? [],
+      trackedGuilds: feedsByUser.get(user.id) ?? [],
       watchlistCount: watchlistByUser.get(user.id) ?? 0,
       recentSearchCount: recentSearchesByUser.get(user.id) ?? 0,
       lastActiveAt: session?.lastActiveAt ?? null,

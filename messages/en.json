@@ -105,11 +105,11 @@
     "setupTrackTitle": "3. Track a guild and set notifications",
     "setupTrackBody": "Search a guild already on AOTracker. Set kills, deaths, and battle channels, then filters and an optional ping role. New fights post automatically; older ones are not backfilled.",
     "commandsTitle": "Slash commands",
-    "commandsIntro": "You can do the same setup in Discord. Type / and fill in the options. Anyone can run lookup commands. Only Manage Server can change tracking, channels, filters, or ping roles.",
+    "commandsIntro": "You can do the same setup in Discord. Type / and fill in the options. Anyone can run lookup commands. /track requires a Discord sign-in on AOTracker plus Manage Server. Channel, filter, and /untrack commands stay Manage Server only.",
     "commandGroups": {
       "tracking": {
         "title": "Tracking",
-        "description": "Bind a guild and set kill, death, battle, and live channels. Manage Server required."
+        "description": "/track requires a Discord sign-in on AOTracker plus Manage Server. Channel commands and /untrack need Manage Server only."
       },
       "notifications": {
         "title": "Notifications",
@@ -126,7 +126,7 @@
       "track": {
         "usage": "/track region:Americas|Europe|Asia guild:GuildName",
         "summary": "Bind one Albion guild to this Discord server. Replaces a previous /track.",
-        "detail": "Pick the region first, then start typing the guild name and select it from autocomplete. The guild must already appear on AOTracker. This creates kills, deaths, and battle notifications; channels are still unset until you run the channel commands.",
+        "detail": "Pick the region first, then start typing the guild name and select it from autocomplete. The guild must already appear on AOTracker. This command refuses until this Discord user has signed in at /account/discord. It creates kills, deaths, and battle notifications; channels are still unset until you run the channel commands.",
         "example": "/track region:Americas guild:Elevate"
       },
       "killsChannel": {
@@ -221,7 +221,7 @@
     },
     "postsTitle": "What each post includes",
     "postsBody": "Each qualifying kill or death is one Discord message: a snapshot image with killer and victim gear, inventory, item power, kill fame, and estimated silver, plus link buttons for the killer, victim, and the full kill page on {siteName}. Zero-fame events are skipped. Large battles post one recap image after the fight settles, with a link to the battle page.",
-    "note": "Anyone can follow any Albion guild. You need Manage Server to configure the bot.",
+    "note": "Tracking a guild requires a Discord sign-in on AOTracker and Manage Server on that Discord server.",
     "feeds": {
       "title": "Discord Notifications",
       "metaDescription": "Configure {siteName} Discord notifications for servers where you have Manage Server.",
@@ -1086,7 +1086,7 @@
       "thirdPartyTitle": "Third-party links",
       "thirdPartyBody": "Links to Albion Online, Discord, Google, or other external sites are provided for convenience. Their privacy practices are governed by their own policies. Sign-in with Discord or Google is also subject to those providers’ terms and privacy policies.",
       "discordBotTitle": "Discord bot",
-      "discordBotBody": "If a Discord server administrator adds our bot and configures kill or death feeds, we store the Discord server ID, channel IDs, the tracked Albion guild, optional feed filters, and optionally the Discord user ID of whoever ran the setup command. We use this only to post notifications containing publicly available game data. We do not read general message content from your Discord server. Bot setup is separate from signing in to a site account.",
+      "discordBotBody": "If a Discord server administrator adds our bot and configures kill or death feeds, we store the Discord server ID, channel IDs, the tracked Albion guild, optional feed filters, and the site user who set it up, along with that person's Discord user ID. We use this only to post notifications containing publicly available game data. We do not read general message content from your Discord server.",
       "contactTitle": "Contact",
       "contactBody": "If you have questions about this privacy policy or want to request changes regarding your data, use <accountLink>Account settings</accountLink> when signed in, or visit our <contactLink>contact page</contactLink> for ways to reach us, including our Discord community."
     },
