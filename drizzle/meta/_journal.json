@@ -204,6 +204,13 @@
       "when": 1788200000000,
       "tag": "0035_discord_feed_owner",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1788300000000,
+      "tag": "0036_drop_kill_item_spells",
+      "breakpoints": true
     }
   ]
 }
