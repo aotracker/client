@@ -7,6 +7,14 @@ const KILL_DETAIL_DISALLOW = LOCALE_DEFINITIONS.map((def) =>
   withLocalePrefix(def.code, "/kill/")
 );
 
+const FEUD_DISALLOW = LOCALE_DEFINITIONS.map((def) =>
+  withLocalePrefix(def.code, "/feud/")
+);
+
+const ALLIANCE_FEUD_DISALLOW = LOCALE_DEFINITIONS.map((def) =>
+  withLocalePrefix(def.code, "/alliance-feud/")
+);
+
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl();
 
@@ -27,6 +35,8 @@ export default function robots(): MetadataRoute.Robots {
           "/privacy",
           "/terms",
           ...KILL_DETAIL_DISALLOW,
+          ...FEUD_DISALLOW,
+          ...ALLIANCE_FEUD_DISALLOW,
         ],
       },
     ],

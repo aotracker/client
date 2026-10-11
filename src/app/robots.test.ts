@@ -16,6 +16,22 @@ describe("robots", () => {
     expect(disallow).not.toContain("/es/kills");
   });
 
+  it("blocks feud pages in every locale", () => {
+    const wildcard = ruleList(robots()).find((rule) => rule.userAgent === "*");
+    const disallow = wildcard?.disallow;
+
+    expect(disallow).toEqual(expect.arrayContaining(["/feud/", "/es/feud/"]));
+  });
+
+  it("blocks alliance feud pages in every locale", () => {
+    const wildcard = ruleList(robots()).find((rule) => rule.userAgent === "*");
+    const disallow = wildcard?.disallow;
+
+    expect(disallow).toEqual(
+      expect.arrayContaining(["/alliance-feud/", "/es/alliance-feud/"])
+    );
+  });
+
   it("blocks AhrefsBot from the entire site", () => {
     const ahrefs = ruleList(robots()).find(
       (rule) => rule.userAgent === "AhrefsBot"
