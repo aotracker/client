@@ -37,6 +37,15 @@ function authHeaders(): HeadersInit {
   return headers;
 }
 
+const INGEST_FETCH_TIMEOUT_MS = 10_000;
+
+function ingestFetchSignal(): AbortSignal | undefined {
+  if (typeof AbortSignal.timeout === "function") {
+    return AbortSignal.timeout(INGEST_FETCH_TIMEOUT_MS);
+  }
+  return undefined;
+}
+
 async function postJson<T = { ok: boolean }>(
   path: string,
   body: Record<string, unknown>
@@ -53,6 +62,7 @@ async function postJson<T = { ok: boolean }>(
       headers: authHeaders(),
       body: JSON.stringify(body),
       cache: "no-store",
+      signal: ingestFetchSignal(),
     });
     if (!res.ok) {
       console.warn(`[ingest-api] POST ${path} failed: ${res.status}`);
@@ -77,6 +87,7 @@ async function getJson<T>(path: string): Promise<T | null> {
       method: "GET",
       headers: authHeaders(),
       cache: "no-store",
+      signal: ingestFetchSignal(),
     });
     if (!res.ok) {
       console.warn(`[ingest-api] GET ${path} failed: ${res.status}`);

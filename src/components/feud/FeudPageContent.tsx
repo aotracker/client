@@ -1,22 +1,10 @@
 import type { ReactNode } from "react";
 import type { AlbionRegion } from "@/lib/albion/types";
 import {
-  getAllianceFeudContentMix,
-  getAllianceFeudGuildPairs,
-  getAllianceFeudKillsPage,
-  getAllianceFeudPageStats,
-  getAllianceFeudTopKills,
-  getAllianceFeudTopPlayers,
-  getGuildFeudContentMix,
-  getGuildFeudKillsPage,
-  getGuildFeudPageStats,
-  getGuildFeudTopKills,
-  getGuildFeudTopPlayers,
-} from "@/lib/db/queries";
-import {
-  FEUD_KILLS_PAGE_SIZE,
-  type FeudDaysFilter,
-} from "@/lib/feud/params";
+  getCachedAllianceFeudBundle,
+  getCachedGuildFeudBundle,
+} from "@/lib/feud/cached-feud-data";
+import type { FeudDaysFilter } from "@/lib/feud/params";
 import { FeudScoreboard } from "@/components/feud/FeudScoreboard";
 import { FeudTopPlayersSection } from "@/components/feud/FeudTopPlayersSection";
 import { FeudKillsTabs } from "@/components/feud/FeudKillsTabs";
@@ -55,82 +43,25 @@ interface FeudPageContentProps {
 }
 
 async function loadGuildFeudData(props: FeudPageContentProps) {
-  const queryOptions = {
-    days: props.days,
-    guildAId: props.guildAId,
-    guildBId: props.guildBId,
-  };
-
-  const [
-    stats,
-    contentMix,
-    topKills,
-    topPlayers,
-    killsPage,
-  ] = await Promise.all([
-    getGuildFeudPageStats(
-      props.region,
-      props.nameA,
-      props.nameB,
-      queryOptions
-    ),
-    getGuildFeudContentMix(
-      props.region,
-      props.nameA,
-      props.nameB,
-      queryOptions
-    ),
-    getGuildFeudTopKills(props.region, props.nameA, props.nameB, {
-      ...queryOptions,
-      limit: 10,
-    }),
-    getGuildFeudTopPlayers(props.region, props.nameA, props.nameB, {
-      ...queryOptions,
-      limit: 5,
-    }),
-    getGuildFeudKillsPage(props.region, props.nameA, props.nameB, {
-      ...queryOptions,
-      limit: FEUD_KILLS_PAGE_SIZE,
-      offset: props.offset,
-    }),
-  ]);
-
-  return { stats, contentMix, topKills, topPlayers, killsPage, guildPairs: [] };
+  return getCachedGuildFeudBundle(
+    props.region,
+    props.nameA,
+    props.nameB,
+    props.days,
+    props.guildAId,
+    props.guildBId,
+    props.offset
+  );
 }
 
 async function loadAllianceFeudData(props: FeudPageContentProps) {
-  const queryOptions = { days: props.days };
-
-  const [
-    stats,
-    contentMix,
-    topKills,
-    topPlayers,
-    killsPage,
-    guildPairs,
-  ] = await Promise.all([
-    getAllianceFeudPageStats(props.region, props.idA, props.idB, props.days),
-    getAllianceFeudContentMix(props.region, props.idA, props.idB, props.days),
-    getAllianceFeudTopKills(props.region, props.idA, props.idB, {
-      ...queryOptions,
-      limit: 10,
-    }),
-    getAllianceFeudTopPlayers(props.region, props.idA, props.idB, {
-      ...queryOptions,
-      limit: 5,
-    }),
-    getAllianceFeudKillsPage(props.region, props.idA, props.idB, {
-      ...queryOptions,
-      limit: FEUD_KILLS_PAGE_SIZE,
-      offset: props.offset,
-    }),
-    getAllianceFeudGuildPairs(props.region, props.idA, props.idB, {
-      ...queryOptions,
-      limit: 8,
-    }),
-  ]);
-
-  return { stats, contentMix, topKills, topPlayers, killsPage, guildPairs };
+  return getCachedAllianceFeudBundle(
+    props.region,
+    props.idA,
+    props.idB,
+    props.days,
+    props.offset
+  );
 }
 
 export async function FeudPageContent(props: FeudPageContentProps) {

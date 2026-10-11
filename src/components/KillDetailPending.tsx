@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useVisibilityAwareInterval } from "@/components/useVisibilityAwareInterval";
 import { Loader2 } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,14 +15,11 @@ interface KillDetailPendingProps {
 
 export function KillDetailPending({ region, eventId }: KillDetailPendingProps) {
   const router = useRouter();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      router.refresh();
-    }, 5000);
-
-    return () => clearInterval(interval);
+  const refresh = useCallback(() => {
+    router.refresh();
   }, [router]);
+
+  useVisibilityAwareInterval(refresh, 5000);
 
   return (
     <div className="space-y-6">

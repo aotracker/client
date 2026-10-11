@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useVisibilityAwareInterval } from "@/components/useVisibilityAwareInterval";
 import { Loader2 } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,13 +38,11 @@ export function ProfileFetchPending({
   const tRegions = useTranslations("Common.regions");
   const tKinds = useTranslations("Common.entityKinds");
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      router.refresh();
-    }, 5000);
-
-    return () => clearInterval(interval);
+  const refresh = useCallback(() => {
+    router.refresh();
   }, [router]);
+
+  useVisibilityAwareInterval(refresh, 5000);
 
   const jobKey =
     jobState === "waiting" ||

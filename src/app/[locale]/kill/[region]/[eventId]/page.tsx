@@ -1,10 +1,17 @@
 import { cache, Suspense } from "react";
+import { after } from "next/server";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getLocaleDefinition } from "@/i18n/locales";
 import { getKillEvent } from "@/lib/db/queries";
 import { ensureKillEventQueued } from "@/lib/jobs/queue";
+import {
+  isLikelyKillUrlScraper,
+  logLikelyKillScraper,
+  shouldSkipScannerKillIngest,
+} from "@/lib/bot-traffic";
 import type { AlbionEvent, AlbionRegion } from "@/lib/albion/types";
 import { isRegionEnabled } from "@/lib/albion/types";
 import { resolveGuildAtKill } from "@/lib/albion/player-history";
@@ -50,9 +57,21 @@ const loadKillEvent = cache(async function loadKillEvent(
   const event = await getKillEvent(region, eventId);
   if (event) return { event, pending: false as const };
 
-  await ensureKillEventQueued(region, eventId);
   return { event: null, pending: true as const };
 });
+
+function scheduleKillMissIngest(region: AlbionRegion, eventId: number) {
+  after(async () => {
+    const headerStore = await headers();
+    const likelyScanner = isLikelyKillUrlScraper(headerStore);
+    const skipIngest = likelyScanner && shouldSkipScannerKillIngest();
+    if (likelyScanner) {
+      logLikelyKillScraper({ region, eventId, skipIngest });
+    }
+    if (skipIngest) return;
+    await ensureKillEventQueued(region, eventId);
+  });
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, region, eventId } = await params;
@@ -114,6 +133,7 @@ export default async function KillDetailPage({ params }: PageProps) {
   const result = await loadKillEvent(albionRegion, parsedEventId);
 
   if (result.pending) {
+    scheduleKillMissIngest(albionRegion, parsedEventId);
     return <KillDetailPending region={region} eventId={parsedEventId} />;
   }
 

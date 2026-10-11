@@ -65,8 +65,11 @@ Discord OAuth redirects (same app as the bot): `http://localhost:3000/api/auth/c
 | `JOBS_SOURCE` | Worker label — set by PM2 on VM |
 | `DATABASE_USE_POOLER` | Defaults to `false`. Confirmed: omit on Vercel (no PgBouncer). Only set `true` if `DATABASE_URL` uses a transaction pooler. |
 | `DATABASE_POOL_MAX` | Defaults to `1` on Vercel (`VERCEL=1` auto-detected) |
+| `KILL_MISS_SKIP_SCANNER_INGEST` | Optional. Set `true` to skip ingest enqueue on high-confidence kill URL scrapers (logs `[kill-miss] likely scanner` either way). Default: unset = always enqueue after miss. |
 
 Copy [.env.example](.env.example) for local development.
+
+After Fluid cost fixes deploy, use [scripts/fluid-metrics-checklist.md](scripts/fluid-metrics-checklist.md) to compare Vercel log exports.
 
 ## Local development
 

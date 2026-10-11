@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useVisibilityAwareInterval } from "@/components/useVisibilityAwareInterval";
 import { ClockAlert, Loader2, RefreshCw } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
 import { InlineAlert } from "@/components/InlineAlert";
@@ -80,13 +81,12 @@ export function BattleDetailPending({
   const apiWaitLabel =
     jobInfo?.apiWaitMs != null ? formatDuration(jobInfo.apiWaitMs) : null;
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     if (failed) return;
-    const interval = setInterval(() => {
-      router.refresh();
-    }, 5000);
-    return () => clearInterval(interval);
+    router.refresh();
   }, [router, failed]);
+
+  useVisibilityAwareInterval(refresh, 5000);
 
   function handleRetry() {
     setRetryError(null);
