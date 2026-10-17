@@ -251,6 +251,7 @@
       "statusLastKills": "Última publicación de kills",
       "statusLastDeaths": "Última publicación de muertes",
       "statusLastActivity": "Últimas publicaciones",
+      "deliveryDisabled": "Publicación desactivada: {reason}. Corrige los permisos del bot y vuelve a seleccionar el canal.",
       "neverPosted": "Nunca",
       "channelUnset": "Sin asignar",
       "channelsMissingToken": "La lista de canales necesita DISCORD_BOT_TOKEN en la app web (el mismo token del bot que en ingest). Añádelo a client/.env en local y a Vercel, luego reinicia/redepliega.",

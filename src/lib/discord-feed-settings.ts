@@ -87,6 +87,10 @@ export async function listServerFeedSummaries(
       region: row.region,
       channelId: row.channelId,
       enabled: row.enabled,
+      deliveryStatus: row.deliveryStatus,
+      deliveryErrorCode: row.deliveryErrorCode,
+      deliveryErrorMessage: row.deliveryErrorMessage,
+      deliveryErrorAt: row.deliveryErrorAt?.toISOString() ?? null,
       filters: parseFeedFilters(row.filters),
       lastPostedAt: lastByFeed.get(row.id) ?? null,
     }));
@@ -280,8 +284,19 @@ export async function setDiscordFeedChannel(
   const patch: {
     channelId: string;
     updatedAt: Date;
+    deliveryStatus: string;
+    deliveryErrorCode: null;
+    deliveryErrorMessage: null;
+    deliveryErrorAt: null;
     filters?: DiscordFeedFilters;
-  } = { channelId, updatedAt: now };
+  } = {
+    channelId,
+    updatedAt: now,
+    deliveryStatus: "healthy",
+    deliveryErrorCode: null,
+    deliveryErrorMessage: null,
+    deliveryErrorAt: null,
+  };
   if (!feed.channelId) {
     patch.filters = {
       ...parseFeedFilters(feed.filters),

@@ -28,6 +28,10 @@ export type FeedSummary = {
   region: "americas" | "europe" | "asia";
   channelId: string | null;
   enabled: number;
+  deliveryStatus: string;
+  deliveryErrorCode: string | null;
+  deliveryErrorMessage: string | null;
+  deliveryErrorAt: string | null;
   filters: DiscordFeedFilters;
   lastPostedAt: string | null;
 };

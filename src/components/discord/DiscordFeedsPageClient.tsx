@@ -371,6 +371,10 @@ export function DiscordFeedsPageClient({
   const deaths = feedOf(detail?.feeds ?? [], FEED_GUILD_DEATHS);
   const battles = feedOf(detail?.feeds ?? [], FEED_GUILD_BATTLES);
   const live = feedOf(detail?.feeds ?? [], FEED_GUILD_LIVE);
+  const deliveryErrors = [kills, deaths, battles, live].filter(
+    (feed): feed is FeedSummary =>
+      Boolean(feed && feed.deliveryStatus !== "healthy")
+  );
   const trackedName =
     kills?.targetName ??
     deaths?.targetName ??
@@ -640,6 +644,25 @@ export function DiscordFeedsPageClient({
                       }
                     />
                   </div>
+                  {deliveryErrors.length > 0 ? (
+                    <div className="mt-3 flex gap-3 rounded-lg border border-danger/30 bg-danger/10 px-4 py-3">
+                      <AlertTriangle
+                        className="mt-0.5 h-4 w-4 shrink-0 text-danger-foreground"
+                        aria-hidden
+                      />
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        {deliveryErrors.map((feed) => (
+                          <p key={feed.id}>
+                            {t("deliveryDisabled", {
+                              reason: feed.deliveryErrorMessage ??
+                                feed.deliveryErrorCode ??
+                                "Discord access is unavailable",
+                            })}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
 

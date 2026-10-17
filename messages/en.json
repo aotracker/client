@@ -251,6 +251,7 @@
       "statusLastKills": "Last kills post",
       "statusLastDeaths": "Last deaths post",
       "statusLastActivity": "Last posts",
+      "deliveryDisabled": "Posting disabled: {reason}. Re-select the channel after fixing the bot permissions.",
       "neverPosted": "Never",
       "channelUnset": "Not set",
       "channelsMissingToken": "Channel list needs DISCORD_BOT_TOKEN on the web app (same bot token as ingest). Add it to client/.env locally and to Vercel env, then restart/redeploy.",
